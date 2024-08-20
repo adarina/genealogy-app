@@ -1,0 +1,49 @@
+POST http://localhost:8080/api/v1/genealogy/register
+Content-Type: application/json
+
+{
+  "firstname": "John",
+  "lastname": "Smith",
+  "phone": "123456789",
+  "username": "admi@admin.com",
+  "password": "admin1234",
+  "role": "ROLE_ADMIN"
+}
+
+###
+POST http://localhost:8080/api/v1/genealogy/login
+Content-Type: application/json
+
+{
+  "username": "admi@admin.com",
+  "password": "admin1234"
+}
+
+###
+
+GET http://localhost:8080/api/v1/genealogy/all
+Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1c2VyQHVzZXIuY29tIiwicm9sZXMiOlsiUk9MRV9VU0VSIl0sImlzcyI6IkVtaW5lbSJ9.n_lD_OQdDvY_HMKjuhUBanGKqElVGUarJh4koVZavkU
+
+###
+
+POST http://localhost:8080/api/v1/genealogy/register
+Content-Type: application/json
+
+{
+  "firstname": "John",
+  "lastname": "Smith",
+  "phone": "123456789",
+  "username": "user@user.com",
+  "password": "user1234",
+  "role": "ROLE_USER"
+}
+
+###
+POST http://localhost:8080/api/v1/genealogy/login
+Content-Type: application/json
+
+{
+  "username": "user@user.com",
+  "password": "user1234"
+}
+
