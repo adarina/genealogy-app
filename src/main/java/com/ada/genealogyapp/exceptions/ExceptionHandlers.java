@@ -15,14 +15,6 @@ public class ExceptionHandlers {
 
     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
-    @ExceptionHandler(ExternalApiException.class)
-    public ResponseEntity<ExceptionResponse> handleExternalApiException(ExternalApiException ex) {
-
-        return ResponseEntity.status(HttpStatus.CONFLICT)
-                .body(ExceptionResponse.builder()
-                        .errorTime(LocalDateTime.now().format(formatter))
-                        .message(ex.getMessage()).build());
-    }
 
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<ExceptionResponse> handleIllegalArgumentException(IllegalArgumentException ex) {
@@ -63,6 +55,30 @@ public class ExceptionHandlers {
                         .errorTime(LocalDateTime.now().format(formatter))
                         .message("Invalid parameter: " + ex.getName() + ". Expected type: " + ex.getRequiredType().getSimpleName())
                         .build());
+    }
+
+    @ExceptionHandler(UserAlreadyExistsException.class)
+    public ResponseEntity<ExceptionResponse> handleUserAlreadyExistsException(UserAlreadyExistsException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(ExceptionResponse.builder()
+                        .errorTime(LocalDateTime.now().format(formatter))
+                        .message(ex.getMessage()).build());
+    }
+
+    @ExceptionHandler(InvalidCredentialsException.class)
+    public ResponseEntity<ExceptionResponse> handleInvalidCredentialsException(InvalidCredentialsException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(ExceptionResponse.builder()
+                        .errorTime(LocalDateTime.now().format(formatter))
+                        .message(ex.getMessage()).build());
+    }
+
+    @ExceptionHandler(UserValidationException.class)
+    public ResponseEntity<ExceptionResponse> handleUserValidationException(UserValidationException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(ExceptionResponse.builder()
+                        .errorTime(LocalDateTime.now().format(formatter))
+                        .message(ex.getMessage()).build());
     }
 }
 

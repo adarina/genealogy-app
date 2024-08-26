@@ -34,9 +34,12 @@ public class User implements Serializable, UserDetails {
 
     private String phone;
 
+    @ToString.Exclude
     private String password;
 
     private String role;
+
+//    private boolean isEnabled;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

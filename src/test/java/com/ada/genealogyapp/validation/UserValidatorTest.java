@@ -12,8 +12,6 @@ public class UserValidatorTest {
 
     private UserValidator userValidator;
 
-    private User user;
-
     @BeforeEach
     void setUp() {
         userValidator = UserValidator.link(
@@ -23,17 +21,21 @@ public class UserValidatorTest {
                 new PhoneUserValidator(),
                 new PasswordUserValidator()
         );
+    }
 
-        user = new User();
-        user.setFirstname("Marek");
+    private User createUser() {
+        User user = new User();
+        user.setFirstname("John");
         user.setLastname("Smith");
-        user.setUsername("marek@m.com");
+        user.setUsername("john.smith@email.com");
         user.setPhone("123456789");
         user.setPassword("password123");
+        return user;
     }
 
     @Test
     void shouldFailWhenFirstnameIsNull() {
+        User user = createUser();
         user.setFirstname(null);
 
         assertFalse(userValidator.check(user));
@@ -41,6 +43,7 @@ public class UserValidatorTest {
 
     @Test
     void shouldFailWhenFirstnameIsEmpty() {
+        User user = createUser();
         user.setFirstname("");
 
         assertFalse(userValidator.check(user));
@@ -48,6 +51,7 @@ public class UserValidatorTest {
 
     @Test
     void shouldFailWhenFirstnameIsBlank() {
+        User user = createUser();
         user.setFirstname(" ");
 
         assertFalse(userValidator.check(user));
@@ -55,6 +59,7 @@ public class UserValidatorTest {
 
     @Test
     void shouldFailWhenFirstnameHasInvalidFormat() {
+        User user = createUser();
         user.setFirstname("Marek$");
 
         assertFalse(userValidator.check(user));
@@ -62,6 +67,7 @@ public class UserValidatorTest {
 
     @Test
     void shouldFailWhenLastnameIsNull() {
+        User user = createUser();
         user.setLastname(null);
 
         assertFalse(userValidator.check(user));
@@ -69,6 +75,7 @@ public class UserValidatorTest {
 
     @Test
     void shouldFailWhenLastnameIsEmpty() {
+        User user = createUser();
         user.setLastname("");
 
         assertFalse(userValidator.check(user));
@@ -76,6 +83,7 @@ public class UserValidatorTest {
 
     @Test
     void shouldFailWhenLastnameIsBlank() {
+        User user = createUser();
         user.setLastname(" ");
 
         assertFalse(userValidator.check(user));
@@ -83,13 +91,15 @@ public class UserValidatorTest {
 
     @Test
     void shouldFailWhenLastnameHasInvalidFormat() {
-        user.setLastname("Marek$");
+        User user = createUser();
+        user.setLastname("John$");
 
         assertFalse(userValidator.check(user));
     }
 
     @Test
     void shouldFailWhenUsernameIsNull() {
+        User user = createUser();
         user.setUsername(null);
 
         assertFalse(userValidator.check(user));
@@ -97,6 +107,7 @@ public class UserValidatorTest {
 
     @Test
     void shouldFailWhenUsernameIsEmpty() {
+        User user = createUser();
         user.setUsername("");
 
         assertFalse(userValidator.check(user));
@@ -104,6 +115,7 @@ public class UserValidatorTest {
 
     @Test
     void shouldFailWhenUsernameIsBlank() {
+        User user = createUser();
         user.setUsername(" ");
 
         assertFalse(userValidator.check(user));
@@ -111,34 +123,39 @@ public class UserValidatorTest {
 
     @Test
     void shouldFailWhenUsernameHasInvalidFormat() {
-        user.setUsername("marek");
+        User user = createUser();
+        user.setUsername("john");
 
         assertFalse(userValidator.check(user));
     }
 
     @Test
     void shouldPassWhenUsernameIsValid() {
-        user.setUsername("mareksmith@onet.com");
+        User user = createUser();
+        user.setUsername("john.smith@email.com");
 
         assertTrue(userValidator.check(user));
     }
 
     @Test
     void shouldFailWhenNameContainsNonAlphabeticCharacters() {
-        user.setFirstname("marek1234");
+        User user = createUser();
+        user.setFirstname("John1234");
 
         assertFalse(userValidator.check(user));
     }
 
     @Test
     void shouldPassWhenNameIsValid() {
-        user.setFirstname("Marek");
+        User user = createUser();
+        user.setFirstname("John");
 
         assertTrue(userValidator.check(user));
     }
 
     @Test
     void shouldFailWhenPasswordIsTooShort() {
+        User user = createUser();
         user.setPassword("short");
 
         assertFalse(userValidator.check(user));
@@ -146,6 +163,7 @@ public class UserValidatorTest {
 
     @Test
     void shouldPassWhenPasswordIsValid() {
+        User user = createUser();
         user.setPassword("password123");
 
         assertTrue(userValidator.check(user));
@@ -153,6 +171,7 @@ public class UserValidatorTest {
 
     @Test
     void shouldFailWhenPhoneIsInvalid() {
+        User user = createUser();
         user.setPhone("12345abc");
 
         assertFalse(userValidator.check(user));
@@ -160,6 +179,7 @@ public class UserValidatorTest {
 
     @Test
     void shouldPassWhenPhoneIsValid() {
+        User user = createUser();
         user.setPhone("123456789");
 
         assertTrue(userValidator.check(user));
@@ -167,6 +187,7 @@ public class UserValidatorTest {
 
     @Test
     void shouldFailWhenLastnameContainsNonAlphabeticCharacters() {
+        User user = createUser();
         user.setLastname("Smith1234");
 
         assertFalse(userValidator.check(user));
@@ -174,6 +195,7 @@ public class UserValidatorTest {
 
     @Test
     void shouldPassWhenSurnameIsValid() {
+        User user = createUser();
         user.setLastname("Smith");
 
         assertTrue(userValidator.check(user));

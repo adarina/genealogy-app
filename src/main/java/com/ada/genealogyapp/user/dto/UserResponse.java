@@ -12,12 +12,12 @@ import java.util.function.Function;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @ToString
 @EqualsAndHashCode
-public class GetUserResponse {
+public class UserResponse {
 
     private String username;
 
-    public static Function<User, GetUserResponse> entityToDtoMapper() {
-        return user -> GetUserResponse.builder()
+    public static Function<User, UserResponse> entityToDtoMapper() {
+        return user -> UserResponse.builder()
                 .username(user.getUsername())
                 .build();
     }

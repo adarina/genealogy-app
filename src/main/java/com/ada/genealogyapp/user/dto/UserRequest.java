@@ -12,7 +12,7 @@ import java.util.function.Function;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @ToString
 @EqualsAndHashCode
-public class CreateUserRequest {
+public class UserRequest {
 
     private String firstname;
 
@@ -26,7 +26,7 @@ public class CreateUserRequest {
 
     private String role;
 
-    public static Function<CreateUserRequest, User> dtoToEntityMapper() {
+    public static Function<UserRequest, User> dtoToEntityMapper() {
         return request -> User.builder()
                 .firstname(request.getFirstname())
                 .lastname(request.getLastname())

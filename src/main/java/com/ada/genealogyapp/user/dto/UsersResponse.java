@@ -13,7 +13,7 @@ import java.util.function.Function;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @ToString
 @EqualsAndHashCode
-public class GetUsersResponse {
+public class UsersResponse {
 
     @Getter
     @Setter
@@ -38,9 +38,9 @@ public class GetUsersResponse {
     private List<User> users;
 
     public static Function<Collection<com.ada.genealogyapp.user.model.User>,
-            GetUsersResponse> entityToDtoMapper() {
+            UsersResponse> entityToDtoMapper() {
         return users -> {
-            GetUsersResponseBuilder response = GetUsersResponse.builder();
+            UsersResponseBuilder response = UsersResponse.builder();
             users.stream()
                     .map(user -> User.builder()
                             .id(user.getId())

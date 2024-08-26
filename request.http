@@ -5,7 +5,7 @@ Content-Type: application/json
   "firstname": "John",
   "lastname": "Smith",
   "phone": "123456789",
-  "username": "admi@admin.com",
+  "username": "admi@admim.com",
   "password": "admin1234",
   "role": "ROLE_ADMIN"
 }
@@ -15,14 +15,25 @@ POST http://localhost:8080/api/v1/genealogy/login
 Content-Type: application/json
 
 {
-  "username": "admi@admin.com",
+  "username": "admi@admim.com",
   "password": "admin1234"
 }
 
 ###
 
 GET http://localhost:8080/api/v1/genealogy/all
-Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1c2VyQHVzZXIuY29tIiwicm9sZXMiOlsiUk9MRV9VU0VSIl0sImlzcyI6IkVtaW5lbSJ9.n_lD_OQdDvY_HMKjuhUBanGKqElVGUarJh4koVZavkU
+Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pQGFkbWltLmNvbSIsInJvbGVzIjpbIlJPTEVfQURNSU4iXSwiaXNzIjoiQWRhIn0.Nc0aRKmCK1vxBnESM1xZT6IM741LPRobqkqPZzJGICA
+
+###
+
+
+GET http://localhost:8080/api/v1/genealogy/all/id
+Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pQGFkbWltLmNvbSIsInJvbGVzIjpbIlJPTEVfQURNSU4iXSwiaXNzIjoiQWRhIn0.Nc0aRKmCK1vxBnESM1xZT6IM741LPRobqkqPZzJGICA
+Content-Type: application/json
+
+{
+  "id": "1"
+}
 
 ###
 
@@ -46,4 +57,13 @@ Content-Type: application/json
   "username": "user@user.com",
   "password": "user1234"
 }
+###
+DELETE http://localhost:8080/api/v1/genealogy/delete
+Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pQGFkbWltLmNvbSIsInJvbGVzIjpbIlJPTEVfQURNSU4iXSwiaXNzIjoiQWRhIn0.Nc0aRKmCK1vxBnESM1xZT6IM741LPRobqkqPZzJGICA
+Content-Type: application/json
 
+{
+  "username": "admi@adminnn.com"
+}
+
+###
