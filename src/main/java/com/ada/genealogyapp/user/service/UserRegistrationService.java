@@ -2,6 +2,8 @@ package com.ada.genealogyapp.user.service;
 
 import com.ada.genealogyapp.exceptions.UserAlreadyExistsException;
 import com.ada.genealogyapp.exceptions.UserValidationException;
+import com.ada.genealogyapp.person.repostitory.PersonRepository;
+import com.ada.genealogyapp.person.service.PersonService;
 import com.ada.genealogyapp.user.dto.*;
 import com.ada.genealogyapp.user.model.User;
 import lombok.extern.slf4j.Slf4j;
@@ -17,10 +19,14 @@ public class UserRegistrationService {
 
     private final UserValidationService userValidationService;
 
-    public UserRegistrationService(UserService userService, UserSearchService userSearchService, UserValidationService userValidationService) {
+    private final PersonService personService;
+
+    public UserRegistrationService(UserService userService, UserSearchService userSearchService, UserValidationService userValidationService, PersonRepository personRepository, PersonService personService) {
         this.userService = userService;
         this.userSearchService = userSearchService;
         this.userValidationService = userValidationService;
+        this.personService = personService;
+
     }
 
     public boolean registerUser(UserRequest request) {

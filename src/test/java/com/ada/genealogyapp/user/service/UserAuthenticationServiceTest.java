@@ -1,7 +1,7 @@
-package com.ada.genealogyapp.service;
+package com.ada.genealogyapp.user.service;
 
-import com.ada.genealogyapp.IntegrationTestConfig;
-import com.ada.genealogyapp.user.dto.LoginRequest;
+import com.ada.genealogyapp.config.IntegrationTestConfig;
+import com.ada.genealogyapp.user.dto.UserLoginRequest;
 import com.ada.genealogyapp.user.model.User;
 import com.ada.genealogyapp.user.repository.UserRepository;
 import org.junit.jupiter.api.AfterEach;
@@ -14,12 +14,17 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.transaction.annotation.Transactional;
+
 
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+
+
+
 
 public class UserAuthenticationServiceTest extends IntegrationTestConfig {
 
@@ -40,6 +45,7 @@ public class UserAuthenticationServiceTest extends IntegrationTestConfig {
     }
 
     @Test
+    @Transactional("jpaTransactionManager")
     void shouldLoginSuccessfully() throws Exception {
 
         User user = new User();
@@ -51,19 +57,19 @@ public class UserAuthenticationServiceTest extends IntegrationTestConfig {
         user.setRole("ROLE_USER");
         userRepository.save(user);
 
-        LoginRequest loginRequest = new LoginRequest();
-        loginRequest.setUsername("john.smith@email.com");
-        loginRequest.setPassword("password123");
+        UserLoginRequest userLoginRequest = new UserLoginRequest();
+        userLoginRequest.setUsername("john.smith@email.com");
+        userLoginRequest.setPassword("password123");
 
         UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
 
         when(authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword())))
+                new UsernamePasswordAuthenticationToken(userLoginRequest.getUsername(), userLoginRequest.getPassword())))
                 .thenReturn(authentication);
 
         mockMvc.perform(post("/api/v1/genealogy/login")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(loginRequest)))
+                        .content(objectMapper.writeValueAsString(userLoginRequest)))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.username").value("john.smith@email.com"))
@@ -82,18 +88,21 @@ public class UserAuthenticationServiceTest extends IntegrationTestConfig {
         user.setRole("ROLE_USER");
         userRepository.save(user);
 
-        LoginRequest loginRequest = new LoginRequest();
-        loginRequest.setUsername("john.smith@email.com");
-        loginRequest.setPassword("wrongPassword");
+        System.out.println("OOOOOOOOOOOOOOOOO" + userRepository.findByUsername("Smith"));
+
+
+        UserLoginRequest userLoginRequest = new UserLoginRequest();
+        userLoginRequest.setUsername("john.smith@email.com");
+        userLoginRequest.setPassword("wrongPassword");
 
         when(authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword())))
+                new UsernamePasswordAuthenticationToken(userLoginRequest.getUsername(), userLoginRequest.getPassword())))
                 .thenThrow(new BadCredentialsException("Invalid username or password"));
 
 
         mockMvc.perform(post("/api/v1/genealogy/login")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(loginRequest)))
+                        .content(objectMapper.writeValueAsString(userLoginRequest)))
                 .andDo(print())
                 .andExpect(status().isBadRequest());
     }
@@ -110,18 +119,18 @@ public class UserAuthenticationServiceTest extends IntegrationTestConfig {
         user.setRole("ROLE_USER");
         userRepository.save(user);
 
-        LoginRequest loginRequest = new LoginRequest();
-        loginRequest.setUsername("john.rolf@email.com");
-        loginRequest.setPassword("password123");
+        UserLoginRequest userLoginRequest = new UserLoginRequest();
+        userLoginRequest.setUsername("john.rolf@email.com");
+        userLoginRequest.setPassword("password123");
 
         when(authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword())))
+                new UsernamePasswordAuthenticationToken(userLoginRequest.getUsername(), userLoginRequest.getPassword())))
                 .thenThrow(new BadCredentialsException("Invalid username or password"));
 
 
         mockMvc.perform(post("/api/v1/genealogy/login")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(loginRequest)))
+                        .content(objectMapper.writeValueAsString(userLoginRequest)))
                 .andDo(print())
                 .andExpect(status().isBadRequest());
     }

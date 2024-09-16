@@ -5,6 +5,9 @@ import lombok.Setter;
 
 @Setter
 @Getter
-public class GetRequest {
-    private Long id;
+public class UserLoginRequest {
+
+    private String username;
+
+    private String password;
 }

@@ -21,7 +21,6 @@ public class UserService {
         this.userSearchService = userSearchService;
     }
 
-
     @Transactional
     public boolean deleteUserByUsername(String username) {
         Optional<User> user = userSearchService.find(username);
@@ -35,7 +34,7 @@ public class UserService {
         }
     }
 
-    @Transactional
+    @Transactional("jpaTransactionManager")
     public User create(User user) {
         User savedUser = userRepository.save(user);
         log.info("User created successfully: {}", savedUser);

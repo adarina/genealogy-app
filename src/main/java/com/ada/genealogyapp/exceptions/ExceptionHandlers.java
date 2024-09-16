@@ -80,6 +80,22 @@ public class ExceptionHandlers {
                         .errorTime(LocalDateTime.now().format(formatter))
                         .message(ex.getMessage()).build());
     }
+
+    @ExceptionHandler(NodeAlreadyExistsException.class)
+    public ResponseEntity<ExceptionResponse> handleNodeAlreadyExistsException(NodeAlreadyExistsException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(ExceptionResponse.builder()
+                        .errorTime(LocalDateTime.now().format(formatter))
+                        .message(ex.getMessage()).build());
+    }
+
+    @ExceptionHandler(NodeNotFoundException.class)
+    public ResponseEntity<ExceptionResponse> handleNodeNotFoundException(NodeNotFoundException ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(ExceptionResponse.builder()
+                        .errorTime(LocalDateTime.now().format(formatter))
+                        .message(ex.getMessage()).build());
+    }
 }
 
 

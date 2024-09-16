@@ -1,6 +1,6 @@
-package com.ada.genealogyapp.service;
+package com.ada.genealogyapp.user.service;
 
-import com.ada.genealogyapp.IntegrationTestConfig;
+import com.ada.genealogyapp.config.IntegrationTestConfig;
 import com.ada.genealogyapp.user.dto.UserRequest;
 import com.ada.genealogyapp.user.repository.UserRepository;
 import com.ada.genealogyapp.user.model.User;

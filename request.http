@@ -5,7 +5,7 @@ Content-Type: application/json
   "firstname": "John",
   "lastname": "Smith",
   "phone": "123456789",
-  "username": "admi@admim.com",
+  "username": "admin@admin.lol5",
   "password": "admin1234",
   "role": "ROLE_ADMIN"
 }
@@ -15,9 +15,39 @@ POST http://localhost:8080/api/v1/genealogy/login
 Content-Type: application/json
 
 {
-  "username": "admi@admim.com",
+  "username": "admin@admin.lol5",
   "password": "admin1234"
 }
+###
+
+POST http://localhost:8080/api/v1/genealogy/tree
+Content-Type: application/json
+
+{
+    "name": "Smith Family",
+    "userId": 6
+}
+
+###
+
+# curl -X POST "http://localhost:8080/api/v1/genealogy/tree/1/persons"
+#     -H "Content-Type: application/json"
+#     -d '{
+#           "firstname": "John",
+#           "lastname": "Smith",
+#           "birthDate": "1980-01-01"
+#         }'
+POST http://localhost:8080/api/v1/genealogy/tree/3/persons
+Content-Type: application/json
+
+{
+  "firstname": "John",
+  "lastname": "Smith",
+  "birthDate": "1980-01-01"
+}
+
+###
+
 
 ###
 

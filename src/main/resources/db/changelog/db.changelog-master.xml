@@ -6,11 +6,11 @@
                         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.3.xsd">
 
     <changeSet id="create-table" author="Ada">
-        <preConditions onFail="MARK_RAN">
-            <not>
-                <tableExists tableName="users"/>
-            </not>
-        </preConditions>
+<!--        <preConditions onFail="MARK_RAN">-->
+<!--            <not>-->
+<!--                <tableExists tableName="users"/>-->
+<!--            </not>-->
+<!--        </preConditions>-->
         <createTable tableName="users">
             <column name="id" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" nullable="false"/>
@@ -36,11 +36,11 @@
         </createTable>
     </changeSet>
 
-<!--    <changeSet id="add-isEnabled-column" author="Ada">-->
-<!--        <addColumn tableName="users">-->
-<!--            <column name="isEnabled" type="BOOLEAN">-->
-<!--                <constraints nullable="false"/>-->
-<!--            </column>-->
-<!--        </addColumn>-->
-<!--    </changeSet>-->
+    <changeSet id="add-isEnabled-column" author="Ada">
+        <addColumn tableName="users">
+            <column name="is_enabled" type="BOOLEAN">
+
+            </column>
+        </addColumn>
+    </changeSet>
 </databaseChangeLog>

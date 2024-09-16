@@ -9,6 +9,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.util.Collection;
 import java.util.Collections;
 import java.io.Serializable;
+import java.util.UUID;
 
 @Getter
 @Setter
@@ -39,7 +40,7 @@ public class User implements Serializable, UserDetails {
 
     private String role;
 
-//    private boolean isEnabled;
+    private boolean isEnabled;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -63,7 +64,7 @@ public class User implements Serializable, UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return true;
+        return isEnabled;
     }
 
 }

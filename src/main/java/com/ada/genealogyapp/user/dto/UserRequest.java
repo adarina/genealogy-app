@@ -34,6 +34,7 @@ public class UserRequest {
                 .phone(request.getPhone())
                 .password(request.getPassword())
                 .role(request.getRole())
+                .isEnabled(true)
                 .build();
     }
 }

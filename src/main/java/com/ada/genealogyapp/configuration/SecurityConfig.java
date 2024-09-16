@@ -55,6 +55,7 @@ public class SecurityConfig {
                         authorizationManagerRequestMatcherRegistry.requestMatchers(HttpMethod.DELETE).hasRole("ADMIN")
                                 .requestMatchers("/api/v1/genealogy/login").permitAll()
                                 .requestMatchers("/api/v1/genealogy/register").permitAll()
+                                .requestMatchers("/api/v1/genealogy/tree/**").permitAll()
                                 .requestMatchers("/api/v1/genealogy/all/**").hasRole("ADMIN")
                                 .requestMatchers("/api/v1/genealogy/delete").hasRole("ADMIN")
                                 .anyRequest().authenticated())

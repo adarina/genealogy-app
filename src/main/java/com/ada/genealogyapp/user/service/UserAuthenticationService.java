@@ -1,8 +1,8 @@
 package com.ada.genealogyapp.user.service;
 
 import com.ada.genealogyapp.exceptions.InvalidCredentialsException;
-import com.ada.genealogyapp.user.dto.LoginRequest;
-import com.ada.genealogyapp.user.dto.LoginResponse;
+import com.ada.genealogyapp.user.dto.UserLoginRequest;
+import com.ada.genealogyapp.user.dto.UserLoginResponse;
 import com.ada.genealogyapp.user.model.User;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
@@ -34,21 +34,21 @@ public class UserAuthenticationService {
         this.userSearchService = userSearchService;
     }
 
-    public LoginResponse loginUser(LoginRequest loginRequest) {
+    public UserLoginResponse loginUser(UserLoginRequest userLoginRequest) {
 
         BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
 
-        User user = userSearchService.findByUsername(loginRequest.getUsername())
-                .orElseThrow(() -> new InvalidCredentialsException("Invalid username or password for username: " + loginRequest.getUsername()));
+        User user = userSearchService.findByUsername(userLoginRequest.getUsername())
+                .orElseThrow(() -> new InvalidCredentialsException("Invalid username or password for username: " + userLoginRequest.getUsername()));
 
-        if (!encoder.matches(loginRequest.getPassword(), user.getPassword())) {
-            log.error("Invalid username or password for username: {}", loginRequest.getUsername());
-            throw new InvalidCredentialsException("Invalid username or password for username: " + loginRequest.getUsername());
+        if (!encoder.matches(userLoginRequest.getPassword(), user.getPassword())) {
+            log.error("Invalid username or password for username: {}", userLoginRequest.getUsername());
+            throw new InvalidCredentialsException("Invalid username or password for username: " + userLoginRequest.getUsername());
         }
 
         try {
             Authentication authentication = authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
+                    new UsernamePasswordAuthenticationToken(userLoginRequest.getUsername(), userLoginRequest.getPassword()));
 
             user = (User) authentication.getPrincipal();
 
@@ -64,10 +64,10 @@ public class UserAuthenticationService {
                     .sign(algorithm);
 
             log.info("JWT token generated successfully for user: {}", user.getUsername());
-            return new LoginResponse(user.getUsername(), token, user.getId(), user.getRole());
+            return new UserLoginResponse(user.getUsername(), token, user.getId(), user.getRole());
         } catch (Exception exception) {
-            log.error("Login failed for user: {}", loginRequest.getUsername());
-            throw new InvalidCredentialsException("Login failed for user: " + loginRequest.getUsername());
+            log.error("Login failed for user: {}", userLoginRequest.getUsername());
+            throw new InvalidCredentialsException("Login failed for user: " + userLoginRequest.getUsername());
         }
     }
 }

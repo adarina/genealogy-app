@@ -5,7 +5,7 @@ import lombok.Setter;
 
 @Setter
 @Getter
-public class DeleteRequest {
+public class UserDeleteRequest {
 
     private String username;
 }
