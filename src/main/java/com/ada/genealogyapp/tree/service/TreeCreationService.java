@@ -1,7 +1,7 @@
 package com.ada.genealogyapp.tree.service;
 
 import com.ada.genealogyapp.exceptions.NodeAlreadyExistsException;
-import com.ada.genealogyapp.person.service.PersonService;
+import com.ada.genealogyapp.person.service.PersonManagementService;
 import com.ada.genealogyapp.tree.dto.TreeRequest;
 import com.ada.genealogyapp.tree.model.Tree;
 import com.ada.genealogyapp.tree.repository.TreeRepository;
@@ -16,11 +16,11 @@ public class TreeCreationService {
 
     private final TreeRepository treeRepository;
 
-    private final PersonService personService;
+    private final PersonManagementService personService;
 
     private final TreeSearchService treeSearchService;
 
-    public TreeCreationService(TreeRepository treeRepository, PersonService personService, TreeSearchService treeSearchService) {
+    public TreeCreationService(TreeRepository treeRepository, PersonManagementService personService, TreeSearchService treeSearchService) {
         this.treeRepository = treeRepository;
         this.personService = personService;
         this.treeSearchService = treeSearchService;

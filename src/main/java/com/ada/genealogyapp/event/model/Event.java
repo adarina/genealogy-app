@@ -1,15 +1,15 @@
 package com.ada.genealogyapp.event.model;
 
-
-import com.ada.genealogyapp.person.model.Person;
+import com.ada.genealogyapp.source.model.Source;
+import com.ada.genealogyapp.tree.model.Tree;
 import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.neo4j.core.schema.GeneratedValue;
 import org.springframework.data.neo4j.core.schema.Node;
 import org.springframework.data.neo4j.core.schema.Relationship;
-import java.util.HashSet;
 
 import java.time.LocalDate;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
@@ -26,19 +26,28 @@ public class Event {
     @GeneratedValue
     private UUID id;
 
-    public Type type;
+    public EventType eventType;
 
-    private LocalDate eventDate;
+    private LocalDate date;
 
     private String place;
 
     private String description;
 
 
-//    @Relationship(type = "PARTICIPATES_IN", direction = Relationship.Direction.INCOMING)
-//    private Set<Person> participants = new HashSet<>();
+    @Relationship(type = "HAS_SOURCE", direction = Relationship.Direction.OUTGOING)
+    private Set<Source> sources = new HashSet<>();
+
+    @Relationship(type = "HAS_EVENT", direction = Relationship.Direction.INCOMING)
+    private Tree tree;
 
 
 
-
+    public Event(EventType eventType, LocalDate date, String place, String description, Tree tree) {
+        this.eventType = eventType;
+        this.date = date;
+        this.place = place;
+        this.description = description;
+        this.tree = tree;
+    }
 }

@@ -1,10 +1,9 @@
 package com.ada.genealogyapp.event.service;
 
 
+import com.ada.genealogyapp.event.dto.EventRequest;
 import com.ada.genealogyapp.event.model.Event;
 import com.ada.genealogyapp.event.repository.EventRepository;
-import com.ada.genealogyapp.family.model.Family;
-import com.ada.genealogyapp.family.repostitory.FamilyRepository;
 import com.ada.genealogyapp.tree.model.Tree;
 import com.ada.genealogyapp.tree.repository.TreeRepository;
 import com.ada.genealogyapp.tree.service.TreeSearchService;
@@ -37,13 +36,15 @@ public class EventCreationService {
         return savedEvent;
     }
 
-    public void createEvent(UUID treeId) {
-        Event event = new Event();
+    public void createEvent(UUID treeId, EventRequest eventRequest) {
+        Event event = EventRequest.dtoToEntityMapper().apply(eventRequest);
 
         Tree tree = treeSearchService.findTreeById(treeId);
         tree.getEvents().add(event);
 
         create(event);
         treeRepository.save(tree);
+
+        log.info("Event created successfully: {}", event.getEventType());
     }
 }

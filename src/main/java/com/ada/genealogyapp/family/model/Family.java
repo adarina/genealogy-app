@@ -1,6 +1,8 @@
 package com.ada.genealogyapp.family.model;
 
+import com.ada.genealogyapp.event.model.Event;
 import com.ada.genealogyapp.person.model.Person;
+import com.ada.genealogyapp.tree.model.Tree;
 import lombok.*;
 import org.springframework.data.neo4j.core.schema.GeneratedValue;
 import org.springframework.data.neo4j.core.schema.Id;
@@ -24,10 +26,21 @@ public class Family {
     @GeneratedValue
     private UUID id;
 
-    @Relationship(type = "HAS_MEMBER", direction = Relationship.Direction.OUTGOING)
-    private Set<Person> members = new HashSet<>();
+    @Relationship(type = "HAS_FATHER", direction = Relationship.Direction.OUTGOING)
+    private Person father;
 
-    public void addMember(Person person) {
-        members.add(person);
-    }
+    @Relationship(type = "HAS_MOTHER", direction = Relationship.Direction.OUTGOING)
+    private Person mother;
+
+    @Relationship(type = "HAS_CHILD", direction = Relationship.Direction.OUTGOING)
+    private Set<Person> children = new HashSet<>();
+
+    @Relationship(type = "HAS_FAMILY_EVENT", direction = Relationship.Direction.OUTGOING)
+    private Set<Event> events = new HashSet<>();
+
+    @Relationship(type = "HAS_FAMILY", direction = Relationship.Direction.INCOMING)
+    private Tree familyTree;
+
+
+
 }

@@ -1,5 +1,6 @@
 package com.ada.genealogyapp.person.service;
 
+import com.ada.genealogyapp.exceptions.NodeNotFoundException;
 import com.ada.genealogyapp.person.model.Person;
 import com.ada.genealogyapp.person.repostitory.PersonRepository;
 import com.ada.genealogyapp.user.model.User;
@@ -28,5 +29,10 @@ public class PersonSearchService {
             log.warn("No person found with ID: {}", id);
         }
         return person;
+    }
+
+    public Person findPersonById(UUID personId) {
+        return personRepository.findById(personId)
+                .orElseThrow(() -> new NodeNotFoundException("No person found with ID: " + personId));
     }
 }

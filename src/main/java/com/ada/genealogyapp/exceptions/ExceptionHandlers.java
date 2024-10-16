@@ -96,6 +96,14 @@ public class ExceptionHandlers {
                         .errorTime(LocalDateTime.now().format(formatter))
                         .message(ex.getMessage()).build());
     }
+
+    @ExceptionHandler(EventTypeApplicableException.class)
+    public ResponseEntity<ExceptionResponse> handleEventTypeApplicableException(EventTypeApplicableException ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(ExceptionResponse.builder()
+                        .errorTime(LocalDateTime.now().format(formatter))
+                        .message(ex.getMessage()).build());
+    }
 }
 
 

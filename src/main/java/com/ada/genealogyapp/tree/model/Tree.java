@@ -29,12 +29,6 @@ public class Tree {
 
     private String name;
 
-    @Relationship(type = "HAS_PERSON", direction = Relationship.Direction.OUTGOING)
-    private Set<Person> persons = new HashSet<>();
-
-    @Relationship(type = "HAS_FAMILY", direction = Relationship.Direction.OUTGOING)
-    private Set<Family> families = new HashSet<>();
-
     @Relationship(type = "HAS_EVENT", direction = Relationship.Direction.OUTGOING)
     private Set<Event> events = new HashSet<>();
 

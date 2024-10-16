@@ -1,13 +1,26 @@
 package com.ada.genealogyapp.person.controller;
 
+import com.ada.genealogyapp.person.dto.PersonRequest;
+import com.ada.genealogyapp.person.service.PersonManagementService;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("api/v1/genealogy/tree/{treeId}/persons/{personId}")
 public class PersonManagementController {
 
+    private final PersonManagementService personManagementService;
 
+    public PersonManagementController(PersonManagementService personManagementService) {
+        this.personManagementService = personManagementService;
+    }
+
+    @PutMapping()
+    public ResponseEntity<?> updatePerson(@PathVariable UUID treeId, @PathVariable UUID personId, @RequestBody PersonRequest personRequest) {
+        personManagementService.updatePerson(treeId, personId, personRequest);
+        return ResponseEntity.ok().build();
+    }
 
 }
