@@ -12,14 +12,14 @@ public class FirstnameUserValidator extends UserValidator {
     private static final Pattern NAME_PATTERN = Pattern.compile("[A-Za-z]+");
 
     @Override
-    public boolean check(User user) {
+    public void check(User user, ValidationResult result) {
         if (StringUtils.isBlank(user.getFirstname())) {
-            log.error("User validation failed: First name is blank.");
-            return false;
+            log.error("User validation failed: First name is blank");
+            result.addError("Username is blank");
         } else if (!NAME_PATTERN.matcher(user.getFirstname()).matches()) {
             log.error("User validation failed: Invalid first name format - " + user.getFirstname());
-            return false;
+            result.addError("Invalid username format");
         }
-        return checkNext(user);
+        checkNext(user, result);
     }
 }

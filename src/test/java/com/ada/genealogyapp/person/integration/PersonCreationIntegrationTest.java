@@ -1,7 +1,7 @@
-package com.ada.genealogyapp.person.service;
+package com.ada.genealogyapp.person.integration;
 
 import com.ada.genealogyapp.config.IntegrationTestConfig;
-import com.ada.genealogyapp.person.Gender;
+import com.ada.genealogyapp.person.type.GenderType;
 import com.ada.genealogyapp.person.dto.PersonRequest;
 import com.ada.genealogyapp.tree.model.Tree;
 import com.ada.genealogyapp.tree.repository.TreeRepository;
@@ -18,7 +18,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-public class PersonCreationServiceTest extends IntegrationTestConfig {
+public class PersonCreationIntegrationTest extends IntegrationTestConfig {
 
 
     @Autowired
@@ -44,7 +44,7 @@ public class PersonCreationServiceTest extends IntegrationTestConfig {
         personRequest.setFirstname("John");
         personRequest.setLastname("Smith");
         personRequest.setBirthDate(LocalDate.of(1980, 1, 1));
-        personRequest.setGender(Gender.MALE);
+        personRequest.setGenderType(GenderType.MALE);
 
         Tree tree = new Tree();
         tree.setUserId(1L);
@@ -64,7 +64,7 @@ public class PersonCreationServiceTest extends IntegrationTestConfig {
         personRequest.setFirstname("John");
         personRequest.setLastname("Smith");
         personRequest.setBirthDate(LocalDate.of(1980, 1, 1));
-        personRequest.setGender(Gender.MALE);
+        personRequest.setGenderType(GenderType.MALE);
 
         UUID nonExistentTreeId = UUID.randomUUID();
 

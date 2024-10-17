@@ -10,20 +10,20 @@ import java.util.Optional;
 
 @Slf4j
 @Service
-public class UserService {
+public class UserManagementService {
 
     private final UserRepository userRepository;
 
     private final UserSearchService userSearchService;
 
-    public UserService(UserRepository userRepository, UserSearchService userSearchService) {
+    public UserManagementService(UserRepository userRepository, UserSearchService userSearchService) {
         this.userRepository = userRepository;
         this.userSearchService = userSearchService;
     }
 
     @Transactional
     public boolean deleteUserByUsername(String username) {
-        Optional<User> user = userSearchService.find(username);
+        Optional<User> user = userSearchService.findUserByUsername(username);
         if (user.isPresent()) {
             delete(user.get().getUsername());
             log.info("User with Username {} deleted successfully", username);
@@ -35,10 +35,9 @@ public class UserService {
     }
 
     @Transactional("jpaTransactionManager")
-    public User create(User user) {
+    public void saveUser(User user) {
         User savedUser = userRepository.save(user);
         log.info("User created successfully: {}", savedUser);
-        return savedUser;
     }
 
     @Transactional

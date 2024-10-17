@@ -1,12 +1,12 @@
-package com.ada.genealogyapp.family.service;
+package com.ada.genealogyapp.family.integration;
 
 import com.ada.genealogyapp.config.IntegrationTestConfig;
 import com.ada.genealogyapp.event.model.Event;
-import com.ada.genealogyapp.event.model.EventType;
+import com.ada.genealogyapp.event.type.EventType;
 import com.ada.genealogyapp.event.repository.EventRepository;
 import com.ada.genealogyapp.family.dto.FamilyRequest;
 import com.ada.genealogyapp.family.repostitory.FamilyRepository;
-import com.ada.genealogyapp.person.Gender;
+import com.ada.genealogyapp.person.type.GenderType;
 import com.ada.genealogyapp.person.model.Person;
 import com.ada.genealogyapp.person.repostitory.PersonRepository;
 import com.ada.genealogyapp.tree.model.Tree;
@@ -27,7 +27,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-public class FamilyCreationServiceTest extends IntegrationTestConfig {
+public class FamilyCreationIntegrationTest extends IntegrationTestConfig {
 
 
     @Autowired
@@ -69,10 +69,10 @@ public class FamilyCreationServiceTest extends IntegrationTestConfig {
         Tree tree = new Tree();
         treeRepository.save(tree);
 
-        Person father = new Person("John", "Smith", LocalDate.of(1975, 7, 18), Gender.MALE, tree);
-        Person mother = new Person("Anne", "Cleves", LocalDate.of(1975, 10, 10), Gender.FEMALE, tree);
-        Person firstChild = new Person("Claudia", "Smith", LocalDate.of(2004, 4, 9), Gender.FEMALE, tree);
-        Person secondChild = new Person("Marie", "Smith", LocalDate.of(2012, 5, 30), Gender.FEMALE, tree);
+        Person father = new Person("John", "Smith", LocalDate.of(1975, 7, 18), GenderType.MALE, tree);
+        Person mother = new Person("Anne", "Cleves", LocalDate.of(1975, 10, 10), GenderType.FEMALE, tree);
+        Person firstChild = new Person("Claudia", "Smith", LocalDate.of(2004, 4, 9), GenderType.FEMALE, tree);
+        Person secondChild = new Person("Marie", "Smith", LocalDate.of(2012, 5, 30), GenderType.FEMALE, tree);
 
         personRepository.save(father);
         personRepository.save(mother);
@@ -111,9 +111,9 @@ public class FamilyCreationServiceTest extends IntegrationTestConfig {
         Tree tree = new Tree();
         treeRepository.save(tree);
 
-        Person mother = new Person("Anne", "Cleves", LocalDate.of(1975, 10, 10), Gender.FEMALE, tree);
-        Person firstChild = new Person("Claudia", "Smith", LocalDate.of(2004, 4, 9), Gender.FEMALE, tree);
-        Person secondChild = new Person("Marie", "Smith", LocalDate.of(2012, 5, 30), Gender.FEMALE, tree);
+        Person mother = new Person("Anne", "Cleves", LocalDate.of(1975, 10, 10), GenderType.FEMALE, tree);
+        Person firstChild = new Person("Claudia", "Smith", LocalDate.of(2004, 4, 9), GenderType.FEMALE, tree);
+        Person secondChild = new Person("Marie", "Smith", LocalDate.of(2012, 5, 30), GenderType.FEMALE, tree);
         personRepository.save(mother);
         personRepository.save(firstChild);
         personRepository.save(secondChild);
@@ -138,10 +138,10 @@ public class FamilyCreationServiceTest extends IntegrationTestConfig {
     @Test
     void shouldReturnNotFoundWhenTreeDoesNotExist() throws Exception {
 
-        Person father = new Person("John", "Smith", LocalDate.of(1975, 7, 18), Gender.MALE);
-        Person mother = new Person("Anne", "Cleves", LocalDate.of(1975, 10, 10), Gender.FEMALE);
-        Person firstChild = new Person("Claudia", "Smith", LocalDate.of(2004, 4, 9), Gender.FEMALE);
-        Person secondChild = new Person("Marie", "Smith", LocalDate.of(2012, 5, 30), Gender.FEMALE);
+        Person father = new Person("John", "Smith", LocalDate.of(1975, 7, 18), GenderType.MALE, null);
+        Person mother = new Person("Anne", "Cleves", LocalDate.of(1975, 10, 10), GenderType.FEMALE, null);
+        Person firstChild = new Person("Claudia", "Smith", LocalDate.of(2004, 4, 9), GenderType.FEMALE, null);
+        Person secondChild = new Person("Marie", "Smith", LocalDate.of(2012, 5, 30), GenderType.FEMALE, null);
 
         personRepository.save(father);
         personRepository.save(mother);

@@ -1,8 +1,11 @@
 package com.ada.genealogyapp.person.model;
 
-import com.ada.genealogyapp.event.model.Event;
-import com.ada.genealogyapp.person.Gender;
-import com.ada.genealogyapp.person.relationship.*;
+import com.ada.genealogyapp.event.relationship.EventRelationship;
+import com.ada.genealogyapp.family.relationship.ChildRelationship;
+import com.ada.genealogyapp.family.relationship.FamilyRelationship;
+import com.ada.genealogyapp.person.type.GenderType;
+import com.ada.genealogyapp.family.type.ChildRelationshipType;
+import com.ada.genealogyapp.family.type.FamilyRelationshipType;
 import com.ada.genealogyapp.tree.model.Tree;
 import lombok.*;
 import org.springframework.data.annotation.Id;
@@ -34,7 +37,7 @@ public class Person {
 
     private LocalDate birthDate;
 
-    private Gender gender;
+    private GenderType genderType;
 
     private FamilyRelationshipType familyRelationshipType;
 
@@ -53,23 +56,11 @@ public class Person {
     @Relationship(type = "HAS_PERSON", direction = Relationship.Direction.INCOMING)
     private Tree tree;
 
-    public Person(String firstname, String lastname, LocalDate birthDate, Gender gender) {
+    public Person(String firstname, String lastname, LocalDate birthDate, GenderType genderType, Tree tree) {
         this.firstname = firstname;
         this.lastname = lastname;
         this.birthDate = birthDate;
-        this.gender = gender;
-    }
-
-    public Person(String firstname, String lastname, LocalDate birthDate, Gender gender, Tree tree) {
-        this.firstname = firstname;
-        this.lastname = lastname;
-        this.birthDate = birthDate;
-        this.gender = gender;
+        this.genderType = genderType;
         this.tree = tree;
-    }
-
-    @Override
-    public String toString() {
-        return this.firstname + this.lastname + " (born " + this.birthDate + ")";
     }
 }

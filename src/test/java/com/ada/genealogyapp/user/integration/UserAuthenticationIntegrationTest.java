@@ -1,4 +1,4 @@
-package com.ada.genealogyapp.user.service;
+package com.ada.genealogyapp.user.integration;
 
 import com.ada.genealogyapp.config.IntegrationTestConfig;
 import com.ada.genealogyapp.user.dto.UserLoginRequest;
@@ -26,7 +26,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 
 
-public class UserAuthenticationServiceTest extends IntegrationTestConfig {
+public class UserAuthenticationIntegrationTest extends IntegrationTestConfig {
 
     @Autowired
     private UserRepository userRepository;
@@ -87,9 +87,6 @@ public class UserAuthenticationServiceTest extends IntegrationTestConfig {
         user.setPassword(new BCryptPasswordEncoder().encode("password123"));
         user.setRole("ROLE_USER");
         userRepository.save(user);
-
-        System.out.println("OOOOOOOOOOOOOOOOO" + userRepository.findByUsername("Smith"));
-
 
         UserLoginRequest userLoginRequest = new UserLoginRequest();
         userLoginRequest.setUsername("john.smith@email.com");

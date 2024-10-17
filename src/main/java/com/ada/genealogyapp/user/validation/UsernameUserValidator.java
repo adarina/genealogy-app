@@ -12,14 +12,14 @@ public class UsernameUserValidator extends UserValidator {
     private static final Pattern USERNAME_PATTERN = Pattern.compile("^(.+)@(.+)$");
 
     @Override
-    public boolean check(User user) {
+    public void check(User user, ValidationResult result) {
         if (StringUtils.isBlank(user.getUsername())) {
-            log.error("User validation failed: Username is blank.");
-            return false;
+            log.error("User validation failed: Username is blank");
+            result.addError("Username is blank");
         } else if (!USERNAME_PATTERN.matcher(user.getUsername()).matches()) {
             log.error("User validation failed: Invalid username format - " + user.getUsername());
-            return false;
+            result.addError("Invalid username format - " + user.getUsername());
         }
-        return checkNext(user);
+        checkNext(user, result);
     }
 }

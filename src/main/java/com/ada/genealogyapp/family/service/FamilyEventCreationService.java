@@ -2,66 +2,46 @@ package com.ada.genealogyapp.family.service;
 
 import com.ada.genealogyapp.event.dto.EventRequest;
 import com.ada.genealogyapp.event.model.Event;
-import com.ada.genealogyapp.event.repository.EventRepository;
-import com.ada.genealogyapp.event.service.EventCreationService;
-import com.ada.genealogyapp.exceptions.EventTypeApplicableException;
+import com.ada.genealogyapp.event.service.EventService;
 import com.ada.genealogyapp.family.model.Family;
-import com.ada.genealogyapp.family.repostitory.FamilyRepository;
 import com.ada.genealogyapp.tree.model.Tree;
-import com.ada.genealogyapp.tree.repository.TreeRepository;
-import com.ada.genealogyapp.tree.service.TreeSearchService;
+import com.ada.genealogyapp.tree.service.TreeService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.util.HashSet;
-import java.util.Set;
 import java.util.UUID;
 
 @Service
 @Slf4j
 public class FamilyEventCreationService {
 
-    private final TreeSearchService treeSearchService;
+    private final FamilyService familyService;
 
-    private final TreeRepository treeRepository;
+    private final EventService eventService;
 
-    private final FamilySearchService familySearchService;
+    private final TreeService treeService;
 
-    private final EventCreationService eventCreationService;
-
-    private final FamilyRepository familyRepository;
-
-    public FamilyEventCreationService(TreeSearchService treeSearchService, TreeRepository treeRepository, FamilySearchService familySearchService, EventCreationService eventCreationService, FamilyRepository familyRepository) {
-        this.treeSearchService = treeSearchService;
-        this.treeRepository = treeRepository;
-        this.familySearchService = familySearchService;
-        this.eventCreationService = eventCreationService;
-        this.familyRepository = familyRepository;
+    public FamilyEventCreationService(FamilyService familyService, EventService eventService, TreeService treeService) {
+        this.familyService = familyService;
+        this.eventService = eventService;
+        this.treeService = treeService;
     }
 
-    public void checkEvent(Event event) {
-        if (!event.getEventType().getApplicableTo().equals("Family")) {
-            throw new EventTypeApplicableException("This event type is not applicable to a family");
-        }
-    }
 
     public void createFamilyEvent(UUID treeId, UUID familyId, EventRequest eventRequest) {
         Event event = EventRequest.dtoToEntityMapper().apply(eventRequest);
 
-        Tree tree = treeSearchService.findTreeById(treeId);
-        Family family = familySearchService.findFamilyById(familyId);
+        Tree tree = treeService.findTreeByIdOrThrowNodeNotFoundException(treeId);
+        Family family = familyService.findFamilyByIdOrThrowNodeNotFoundException(familyId);
 
-        checkEvent(event);
+        eventService.checkEventApplicable(event, "Family");
 
-        family.setFamilyTree(tree);
         event.setTree(tree);
-
         family.getEvents().add(event);
 
-        eventCreationService.create(event);
-        treeRepository.save(tree);
-        familyRepository.save(family);
+        eventService.saveEvent(event);
+        familyService.saveFamily(family);
 
-        log.info("Family event created successfully: {}", event.getId());
+        log.info("Successfully created event {} for family {}", event.getId(), family.getId());
     }
 }

@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("api/v1/genealogy/tree/{treeId}/events/{eventId}")
+@RequestMapping("api/v1/genealogy/tree/{treeId}/events/{eventId}/sources")
 public class EventSourceCreationController {
 
     private final EventSourceCreationService eventSourceCreationService;
@@ -19,7 +19,6 @@ public class EventSourceCreationController {
     public EventSourceCreationController(EventSourceCreationService eventSourceCreationService) {
         this.eventSourceCreationService = eventSourceCreationService;
     }
-
 
     @PostMapping
     public ResponseEntity<?> createEventSource(@PathVariable UUID treeId, @PathVariable UUID eventId, @RequestBody SourceRequest sourceRequest) {

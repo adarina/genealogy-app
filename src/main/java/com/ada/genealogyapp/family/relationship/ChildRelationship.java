@@ -1,6 +1,7 @@
-package com.ada.genealogyapp.person.relationship;
+package com.ada.genealogyapp.family.relationship;
 
 import com.ada.genealogyapp.person.model.Person;
+import com.ada.genealogyapp.family.type.ChildRelationshipType;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;

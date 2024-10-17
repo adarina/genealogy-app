@@ -1,6 +1,6 @@
 package com.ada.genealogyapp.person.dto;
 
-import com.ada.genealogyapp.person.Gender;
+import com.ada.genealogyapp.person.type.GenderType;
 import com.ada.genealogyapp.person.model.Person;
 import lombok.*;
 
@@ -22,7 +22,7 @@ public class PersonRequest {
 
     private LocalDate birthDate;
 
-    private Gender gender;
+    private GenderType genderType;
 
 
     public static Function<PersonRequest, Person> dtoToEntityMapper() {
@@ -30,7 +30,7 @@ public class PersonRequest {
                 .firstname(request.getFirstname())
                 .lastname(request.getLastname())
                 .birthDate(request.getBirthDate())
-                .gender(request.getGender())
+                .genderType(request.getGenderType())
                 .build();
     }
 }

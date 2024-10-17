@@ -1,8 +1,6 @@
 package com.ada.genealogyapp.person.controller;
 
-
 import com.ada.genealogyapp.event.dto.EventRequest;
-import com.ada.genealogyapp.family.service.FamilyEventCreationService;
 import com.ada.genealogyapp.person.service.PersonEventCreationService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

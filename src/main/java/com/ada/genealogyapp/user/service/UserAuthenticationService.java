@@ -36,11 +36,9 @@ public class UserAuthenticationService {
 
     public UserLoginResponse loginUser(UserLoginRequest userLoginRequest) {
 
+        User user = userSearchService.findUserByUsernameOrThrowInvalidCredentials(userLoginRequest.getUsername());
+
         BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
-
-        User user = userSearchService.findByUsername(userLoginRequest.getUsername())
-                .orElseThrow(() -> new InvalidCredentialsException("Invalid username or password for username: " + userLoginRequest.getUsername()));
-
         if (!encoder.matches(userLoginRequest.getPassword(), user.getPassword())) {
             log.error("Invalid username or password for username: {}", userLoginRequest.getUsername());
             throw new InvalidCredentialsException("Invalid username or password for username: " + userLoginRequest.getUsername());

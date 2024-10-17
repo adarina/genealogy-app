@@ -3,10 +3,8 @@ package com.ada.genealogyapp.event.service;
 
 import com.ada.genealogyapp.event.dto.EventRequest;
 import com.ada.genealogyapp.event.model.Event;
-import com.ada.genealogyapp.event.repository.EventRepository;
 import com.ada.genealogyapp.tree.model.Tree;
-import com.ada.genealogyapp.tree.repository.TreeRepository;
-import com.ada.genealogyapp.tree.service.TreeSearchService;
+import com.ada.genealogyapp.tree.service.TreeService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -17,33 +15,27 @@ import java.util.UUID;
 public class EventCreationService {
 
 
-    private final TreeSearchService treeSearchService;
+    private final TreeService treeService;
 
-    private final TreeRepository treeRepository;
+    private final EventService eventService;
 
-    private final EventRepository eventRepository;
-
-    public EventCreationService(TreeSearchService treeSearchService, TreeRepository treeRepository, EventRepository eventRepository) {
-        this.treeSearchService = treeSearchService;
-        this.treeRepository = treeRepository;
-        this.eventRepository = eventRepository;
-    }
-
-
-    public Event create(Event event) {
-        Event savedEvent = eventRepository.save(event);
-        log.info("Event created successfully: {}", savedEvent);
-        return savedEvent;
+    public EventCreationService(TreeService treeService, EventService eventService) {
+        this.treeService = treeService;
+        this.eventService = eventService;
     }
 
     public void createEvent(UUID treeId, EventRequest eventRequest) {
+//        if (eventRequest.getType() == null) {
+//            throw new IllegalArgumentException("Event type must not be null");
+//        }
+
         Event event = EventRequest.dtoToEntityMapper().apply(eventRequest);
 
-        Tree tree = treeSearchService.findTreeById(treeId);
+        Tree tree = treeService.findTreeByIdOrThrowNodeNotFoundException(treeId);
         tree.getEvents().add(event);
 
-        create(event);
-        treeRepository.save(tree);
+        eventService.saveEvent(event);
+        treeService.saveTree(tree);
 
         log.info("Event created successfully: {}", event.getEventType());
     }

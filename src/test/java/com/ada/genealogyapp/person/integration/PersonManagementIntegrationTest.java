@@ -1,7 +1,7 @@
-package com.ada.genealogyapp.person.service;
+package com.ada.genealogyapp.person.integration;
 
 import com.ada.genealogyapp.config.IntegrationTestConfig;
-import com.ada.genealogyapp.person.Gender;
+import com.ada.genealogyapp.person.type.GenderType;
 import com.ada.genealogyapp.person.dto.PersonRequest;
 import com.ada.genealogyapp.person.model.Person;
 import com.ada.genealogyapp.person.repostitory.PersonRepository;
@@ -19,7 +19,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-public class PersonManagementServiceTest extends IntegrationTestConfig {
+public class PersonManagementIntegrationTest extends IntegrationTestConfig {
 
     @Autowired
     private TreeRepository treeRepository;
@@ -47,7 +47,7 @@ public class PersonManagementServiceTest extends IntegrationTestConfig {
         Tree tree = new Tree();
         treeRepository.save(tree);
 
-        Person person = new Person("John", "Smith", LocalDate.of(1975, 7, 18), Gender.MALE, tree);
+        Person person = new Person("John", "Smith", LocalDate.of(1975, 7, 18), GenderType.MALE, tree);
         personRepository.save(person);
 
         PersonRequest personRequest = new PersonRequest();

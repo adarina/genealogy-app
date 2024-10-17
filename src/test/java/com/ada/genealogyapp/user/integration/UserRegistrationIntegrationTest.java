@@ -1,4 +1,4 @@
-package com.ada.genealogyapp.user.service;
+package com.ada.genealogyapp.user.integration;
 
 import com.ada.genealogyapp.config.IntegrationTestConfig;
 import com.ada.genealogyapp.user.dto.UserRequest;
@@ -14,7 +14,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 
-public class UserRegistrationServiceTest extends IntegrationTestConfig {
+public class UserRegistrationIntegrationTest extends IntegrationTestConfig {
 
     @Autowired
     private UserRepository userRepository;

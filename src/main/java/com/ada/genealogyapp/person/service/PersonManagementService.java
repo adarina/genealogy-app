@@ -1,7 +1,7 @@
 package com.ada.genealogyapp.person.service;
 
 
-import com.ada.genealogyapp.person.Gender;
+import com.ada.genealogyapp.person.type.GenderType;
 import com.ada.genealogyapp.person.dto.PersonRequest;
 import com.ada.genealogyapp.person.model.Person;
 import com.ada.genealogyapp.person.repostitory.PersonRepository;
@@ -10,8 +10,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.util.Optional;
 import java.util.UUID;
+
+import static java.util.Objects.nonNull;
 
 @Service
 @Slf4j
@@ -28,59 +29,41 @@ public class PersonManagementService {
         this.treeSearchService = treeSearchService;
     }
 
-
-    public boolean deletePersonById(UUID id) {
-        Optional<Person> person = personSearchService.find(id);
-        if (person.isPresent()) {
-            delete(person.get());
-            return true;
-        } else {
-            log.warn("Person with Id {} not found", id);
-            return false;
-        }
-    }
-
-    public void delete(Person person) {
-        personRepository.delete(person);
-        log.info("Person with id {} deleted successfully", person);
-    }
-
     public void updatePerson(UUID treeId, UUID personId, PersonRequest personRequest) {
 
-        treeSearchService.findTreeById(treeId);
-        Person existingPerson = personSearchService.findPersonById(personId);
+        treeSearchService.findTreeByIdOrThrowNodeNotFoundException(treeId);
+        Person person = personSearchService.findPersonByIdOrThrowNodeNotFoundException(personId);
 
-        updateFirstname(existingPerson, personRequest.getFirstname());
-        updateLastname(existingPerson, personRequest.getLastname());
-        updateBirthDate(existingPerson, personRequest.getBirthDate());
-        updateGender(existingPerson, personRequest.getGender());
+        updateFirstname(person, personRequest.getFirstname());
+        updateLastname(person, personRequest.getLastname());
+        updateBirthDate(person, personRequest.getBirthDate());
+        updateGender(person, personRequest.getGenderType());
 
-
-        Person updatedPerson = personRepository.save(existingPerson);
+        Person updatedPerson = personRepository.save(person);
         log.info("Person updated successfully: {}", updatedPerson.getId());
     }
 
     private void updateFirstname(Person person, String firstname) {
-        if (firstname != null) {
+        if (nonNull(firstname)) {
             person.setFirstname(firstname);
         }
     }
 
     private void updateLastname(Person person, String lastname) {
-        if (lastname != null) {
+        if (nonNull(lastname)) {
             person.setLastname(lastname);
         }
     }
 
     private void updateBirthDate(Person person, LocalDate birthDate) {
-        if (birthDate != null) {
+        if (nonNull(birthDate)) {
             person.setBirthDate(birthDate);
         }
     }
 
-    private void updateGender(Person person, Gender gender) {
-        if (gender != null) {
-            person.setGender(gender);
+    private void updateGender(Person person, GenderType genderType) {
+        if (nonNull(genderType)) {
+            person.setGenderType(genderType);
         }
     }
 }

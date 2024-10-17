@@ -1,5 +1,7 @@
 package com.ada.genealogyapp.user.service;
 
+import com.ada.genealogyapp.exceptions.InvalidCredentialsException;
+import com.ada.genealogyapp.exceptions.UserAlreadyExistsException;
 import com.ada.genealogyapp.user.dto.UsersResponse;
 import com.ada.genealogyapp.user.model.User;
 import com.ada.genealogyapp.user.repository.UserRepository;
@@ -8,7 +10,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
 @Slf4j
 @Service
@@ -21,18 +22,17 @@ public class UserSearchService {
     }
 
 
-    public Optional<User> find(Long id) {
+    public Optional<User> findUserById(Long id) {
         Optional<User> user = userRepository.findById(id);
         if (user.isPresent()) {
             log.info("User found: {}", user.get());
         } else {
-            log.warn("No user found with ID: {}", id);
+            log.warn("No user found with id: {}", id);
         }
         return user;
     }
 
-
-    public Optional<User> find(String username) {
+    public Optional<User> findUserByUsername(String username) {
         Optional<User> user = userRepository.findByUsername(username);
         if (user.isPresent()) {
             log.info("User found: {}", user.get());
@@ -42,8 +42,25 @@ public class UserSearchService {
         return user;
     }
 
-    public Optional<User> findByUsername(String username) {
-        return userRepository.findByUsername(username);
+    public User findUserByUsernameOrThrowInvalidCredentials(String username) {
+        Optional<User> user = userRepository.findByUsername(username);
+        if (user.isPresent()) {
+            log.info("User found: {}", user.get());
+            return user.get();
+        } else {
+            log.error("Invalid username or password for username: {}", username);
+            throw new InvalidCredentialsException("Invalid username or password for username: " + username);
+        }
+    }
+
+    public void findUserByUsernameOrThrowUserAlreadyExistsException(String username) {
+        Optional<User> user = userRepository.findByUsername(username);
+        if (user.isPresent()) {
+            log.error("User with username {} already exists", username);
+            throw new UserAlreadyExistsException("User with username " + username + " already exists");
+        } else {
+            log.info("User with username {} not found", username);
+        }
     }
 
     public List<User> findAll() {

@@ -9,14 +9,14 @@ import lombok.extern.slf4j.Slf4j;
 public class PasswordUserValidator extends UserValidator {
 
     @Override
-    public boolean check(User user) {
+    public void check(User user, ValidationResult result) {
         if (StringUtils.isBlank(user.getPassword())) {
-            log.error("User validation failed: Password is blank.");
-            return false;
+            log.error("User validation failed: Password is blank");
+            result.addError("Password is blank");
         } else if (user.getPassword().length() < 8) {
-            log.error("User validation failed: Invalid password length.");
-            return false;
+            log.error("User validation failed: Invalid password length");
+            result.addError("Invalid password length");
         }
-        return checkNext(user);
+        checkNext(user, result);
     }
 }

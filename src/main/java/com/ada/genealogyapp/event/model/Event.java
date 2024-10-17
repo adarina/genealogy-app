@@ -1,7 +1,9 @@
 package com.ada.genealogyapp.event.model;
 
+import com.ada.genealogyapp.event.type.EventType;
 import com.ada.genealogyapp.source.model.Source;
 import com.ada.genealogyapp.tree.model.Tree;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.neo4j.core.schema.GeneratedValue;
@@ -26,6 +28,7 @@ public class Event {
     @GeneratedValue
     private UUID id;
 
+    @NonNull
     public EventType eventType;
 
     private LocalDate date;
@@ -35,12 +38,11 @@ public class Event {
     private String description;
 
 
-    @Relationship(type = "HAS_SOURCE", direction = Relationship.Direction.OUTGOING)
+    @Relationship(type = "HAS_EVENT_SOURCE", direction = Relationship.Direction.OUTGOING)
     private Set<Source> sources = new HashSet<>();
 
     @Relationship(type = "HAS_EVENT", direction = Relationship.Direction.INCOMING)
     private Tree tree;
-
 
 
     public Event(EventType eventType, LocalDate date, String place, String description, Tree tree) {

@@ -11,4 +11,5 @@ public interface TreeRepository extends Neo4jRepository<Tree, UUID> {
 
     Optional<Tree> findByNameAndUserId(String name, Long userId);
 
+    Optional<Tree> findTreeById(UUID treeId);
 }

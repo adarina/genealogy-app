@@ -1,14 +1,15 @@
 package com.ada.genealogyapp.person.service;
 
+import com.ada.genealogyapp.event.model.Event;
 import com.ada.genealogyapp.exceptions.NodeNotFoundException;
 import com.ada.genealogyapp.person.model.Person;
 import com.ada.genealogyapp.person.repostitory.PersonRepository;
-import com.ada.genealogyapp.user.model.User;
-;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.HashSet;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 @Slf4j
@@ -21,18 +22,38 @@ public class PersonSearchService {
         this.personRepository = personRepository;
     }
 
-    public Optional<Person> find(UUID id) {
-        Optional<Person> person = personRepository.findById(id);
+    public Person findPersonByIdOrThrowNodeNotFoundException(UUID personId) {
+        Optional<Person> person = personRepository.findById(personId);
         if (person.isPresent()) {
             log.info("Person found: {}", person.get());
+            return person.get();
         } else {
-            log.warn("No person found with ID: {}", id);
+            log.error("No person found with id: {}", personId);
+            throw new NodeNotFoundException("No person found with id: " + personId);
         }
-        return person;
     }
 
     public Person findPersonById(UUID personId) {
-        return personRepository.findById(personId)
-                .orElseThrow(() -> new NodeNotFoundException("No person found with ID: " + personId));
+        Optional<Person> person = personRepository.findById(personId);
+        if (person.isPresent()) {
+            log.info("Person found: {}", person.get());
+            return person.get();
+        } else {
+            log.error("No person found with id: {}", personId);
+            return null;
+        }
+    }
+
+    public Set<Person> findPersonsByIds(Set<UUID> personIds) {
+        Set<Person> persons = new HashSet<>();
+        for (UUID personId : personIds) {
+            Optional<Person> person = personRepository.findById(personId);
+            if (person.isPresent()) {
+                persons.add(person.get());
+            } else {
+                log.error("No person found with id: {}", personId);
+            }
+        }
+        return persons;
     }
 }

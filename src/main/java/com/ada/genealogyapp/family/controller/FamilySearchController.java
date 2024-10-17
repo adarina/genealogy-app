@@ -1,7 +1,7 @@
 package com.ada.genealogyapp.family.controller;
 
 import com.ada.genealogyapp.family.model.Family;
-import com.ada.genealogyapp.family.service.FamilySearchService;
+import com.ada.genealogyapp.family.service.FamilyService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -12,21 +12,22 @@ import java.util.UUID;
 @RequestMapping("api/v1/genealogy/tree/{treeId}/families")
 public class FamilySearchController {
 
-    private final FamilySearchService familySearchService;
+    private final FamilyService familyService;
 
-    public FamilySearchController(FamilySearchService familySearchService) {
-        this.familySearchService = familySearchService;
+    public FamilySearchController(FamilyService familyService) {
+        this.familyService = familyService;
     }
+
 
     @GetMapping("/{familyId}")
     public ResponseEntity<Family> getFamily(@PathVariable UUID familyId, @PathVariable String treeId) {
-        Family family = familySearchService.findFamilyById(familyId);
+        Family family = familyService.findFamilyByIdOrThrowNodeNotFoundException(familyId);
         return ResponseEntity.ok(family);
     }
 
     @GetMapping
     public ResponseEntity<List<Family>> getFamiliesByTree(@PathVariable UUID treeId) {
-        List<Family> families = familySearchService.getFamiliesByTreeId(treeId);
+        List<Family> families = familyService.getFamiliesByTreeId(treeId);
         return ResponseEntity.ok(families);
     }
 }

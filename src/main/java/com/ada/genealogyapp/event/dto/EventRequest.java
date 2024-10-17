@@ -1,7 +1,7 @@
 package com.ada.genealogyapp.event.dto;
 
 import com.ada.genealogyapp.event.model.Event;
-import com.ada.genealogyapp.event.model.EventType;
+import com.ada.genealogyapp.event.type.EventType;
 import lombok.*;
 
 import java.time.LocalDate;

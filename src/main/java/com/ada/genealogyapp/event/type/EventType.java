@@ -1,4 +1,4 @@
-package com.ada.genealogyapp.event.model;
+package com.ada.genealogyapp.event.type;
 
 import lombok.Getter;
 

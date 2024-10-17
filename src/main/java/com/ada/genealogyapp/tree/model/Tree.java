@@ -1,8 +1,6 @@
 package com.ada.genealogyapp.tree.model;
 
 import com.ada.genealogyapp.event.model.Event;
-import com.ada.genealogyapp.family.model.Family;
-import com.ada.genealogyapp.person.model.Person;
 import lombok.*;
 import org.springframework.data.neo4j.core.schema.GeneratedValue;
 import org.springframework.data.neo4j.core.schema.Id;
@@ -31,10 +29,4 @@ public class Tree {
 
     @Relationship(type = "HAS_EVENT", direction = Relationship.Direction.OUTGOING)
     private Set<Event> events = new HashSet<>();
-
-    public Tree(UUID id, Long userId, String name) {
-        this.id = id;
-        this.userId = userId;
-        this.name = name;
-    }
 }

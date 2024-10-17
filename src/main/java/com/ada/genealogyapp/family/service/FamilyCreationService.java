@@ -1,93 +1,104 @@
 package com.ada.genealogyapp.family.service;
 
-import com.ada.genealogyapp.event.model.Event;
 import com.ada.genealogyapp.event.service.EventSearchService;
 import com.ada.genealogyapp.family.dto.FamilyRequest;
 import com.ada.genealogyapp.family.model.Family;
-import com.ada.genealogyapp.family.repostitory.FamilyRepository;
 import com.ada.genealogyapp.person.model.Person;
-import com.ada.genealogyapp.person.relationship.ChildRelationship;
-import com.ada.genealogyapp.person.relationship.ChildRelationshipType;
-import com.ada.genealogyapp.person.relationship.FamilyRelationship;
-import com.ada.genealogyapp.person.relationship.FamilyRelationshipType;
+import com.ada.genealogyapp.family.relationship.ChildRelationship;
+import com.ada.genealogyapp.family.type.ChildRelationshipType;
+import com.ada.genealogyapp.family.relationship.FamilyRelationship;
+import com.ada.genealogyapp.family.type.FamilyRelationshipType;
 import com.ada.genealogyapp.person.service.PersonSearchService;
 import com.ada.genealogyapp.tree.model.Tree;
-import com.ada.genealogyapp.tree.repository.TreeRepository;
-import com.ada.genealogyapp.tree.service.TreeSearchService;
+import com.ada.genealogyapp.tree.service.TreeService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.Set;
 import java.util.UUID;
-import java.util.function.Function;
+
+import static java.util.Objects.nonNull;
+
 
 @Service
 @Slf4j
 public class FamilyCreationService {
 
-    private final TreeSearchService treeSearchService;
-
-    private final TreeRepository treeRepository;
-
-    private final FamilyRepository familyRepository;
+    private final FamilyService familyService;
 
     private final PersonSearchService personSearchService;
 
     private final EventSearchService eventSearchService;
 
-    public FamilyCreationService(TreeSearchService treeSearchService, TreeRepository treeRepository, FamilyRepository familyRepository, PersonSearchService personSearchService, EventSearchService eventSearchService) {
-        this.treeSearchService = treeSearchService;
-        this.treeRepository = treeRepository;
-        this.familyRepository = familyRepository;
+    private final TreeService treeService;
+
+    public FamilyCreationService(FamilyService familyService, PersonSearchService personSearchService, EventSearchService eventSearchService, TreeService treeService) {
+        this.familyService = familyService;
         this.personSearchService = personSearchService;
         this.eventSearchService = eventSearchService;
+        this.treeService = treeService;
     }
 
-
-    public Family create(Family family) {
-        Family savedFamily = familyRepository.save(family);
-        log.info("Family created successfully: {}", savedFamily);
-        return savedFamily;
-    }
 
     public void createFamily(UUID treeId, FamilyRequest familyRequest) {
-        Function<UUID, Person> personFinder = personSearchService::findPersonById;
-        Function<UUID, Event> eventFinder = eventSearchService::findEventById;
+        Family family = mapToFamily(familyRequest);
 
-        Family family = FamilyRequest.dtoToEntityMapper(personFinder, eventFinder).apply(familyRequest);
-
-
-        Tree tree = treeSearchService.findTreeById(treeId);
+        Tree tree = treeService.findTreeByIdOrThrowNodeNotFoundException(treeId);
         family.setFamilyTree(tree);
 
-        Person father = family.getFather();
-        Person mother = family.getMother();
-        Set<Person> children = family.getChildren();
+        handlePartnerRelationships(family);
+        handleChildRelationships(family);
 
-        if (father != null && mother != null) {
-            FamilyRelationship partnerRelationship = new FamilyRelationship(mother, FamilyRelationshipType.UNKNOWN); // Domyślnie UNKNOWN
-            father.getPartners().add(partnerRelationship);
-
-            FamilyRelationship reversePartnerRelationship = new FamilyRelationship(father, FamilyRelationshipType.UNKNOWN);
-            mother.getPartners().add(reversePartnerRelationship);
-        }
-
-
-        for (Person child : children) {
-            if (father != null) {
-                ChildRelationship fatherChildRelationship = new ChildRelationship(child, ChildRelationshipType.BIOLOGICAL); // Dziecko jako TargetNode
-                father.getChildren().add(fatherChildRelationship);
-            }
-            if (mother != null) {
-                ChildRelationship motherChildRelationship = new ChildRelationship(child, ChildRelationshipType.BIOLOGICAL); // Dziecko jako TargetNode
-                mother.getChildren().add(motherChildRelationship);
-            }
-        }
-
-
-        create(family);
-        treeRepository.save(tree);
+        familyService.saveFamily(family);
+        treeService.saveTree(tree);
 
         log.info("Family created successfully: {}", family.getId());
+    }
+
+    private void handlePartnerRelationships(Family family) {
+        Person father = family.getFather();
+        Person mother = family.getMother();
+
+        if (nonNull(father) && nonNull(mother)) {
+            addPartnerRelationship(father, mother);
+        }
+    }
+
+    private void addPartnerRelationship(Person father, Person mother) {
+        FamilyRelationship partnerRelationship = new FamilyRelationship(mother, FamilyRelationshipType.UNKNOWN);
+        father.getPartners().add(partnerRelationship);
+
+        FamilyRelationship reversePartnerRelationship = new FamilyRelationship(father, FamilyRelationshipType.UNKNOWN);
+        mother.getPartners().add(reversePartnerRelationship);
+    }
+
+    private void handleChildRelationships(Family family) {
+        Set<Person> children = family.getChildren();
+        Person father = family.getFather();
+        Person mother = family.getMother();
+
+        for (Person child : children) {
+            if (nonNull(father)) {
+                addChildRelationship(father, child);
+            }
+            if (nonNull(mother)) {
+                addChildRelationship(mother, child);
+            }
+        }
+    }
+
+    private void addChildRelationship(Person parent, Person child) {
+        ChildRelationship childRelationship = new ChildRelationship(child, ChildRelationshipType.BIOLOGICAL);
+        parent.getChildren().add(childRelationship);
+    }
+
+
+    public Family mapToFamily(FamilyRequest request) {
+        return Family.builder()
+                .father(personSearchService.findPersonById(request.getFatherId()))
+                .mother(personSearchService.findPersonById(request.getMotherId()))
+                .children(personSearchService.findPersonsByIds(request.getChildrenIds()))
+                .events(eventSearchService.findEventsByIds(request.getEventsIds()))
+                .build();
     }
 }

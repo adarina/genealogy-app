@@ -19,7 +19,6 @@ public class FamilyMemberCreationController {
         this.familyMemberCreationService = familyMemberCreationService;
     }
 
-
     @PostMapping
     public ResponseEntity<?> createFamilyMember(@PathVariable UUID treeId, @PathVariable UUID familyId, @RequestBody PersonRequest personRequest) {
         familyMemberCreationService.createFamilyMember(treeId, familyId, personRequest);

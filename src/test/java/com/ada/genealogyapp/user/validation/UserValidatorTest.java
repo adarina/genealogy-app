@@ -1,7 +1,6 @@
 package com.ada.genealogyapp.user.validation;
 
 import com.ada.genealogyapp.user.model.User;
-import com.ada.genealogyapp.user.validation.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -38,7 +37,10 @@ public class UserValidatorTest {
         User user = createUser();
         user.setFirstname(null);
 
-        assertFalse(userValidator.check(user));
+        ValidationResult validationResult = new ValidationResult();
+        userValidator.check(user, validationResult);
+
+        assertFalse(validationResult.getErrors().isEmpty());
     }
 
     @Test
@@ -46,7 +48,10 @@ public class UserValidatorTest {
         User user = createUser();
         user.setFirstname("");
 
-        assertFalse(userValidator.check(user));
+        ValidationResult validationResult = new ValidationResult();
+        userValidator.check(user, validationResult);
+
+        assertFalse(validationResult.getErrors().isEmpty());
     }
 
     @Test
@@ -54,7 +59,10 @@ public class UserValidatorTest {
         User user = createUser();
         user.setFirstname(" ");
 
-        assertFalse(userValidator.check(user));
+        ValidationResult validationResult = new ValidationResult();
+        userValidator.check(user, validationResult);
+
+        assertFalse(validationResult.getErrors().isEmpty());
     }
 
     @Test
@@ -62,7 +70,10 @@ public class UserValidatorTest {
         User user = createUser();
         user.setFirstname("Marek$");
 
-        assertFalse(userValidator.check(user));
+        ValidationResult validationResult = new ValidationResult();
+        userValidator.check(user, validationResult);
+
+        assertFalse(validationResult.getErrors().isEmpty());
     }
 
     @Test
@@ -70,7 +81,10 @@ public class UserValidatorTest {
         User user = createUser();
         user.setLastname(null);
 
-        assertFalse(userValidator.check(user));
+        ValidationResult validationResult = new ValidationResult();
+        userValidator.check(user, validationResult);
+
+        assertFalse(validationResult.getErrors().isEmpty());
     }
 
     @Test
@@ -78,7 +92,10 @@ public class UserValidatorTest {
         User user = createUser();
         user.setLastname("");
 
-        assertFalse(userValidator.check(user));
+        ValidationResult validationResult = new ValidationResult();
+        userValidator.check(user, validationResult);
+
+        assertFalse(validationResult.getErrors().isEmpty());
     }
 
     @Test
@@ -86,7 +103,10 @@ public class UserValidatorTest {
         User user = createUser();
         user.setLastname(" ");
 
-        assertFalse(userValidator.check(user));
+        ValidationResult validationResult = new ValidationResult();
+        userValidator.check(user, validationResult);
+
+        assertFalse(validationResult.getErrors().isEmpty());
     }
 
     @Test
@@ -94,7 +114,10 @@ public class UserValidatorTest {
         User user = createUser();
         user.setLastname("John$");
 
-        assertFalse(userValidator.check(user));
+        ValidationResult validationResult = new ValidationResult();
+        userValidator.check(user, validationResult);
+
+        assertFalse(validationResult.getErrors().isEmpty());
     }
 
     @Test
@@ -102,7 +125,10 @@ public class UserValidatorTest {
         User user = createUser();
         user.setUsername(null);
 
-        assertFalse(userValidator.check(user));
+        ValidationResult validationResult = new ValidationResult();
+        userValidator.check(user, validationResult);
+
+        assertFalse(validationResult.getErrors().isEmpty());
     }
 
     @Test
@@ -110,7 +136,10 @@ public class UserValidatorTest {
         User user = createUser();
         user.setUsername("");
 
-        assertFalse(userValidator.check(user));
+        ValidationResult validationResult = new ValidationResult();
+        userValidator.check(user, validationResult);
+
+        assertFalse(validationResult.getErrors().isEmpty());
     }
 
     @Test
@@ -118,7 +147,10 @@ public class UserValidatorTest {
         User user = createUser();
         user.setUsername(" ");
 
-        assertFalse(userValidator.check(user));
+        ValidationResult validationResult = new ValidationResult();
+        userValidator.check(user, validationResult);
+
+        assertFalse(validationResult.getErrors().isEmpty());
     }
 
     @Test
@@ -126,7 +158,10 @@ public class UserValidatorTest {
         User user = createUser();
         user.setUsername("john");
 
-        assertFalse(userValidator.check(user));
+        ValidationResult validationResult = new ValidationResult();
+        userValidator.check(user, validationResult);
+
+        assertFalse(validationResult.getErrors().isEmpty());
     }
 
     @Test
@@ -134,7 +169,10 @@ public class UserValidatorTest {
         User user = createUser();
         user.setUsername("john.smith@email.com");
 
-        assertTrue(userValidator.check(user));
+        ValidationResult validationResult = new ValidationResult();
+        userValidator.check(user, validationResult);
+
+        assertTrue(validationResult.getErrors().isEmpty());
     }
 
     @Test
@@ -142,7 +180,10 @@ public class UserValidatorTest {
         User user = createUser();
         user.setFirstname("John1234");
 
-        assertFalse(userValidator.check(user));
+        ValidationResult validationResult = new ValidationResult();
+        userValidator.check(user, validationResult);
+
+        assertFalse(validationResult.getErrors().isEmpty());
     }
 
     @Test
@@ -150,7 +191,10 @@ public class UserValidatorTest {
         User user = createUser();
         user.setFirstname("John");
 
-        assertTrue(userValidator.check(user));
+        ValidationResult validationResult = new ValidationResult();
+        userValidator.check(user, validationResult);
+
+        assertTrue(validationResult.getErrors().isEmpty());
     }
 
     @Test
@@ -158,7 +202,10 @@ public class UserValidatorTest {
         User user = createUser();
         user.setPassword("short");
 
-        assertFalse(userValidator.check(user));
+        ValidationResult validationResult = new ValidationResult();
+        userValidator.check(user, validationResult);
+
+        assertFalse(validationResult.getErrors().isEmpty());
     }
 
     @Test
@@ -166,7 +213,10 @@ public class UserValidatorTest {
         User user = createUser();
         user.setPassword("password123");
 
-        assertTrue(userValidator.check(user));
+        ValidationResult validationResult = new ValidationResult();
+        userValidator.check(user, validationResult);
+
+        assertTrue(validationResult.getErrors().isEmpty());
     }
 
     @Test
@@ -174,7 +224,10 @@ public class UserValidatorTest {
         User user = createUser();
         user.setPhone("12345abc");
 
-        assertFalse(userValidator.check(user));
+        ValidationResult validationResult = new ValidationResult();
+        userValidator.check(user, validationResult);
+
+        assertFalse(validationResult.getErrors().isEmpty());
     }
 
     @Test
@@ -182,7 +235,10 @@ public class UserValidatorTest {
         User user = createUser();
         user.setPhone("123456789");
 
-        assertTrue(userValidator.check(user));
+        ValidationResult validationResult = new ValidationResult();
+        userValidator.check(user, validationResult);
+
+        assertTrue(validationResult.getErrors().isEmpty());
     }
 
     @Test
@@ -190,7 +246,10 @@ public class UserValidatorTest {
         User user = createUser();
         user.setLastname("Smith1234");
 
-        assertFalse(userValidator.check(user));
+        ValidationResult validationResult = new ValidationResult();
+        userValidator.check(user, validationResult);
+
+        assertFalse(validationResult.getErrors().isEmpty());
     }
 
     @Test
@@ -198,6 +257,9 @@ public class UserValidatorTest {
         User user = createUser();
         user.setLastname("Smith");
 
-        assertTrue(userValidator.check(user));
+        ValidationResult validationResult = new ValidationResult();
+        userValidator.check(user, validationResult);
+
+        assertTrue(validationResult.getErrors().isEmpty());
     }
 }

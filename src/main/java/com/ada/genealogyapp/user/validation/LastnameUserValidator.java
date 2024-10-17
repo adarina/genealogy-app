@@ -12,14 +12,14 @@ public class LastnameUserValidator extends UserValidator {
     private static final Pattern SURNAME_PATTERN = Pattern.compile("[A-Za-z]+");
 
     @Override
-    public boolean check(User user) {
+    public void check(User user, ValidationResult result) {
         if (StringUtils.isBlank(user.getLastname())) {
-            log.error("User validation failed: Last name is blank.");
-            return false;
+            log.error("User validation failed: Last name is blank");
+            result.addError("Username is blank");
         } else if (!SURNAME_PATTERN.matcher(user.getLastname()).matches()) {
             log.error("User validation failed: Invalid last name format - " + user.getLastname());
-            return false;
+            result.addError("Invalid last name format - " + user.getLastname());
         }
-        return checkNext(user);
+        checkNext(user, result);
     }
 }

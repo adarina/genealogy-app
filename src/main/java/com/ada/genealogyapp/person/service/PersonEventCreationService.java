@@ -2,12 +2,10 @@ package com.ada.genealogyapp.person.service;
 
 import com.ada.genealogyapp.event.dto.EventRequest;
 import com.ada.genealogyapp.event.model.Event;
-import com.ada.genealogyapp.event.service.EventCreationService;
-import com.ada.genealogyapp.exceptions.EventTypeApplicableException;
+import com.ada.genealogyapp.event.service.EventService;
 import com.ada.genealogyapp.person.model.Person;
 import com.ada.genealogyapp.tree.model.Tree;
-import com.ada.genealogyapp.tree.repository.TreeRepository;
-import com.ada.genealogyapp.tree.service.TreeSearchService;
+import com.ada.genealogyapp.tree.service.TreeService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -19,37 +17,28 @@ public class PersonEventCreationService {
 
     private final PersonSearchService personSearchService;
 
-    private final TreeRepository treeRepository;
+    private final TreeService treeService;
 
-    private final TreeSearchService treeSearchService;
+    private final EventService eventService;
 
-    private final EventCreationService eventCreationService;
-
-    public PersonEventCreationService(PersonSearchService personSearchService, TreeRepository treeRepository, TreeSearchService treeSearchService, EventCreationService eventCreationService) {
+    public PersonEventCreationService(PersonSearchService personSearchService, TreeService treeService, EventService eventService) {
         this.personSearchService = personSearchService;
-        this.treeRepository = treeRepository;
-        this.treeSearchService = treeSearchService;
-        this.eventCreationService = eventCreationService;
+        this.treeService = treeService;
+        this.eventService = eventService;
     }
 
-
-    public void checkEvent(Event event) {
-        if (!event.getEventType().getApplicableTo().equals("Person")) {
-            throw new EventTypeApplicableException("This event type is not applicable to a person");
-        }
-    }
 
     public void createPersonEvent(UUID treeId, UUID personId, EventRequest eventRequest) {
         Event event = EventRequest.dtoToEntityMapper().apply(eventRequest);
 
-        Tree tree = treeSearchService.findTreeById(treeId);
+        Tree tree = treeService.findTreeByIdOrThrowNodeNotFoundException(treeId);
         Person person = personSearchService.findPersonById(personId);
 
-        checkEvent(event);
+        eventService.checkEventApplicable(event, "Person");
         person.setTree(tree);
 
-        eventCreationService.create(event);
-        treeRepository.save(tree);
+        eventService.saveEvent(event);
+        treeService.saveTree(tree);
 
         log.info("Person event created successfully: {}", event.getId());
     }

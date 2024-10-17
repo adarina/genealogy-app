@@ -1,7 +1,7 @@
-package com.ada.genealogyapp.person.relationship;
+package com.ada.genealogyapp.event.relationship;
 
 import com.ada.genealogyapp.event.model.Event;
-import com.ada.genealogyapp.person.model.Person;
+import com.ada.genealogyapp.event.type.EventRelationshipType;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -27,10 +27,8 @@ public class EventRelationship {
 
     private EventRelationshipType familyRelationshipType;
 
-
     public EventRelationship(Event event, EventRelationshipType familyRelationshipType) {
         this.event = event;
         this.familyRelationshipType = familyRelationshipType;
     }
-
 }

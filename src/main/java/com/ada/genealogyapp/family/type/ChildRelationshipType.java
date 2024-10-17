@@ -1,4 +1,4 @@
-package com.ada.genealogyapp.person.relationship;
+package com.ada.genealogyapp.family.type;
 
 public enum ChildRelationshipType {
     BIOLOGICAL,

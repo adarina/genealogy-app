@@ -1,6 +1,5 @@
 package com.ada.genealogyapp.source.model;
 
-import com.ada.genealogyapp.citation.model.Citation;
 import com.ada.genealogyapp.tree.model.Tree;
 import lombok.*;
 import org.springframework.data.neo4j.core.schema.GeneratedValue;

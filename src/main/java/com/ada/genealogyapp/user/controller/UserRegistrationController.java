@@ -18,12 +18,7 @@ public class UserRegistrationController {
 
     @PostMapping
     public ResponseEntity<?> createUser(@RequestBody UserRequest userRequest) {
-        boolean isRegistered = userRegistrationService.registerUser(userRequest);
-        if (isRegistered) {
-            return ResponseEntity.status(HttpStatus.CREATED).build();
-        } else {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
+        userRegistrationService.registerUser(userRequest);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 }
-

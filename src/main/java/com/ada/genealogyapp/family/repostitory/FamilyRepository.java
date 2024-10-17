@@ -10,5 +10,4 @@ public interface FamilyRepository extends Neo4jRepository<Family, UUID> {
 
     List<Family> findAllByFamilyTree_Id(UUID treeId);
 
-
 }

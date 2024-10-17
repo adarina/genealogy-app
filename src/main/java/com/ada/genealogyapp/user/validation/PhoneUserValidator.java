@@ -11,14 +11,14 @@ public class PhoneUserValidator extends UserValidator {
     private static final Pattern PHONE_PATTERN = Pattern.compile("\\d{9}");
 
     @Override
-    public boolean check(User user) {
+    public void check(User user, ValidationResult result) {
         if (StringUtils.isBlank(user.getPhone())) {
-            log.error("User validation failed: Phone is blank.");
-            return false;
+            log.error("User validation failed: Phone is blank");
+            result.addError("Phone is blank");
         } else if (!PHONE_PATTERN.matcher(user.getPhone()).matches()) {
             log.error("User validation failed: Invalid phone format - " + user.getPhone());
-            return false;
+            result.addError("Invalid phone format - " + user.getPhone());
         }
-        return checkNext(user);
+        checkNext(user, result);
     }
 }

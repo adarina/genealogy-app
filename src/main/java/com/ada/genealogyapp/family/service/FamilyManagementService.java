@@ -2,113 +2,114 @@ package com.ada.genealogyapp.family.service;
 
 
 import com.ada.genealogyapp.event.model.Event;
-import com.ada.genealogyapp.event.service.EventSearchService;
+import com.ada.genealogyapp.event.service.EventService;
 import com.ada.genealogyapp.family.dto.FamilyRequest;
 import com.ada.genealogyapp.family.model.Family;
-import com.ada.genealogyapp.family.repostitory.FamilyRepository;
 import com.ada.genealogyapp.person.model.Person;
 import com.ada.genealogyapp.person.service.PersonSearchService;
-import com.ada.genealogyapp.tree.service.TreeSearchService;
+import com.ada.genealogyapp.tree.service.TreeService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.util.Set;
-import java.util.UUID;
-import java.util.function.Function;
-import java.util.stream.Collectors;
+import java.util.*;
+
+import static java.util.Objects.nonNull;
 
 @Service
 @Slf4j
 public class FamilyManagementService {
 
 
-    private final FamilySearchService familySearchService;
+    private final FamilyService familyService;
 
-    private final FamilyRepository familyRepository;
-
-    private final TreeSearchService treeSearchService;
+    private final TreeService treeService;
 
     private final PersonSearchService personSearchService;
 
-    private final EventSearchService eventSearchService;
+    private final EventService eventService;
 
-    public FamilyManagementService(FamilySearchService familySearchService, FamilyRepository familyRepository, TreeSearchService treeSearchService, PersonSearchService personSearchService, EventSearchService eventSearchService) {
-        this.familySearchService = familySearchService;
-        this.familyRepository = familyRepository;
-        this.treeSearchService = treeSearchService;
+    public FamilyManagementService(FamilyService familyService, TreeService treeService, PersonSearchService personSearchService, EventService eventService) {
+        this.familyService = familyService;
+        this.treeService = treeService;
         this.personSearchService = personSearchService;
-        this.eventSearchService = eventSearchService;
+        this.eventService = eventService;
     }
+
 
     public void updateFamily(UUID treeId, UUID familyId, FamilyRequest familyRequest) {
-        treeSearchService.findTreeById(treeId);
-        Family existingFamily = familySearchService.findFamilyById(familyId);
+        treeService.findTreeByIdOrThrowNodeNotFoundException(treeId);
+        Family family = familyService.findFamilyByIdOrThrowNodeNotFoundException(familyId);
 
-        Function<UUID, Person> personFinder = personSearchService::findPersonById;
-        Function<UUID, Event> eventFinder = eventSearchService::findEventById;
+        updateFather(family, familyRequest);
+        updateMother(family, familyRequest);
+        updateChildren(family, familyRequest);
+        updateEvents(family, familyRequest);
 
-        updateFather(existingFamily, familyRequest, personFinder);
-        updateMother(existingFamily, familyRequest, personFinder);
-        updateChildren(existingFamily, familyRequest, personFinder);
-        updateEvents(existingFamily, familyRequest, eventFinder);
-
-        Family updatedFamily = familyRepository.save(existingFamily);
-        log.info("Family updated successfully: {}", updatedFamily.getId());
+        familyService.saveFamily(family);
+        log.info("Family updated successfully: {}", family.getId());
     }
 
-    private void updateFather(Family existingFamily, FamilyRequest familyRequest, Function<UUID, Person> personFinder) {
+    private void updateFather(Family family, FamilyRequest familyRequest) {
         UUID newFatherId = familyRequest.getFatherId();
-        if (existingFamily.getFather() != null && existingFamily.getFather().getId().equals(newFatherId)) {
-            existingFamily.setFather(null);
-        } else if (newFatherId != null) {
-            Person newFather = personFinder.apply(newFatherId);
-            existingFamily.setFather(newFather);
+        if (nonNull(family.getFather()) && family.getFather().getId().equals(newFatherId)) {
+            family.setFather(null);
+        } else if (nonNull(newFatherId)) {
+            Person newFather = personSearchService.findPersonById(newFatherId);
+            family.setFather(newFather);
         }
     }
 
-    private void updateMother(Family existingFamily, FamilyRequest familyRequest, Function<UUID, Person> personFinder) {
+    private void updateMother(Family family, FamilyRequest familyRequest) {
         UUID newMotherId = familyRequest.getMotherId();
-        if (existingFamily.getMother() != null && existingFamily.getMother().getId().equals(newMotherId)) {
-            existingFamily.setMother(null);
-        } else if (newMotherId != null) {
-            Person newMother = personFinder.apply(newMotherId);
-            existingFamily.setMother(newMother);
+        if (nonNull(family.getMother()) && family.getMother().getId().equals(newMotherId)) {
+            family.setMother(null);
+        } else if (nonNull(newMotherId)) {
+            Person newMother = personSearchService.findPersonById(newMotherId);
+            family.setMother(newMother);
         }
     }
 
-    private void updateChildren(Family existingFamily, FamilyRequest familyRequest, Function<UUID, Person> personFinder) {
+    private void updateChildren(Family family, FamilyRequest familyRequest) {
         if (!familyRequest.getChildrenIds().isEmpty()) {
-            Set<Person> childrenToRemove = existingFamily.getChildren().stream()
-                    .filter(child -> !familyRequest.getChildrenIds().contains(child.getId()))
-                    .collect(Collectors.toSet());
-            existingFamily.getChildren().removeAll(childrenToRemove);
-
-            Set<Person> newChildren = familyRequest.getChildrenIds().stream()
-                    .map(personFinder)
-                    .filter(child -> !existingFamily.getChildren().stream()
-                            .map(Person::getId)
-                            .collect(Collectors.toSet())
-                            .contains(child.getId()))
-                    .collect(Collectors.toSet());
-            existingFamily.getChildren().addAll(newChildren);
+            Set<UUID> currentChildrenIds = new HashSet<>();
+            for (Person child : family.getChildren()) {
+                currentChildrenIds.add(child.getId());
+            }
+            List<Person> childrenToRemove = new ArrayList<>();
+            for (Person child : family.getChildren()) {
+                if (!familyRequest.getChildrenIds().contains(child.getId())) {
+                    childrenToRemove.add(child);
+                }
+            }
+            childrenToRemove.forEach(family.getChildren()::remove);
+            for (UUID childId : familyRequest.getChildrenIds()) {
+                if (!currentChildrenIds.contains(childId)) {
+                    Person newChild = personSearchService.findPersonById(childId);
+                    family.getChildren().add(newChild);
+                }
+            }
         }
     }
 
-    private void updateEvents(Family existingFamily, FamilyRequest familyRequest, Function<UUID, Event> eventFinder) {
+    private void updateEvents(Family existingFamily, FamilyRequest familyRequest) {
         if (!familyRequest.getEventsIds().isEmpty()) {
-            Set<Event> eventsToRemove = existingFamily.getEvents().stream()
-                    .filter(event -> !familyRequest.getEventsIds().contains(event.getId()))
-                    .collect(Collectors.toSet());
-            existingFamily.getEvents().removeAll(eventsToRemove);
-
-            Set<Event> newEvents = familyRequest.getEventsIds().stream()
-                    .map(eventFinder)
-                    .filter(event -> !existingFamily.getEvents().stream()
-                            .map(Event::getId)
-                            .collect(Collectors.toSet())
-                            .contains(event.getId()))
-                    .collect(Collectors.toSet());
-            existingFamily.getEvents().addAll(newEvents);
+            Set<UUID> currentEventIds = new HashSet<>();
+            for (Event event : existingFamily.getEvents()) {
+                currentEventIds.add(event.getId());
+            }
+            List<Event> eventsToRemove = new ArrayList<>();
+            for (Event event : existingFamily.getEvents()) {
+                if (!familyRequest.getEventsIds().contains(event.getId())) {
+                    eventsToRemove.add(event);
+                }
+            }
+            eventsToRemove.forEach(existingFamily.getEvents()::remove);
+            for (UUID eventId : familyRequest.getEventsIds()) {
+                if (!currentEventIds.contains(eventId)) {
+                    Event newEvent = eventService.findEventByIdOrThrowNodeNotFoundException(eventId);
+                    existingFamily.getEvents().add(newEvent);
+                }
+            }
         }
     }
 }

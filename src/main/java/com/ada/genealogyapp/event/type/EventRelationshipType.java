@@ -1,4 +1,4 @@
-package com.ada.genealogyapp.person.relationship;
+package com.ada.genealogyapp.event.type;
 
 public enum EventRelationshipType {
     FAMILY,

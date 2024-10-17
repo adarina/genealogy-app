@@ -1,4 +1,4 @@
-package com.ada.genealogyapp.tree.service;
+package com.ada.genealogyapp.tree.integration;
 
 import com.ada.genealogyapp.config.IntegrationTestConfig;
 import com.ada.genealogyapp.tree.dto.TreeRequest;
@@ -15,7 +15,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 
-public class TreeCreationServiceTest extends IntegrationTestConfig {
+public class TreeCreationIntegrationTest extends IntegrationTestConfig {
 
     @Autowired
     private TreeRepository treeRepository;

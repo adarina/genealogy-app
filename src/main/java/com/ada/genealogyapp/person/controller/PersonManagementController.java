@@ -22,5 +22,4 @@ public class PersonManagementController {
         personManagementService.updatePerson(treeId, personId, personRequest);
         return ResponseEntity.ok().build();
     }
-
 }
