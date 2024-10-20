@@ -15,6 +15,8 @@ import org.springframework.http.MediaType;
 
 import java.time.LocalDate;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -53,10 +55,24 @@ public class PersonManagementIntegrationTest extends IntegrationTestConfig {
         PersonRequest personRequest = new PersonRequest();
         personRequest.setFirstname("Adalbert");
 
-        mockMvc.perform(put("/api/v1/genealogy/tree/{treeId}/persons/{personId}", tree.getId(), person.getId())
+        mockMvc.perform(post("/api/v1/genealogy/trees/{treeId}/persons/{personId}", tree.getId(), person.getId())
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andDo(print())
+                .andExpect(status().isNoContent());
+
+        mockMvc.perform(put("/api/v1/genealogy/trees/{treeId}/persons/{personId}/updatePersonalData", tree.getId(), person.getId())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(personRequest)))
                 .andDo(print())
                 .andExpect(status().isOk());
+
+        mockMvc.perform(post("/api/v1/genealogy/trees/{treeId}/commit", tree.getId())
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andDo(print())
+                .andExpect(status().isNoContent());
+
+        Person updatedPerson = personRepository.findById(person.getId()).orElseThrow();
+        assertEquals("Adalbert", updatedPerson.getFirstname());
+        assertEquals("Smith", updatedPerson.getLastname());
     }
 }

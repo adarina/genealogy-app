@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("api/v1/genealogy/tree/{treeId}/events")
+@RequestMapping("api/v1/genealogy/trees/{treeId}/events")
 public class EventCreationController {
 
     private final EventCreationService eventCreationService;

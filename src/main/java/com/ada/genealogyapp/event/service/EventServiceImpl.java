@@ -2,7 +2,6 @@ package com.ada.genealogyapp.event.service;
 
 import com.ada.genealogyapp.event.model.Event;
 import com.ada.genealogyapp.event.repository.EventRepository;
-import com.ada.genealogyapp.exceptions.EventTypeApplicableException;
 import com.ada.genealogyapp.exceptions.NodeNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -20,17 +19,6 @@ public class EventServiceImpl implements EventService {
         this.eventRepository = eventRepository;
     }
 
-    public void checkEventApplicable(Event event, String type) {
-        if (!event.getEventType().getApplicableTo().equals(type)) {
-            throw new EventTypeApplicableException("This event type is not applicable to a {}: " + type);
-        }
-    }
-
-    public void saveEvent(Event event) {
-        Event savedEvent = eventRepository.save(event);
-        log.info("Event saved successfully: {}", savedEvent);
-    }
-
     public Event findEventByIdOrThrowNodeNotFoundException(UUID eventId) {
         Optional<Event> event = eventRepository.findById(eventId);
         if (event.isPresent()) {
@@ -40,5 +28,16 @@ public class EventServiceImpl implements EventService {
             throw new NodeNotFoundException("No event found with id: " + eventId);
         }
         return event.get();
+    }
+
+    public Event findEventById(UUID eventId) {
+        Optional<Event> event = eventRepository.findById(eventId);
+        if (event.isPresent()) {
+            log.info("Event found: {}", event.get());
+            return event.get();
+        } else {
+            log.error("No event found with id: {}", eventId);
+            return null;
+        }
     }
 }

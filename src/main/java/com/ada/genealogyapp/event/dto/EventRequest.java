@@ -1,6 +1,7 @@
 package com.ada.genealogyapp.event.dto;
 
 import com.ada.genealogyapp.event.model.Event;
+import com.ada.genealogyapp.event.type.EventRelationshipType;
 import com.ada.genealogyapp.event.type.EventType;
 import lombok.*;
 
@@ -16,7 +17,7 @@ import java.util.function.Function;
 @EqualsAndHashCode
 public class EventRequest {
 
-    public EventType type;
+    private EventType type;
 
     private LocalDate date;
 
@@ -24,7 +25,9 @@ public class EventRequest {
 
     private String description;
 
-    public static Function<com.ada.genealogyapp.event.dto.EventRequest, Event> dtoToEntityMapper() {
+    private EventRelationshipType eventRelationshipType;
+
+    public static Function<EventRequest, Event> dtoToEntityMapper() {
         return request -> Event.builder()
                 .eventType(request.getType())
                 .date(request.getDate())

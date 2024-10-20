@@ -5,15 +5,12 @@ import lombok.Getter;
 @Getter
 public enum EventType {
 
-    BIRTH("Person"),
-    BAPTISM("Person"),
-    MARRIAGE("Family"),
-    DIVORCE("Family");
+    BIRTH,
 
-    private final String applicableTo;
+    BAPTISM,
 
-    EventType(String applicableTo) {
-        this.applicableTo = applicableTo;
-    }
+    MARRIAGE,
+
+    DIVORCE
 
 }

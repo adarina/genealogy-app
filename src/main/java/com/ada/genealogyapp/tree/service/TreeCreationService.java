@@ -22,21 +22,16 @@ public class TreeCreationService {
         this.treeSearchService = treeSearchService;
     }
 
-    public void saveTree(Tree tree) {
-        Tree savedTree = treeRepository.save(tree);
-        log.info("Tree saved successfully: {}", savedTree);
-    }
-
     public void createTree(TreeRequest treeRequest) {
         Tree tree = TreeRequest.dtoToEntityMapper().apply(treeRequest);
-        Optional<Tree> existingTree = treeSearchService.findTreeByNameAndUserIdOrThrowNodeNotFoundException(tree.getName(), tree.getUserId());
+        Optional<Tree> existingTree = treeSearchService.findTreeByNameAndUserId(tree.getName(), tree.getUserId());
 
         if (existingTree.isPresent()) {
             log.error("Tree with name {} already exists", tree.getName());
             throw new NodeAlreadyExistsException("Tree with name " + tree.getName() + " already exists");
         }
 
-        saveTree(tree);
+        treeRepository.save(tree);
         log.info("Tree created successfully: {}", tree.getName());
     }
 }

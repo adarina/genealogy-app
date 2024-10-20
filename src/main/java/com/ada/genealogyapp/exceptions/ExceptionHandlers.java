@@ -104,6 +104,23 @@ public class ExceptionHandlers {
                         .errorTime(LocalDateTime.now().format(formatter))
                         .message(ex.getMessage()).build());
     }
+
+    @ExceptionHandler(RollbackException.class)
+    public ResponseEntity<ExceptionResponse> handleRollbackException(RollbackException ex) {
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(ExceptionResponse.builder()
+                        .errorTime(LocalDateTime.now().format(formatter))
+                        .message(ex.getMessage()).build());
+    }
+
+    @ExceptionHandler(NodeAlreadyInNodeException.class)
+    public ResponseEntity<ExceptionResponse> handleChildAlreadyInFamilyException(NodeAlreadyInNodeException ex) {
+        return ResponseEntity.status(HttpStatus.CONFLICT)
+                .body(ExceptionResponse.builder()
+                        .errorTime(LocalDateTime.now().format(formatter))
+                        .message(ex.getMessage()).build());
+    }
+
 }
 
 

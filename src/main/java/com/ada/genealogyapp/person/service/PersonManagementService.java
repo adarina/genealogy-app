@@ -1,15 +1,20 @@
 package com.ada.genealogyapp.person.service;
 
 
-import com.ada.genealogyapp.person.type.GenderType;
+import com.ada.genealogyapp.event.model.Event;
+import com.ada.genealogyapp.event.service.EventService;
 import com.ada.genealogyapp.person.dto.PersonRequest;
+import com.ada.genealogyapp.person.type.GenderType;
 import com.ada.genealogyapp.person.model.Person;
-import com.ada.genealogyapp.person.repostitory.PersonRepository;
-import com.ada.genealogyapp.tree.service.TreeSearchService;
+import com.ada.genealogyapp.tree.service.TreeService;
+import com.ada.genealogyapp.tree.service.TreeTransactionService;
 import lombok.extern.slf4j.Slf4j;
+import org.neo4j.driver.Transaction;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.util.Map;
 import java.util.UUID;
 
 import static java.util.Objects.nonNull;
@@ -17,53 +22,82 @@ import static java.util.Objects.nonNull;
 @Service
 @Slf4j
 public class PersonManagementService {
-    private final PersonRepository personRepository;
+    private final PersonService personService;
 
-    private final PersonSearchService personSearchService;
+    private final TreeService treeService;
 
-    private final TreeSearchService treeSearchService;
+    private final TreeTransactionService treeTransactionService;
 
-    public PersonManagementService(PersonRepository personRepository, PersonSearchService personSearchService, TreeSearchService treeSearchService) {
-        this.personRepository = personRepository;
-        this.personSearchService = personSearchService;
-        this.treeSearchService = treeSearchService;
+    private final EventService eventService;
+
+    public PersonManagementService(PersonService personService, TreeService treeService, TreeTransactionService treeTransactionService, EventService eventService) {
+        this.personService = personService;
+        this.treeService = treeService;
+        this.treeTransactionService = treeTransactionService;
+        this.eventService = eventService;
     }
 
-    public void updatePerson(UUID treeId, UUID personId, PersonRequest personRequest) {
-
-        treeSearchService.findTreeByIdOrThrowNodeNotFoundException(treeId);
-        Person person = personSearchService.findPersonByIdOrThrowNodeNotFoundException(personId);
-
-        updateFirstname(person, personRequest.getFirstname());
-        updateLastname(person, personRequest.getLastname());
-        updateBirthDate(person, personRequest.getBirthDate());
-        updateGender(person, personRequest.getGenderType());
-
-        Person updatedPerson = personRepository.save(person);
-        log.info("Person updated successfully: {}", updatedPerson.getId());
+    @Transactional
+    public void startTransactionAndSession(UUID treeId, UUID personId) {
+        validateTreeAndPerson(treeId, personId);
+        treeTransactionService.startTransactionAndSession();
     }
 
-    private void updateFirstname(Person person, String firstname) {
+    public Person validateTreeAndPerson(UUID treeId, UUID personId) {
+        treeService.findTreeByIdOrThrowNodeNotFoundException(treeId);
+        return personService.findPersonByIdOrThrowNodeNotFoundException(personId);
+    }
+
+    @Transactional
+    public void startTransactionAndSession(UUID treeId, UUID personId, UUID eventId) {
+        validateTreePersonAndEvent(treeId, personId, eventId);
+        treeTransactionService.startTransactionAndSession();
+    }
+
+    public Event validateTreePersonAndEvent(UUID treeId, UUID personId, UUID eventId) {
+        treeService.findTreeByIdOrThrowNodeNotFoundException(treeId);
+        personService.findPersonByIdOrThrowNodeNotFoundException(personId);
+        return eventService.findEventByIdOrThrowNodeNotFoundException(eventId);
+    }
+
+    @Transactional
+    public void updatePersonalData(UUID treeId, UUID personId, PersonRequest personRequest) {
+        Transaction tx = treeTransactionService.getCurrentTransaction();
+        validateTreeAndPerson(treeId, personId);
+
+        updateFirstname(tx, personId, personRequest.getFirstname());
+        updateLastname(tx, personId, personRequest.getLastname());
+        updateBirthDate(tx, personId, personRequest.getBirthDate());
+        updateGender(tx, personId, personRequest.getGenderType());
+
+        log.info("Person updated successfully: {}", personId);
+    }
+
+    private void updateFirstname(Transaction tx, UUID personId, String firstname) {
         if (nonNull(firstname)) {
-            person.setFirstname(firstname);
+            String cypher = "MATCH (p:Person {id: $personId}) SET p.firstname = $firstname";
+            tx.run(cypher, Map.of("personId", personId.toString(), "firstname", firstname));
         }
     }
 
-    private void updateLastname(Person person, String lastname) {
+    private void updateLastname(Transaction tx, UUID personId, String lastname) {
         if (nonNull(lastname)) {
-            person.setLastname(lastname);
+            String cypher = "MATCH (p:Person {id: $personId}) SET p.lastname = $lastname";
+            tx.run(cypher, Map.of("personId", personId.toString(), "lastname", lastname));
         }
     }
 
-    private void updateBirthDate(Person person, LocalDate birthDate) {
+    private void updateBirthDate(Transaction tx, UUID personId, LocalDate birthDate) {
         if (nonNull(birthDate)) {
-            person.setBirthDate(birthDate);
+            String cypher = "MATCH (p:Person {id: $personId}) SET p.birthDate = $birthDate";
+            tx.run(cypher, Map.of("personId", personId.toString(), "birthDate", birthDate.toString()));
         }
     }
 
-    private void updateGender(Person person, GenderType genderType) {
+    private void updateGender(Transaction tx, UUID personId, GenderType genderType) {
         if (nonNull(genderType)) {
-            person.setGenderType(genderType);
+            String cypher = "MATCH (p:Person {id: $personId}) SET p.genderType = $genderType";
+            tx.run(cypher, Map.of("personId", personId.toString(), "genderType", genderType.name()));
         }
     }
 }

@@ -51,7 +51,7 @@ public class PersonCreationIntegrationTest extends IntegrationTestConfig {
         tree.setName("Smith Family");
         treeRepository.save(tree);
 
-        mockMvc.perform(post("/api/v1/genealogy/tree/{treeId}/persons", tree.getId())
+        mockMvc.perform(post("/api/v1/genealogy/trees/{treeId}/persons", tree.getId())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(personRequest)))
                 .andDo(print())
@@ -68,7 +68,7 @@ public class PersonCreationIntegrationTest extends IntegrationTestConfig {
 
         UUID nonExistentTreeId = UUID.randomUUID();
 
-        mockMvc.perform(post("/api/v1/genealogy/tree/{treeId}/persons", nonExistentTreeId)
+        mockMvc.perform(post("/api/v1/genealogy/trees/{treeId}/persons", nonExistentTreeId)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(personRequest)))
                 .andDo(print())

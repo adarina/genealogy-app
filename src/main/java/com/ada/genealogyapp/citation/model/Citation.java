@@ -9,6 +9,8 @@ import org.springframework.data.neo4j.core.schema.Node;
 import org.springframework.data.neo4j.core.schema.Relationship;
 
 import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
 
 
@@ -30,5 +32,8 @@ public class Citation {
 
     @Relationship(type = "HAS_CITATION", direction = Relationship.Direction.INCOMING)
     private Tree tree;
+
+    @Relationship(type = "HAS_SOURCE", direction = Relationship.Direction.OUTGOING)
+    private Set<Source> sources = new HashSet<>();
 
 }

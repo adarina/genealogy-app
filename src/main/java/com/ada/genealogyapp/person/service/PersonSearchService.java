@@ -1,6 +1,5 @@
 package com.ada.genealogyapp.person.service;
 
-import com.ada.genealogyapp.event.model.Event;
 import com.ada.genealogyapp.exceptions.NodeNotFoundException;
 import com.ada.genealogyapp.person.model.Person;
 import com.ada.genealogyapp.person.repostitory.PersonRepository;

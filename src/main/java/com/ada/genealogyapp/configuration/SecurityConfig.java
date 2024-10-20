@@ -52,10 +52,10 @@ public class SecurityConfig {
         http.csrf(AbstractHttpConfigurer::disable)
                 .cors(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(authorizationManagerRequestMatcherRegistry ->
-                        authorizationManagerRequestMatcherRegistry.requestMatchers(HttpMethod.DELETE).hasRole("ADMIN")
+                        authorizationManagerRequestMatcherRegistry
                                 .requestMatchers("/api/v1/genealogy/login").permitAll()
                                 .requestMatchers("/api/v1/genealogy/register").permitAll()
-                                .requestMatchers("/api/v1/genealogy/tree/**").permitAll()
+                                .requestMatchers("/api/v1/genealogy/trees/**").permitAll()
                                 .requestMatchers("/api/v1/genealogy/all/**").hasRole("ADMIN")
                                 .requestMatchers("/api/v1/genealogy/delete").hasRole("ADMIN")
                                 .anyRequest().authenticated())

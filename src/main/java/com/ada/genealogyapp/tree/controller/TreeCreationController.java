@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("api/v1/genealogy/tree")
+@RequestMapping("api/v1/genealogy/trees")
 public class TreeCreationController {
 
     private final TreeCreationService treeCreationService;

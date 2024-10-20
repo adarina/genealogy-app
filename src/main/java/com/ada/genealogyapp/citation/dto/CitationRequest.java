@@ -19,7 +19,7 @@ public class CitationRequest {
 
     public LocalDate creationDate;
 
-    public static Function<com.ada.genealogyapp.citation.dto.CitationRequest, Citation> dtoToEntityMapper() {
+    public static Function<CitationRequest, Citation> dtoToEntityMapper() {
         return request -> Citation.builder()
                 .page(request.getPage())
                 .creationDate(request.getCreationDate())

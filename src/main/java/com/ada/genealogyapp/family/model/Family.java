@@ -1,6 +1,10 @@
 package com.ada.genealogyapp.family.model;
 
-import com.ada.genealogyapp.event.model.Event;
+import com.ada.genealogyapp.person.model.Participant;
+import com.ada.genealogyapp.citation.model.Citation;
+import com.ada.genealogyapp.event.relationship.EventRelationship;
+import com.ada.genealogyapp.event.type.EventRelationshipType;
+import com.ada.genealogyapp.family.type.FamilyRelationshipType;
 import com.ada.genealogyapp.person.model.Person;
 import com.ada.genealogyapp.tree.model.Tree;
 import lombok.*;
@@ -20,11 +24,15 @@ import java.util.UUID;
 @Getter
 @Setter
 @AllArgsConstructor
-public class Family {
+public class Family implements Participant {
 
     @Id
     @GeneratedValue
     private UUID id;
+
+    private FamilyRelationshipType familyRelationshipType;
+
+    private EventRelationshipType eventRelationshipType;
 
     @Relationship(type = "HAS_FATHER", direction = Relationship.Direction.OUTGOING)
     private Person father;
@@ -35,12 +43,18 @@ public class Family {
     @Relationship(type = "HAS_CHILD", direction = Relationship.Direction.OUTGOING)
     private Set<Person> children = new HashSet<>();
 
-    @Relationship(type = "HAS_FAMILY_EVENT", direction = Relationship.Direction.OUTGOING)
-    private Set<Event> events = new HashSet<>();
+    @Relationship(type = "HAS_EVENT", direction = Relationship.Direction.OUTGOING)
+    private Set<EventRelationship> events = new HashSet<>();
+
+    @Relationship(type = "HAS_CITATION", direction = Relationship.Direction.OUTGOING)
+    private Set<Citation> citations = new HashSet<>();
 
     @Relationship(type = "HAS_FAMILY", direction = Relationship.Direction.INCOMING)
     private Tree familyTree;
 
-
+    @Override
+    public UUID getParticipantId() {
+        return this.id;
+    }
 
 }

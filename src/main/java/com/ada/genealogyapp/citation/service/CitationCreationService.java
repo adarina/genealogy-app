@@ -26,20 +26,17 @@ public class CitationCreationService {
         this.citationRepository = citationRepository;
     }
 
-    public void saveCitation(Citation citation) {
-        Citation savedCitation = citationRepository.save(citation);
-        log.info("Citation saved successfully: {}", savedCitation);
-    }
-
-    public void createCitation(UUID treeId, CitationRequest citationRequest) {
+    public Citation createCitation(UUID treeId, CitationRequest citationRequest) {
         Citation citation = CitationRequest.dtoToEntityMapper().apply(citationRequest);
 
         Tree tree = treeService.findTreeByIdOrThrowNodeNotFoundException(treeId);
         citation.setTree(tree);
 
-        saveCitation(citation);
+        citationRepository.save(citation);
         treeService.saveTree(tree);
 
         log.info("Citation created successfully: {}", citation.getPage());
+
+        return citation;
     }
 }

@@ -24,20 +24,18 @@ public class SourceCreationService {
         this.treeService = treeService;
     }
 
-    public void saveSource(Source source) {
-        Source savedSource = sourceRepository.save(source);
-        log.info("Source saved successfully: {}", savedSource);
-    }
-
-    public void createSource(UUID treeId, SourceRequest sourceRequest) {
+    public Source createSource(UUID treeId, SourceRequest sourceRequest) {
         Source source = SourceRequest.dtoToEntityMapper().apply(sourceRequest);
 
         Tree tree = treeService.findTreeByIdOrThrowNodeNotFoundException(treeId);
+
         source.setTree(tree);
 
-        saveSource(source);
+        sourceRepository.save(source);
         treeService.saveTree(tree);
 
         log.info("Source created successfully: {}", source.getName());
+
+        return source;
     }
 }

@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("api/v1/genealogy/tree/{treeId}/citations")
+@RequestMapping("api/v1/genealogy/trees/{treeId}/citations")
 public class CitationCreationController {
 
     private final CitationCreationService citationCreationService;

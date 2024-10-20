@@ -12,11 +12,11 @@ import java.util.UUID;
 
 @Service
 @Slf4j
-public class FamilyServiceImpl implements FamilyService {
+public class FamilySearchService {
 
     private final FamilyRepository familyRepository;
 
-    public FamilyServiceImpl(FamilyRepository familyRepository) {
+    public FamilySearchService(FamilyRepository familyRepository) {
         this.familyRepository = familyRepository;
     }
 
@@ -31,13 +31,14 @@ public class FamilyServiceImpl implements FamilyService {
         return family.get();
     }
 
-
-    public void saveFamily(Family family) {
-        Family savedFamily = familyRepository.save(family);
-        log.info("Family saved successfully: {}", savedFamily);
-    }
-
-    public List<Family> getFamiliesByTreeId(UUID treeId) {
-        return familyRepository.findAllByFamilyTree_Id(treeId);
+    public List<Family> getFamiliesByTreeIdOrThrowNodeNotFoundException(UUID treeId) {
+        List<Family> families = familyRepository.findAllByFamilyTree_Id(treeId);
+        if (!families.isEmpty()) {
+            log.info("Families found for treeId {}: {}", treeId, families);
+        } else {
+            log.error("No families found for treeId: {}", treeId);
+            throw new NodeNotFoundException("No families found for treeId: " + treeId);
+        }
+        return families;
     }
 }

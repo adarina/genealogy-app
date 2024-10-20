@@ -19,13 +19,12 @@ public class TreeSearchService {
     }
 
 
-    public Optional<Tree> findTreeByNameAndUserIdOrThrowNodeNotFoundException(String name, Long userId) {
+    public Optional<Tree> findTreeByNameAndUserId(String name, Long userId) {
         Optional<Tree> tree = treeRepository.findByNameAndUserId(name, userId);
         if (tree.isPresent()) {
             log.info("Tree found: {}", tree.get());
         } else {
             log.error("No tree found with userId: {}", userId);
-            throw new NodeNotFoundException("No tree found with userId :" + userId);
         }
         return tree;
     }

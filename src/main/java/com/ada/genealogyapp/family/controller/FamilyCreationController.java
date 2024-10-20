@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("api/v1/genealogy/tree/{treeId}/families")
+@RequestMapping("api/v1/genealogy/trees/{treeId}/families")
 public class FamilyCreationController {
 
     private final FamilyCreationService familyCreationService;
@@ -17,7 +17,6 @@ public class FamilyCreationController {
     public FamilyCreationController(FamilyCreationService familyCreationService) {
         this.familyCreationService = familyCreationService;
     }
-
 
     @PostMapping
     public ResponseEntity<?> createFamily(@PathVariable UUID treeId, @RequestBody FamilyRequest familyRequest) {

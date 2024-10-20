@@ -16,7 +16,7 @@ public class SourceRequest {
 
     public String name;
 
-    public static Function<com.ada.genealogyapp.source.dto.SourceRequest, Source> dtoToEntityMapper() {
+    public static Function<SourceRequest, Source> dtoToEntityMapper() {
         return request -> Source.builder()
                 .name(request.getName())
                 .build();

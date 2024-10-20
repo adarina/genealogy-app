@@ -1,27 +1,17 @@
 package com.ada.genealogyapp.family.dto;
 
-import lombok.*;
-
-import java.util.HashSet;
-import java.util.Set;
-import java.util.UUID;
-
+import com.ada.genealogyapp.family.type.FamilyRelationshipType;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Getter
-@Setter
-@Builder
+@AllArgsConstructor
 @NoArgsConstructor
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
-@ToString
-@EqualsAndHashCode
+@Setter
 public class FamilyRequest {
 
-    private UUID fatherId;
-
-    private UUID motherId;
-
-    private Set<UUID> childrenIds = new HashSet<>();
-
-    private Set<UUID> eventsIds = new HashSet<>();
+    public FamilyRelationshipType familyRelationshipType;
 
 }
