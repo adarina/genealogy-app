@@ -2,10 +2,7 @@ package com.ada.genealogyapp.citation.service;
 
 import com.ada.genealogyapp.citation.model.Citation;
 import com.ada.genealogyapp.citation.repository.CitationRepository;
-import com.ada.genealogyapp.event.model.Event;
 import com.ada.genealogyapp.exceptions.NodeNotFoundException;
-import com.ada.genealogyapp.person.model.Person;
-import com.ada.genealogyapp.source.model.Source;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 

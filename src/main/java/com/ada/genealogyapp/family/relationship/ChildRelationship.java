@@ -25,9 +25,5 @@ public class ChildRelationship {
 
     private ChildRelationshipType childRelationshipType;
 
-    public ChildRelationship(Person child, ChildRelationshipType childRelationshipType) {
-        this.child = child;
-        this.childRelationshipType = childRelationshipType;
-    }
 }
 

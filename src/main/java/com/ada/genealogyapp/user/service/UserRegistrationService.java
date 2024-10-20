@@ -21,7 +21,7 @@ public class UserRegistrationService {
         this.userValidationService = userValidationService;
     }
 
-    public boolean registerUser(UserRequest request) {
+    public void registerUser(UserRequest request) {
         User user = UserRequest.dtoToEntityMapper().apply(request);
 
         userSearchService.findUserByUsernameOrThrowUserAlreadyExistsException(user.getUsername());
@@ -34,6 +34,5 @@ public class UserRegistrationService {
 
         log.info("User registered successfully: {}", user.getUsername());
 
-        return true;
     }
 }

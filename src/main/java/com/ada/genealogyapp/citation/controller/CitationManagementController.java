@@ -1,7 +1,6 @@
 package com.ada.genealogyapp.citation.controller;
 
 import com.ada.genealogyapp.citation.service.CitationManagementService;
-import com.ada.genealogyapp.family.service.FamilyManagementService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;

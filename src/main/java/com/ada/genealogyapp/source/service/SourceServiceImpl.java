@@ -1,8 +1,5 @@
 package com.ada.genealogyapp.source.service;
 
-import com.ada.genealogyapp.citation.model.Citation;
-import com.ada.genealogyapp.event.model.Event;
-import com.ada.genealogyapp.exceptions.NodeNotFoundException;
 import com.ada.genealogyapp.source.model.Source;
 import com.ada.genealogyapp.source.repository.SourceRepository;
 import lombok.extern.slf4j.Slf4j;

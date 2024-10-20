@@ -1,6 +1,5 @@
 package com.ada.genealogyapp.source.model;
 
-import com.ada.genealogyapp.citation.model.Citation;
 import com.ada.genealogyapp.tree.model.Tree;
 import lombok.*;
 import org.springframework.data.neo4j.core.schema.GeneratedValue;
@@ -8,8 +7,6 @@ import org.springframework.data.neo4j.core.schema.Id;
 import org.springframework.data.neo4j.core.schema.Node;
 import org.springframework.data.neo4j.core.schema.Relationship;
 
-import java.util.HashSet;
-import java.util.Set;
 import java.util.UUID;
 
 

@@ -1,8 +1,6 @@
 package com.ada.genealogyapp.citation.controller;
 
 import com.ada.genealogyapp.citation.service.CitationSourcesManagementService;
-import com.ada.genealogyapp.event.dto.EventRequest;
-import com.ada.genealogyapp.event.model.Event;
 import com.ada.genealogyapp.person.dto.PersonUpdateRequest;
 import com.ada.genealogyapp.source.dto.SourceRequest;
 import com.ada.genealogyapp.source.model.Source;

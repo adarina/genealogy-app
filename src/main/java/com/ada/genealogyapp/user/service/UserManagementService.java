@@ -22,15 +22,13 @@ public class UserManagementService {
     }
 
     @Transactional
-    public boolean deleteUserByUsername(String username) {
+    public void deleteUserByUsername(String username) {
         Optional<User> user = userSearchService.findUserByUsername(username);
         if (user.isPresent()) {
             delete(user.get().getUsername());
             log.info("User with Username {} deleted successfully", username);
-            return true;
         } else {
             log.warn("User with Username {} not found", username);
-            return false;
         }
     }
 
