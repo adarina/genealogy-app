@@ -22,7 +22,7 @@ public class PersonCreationIntegrationTest extends IntegrationTestConfig {
 
 
     @Autowired
-    private TreeRepository treeRepository;
+    TreeRepository treeRepository;
 
 
     @BeforeEach

@@ -24,10 +24,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class PersonManagementIntegrationTest extends IntegrationTestConfig {
 
     @Autowired
-    private TreeRepository treeRepository;
+    TreeRepository treeRepository;
 
     @Autowired
-    private PersonRepository personRepository;
+    PersonRepository personRepository;
 
     @BeforeEach
     void setUp() {
