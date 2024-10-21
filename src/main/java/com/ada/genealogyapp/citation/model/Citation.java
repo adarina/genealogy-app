@@ -1,5 +1,6 @@
 package com.ada.genealogyapp.citation.model;
 
+import com.ada.genealogyapp.file.model.File;
 import com.ada.genealogyapp.source.model.Source;
 import com.ada.genealogyapp.tree.model.Tree;
 import lombok.*;
@@ -35,5 +36,8 @@ public class Citation {
 
     @Relationship(type = "HAS_SOURCE", direction = Relationship.Direction.OUTGOING)
     private Set<Source> sources = new HashSet<>();
+
+    @Relationship(type = "HAS_FILE", direction = Relationship.Direction.OUTGOING)
+    private Set<File> files = new HashSet<>();
 
 }

@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -28,5 +29,16 @@ public class FileSearchService {
             throw new NodeNotFoundException("No files found for treeId: " + treeId);
         }
         return files;
+    }
+
+    public File findFileById(UUID fileId) {
+        Optional<File> file = fileRepository.findById(fileId);
+        if (file.isPresent()) {
+            log.info("File found: {}", file.get());
+            return file.get();
+        } else {
+            log.error("No file found with id: {}", fileId);
+            return null;
+        }
     }
 }

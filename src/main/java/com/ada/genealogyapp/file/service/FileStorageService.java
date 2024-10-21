@@ -8,6 +8,7 @@ import com.ada.genealogyapp.tree.model.Tree;
 import com.ada.genealogyapp.tree.service.TreeService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -38,6 +39,7 @@ public class FileStorageService {
         this.rootLocation = Paths.get(properties.getLocation());
     }
 
+    @Transactional
     public File storeFile(UUID treeId, MultipartFile multipartFile) {
         Tree tree = treeService.findTreeByIdOrThrowNodeNotFoundException(treeId);
 
