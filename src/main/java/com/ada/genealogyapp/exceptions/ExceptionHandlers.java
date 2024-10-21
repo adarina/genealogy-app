@@ -114,7 +114,23 @@ public class ExceptionHandlers {
     }
 
     @ExceptionHandler(NodeAlreadyInNodeException.class)
-    public ResponseEntity<ExceptionResponse> handleChildAlreadyInFamilyException(NodeAlreadyInNodeException ex) {
+    public ResponseEntity<ExceptionResponse> handleNodeAlreadyInNodeException(NodeAlreadyInNodeException ex) {
+        return ResponseEntity.status(HttpStatus.CONFLICT)
+                .body(ExceptionResponse.builder()
+                        .errorTime(LocalDateTime.now().format(formatter))
+                        .message(ex.getMessage()).build());
+    }
+
+    @ExceptionHandler(StorageException.class)
+    public ResponseEntity<ExceptionResponse> handleStorageException(StorageException ex) {
+        return ResponseEntity.status(HttpStatus.CONFLICT)
+                .body(ExceptionResponse.builder()
+                        .errorTime(LocalDateTime.now().format(formatter))
+                        .message(ex.getMessage()).build());
+    }
+
+    @ExceptionHandler(StorageFileNotFoundException.class)
+    public ResponseEntity<ExceptionResponse> handleStorageFileNotFoundException(StorageFileNotFoundException ex) {
         return ResponseEntity.status(HttpStatus.CONFLICT)
                 .body(ExceptionResponse.builder()
                         .errorTime(LocalDateTime.now().format(formatter))

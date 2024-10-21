@@ -9,10 +9,6 @@ import java.util.UUID;
 
 
 public interface PersonRepository extends Neo4jRepository<Person, UUID> {
-
-//    @Query("MATCH (p:Person)-[:PARENT_OF]->(c:Person) WHERE id(c) = $childId RETURN p")
-//    Set<Person> findParentsOf(UUID childId);
-
     @Query("MATCH (p:Person)-[:PARENT_OF]->(c:Person) WHERE c.id = $childId RETURN p")
     Set<Person> findParentsOf(UUID childId);
 
