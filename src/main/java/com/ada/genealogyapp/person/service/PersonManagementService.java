@@ -1,6 +1,7 @@
 package com.ada.genealogyapp.person.service;
 
 
+import com.ada.genealogyapp.tree.service.TransactionalInNeo4j;
 import com.ada.genealogyapp.event.model.Event;
 import com.ada.genealogyapp.event.service.EventService;
 import com.ada.genealogyapp.person.dto.PersonRequest;
@@ -11,7 +12,6 @@ import com.ada.genealogyapp.tree.service.TreeTransactionService;
 import lombok.extern.slf4j.Slf4j;
 import org.neo4j.driver.Transaction;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.Map;
@@ -37,22 +37,12 @@ public class PersonManagementService {
         this.eventService = eventService;
     }
 
-    @Transactional
-    public void startTransactionAndSession(UUID treeId, UUID personId) {
-        validateTreeAndPerson(treeId, personId);
-        treeTransactionService.startTransactionAndSession();
-    }
 
     public Person validateTreeAndPerson(UUID treeId, UUID personId) {
         treeService.findTreeByIdOrThrowNodeNotFoundException(treeId);
         return personService.findPersonByIdOrThrowNodeNotFoundException(personId);
     }
 
-    @Transactional
-    public void startTransactionAndSession(UUID treeId, UUID personId, UUID eventId) {
-        validateTreePersonAndEvent(treeId, personId, eventId);
-        treeTransactionService.startTransactionAndSession();
-    }
 
     public Event validateTreePersonAndEvent(UUID treeId, UUID personId, UUID eventId) {
         treeService.findTreeByIdOrThrowNodeNotFoundException(treeId);
@@ -60,9 +50,9 @@ public class PersonManagementService {
         return eventService.findEventByIdOrThrowNodeNotFoundException(eventId);
     }
 
-    @Transactional
+    @TransactionalInNeo4j
     public void updatePersonalData(UUID treeId, UUID personId, PersonRequest personRequest) {
-        Transaction tx = treeTransactionService.getCurrentTransaction();
+        Transaction tx = treeTransactionService.startTransactionAndSession();
         validateTreeAndPerson(treeId, personId);
 
         updateFirstname(tx, personId, personRequest.getFirstname());
@@ -71,6 +61,7 @@ public class PersonManagementService {
         updateGender(tx, personId, personRequest.getGenderType());
 
         log.info("Person updated successfully: {}", personId);
+        tx.commit();
     }
 
     private void updateFirstname(Transaction tx, UUID personId, String firstname) {

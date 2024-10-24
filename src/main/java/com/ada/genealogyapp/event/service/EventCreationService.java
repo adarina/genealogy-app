@@ -1,6 +1,7 @@
 package com.ada.genealogyapp.event.service;
 
 
+import com.ada.genealogyapp.tree.service.TransactionalInNeo4j;
 import com.ada.genealogyapp.event.dto.EventRequest;
 import com.ada.genealogyapp.event.model.Event;
 import com.ada.genealogyapp.event.repository.EventRepository;
@@ -8,7 +9,6 @@ import com.ada.genealogyapp.tree.model.Tree;
 import com.ada.genealogyapp.tree.service.TreeService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.UUID;
 
@@ -27,7 +27,7 @@ public class EventCreationService {
         this.eventRepository = eventRepository;
     }
 
-    @Transactional
+    @TransactionalInNeo4j
     public Event createEvent(UUID treeId, EventRequest eventRequest) {
         Event event = EventRequest.dtoToEntityMapper().apply(eventRequest);
 

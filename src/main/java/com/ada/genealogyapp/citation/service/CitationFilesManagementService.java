@@ -1,5 +1,6 @@
 package com.ada.genealogyapp.citation.service;
 
+import com.ada.genealogyapp.tree.service.TransactionalInNeo4j;
 import com.ada.genealogyapp.citation.model.Citation;
 import com.ada.genealogyapp.file.model.File;
 import com.ada.genealogyapp.file.service.FileSearchService;
@@ -7,7 +8,6 @@ import com.ada.genealogyapp.tree.service.TreeTransactionService;
 import lombok.extern.slf4j.Slf4j;
 import org.neo4j.driver.Transaction;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Map;
 import java.util.UUID;
@@ -29,9 +29,9 @@ public class CitationFilesManagementService {
     }
 
 
-    @Transactional
+    @TransactionalInNeo4j
     public void addExistingFileToCitation(UUID treeId, UUID citationId, UUID fileId) {
-        Transaction tx = treeTransactionService.getCurrentTransaction();
+        Transaction tx = treeTransactionService.startTransactionAndSession();
         Citation citation = citationManagementService.validateTreeAndCitation(treeId, citationId);
         File file = fileSearchService.findFileById(fileId);
 
@@ -41,6 +41,6 @@ public class CitationFilesManagementService {
 
         tx.run(cypher, Map.of("citationId", citationId.toString(), "fileId", file.getId().toString()));
         log.info("File {} added successfully to the citation {}", file.getName(), citation.getId());
-
+        tx.commit();
     }
 }

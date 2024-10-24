@@ -137,6 +137,14 @@ public class ExceptionHandlers {
                         .message(ex.getMessage()).build());
     }
 
+    @ExceptionHandler(DateException.class)
+    public ResponseEntity<ExceptionResponse> handleDateException(DateException ex) {
+        return ResponseEntity.status(HttpStatus.CONFLICT)
+                .body(ExceptionResponse.builder()
+                        .errorTime(LocalDateTime.now().format(formatter))
+                        .message(ex.getMessage()).build());
+    }
+
 }
 
 

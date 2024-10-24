@@ -1,5 +1,6 @@
 package com.ada.genealogyapp.source.service;
 
+import com.ada.genealogyapp.tree.service.TransactionalInNeo4j;
 import com.ada.genealogyapp.source.dto.SourceRequest;
 import com.ada.genealogyapp.source.model.Source;
 import com.ada.genealogyapp.source.repository.SourceRepository;
@@ -24,6 +25,7 @@ public class SourceCreationService {
         this.treeService = treeService;
     }
 
+    @TransactionalInNeo4j
     public Source createSource(UUID treeId, SourceRequest sourceRequest) {
         Source source = SourceRequest.dtoToEntityMapper().apply(sourceRequest);
 

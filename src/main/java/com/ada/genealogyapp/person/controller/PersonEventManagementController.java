@@ -33,29 +33,23 @@ public class PersonEventManagementController {
         this.citationCreationService = citationCreationService;
     }
 
-    @PostMapping()
-    public ResponseEntity<Void> startEditingEvent(@PathVariable UUID treeId, @PathVariable UUID personId, @PathVariable UUID eventId) {
-        personManagementService.startTransactionAndSession(treeId, personId, eventId);
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-    }
 
-    @PutMapping("/commit")
+    @PutMapping()
     public ResponseEntity<?> updatePersonalEvent(@PathVariable UUID treeId, @PathVariable UUID personId, @PathVariable UUID eventId, @RequestBody EventRequest eventRequest) {
         personEventManagementService.updatePersonalEvent(treeId, personId, eventId, eventRequest);
-        treeTransactionService.commitChanges();
         return ResponseEntity.ok().build();
     }
 
-    @PostMapping("/addExistingSource")
-    public ResponseEntity<?> addSourceToPersonalEvent(@PathVariable UUID treeId, @PathVariable UUID personId, @PathVariable UUID eventId, @RequestBody UUIDRequest UUIDRequest) {
-        personEventManagementService.addSourceToPersonalEvent(treeId, personId, eventId, UUIDRequest.getId());
+    @PostMapping("/addExistingCitation")
+    public ResponseEntity<?> addCitationToPersonalEvent(@PathVariable UUID treeId, @PathVariable UUID personId, @PathVariable UUID eventId, @RequestBody UUIDRequest UUIDRequest) {
+        personEventManagementService.addCitationToPersonalEvent(treeId, personId, eventId, UUIDRequest.getId());
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
-    @PostMapping("/addNewSource")
-    public ResponseEntity<?> createAndAddSourceToPerson(@PathVariable UUID treeId, @PathVariable UUID personId, @PathVariable UUID eventId, @RequestBody CitationRequest citationRequest) {
+    @PostMapping("/addNewCitation")
+    public ResponseEntity<?> createAndAddCitationToPerson(@PathVariable UUID treeId, @PathVariable UUID personId, @PathVariable UUID eventId, @RequestBody CitationRequest citationRequest) {
         Citation citation = citationCreationService.createCitation(treeId, citationRequest);
-        personEventManagementService.addSourceToPersonalEvent(treeId, personId, eventId, citation.getId());
+        personEventManagementService.addCitationToPersonalEvent(treeId, personId, eventId, citation.getId());
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 }

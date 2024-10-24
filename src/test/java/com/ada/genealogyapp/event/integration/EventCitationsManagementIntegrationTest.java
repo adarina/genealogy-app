@@ -20,17 +20,17 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-public class EventCitationsManagementIntegrationTest extends IntegrationTestConfig {
+class EventCitationsManagementIntegrationTest extends IntegrationTestConfig {
 
     @Autowired
-    private TreeRepository treeRepository;
+    TreeRepository treeRepository;
 
 
     @Autowired
-    private EventRepository eventRepository;
+    EventRepository eventRepository;
 
     @Autowired
-    private CitationRepository citationRepository;
+    CitationRepository citationRepository;
 
 
     @BeforeEach
@@ -67,21 +67,11 @@ public class EventCitationsManagementIntegrationTest extends IntegrationTestConf
         EventCitationRequest eventCitationRequest = new EventCitationRequest();
         eventCitationRequest.setId(citation.getId());
 
-        mockMvc.perform(post("/api/v1/genealogy/trees/{treeId}/events/{eventId}", tree.getId(), event.getId())
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andDo(print())
-                .andExpect(status().isNoContent());
-
         mockMvc.perform(post("/api/v1/genealogy/trees/{treeId}/events/{eventId}/citations/addExistingCitation", tree.getId(), event.getId())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(eventCitationRequest)))
                 .andDo(print())
                 .andExpect(status().isCreated());
-
-        mockMvc.perform(post("/api/v1/genealogy/trees/{treeId}/commit", tree.getId())
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andDo(print())
-                .andExpect(status().isNoContent());
 
         Event savedEvent = eventRepository.findById(event.getId()).orElseThrow();
         assertEquals(1, savedEvent.getCitations().size());

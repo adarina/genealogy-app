@@ -1,5 +1,6 @@
 package com.ada.genealogyapp.family.service;
 
+import com.ada.genealogyapp.tree.service.TransactionalInNeo4j;
 import com.ada.genealogyapp.event.model.Event;
 import com.ada.genealogyapp.event.relationship.EventRelationship;
 import com.ada.genealogyapp.event.service.EventServiceImpl;
@@ -11,7 +12,6 @@ import com.ada.genealogyapp.tree.service.TreeTransactionService;
 import lombok.extern.slf4j.Slf4j;
 import org.neo4j.driver.Transaction;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Map;
 import java.util.Set;
@@ -33,9 +33,9 @@ public class FamilyEventsManagementService {
         this.eventService = eventService;
     }
 
-    @Transactional
+    @TransactionalInNeo4j
     public void addEventToFamily(UUID treeId, UUID familyId, UUID eventId, EventRelationshipType eventRelationshipType) {
-        Transaction tx = treeTransactionService.getCurrentTransaction();
+        Transaction tx = treeTransactionService.startTransactionAndSession();
         Family family = familyManagementService.validateTreeAndFamily(treeId, familyId);
         Event event = eventService.findEventById(eventId);
 
@@ -55,9 +55,11 @@ public class FamilyEventsManagementService {
         log.info("Event {} added successfully to the family {}", event.getId(), family.getId());
 
         addDefaultHasParticipantToEvent(tx, family, event);
+        tx.commit();
+
     }
 
-    @Transactional
+    @TransactionalInNeo4j
     public void addDefaultHasParticipantToEvent(Transaction tx, Family family, Event event) {
 
         String cypher = "MATCH (e:Event {id: $eventId}) " +
@@ -69,16 +71,17 @@ public class FamilyEventsManagementService {
         log.info("Added family {} as participant to event {}", family.getId(), event.getId());
     }
 
-    @Transactional
+    @TransactionalInNeo4j
     public void removeEventFromFamily(UUID treeId, UUID familyId, UUIDRequest UUIDRequest) {
-        Transaction tx = treeTransactionService.getCurrentTransaction();
+        Transaction tx = treeTransactionService.startTransactionAndSession();
         Family family = familyManagementService.validateTreeAndFamily(treeId, familyId);
         Event event = eventService.findEventById(UUIDRequest.getId());
 
         removeEventFromFamily(family, tx, event);
+        tx.commit();
     }
 
-    @Transactional
+    @TransactionalInNeo4j
     public void removeEventFromFamily(Family family, Transaction tx, Event event) {
         String cypher = "MATCH (f:Family {id: $familyId}) " +
                 "MATCH (e:Event {id: $eventId}) " +

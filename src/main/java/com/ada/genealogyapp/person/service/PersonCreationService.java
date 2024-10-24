@@ -1,5 +1,6 @@
 package com.ada.genealogyapp.person.service;
 
+import com.ada.genealogyapp.tree.service.TransactionalInNeo4j;
 import com.ada.genealogyapp.person.dto.PersonRequest;
 import com.ada.genealogyapp.person.model.Person;
 import com.ada.genealogyapp.person.repostitory.PersonRepository;
@@ -7,7 +8,6 @@ import com.ada.genealogyapp.tree.model.Tree;
 import com.ada.genealogyapp.tree.service.TreeService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.UUID;
 
@@ -26,7 +26,7 @@ public class PersonCreationService {
         this.personRepository = personRepository;
     }
 
-    @Transactional
+    @TransactionalInNeo4j
     public Person createPerson(UUID treeId, PersonRequest personRequest) {
         Person person = PersonRequest.dtoToEntityMapper().apply(personRequest);
 

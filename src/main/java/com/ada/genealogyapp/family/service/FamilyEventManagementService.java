@@ -1,5 +1,6 @@
 package com.ada.genealogyapp.family.service;
 
+import com.ada.genealogyapp.tree.service.TransactionalInNeo4j;
 import com.ada.genealogyapp.citation.model.Citation;
 import com.ada.genealogyapp.citation.service.CitationService;
 import com.ada.genealogyapp.event.dto.EventRequest;
@@ -10,7 +11,6 @@ import com.ada.genealogyapp.tree.service.TreeTransactionService;
 import lombok.extern.slf4j.Slf4j;
 import org.neo4j.driver.Transaction;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Map;
 import java.util.UUID;
@@ -36,9 +36,9 @@ public class FamilyEventManagementService {
         this.citationService = citationService;
     }
 
-    @Transactional
+    @TransactionalInNeo4j
     public void updateFamilyEvent(UUID treeId, UUID familyId, UUID eventId, EventRequest eventRequest) {
-        Transaction tx = treeTransactionService.getCurrentTransaction();
+        Transaction tx = treeTransactionService.startTransactionAndSession();
         Event event = familyManagementService.validateTreeFamilyAndEvent(treeId, familyId, eventId);
 
         eventManagementService.updateEventType(tx, event.getId(), eventRequest.getType());
@@ -55,14 +55,15 @@ public class FamilyEventManagementService {
 
             log.info("Updated event {} in family {}", event.getId(), familyId);
         }
+        tx.commit();
     }
 
-    @Transactional
-    public void addSourceToFamilyEvent(UUID treeId, UUID familyId, UUID eventId, UUID citationId) {
-        Transaction tx = treeTransactionService.getCurrentTransaction();
+    @TransactionalInNeo4j
+    public void addCitationToFamilyEvent(UUID treeId, UUID familyId, UUID eventId, UUID citationId) {
+        Transaction tx = treeTransactionService.startTransactionAndSession();
         Event event = familyManagementService.validateTreeFamilyAndEvent(treeId, familyId, eventId);
 
-        Citation citation = citationService.findCitationById(citationId);
+        Citation citation = citationService.findCitationByIdOrThrowNodeNotFoundException(citationId);
         if (event.getCitations().contains(citation)) {
             throw new NodeAlreadyInNodeException("Citation " + citation.getId() + " is already part of the family event " + eventId);
         }
@@ -72,5 +73,6 @@ public class FamilyEventManagementService {
 
         tx.run(cypher, Map.of("eventId", eventId.toString(), "citationId", citation.getId().toString()));
         log.info("Citation {} added successfully to the family event {}", citation.getId(), event.getId().toString());
+        tx.commit();
     }
 }

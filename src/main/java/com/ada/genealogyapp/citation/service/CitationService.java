@@ -6,7 +6,5 @@ import java.util.UUID;
 
 public interface CitationService {
 
-    Citation findCitationById(UUID citationId);
-
     Citation findCitationByIdOrThrowNodeNotFoundException(UUID citationId);
 }

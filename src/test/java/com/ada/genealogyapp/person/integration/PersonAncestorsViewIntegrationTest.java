@@ -24,7 +24,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 
 
-public class PersonAncestorsViewIntegrationTest extends IntegrationTestConfig {
+class PersonAncestorsViewIntegrationTest extends IntegrationTestConfig {
 
     @Autowired
     TreeRepository treeRepository;

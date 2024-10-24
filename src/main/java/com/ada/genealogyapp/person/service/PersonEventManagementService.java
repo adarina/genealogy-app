@@ -1,5 +1,6 @@
 package com.ada.genealogyapp.person.service;
 
+import com.ada.genealogyapp.tree.service.TransactionalInNeo4j;
 import com.ada.genealogyapp.citation.model.Citation;
 import com.ada.genealogyapp.citation.service.CitationService;
 import com.ada.genealogyapp.event.dto.EventRequest;
@@ -10,7 +11,6 @@ import com.ada.genealogyapp.tree.service.TreeTransactionService;
 import lombok.extern.slf4j.Slf4j;
 import org.neo4j.driver.Transaction;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Map;
 import java.util.UUID;
@@ -37,9 +37,9 @@ public class PersonEventManagementService {
     }
 
 
-    @Transactional
+    @TransactionalInNeo4j
     public void updatePersonalEvent(UUID treeId, UUID personId, UUID eventId, EventRequest eventRequest) {
-        Transaction tx = treeTransactionService.getCurrentTransaction();
+        Transaction tx = treeTransactionService.startTransactionAndSession();
         Event event = personManagementService.validateTreePersonAndEvent(treeId, personId, eventId);
 
         eventManagementService.updateEventType(tx, event.getId(), eventRequest.getType());
@@ -56,14 +56,15 @@ public class PersonEventManagementService {
 
             log.info("Updated event {} in person {}", event.getId(), personId);
         }
+        tx.commit();
     }
 
-    @Transactional
-    public void addSourceToPersonalEvent(UUID treeId, UUID personId, UUID eventId, UUID citationId) {
-        Transaction tx = treeTransactionService.getCurrentTransaction();
+    @TransactionalInNeo4j
+    public void addCitationToPersonalEvent(UUID treeId, UUID personId, UUID eventId, UUID citationId) {
+        Transaction tx = treeTransactionService.startTransactionAndSession();
         Event event = personManagementService.validateTreePersonAndEvent(treeId, personId, eventId);
 
-        Citation citation = citationService.findCitationById(citationId);
+        Citation citation = citationService.findCitationByIdOrThrowNodeNotFoundException(citationId);
         if (event.getCitations().contains(citation)) {
             throw new NodeAlreadyInNodeException("Citation " + citation.getId() + " is already part of the personal event " + eventId);
         }
@@ -73,6 +74,7 @@ public class PersonEventManagementService {
 
         tx.run(cypher, Map.of("eventId", eventId.toString(), "citationId", citation.getId().toString()));
         log.info("Citation {} added successfully to the personal event {}", citation.getId(), event.getId().toString());
+        tx.commit();
     }
 }
 

@@ -20,12 +20,6 @@ public class EventManagementController {
         this.eventManagementService = eventManagementService;
     }
 
-    @PostMapping()
-    public ResponseEntity<Void> startEditingEvent(@PathVariable UUID treeId, @PathVariable UUID eventId) {
-        eventManagementService.startTransactionAndSession(treeId, eventId);
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-    }
-
     @PutMapping("/updateEventData")
     public ResponseEntity<?> updateEvent(@PathVariable UUID treeId, @PathVariable UUID eventId, @RequestBody EventRequest eventRequest) {
         eventManagementService.updateEventData(treeId, eventId, eventRequest);

@@ -19,18 +19,6 @@ public class CitationServiceImpl implements CitationService{
         this.citationRepository = citationRepository;
     }
 
-
-    public Citation findCitationById(UUID citationId) {
-        Optional<Citation> citation = citationRepository.findById(citationId);
-        if (citation.isPresent()) {
-            log.info("Citation found: {}", citation.get());
-            return citation.get();
-        } else {
-            log.error("No citation found with id: {}", citationId);
-            return null;
-        }
-    }
-
     public Citation findCitationByIdOrThrowNodeNotFoundException(UUID citationId) {
         Optional<Citation> citation = citationRepository.findById(citationId);
         if (citation.isPresent()) {

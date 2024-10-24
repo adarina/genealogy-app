@@ -14,7 +14,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-public class FileViewIntegrationTest extends IntegrationTestConfig {
+class FileViewIntegrationTest extends IntegrationTestConfig {
 
     @Autowired
     TreeRepository treeRepository;
@@ -39,7 +39,7 @@ public class FileViewIntegrationTest extends IntegrationTestConfig {
 
 
     @Test
-    public void shouldGetAllFiles() throws Exception {
+    void shouldGetAllFiles() throws Exception {
         Tree tree = new Tree();
         treeRepository.save(tree);
 

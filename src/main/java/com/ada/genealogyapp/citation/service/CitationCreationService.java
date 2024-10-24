@@ -1,6 +1,7 @@
 package com.ada.genealogyapp.citation.service;
 
 
+import com.ada.genealogyapp.tree.service.TransactionalInNeo4j;
 import com.ada.genealogyapp.citation.dto.CitationRequest;
 import com.ada.genealogyapp.citation.model.Citation;
 import com.ada.genealogyapp.citation.repository.CitationRepository;
@@ -26,6 +27,7 @@ public class CitationCreationService {
         this.citationRepository = citationRepository;
     }
 
+    @TransactionalInNeo4j
     public Citation createCitation(UUID treeId, CitationRequest citationRequest) {
         Citation citation = CitationRequest.dtoToEntityMapper().apply(citationRequest);
 

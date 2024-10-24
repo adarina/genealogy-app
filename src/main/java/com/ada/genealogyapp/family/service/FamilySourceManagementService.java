@@ -1,5 +1,6 @@
 package com.ada.genealogyapp.family.service;
 
+import com.ada.genealogyapp.tree.service.TransactionalInNeo4j;
 import com.ada.genealogyapp.citation.model.Citation;
 import com.ada.genealogyapp.citation.service.CitationService;
 import com.ada.genealogyapp.exceptions.NodeAlreadyInNodeException;
@@ -9,7 +10,6 @@ import com.ada.genealogyapp.tree.service.TreeTransactionService;
 import lombok.extern.slf4j.Slf4j;
 import org.neo4j.driver.Transaction;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Map;
 import java.util.UUID;
@@ -30,11 +30,11 @@ public class FamilySourceManagementService {
         this.citationService = citationService;
     }
 
-    @Transactional
+    @TransactionalInNeo4j
     public void addSourceToFamily(UUID treeId, UUID familyId, UUIDRequest UUIDRequest) {
-        Transaction tx = treeTransactionService.getCurrentTransaction();
+        Transaction tx = treeTransactionService.startTransactionAndSession();
         Family family = familyManagementService.validateTreeAndFamily(treeId, familyId);
-        Citation citation = citationService.findCitationById(UUIDRequest.getId());
+        Citation citation = citationService.findCitationByIdOrThrowNodeNotFoundException(UUIDRequest.getId());
 
         if (family.getCitations().contains(citation)) {
             throw new NodeAlreadyInNodeException("Citation " + citation.getId() + " is already part of the family " + familyId);
@@ -45,14 +45,14 @@ public class FamilySourceManagementService {
 
         tx.run(cypher, Map.of("familyId", familyId.toString(), "citationId", citation.getId().toString()));
         log.info("Citation {} added successfully to the family {}", citation.getPage(), family.getId());
-
+        tx.commit();
     }
 
-    @Transactional
+    @TransactionalInNeo4j
     public void removeSourceFromFamily(UUID treeId, UUID familyId, UUIDRequest UUIDRequest) {
-        Transaction tx = treeTransactionService.getCurrentTransaction();
+        Transaction tx = treeTransactionService.startTransactionAndSession();
         Family family = familyManagementService.validateTreeAndFamily(treeId, familyId);
-        Citation citation = citationService.findCitationById(UUIDRequest.getId());
+        Citation citation = citationService.findCitationByIdOrThrowNodeNotFoundException(UUIDRequest.getId());
 
         String cypher = "MATCH (f:Family {id: $familyId}) " +
                 "MATCH (c:Citation {id: $citationId}) " +
@@ -61,6 +61,6 @@ public class FamilySourceManagementService {
 
         tx.run(cypher, Map.of("familyId", family.getId().toString(), "citationId", citation.getId().toString()));
         log.info("Citation {} removed from family {}", citation.getId(), family.getId());
-
+        tx.commit();
     }
 }

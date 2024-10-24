@@ -1,6 +1,7 @@
 package com.ada.genealogyapp.citation.service;
 
 
+import com.ada.genealogyapp.tree.service.TransactionalInNeo4j;
 import com.ada.genealogyapp.citation.model.Citation;
 import com.ada.genealogyapp.source.model.Source;
 import com.ada.genealogyapp.source.service.SourceService;
@@ -8,7 +9,6 @@ import com.ada.genealogyapp.tree.service.TreeTransactionService;
 import lombok.extern.slf4j.Slf4j;
 import org.neo4j.driver.Transaction;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Map;
 import java.util.UUID;
@@ -29,9 +29,9 @@ public class CitationSourcesManagementService {
         this.citationManagementService = citationManagementService;
     }
 
-    @Transactional
+    @TransactionalInNeo4j
     public void addExistingSourceToCitation(UUID treeId, UUID citationId, UUID sourceId) {
-        Transaction tx = treeTransactionService.getCurrentTransaction();
+        Transaction tx = treeTransactionService.startTransactionAndSession();
         Citation citation = citationManagementService.validateTreeAndCitation(treeId, citationId);
         Source source = sourceService.findSourceById(sourceId);
 
@@ -41,6 +41,6 @@ public class CitationSourcesManagementService {
 
         tx.run(cypher, Map.of("citationId", citationId.toString(), "sourceId", source.getId().toString()));
         log.info("Source {} added successfully to the citation {}", source.getName(), citation.getId());
-
+        tx.commit();
     }
 }

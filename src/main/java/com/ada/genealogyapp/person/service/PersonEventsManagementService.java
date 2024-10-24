@@ -1,5 +1,6 @@
 package com.ada.genealogyapp.person.service;
 
+import com.ada.genealogyapp.tree.service.TransactionalInNeo4j;
 import com.ada.genealogyapp.event.model.Event;
 import com.ada.genealogyapp.event.relationship.EventRelationship;
 import com.ada.genealogyapp.event.service.EventService;
@@ -10,7 +11,6 @@ import com.ada.genealogyapp.tree.service.TreeTransactionService;
 import lombok.extern.slf4j.Slf4j;
 import org.neo4j.driver.Transaction;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Map;
 import java.util.Set;
@@ -33,7 +33,7 @@ public class PersonEventsManagementService {
     }
 
 
-    @Transactional
+    @TransactionalInNeo4j
     public void addExistingEventToPerson(UUID treeId, UUID personId, UUID eventId, EventRelationshipType eventRelationshipType) {
         Transaction tx = treeTransactionService.getCurrentTransaction();
         Person person = personManagementService.validateTreeAndPerson(treeId, personId);
@@ -57,7 +57,7 @@ public class PersonEventsManagementService {
         addDefaultHasParticipantToEvent(tx, person, event);
     }
 
-    @Transactional
+    @TransactionalInNeo4j
     public void addDefaultHasParticipantToEvent(Transaction tx, Person person, Event event) {
 
         String cypher = "MATCH (e:Event {id: $eventId}) " +

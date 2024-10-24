@@ -1,5 +1,6 @@
 package com.ada.genealogyapp.event.service;
 
+import com.ada.genealogyapp.tree.service.TransactionalInNeo4j;
 import com.ada.genealogyapp.event.dto.EventRequest;
 import com.ada.genealogyapp.event.model.Event;
 import com.ada.genealogyapp.event.type.EventType;
@@ -8,7 +9,6 @@ import com.ada.genealogyapp.tree.service.TreeTransactionService;
 import lombok.extern.slf4j.Slf4j;
 import org.neo4j.driver.Transaction;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.Map;
@@ -32,21 +32,14 @@ public class EventManagementService {
         this.eventService = eventService;
     }
 
-
-    @Transactional
-    public void startTransactionAndSession(UUID treeId, UUID eventId) {
-        validateTreeAndEvent(treeId, eventId);
-        treeTransactionService.startTransactionAndSession();
-    }
-
     public Event validateTreeAndEvent(UUID treeId, UUID eventId) {
         treeService.findTreeByIdOrThrowNodeNotFoundException(treeId);
         return eventService.findEventByIdOrThrowNodeNotFoundException(eventId);
     }
 
-    @Transactional
+    @TransactionalInNeo4j
     public void updateEventData(UUID treeId, UUID eventId, EventRequest eventRequest) {
-        Transaction tx = treeTransactionService.getCurrentTransaction();
+        Transaction tx = treeTransactionService.startTransactionAndSession();
         validateTreeAndEvent(treeId, eventId);
 
         updateEventType(tx, eventId, eventRequest.getType());
@@ -55,6 +48,7 @@ public class EventManagementService {
         updateDescription(tx, eventId, eventRequest.getDescription());
 
         log.info("Event updated successfully: {}", eventId);
+        tx.commit();
     }
 
     public void updateEventType(Transaction tx, UUID personId, EventType eventType) {

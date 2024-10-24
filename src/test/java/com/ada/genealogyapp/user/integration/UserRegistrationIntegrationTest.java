@@ -14,10 +14,10 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 
-public class UserRegistrationIntegrationTest extends IntegrationTestConfig {
+class UserRegistrationIntegrationTest extends IntegrationTestConfig {
 
     @Autowired
-    private UserRepository userRepository;
+    UserRepository userRepository;
 
     @BeforeEach
     void setUp() {

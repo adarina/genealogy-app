@@ -1,5 +1,6 @@
 package com.ada.genealogyapp.family.service;
 
+import com.ada.genealogyapp.tree.service.TransactionalInNeo4j;
 import com.ada.genealogyapp.exceptions.NodeAlreadyInNodeException;
 import com.ada.genealogyapp.family.dto.UUIDRequest;
 import com.ada.genealogyapp.family.model.Family;
@@ -11,7 +12,6 @@ import com.ada.genealogyapp.tree.service.TreeTransactionService;
 import lombok.extern.slf4j.Slf4j;
 import org.neo4j.driver.Transaction;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Map;
 import java.util.Set;
@@ -33,12 +33,11 @@ public class FamilyPersonsManagementService {
         this.personSearchService = personSearchService;
     }
 
-    @Transactional
+    @TransactionalInNeo4j
     public void addChildToFamily(UUID treeId, UUID familyId, UUID childId) {
-
-        Transaction tx = treeTransactionService.getCurrentTransaction();
+        Transaction tx = treeTransactionService.startTransactionAndSession();
         Family family = familyManagementService.validateTreeAndFamily(treeId, familyId);
-        Person child = personSearchService.findPersonById(childId);
+        Person child = personSearchService.findPersonByIdOrThrowNodeNotFoundException(childId);
 
         if (family.getChildren().contains(child)) {
             throw new NodeAlreadyInNodeException("Child " + child.getId() + " is already part of the family " + familyId);
@@ -49,24 +48,28 @@ public class FamilyPersonsManagementService {
 
         tx.run(cypher, Map.of("familyId", familyId.toString(), "childId", child.getId().toString()));
         log.info("Child {} added successfully to the family {}", child.getFirstname(), family.getId());
+        tx.commit();
     }
 
-    @Transactional
+    @TransactionalInNeo4j
     public void addFatherToFamily(UUID treeId, UUID familyId, UUID fatherId) {
         addExistingParentToFamily(treeId, familyId, fatherId, "HAS_FATHER", "Father");
     }
 
-    @Transactional
+    @TransactionalInNeo4j
     public void addMotherToFamily(UUID treeId, UUID familyId, UUID motherId) {
         addExistingParentToFamily(treeId, familyId, motherId, "HAS_MOTHER", "Mother");
     }
 
-    @Transactional
+    @TransactionalInNeo4j
     public void addExistingParentToFamily(UUID treeId, UUID familyId, UUID personId, String relationshipType, String entityType) {
-        Transaction tx = treeTransactionService.getCurrentTransaction();
+        Transaction tx = treeTransactionService.startTransactionAndSession();
         Family family = familyManagementService.validateTreeAndFamily(treeId, familyId);
-        Person parent = personSearchService.findPersonById(personId);
+        Person parent = personSearchService.findPersonByIdOrThrowNodeNotFoundException(personId);
 
+        if (parent.equals(family.getMother()) || parent.equals(family.getFather())) {
+            throw new NodeAlreadyInNodeException("Parent is already in family: " + parent.getId().toString());
+        }
         removePersonFromFamily(family, tx, parent);
 
         String cypher = "MATCH (f:Family {id: $familyId}) " +
@@ -77,9 +80,10 @@ public class FamilyPersonsManagementService {
         log.info("{} {} added successfully to the family {}", entityType, parent.getFirstname(), family.getId());
 
         addDefaultParentOfChildRelationship(family, tx, parent);
+        tx.commit();
     }
 
-    @Transactional
+    @TransactionalInNeo4j
     public void addDefaultParentOfChildRelationship(Family family, Transaction tx, Person parent) {
         Set<Person> children = family.getChildren();
 
@@ -95,7 +99,7 @@ public class FamilyPersonsManagementService {
         log.info("Default children relationships added for parent {} in family {}", parent.getFirstname(), family.getId());
     }
 
-    @Transactional
+    @TransactionalInNeo4j
     public void removeParentOfChildRelationship(Family family, Transaction tx, Person parent) {
         Set<ChildRelationship> childRelationships = parent.getChildren();
 
@@ -112,9 +116,10 @@ public class FamilyPersonsManagementService {
             tx.run(cypher, Map.of("familyId", family.getId().toString(), "parentId", parent.getId().toString(), "childId", child.getId().toString()));
             log.info("Parent-child relationship removed for parent {} and child {}", parent.getFirstname(), child.getFirstname());
         }
+        tx.commit();
     }
 
-    @Transactional
+    @TransactionalInNeo4j
     public void removeChildOfParentRelationship(Family family, Transaction tx, Person child) {
         Person father = family.getFather();
         Person mother = family.getMother();
@@ -142,19 +147,20 @@ public class FamilyPersonsManagementService {
             tx.run(cypher, Map.of("familyId", family.getId().toString(), "motherId", mother.getId().toString(), "childId", child.getId().toString()));
             log.info("Mother-child relationship removed for mother {} and child {}", mother.getFirstname(), child.getFirstname());
         }
+        tx.commit();
     }
 
-    @Transactional
+    @TransactionalInNeo4j
     public void removePersonFromFamily(UUID treeId, UUID familyId, UUIDRequest UUIDRequest) {
-        Transaction tx = treeTransactionService.getCurrentTransaction();
+        Transaction tx = treeTransactionService.startTransactionAndSession();
         Family family = familyManagementService.validateTreeAndFamily(treeId, familyId);
-        Person person = personSearchService.findPersonById(UUIDRequest.getId());
+        Person person = personSearchService.findPersonByIdOrThrowNodeNotFoundException(UUIDRequest.getId());
 
         removePersonFromFamily(family, tx, person);
-
+        tx.commit();
     }
 
-    @Transactional
+    @TransactionalInNeo4j
     public void removePersonFromFamily(Family family, Transaction tx, Person person) {
         String relationshipType = determineAndDeleteRelationshipType(family, tx, person);
         if (nonNull(relationshipType)) {
@@ -168,7 +174,7 @@ public class FamilyPersonsManagementService {
         }
     }
 
-    @Transactional
+    @TransactionalInNeo4j
     public String determineAndDeleteRelationshipType(Family family, Transaction tx, Person person) {
         if (person.equals(family.getFather())) {
             removeParentOfChildRelationship(family, tx, person);

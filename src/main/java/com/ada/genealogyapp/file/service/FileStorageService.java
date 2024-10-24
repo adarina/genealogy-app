@@ -1,5 +1,6 @@
 package com.ada.genealogyapp.file.service;
 
+import com.ada.genealogyapp.tree.service.TransactionalInNeo4j;
 import com.ada.genealogyapp.exceptions.StorageException;
 import com.ada.genealogyapp.file.properties.StorageProperties;
 import com.ada.genealogyapp.file.model.File;
@@ -8,7 +9,6 @@ import com.ada.genealogyapp.tree.model.Tree;
 import com.ada.genealogyapp.tree.service.TreeService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -39,7 +39,7 @@ public class FileStorageService {
         this.rootLocation = Paths.get(properties.getLocation());
     }
 
-    @Transactional
+    @TransactionalInNeo4j
     public File storeFile(UUID treeId, MultipartFile multipartFile) {
         Tree tree = treeService.findTreeByIdOrThrowNodeNotFoundException(treeId);
 

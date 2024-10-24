@@ -1,5 +1,6 @@
 package com.ada.genealogyapp.family.service;
 
+import com.ada.genealogyapp.tree.service.TransactionalInNeo4j;
 import com.ada.genealogyapp.family.dto.FamilyRequest;
 import com.ada.genealogyapp.family.model.Family;
 import com.ada.genealogyapp.family.repostitory.FamilyRepository;
@@ -8,7 +9,6 @@ import com.ada.genealogyapp.tree.model.Tree;
 import com.ada.genealogyapp.tree.service.TreeService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.UUID;
 
@@ -26,7 +26,7 @@ public class FamilyCreationService {
         this.familyRepository = familyRepository;
     }
 
-    @Transactional
+    @TransactionalInNeo4j
     public void createFamily(UUID treeId, FamilyRequest familyRequest) {
         Tree tree = treeService.findTreeByIdOrThrowNodeNotFoundException(treeId);
 

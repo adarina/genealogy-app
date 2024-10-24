@@ -17,7 +17,6 @@ import com.ada.genealogyapp.tree.repository.TreeRepository;
 
 import java.time.LocalDate;
 
-import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -30,17 +29,17 @@ import java.util.HashSet;
 import java.util.Set;
 
 
-public class FamilyPersonsManagementIntegrationTest extends IntegrationTestConfig {
+class FamilyPersonsManagementIntegrationTest extends IntegrationTestConfig {
 
 
     @Autowired
-    private TreeRepository treeRepository;
+    TreeRepository treeRepository;
 
     @Autowired
-    private PersonRepository personRepository;
+    PersonRepository personRepository;
 
     @Autowired
-    private FamilyRepository familyRepository;
+    FamilyRepository familyRepository;
 
 
     @BeforeEach
@@ -82,10 +81,6 @@ public class FamilyPersonsManagementIntegrationTest extends IntegrationTestConfi
         UUIDRequest UUIDRequest = new UUIDRequest();
         UUIDRequest.setId(father.getId());
 
-        mockMvc.perform(post("/api/v1/genealogy/trees/{treeId}/families/{familyId}", tree.getId(), family.getId())
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andDo(print())
-                .andExpect(status().isNoContent());
 
         mockMvc.perform(post("/api/v1/genealogy/trees/{treeId}/families/{familyId}/persons/addExistingFather", tree.getId(), family.getId())
                         .contentType(MediaType.APPLICATION_JSON)
@@ -93,10 +88,6 @@ public class FamilyPersonsManagementIntegrationTest extends IntegrationTestConfi
                 .andDo(print())
                 .andExpect(status().isCreated());
 
-        mockMvc.perform(post("/api/v1/genealogy/trees/{treeId}/commit", tree.getId())
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andDo(print())
-                .andExpect(status().isNoContent());
 
         Family savedFamily = familyRepository.findById(family.getId()).orElseThrow();
         assertNotNull(savedFamily.getFather());
@@ -119,10 +110,6 @@ public class FamilyPersonsManagementIntegrationTest extends IntegrationTestConfi
         personRequest.setBirthDate(LocalDate.of(2000, 5, 30));
         personRequest.setGenderType(GenderType.MALE);
 
-        mockMvc.perform(post("/api/v1/genealogy/trees/{treeId}/families/{familyId}", tree.getId(), family.getId())
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andDo(print())
-                .andExpect(status().isNoContent());
 
         mockMvc.perform(post("/api/v1/genealogy/trees/{treeId}/families/{familyId}/persons/addNewFather", tree.getId(), family.getId())
                         .contentType(MediaType.APPLICATION_JSON)
@@ -130,10 +117,6 @@ public class FamilyPersonsManagementIntegrationTest extends IntegrationTestConfi
                 .andDo(print())
                 .andExpect(status().isCreated());
 
-        mockMvc.perform(post("/api/v1/genealogy/trees/{treeId}/commit", tree.getId())
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andDo(print())
-                .andExpect(status().isNoContent());
 
         Family savedFamily = familyRepository.findById(family.getId()).orElseThrow();
         assertNotNull(savedFamily.getFather());
@@ -163,21 +146,11 @@ public class FamilyPersonsManagementIntegrationTest extends IntegrationTestConfi
         UUIDRequest UUIDRequest = new UUIDRequest();
         UUIDRequest.setId(mother.getId());
 
-        mockMvc.perform(post("/api/v1/genealogy/trees/{treeId}/families/{familyId}", tree.getId(), family.getId())
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andDo(print())
-                .andExpect(status().isNoContent());
-
         mockMvc.perform(post("/api/v1/genealogy/trees/{treeId}/families/{familyId}/persons/addExistingMother", tree.getId(), family.getId())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(UUIDRequest)))
                 .andDo(print())
                 .andExpect(status().isCreated());
-
-        mockMvc.perform(post("/api/v1/genealogy/trees/{treeId}/commit", tree.getId())
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andDo(print())
-                .andExpect(status().isNoContent());
 
         Family savedFamily = familyRepository.findById(family.getId()).orElseThrow();
         assertNotNull(savedFamily.getMother());
@@ -199,21 +172,11 @@ public class FamilyPersonsManagementIntegrationTest extends IntegrationTestConfi
         personRequest.setBirthDate(LocalDate.of(2003, 4, 8));
         personRequest.setGenderType(GenderType.FEMALE);
 
-        mockMvc.perform(post("/api/v1/genealogy/trees/{treeId}/families/{familyId}", tree.getId(), family.getId())
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andDo(print())
-                .andExpect(status().isNoContent());
-
         mockMvc.perform(post("/api/v1/genealogy/trees/{treeId}/families/{familyId}/persons/addNewFather", tree.getId(), family.getId())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(personRequest)))
                 .andDo(print())
                 .andExpect(status().isCreated());
-
-        mockMvc.perform(post("/api/v1/genealogy/trees/{treeId}/commit", tree.getId())
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andDo(print())
-                .andExpect(status().isNoContent());
 
         Family savedFamily = familyRepository.findById(family.getId()).orElseThrow();
         assertNotNull(savedFamily.getFather());
@@ -236,21 +199,11 @@ public class FamilyPersonsManagementIntegrationTest extends IntegrationTestConfi
         UUIDRequest UUIDRequest = new UUIDRequest();
         UUIDRequest.setId(mother.getId());
 
-        mockMvc.perform(post("/api/v1/genealogy/trees/{treeId}/families/{familyId}", tree.getId(), family.getId())
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andDo(print())
-                .andExpect(status().isNoContent());
-
         mockMvc.perform(post("/api/v1/genealogy/trees/{treeId}/families/{familyId}/persons/addExistingMother", tree.getId(), family.getId())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(UUIDRequest)))
                 .andDo(print())
-                .andExpect(status().isCreated());
-
-        mockMvc.perform(post("/api/v1/genealogy/trees/{treeId}/commit", tree.getId())
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andDo(print())
-                .andExpect(status().isNoContent());
+                .andExpect(status().isConflict());
 
         Family savedFamily = familyRepository.findById(family.getId()).orElseThrow();
         assertNotNull(savedFamily.getMother());
@@ -283,11 +236,6 @@ public class FamilyPersonsManagementIntegrationTest extends IntegrationTestConfi
         UUIDRequest UUIDRequest = new UUIDRequest();
         UUIDRequest.setId(child.getId());
 
-        mockMvc.perform(post("/api/v1/genealogy/trees/{treeId}/families/{familyId}", tree.getId(), family.getId())
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andDo(print())
-                .andExpect(status().isNoContent());
-
         mockMvc.perform(post("/api/v1/genealogy/trees/{treeId}/families/{familyId}/persons/addExistingChild", tree.getId(), family.getId())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(UUIDRequest)))
@@ -297,47 +245,5 @@ public class FamilyPersonsManagementIntegrationTest extends IntegrationTestConfi
         Family savedFamily = familyRepository.findById(family.getId()).orElseThrow();
         assertEquals(1, savedFamily.getChildren().size());
 
-    }
-
-    @Test
-    void shouldRollbackTransactionSuccessfully() throws Exception {
-
-        Tree tree = new Tree();
-        treeRepository.save(tree);
-
-        Person father = new Person("John", "Smith", LocalDate.of(1975, 7, 18), GenderType.MALE, tree);
-        Person mother = new Person("Anne", "Cleves", LocalDate.of(1975, 10, 10), GenderType.FEMALE, tree);
-        Person child = new Person("Claudia", "Smith", LocalDate.of(2004, 4, 9), GenderType.FEMALE, tree);
-
-        Family family = new Family();
-        family.setFather(father);
-        family.setMother(mother);
-
-        personRepository.save(father);
-        personRepository.save(mother);
-        personRepository.save(child);
-        familyRepository.save(family);
-
-        UUIDRequest UUIDRequest = new UUIDRequest();
-        UUIDRequest.setId(child.getId());
-
-        mockMvc.perform(post("/api/v1/genealogy/trees/{treeId}/families/{familyId}", tree.getId(), family.getId())
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andDo(print())
-                .andExpect(status().isNoContent());
-
-        mockMvc.perform(post("/api/v1/genealogy/trees/{treeId}/families/{familyId}/persons/addExistingChild", tree.getId(), family.getId())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(UUIDRequest)))
-                .andDo(print())
-                .andExpect(status().isCreated());
-
-        mockMvc.perform(post("/api/v1/genealogy/trees/{treeId}/cancel", tree.getId(), family.getId())
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andDo(print())
-                .andExpect(status().isNoContent());
-
-        Family updatedFamily = familyRepository.findById(family.getId()).orElseThrow();
-        assertThat(updatedFamily.getChildren()).doesNotContain(child);
     }
 }

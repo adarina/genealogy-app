@@ -21,7 +21,7 @@ public class UserManagementService {
         this.userSearchService = userSearchService;
     }
 
-    @Transactional
+    @Transactional("jpaTransactionManager")
     public void deleteUserByUsername(String username) {
         Optional<User> user = userSearchService.findUserByUsername(username);
         if (user.isPresent()) {
@@ -38,7 +38,7 @@ public class UserManagementService {
         log.info("User created successfully: {}", savedUser);
     }
 
-    @Transactional
+    @Transactional("jpaTransactionManager")
     public void delete(String username) {
         userRepository.deleteByUsername(username);
     }

@@ -25,22 +25,22 @@ public class PersonSourceManagementController {
     }
 
 
-    @PostMapping("/addExistingSource")
-    public ResponseEntity<?> addSourceToPerson(@PathVariable UUID treeId, @PathVariable UUID personId, @RequestBody UUIDRequest UUIDRequest) {
-        personSourceManagementService.addSourceToPerson(treeId, personId, UUIDRequest.getId());
+    @PostMapping("/addExistingCitation")
+    public ResponseEntity<?> addCitationToPerson(@PathVariable UUID treeId, @PathVariable UUID personId, @RequestBody UUIDRequest UUIDRequest) {
+        personSourceManagementService.addCitationToPerson(treeId, personId, UUIDRequest.getId());
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
-    @PostMapping("/addNewSource")
-    public ResponseEntity<?> createAndAddSourceToPerson(@PathVariable UUID treeId, @PathVariable UUID personId, @RequestBody CitationRequest citationRequest) {
+    @PostMapping("/addNewCitation")
+    public ResponseEntity<?> createAndAddCitationToPerson(@PathVariable UUID treeId, @PathVariable UUID personId, @RequestBody CitationRequest citationRequest) {
         Citation citation = citationCreationService.createCitation(treeId, citationRequest);
-        personSourceManagementService.addSourceToPerson(treeId, personId, citation.getId());
+        personSourceManagementService.addCitationToPerson(treeId, personId, citation.getId());
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
     @DeleteMapping()
-    public ResponseEntity<?> removeSourceFromPerson(@PathVariable UUID treeId, @PathVariable UUID personId, @RequestBody UUIDRequest UUIDRequest) {
-        personSourceManagementService.removeSourceFromPerson(treeId, personId, UUIDRequest);
+    public ResponseEntity<?> removeCitationFromPerson(@PathVariable UUID treeId, @PathVariable UUID personId, @RequestBody UUIDRequest UUIDRequest) {
+        personSourceManagementService.removeCitationFromPerson(treeId, personId, UUIDRequest);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 }

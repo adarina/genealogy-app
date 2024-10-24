@@ -1,5 +1,6 @@
 package com.ada.genealogyapp.person.service;
 
+import com.ada.genealogyapp.tree.service.TransactionalInNeo4j;
 import com.ada.genealogyapp.citation.model.Citation;
 import com.ada.genealogyapp.citation.service.CitationService;
 import com.ada.genealogyapp.exceptions.NodeAlreadyInNodeException;
@@ -9,7 +10,6 @@ import com.ada.genealogyapp.tree.service.TreeTransactionService;
 import lombok.extern.slf4j.Slf4j;
 import org.neo4j.driver.Transaction;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Map;
 import java.util.UUID;
@@ -31,11 +31,11 @@ public class PersonSourceManagementService {
     }
 
 
-    @Transactional
-    public void addSourceToPerson(UUID treeId, UUID personId, UUID citationId) {
-        Transaction tx = treeTransactionService.getCurrentTransaction();
+    @TransactionalInNeo4j
+    public void addCitationToPerson(UUID treeId, UUID personId, UUID citationId) {
+        Transaction tx = treeTransactionService.startTransactionAndSession();
         Person person = personManagementService.validateTreeAndPerson(treeId, personId);
-        Citation citation = citationService.findCitationById(citationId);
+        Citation citation = citationService.findCitationByIdOrThrowNodeNotFoundException(citationId);
 
         if (person.getCitations().contains(citation)) {
             throw new NodeAlreadyInNodeException("Citation " + citation.getId() + " is already part of the person " + personId);
@@ -46,13 +46,14 @@ public class PersonSourceManagementService {
 
         tx.run(cypher, Map.of("personId", personId.toString(), "citationId", citation.getId().toString()));
         log.info("Citation {} added successfully to the person {}", citation.getPage(), person.getId());
+        tx.commit();
     }
 
-    @Transactional
-    public void removeSourceFromPerson(UUID treeId, UUID personId, UUIDRequest UUIDRequest) {
-        Transaction tx = treeTransactionService.getCurrentTransaction();
+    @TransactionalInNeo4j
+    public void removeCitationFromPerson(UUID treeId, UUID personId, UUIDRequest UUIDRequest) {
+        Transaction tx = treeTransactionService.startTransactionAndSession();
         Person person = personManagementService.validateTreeAndPerson(treeId, personId);
-        Citation citation = citationService.findCitationById(UUIDRequest.getId());
+        Citation citation = citationService.findCitationByIdOrThrowNodeNotFoundException(UUIDRequest.getId());
 
         String cypher = "MATCH (p:Person {id: $personId}) " +
                 "MATCH (c:Citation {id: $citationId}) " +
@@ -61,5 +62,6 @@ public class PersonSourceManagementService {
 
         tx.run(cypher, Map.of("personId", person.getId().toString(), "citationId", citation.getId().toString()));
         log.info("Citation {} removed from person {}", citation.getId(), person.getId());
+        tx.commit();
     }
 }

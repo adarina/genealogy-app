@@ -24,7 +24,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 
-public class FileStorageIntegrationTest extends IntegrationTestConfig {
+class FileStorageIntegrationTest extends IntegrationTestConfig {
 
 
     @Autowired

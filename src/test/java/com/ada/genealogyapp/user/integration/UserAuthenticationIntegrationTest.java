@@ -26,13 +26,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 
 
-public class UserAuthenticationIntegrationTest extends IntegrationTestConfig {
+class UserAuthenticationIntegrationTest extends IntegrationTestConfig {
 
     @Autowired
-    private UserRepository userRepository;
+    UserRepository userRepository;
 
     @MockBean
-    private AuthenticationManager authenticationManager;
+    AuthenticationManager authenticationManager;
 
     @BeforeEach
     void setUp() {

@@ -1,7 +1,5 @@
 package com.ada.genealogyapp.file.service;
 
-import com.ada.genealogyapp.family.dto.FamilyResponse;
-import com.ada.genealogyapp.family.model.Family;
 import com.ada.genealogyapp.file.model.File;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

@@ -17,13 +17,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 
-public class TreeCreationIntegrationTest extends IntegrationTestConfig {
+class TreeCreationIntegrationTest extends IntegrationTestConfig {
 
     @Autowired
-    private TreeRepository treeRepository;
+    TreeRepository treeRepository;
 
     @Autowired
-    private UserRepository userRepository;
+    UserRepository userRepository;
 
 
     @BeforeEach
