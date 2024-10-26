@@ -24,7 +24,6 @@ import java.util.Set;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -58,55 +57,15 @@ public class PersonFamiliesViewIntegrationTest extends IntegrationTestConfig {
 
     @AfterEach
     void tearDown() {
-//        treeRepository.deleteAll();
-//        personRepository.deleteAll();
-//        eventRepository.deleteAll();
-//        citationRepository.deleteAll();
-//        familyRepository.deleteAll();
+        treeRepository.deleteAll();
+        personRepository.deleteAll();
+        eventRepository.deleteAll();
+        citationRepository.deleteAll();
+        familyRepository.deleteAll();
     }
 
     @Test
     void shouldReturnAllFamiliesForPersonSuccessfully() throws Exception {
-        // Step 1: Set up the tree
-        Tree tree = new Tree();
-        treeRepository.save(tree);
-
-        // Step 2: Create persons
-        Person person = new Person("John Smith", "John", "Smith", LocalDate.of(1975, 7, 18), GenderType.MALE, tree);
-        personRepository.save(person);
-
-        Person secondPerson = new Person("Mary Sue", "Mary", "Sue", LocalDate.of(1999, 12, 1), GenderType.FEMALE, tree);
-        personRepository.save(secondPerson);
-
-        // Step 3: Create families
-        Family family1 = new Family();
-        family1.setName("Rick Smith & Theodora Smith");
-        family1.setFather(person); // Assuming person is the father
-        family1.getChildren().add(secondPerson); // Add secondPerson as a child
-        familyRepository.save(family1);
-
-        Family family2 = new Family();
-        family2.setName("John Smith & Mary Sue");
-        family2.setFather(secondPerson); // Assuming secondPerson is the father
-        family2.getChildren().add(person); // Add person as a child
-        familyRepository.save(family2);
-
-        // Step 4: Perform the GET request
-        mockMvc.perform(get("/api/v1/genealogy/trees/{treeId}/persons/{personId}/families", tree.getId(), person.getId())
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andDo(print())
-                .andExpect(jsonPath("$.families").isArray())
-                .andExpect(jsonPath("$.families.length()").value(2)) // Assuming the person is related to 2 families
-                .andExpect(jsonPath("$.families[?(@.name == 'Rick Smith & Theodora Smith')].id").value(family1.getId().toString()))
-                .andExpect(jsonPath("$.families[?(@.name == 'John Smith & Mary Sue')].id").value(family2.getId().toString()))
-                .andExpect(jsonPath("$.families[?(@.name == 'Rick Smith & Theodora Smith')].father").value(person.getId().toString()))
-                .andExpect(jsonPath("$.families[?(@.name == 'Rick Smith & Theodora Smith')].children.length()").value(1))
-                .andExpect(jsonPath("$.families[?(@.name == 'John Smith & Mary Sue')].father").value(secondPerson.getId().toString()))
-                .andExpect(jsonPath("$.families[?(@.name == 'John Smith & Mary Sue')].children.length()").value(1));
-    }
-
-    @Test
-    void shouldReturnAllFamiliesForPersonSuccessfully1() throws Exception {
         Tree tree = new Tree();
         treeRepository.save(tree);
 

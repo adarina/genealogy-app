@@ -27,8 +27,4 @@ public class EventRelationship {
 
     private EventRelationshipType eventRelationshipType;
 
-    public EventRelationship(Event event, EventRelationshipType eventRelationshipType) {
-        this.event = event;
-        this.eventRelationshipType = eventRelationshipType;
-    }
 }

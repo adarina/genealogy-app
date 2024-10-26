@@ -51,9 +51,9 @@ class FamilyPersonsManagementIntegrationTest extends IntegrationTestConfig {
 
     @AfterEach
     void tearDown() {
-//        treeRepository.deleteAll();
-//        familyRepository.deleteAll();
-//        personRepository.deleteAll();
+        treeRepository.deleteAll();
+        familyRepository.deleteAll();
+        personRepository.deleteAll();
     }
 
     @Test
