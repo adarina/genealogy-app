@@ -35,7 +35,7 @@ public class PersonEventsManagementService {
 
     @TransactionalInNeo4j
     public void addExistingEventToPerson(UUID treeId, UUID personId, UUID eventId, EventRelationshipType eventRelationshipType) {
-        Transaction tx = treeTransactionService.getCurrentTransaction();
+        Transaction tx = treeTransactionService.startTransactionAndSession();
         Person person = personManagementService.validateTreeAndPerson(treeId, personId);
         Event event = eventService.findEventById(eventId);
 
@@ -55,6 +55,7 @@ public class PersonEventsManagementService {
         log.info("Event {} added successfully to the person {}", event.getEventType().toString(), person.getId());
 
         addDefaultHasParticipantToEvent(tx, person, event);
+        tx.commit();
     }
 
     @TransactionalInNeo4j
@@ -62,7 +63,7 @@ public class PersonEventsManagementService {
 
         String cypher = "MATCH (e:Event {id: $eventId}) " +
                 "MATCH (p:Person {id: $personId}) " +
-                "SET f:Participant " +
+                "SET p:Participant " +
                 "MERGE (e)-[:HAS_PARTICIPANT]->(p)";
 
         tx.run(cypher, Map.of("personId", person.getId().toString(), "eventId", event.getId().toString()));

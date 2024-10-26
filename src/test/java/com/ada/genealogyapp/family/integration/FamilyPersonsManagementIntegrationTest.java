@@ -51,28 +51,23 @@ class FamilyPersonsManagementIntegrationTest extends IntegrationTestConfig {
 
     @AfterEach
     void tearDown() {
-        treeRepository.deleteAll();
-        familyRepository.deleteAll();
-        personRepository.deleteAll();
+//        treeRepository.deleteAll();
+//        familyRepository.deleteAll();
+//        personRepository.deleteAll();
     }
 
     @Test
-    void shouldAddExistingFatherToFamilySuccessfully() throws Exception {
+    void shouldAddExistingFatherAndExistingChildToFamilySuccessfully() throws Exception {
 
         Tree tree = new Tree();
         treeRepository.save(tree);
 
-        Person father = new Person("Adalbert", "Smith", LocalDate.of(2000, 5, 30), GenderType.MALE, tree);
+        Person father = new Person("Adalbert Smith", "Adalbert", "Smith", LocalDate.of(2000, 5, 30), GenderType.MALE, tree);
 
         Person child = new Person("Claudia", "Smith", LocalDate.of(2020, 4, 9), GenderType.FEMALE, tree);
 
 
         Family family = new Family();
-
-        Set<Person> children = new HashSet<>();
-        children.add(child);
-
-        family.setChildren(children);
 
         personRepository.save(child);
         personRepository.save(father);
@@ -88,10 +83,69 @@ class FamilyPersonsManagementIntegrationTest extends IntegrationTestConfig {
                 .andDo(print())
                 .andExpect(status().isCreated());
 
+        UUIDRequest.setId(child.getId());
+
+        mockMvc.perform(post("/api/v1/genealogy/trees/{treeId}/families/{familyId}/persons/addExistingChild", tree.getId(), family.getId())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(UUIDRequest)))
+                .andDo(print())
+                .andExpect(status().isCreated());
+
 
         Family savedFamily = familyRepository.findById(family.getId()).orElseThrow();
         assertNotNull(savedFamily.getFather());
         assertEquals(father.getId(), savedFamily.getFather().getId());
+    }
+
+    @Test
+    void shouldRemoveFatherFromFamilySuccessfully() throws Exception {
+
+        Tree tree = new Tree();
+        treeRepository.save(tree);
+
+        Person father = new Person("Adalbert Smith", "Adalbert", "Smith", LocalDate.of(2000, 5, 30), GenderType.MALE, tree);
+
+        Person child = new Person("Claudia", "Smith", LocalDate.of(2020, 4, 9), GenderType.FEMALE, tree);
+
+
+        Family family = new Family();
+
+
+        personRepository.save(child);
+        personRepository.save(father);
+        familyRepository.save(family);
+
+        UUIDRequest UUIDRequest = new UUIDRequest();
+        UUIDRequest.setId(father.getId());
+
+
+        mockMvc.perform(post("/api/v1/genealogy/trees/{treeId}/families/{familyId}/persons/addExistingFather", tree.getId(), family.getId())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(UUIDRequest)))
+                .andDo(print())
+                .andExpect(status().isCreated());
+
+        UUIDRequest.setId(child.getId());
+
+        mockMvc.perform(post("/api/v1/genealogy/trees/{treeId}/families/{familyId}/persons/addExistingChild", tree.getId(), family.getId())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(UUIDRequest)))
+                .andDo(print())
+                .andExpect(status().isCreated());
+
+
+        UUIDRequest.setId(father.getId());
+
+
+        mockMvc.perform(delete("/api/v1/genealogy/trees/{treeId}/families/{familyId}/persons", tree.getId(), family.getId())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(UUIDRequest)))
+                .andDo(print())
+                .andExpect(status().isNoContent());
+
+
+        Family savedFamily = familyRepository.findById(family.getId()).orElseThrow();
+        assertNull(savedFamily.getFather());
     }
 
     @Test
@@ -172,14 +226,14 @@ class FamilyPersonsManagementIntegrationTest extends IntegrationTestConfig {
         personRequest.setBirthDate(LocalDate.of(2003, 4, 8));
         personRequest.setGenderType(GenderType.FEMALE);
 
-        mockMvc.perform(post("/api/v1/genealogy/trees/{treeId}/families/{familyId}/persons/addNewFather", tree.getId(), family.getId())
+        mockMvc.perform(post("/api/v1/genealogy/trees/{treeId}/families/{familyId}/persons/addNewMother", tree.getId(), family.getId())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(personRequest)))
                 .andDo(print())
                 .andExpect(status().isCreated());
 
         Family savedFamily = familyRepository.findById(family.getId()).orElseThrow();
-        assertNotNull(savedFamily.getFather());
+        assertNotNull(savedFamily.getMother());
     }
 
     @Test

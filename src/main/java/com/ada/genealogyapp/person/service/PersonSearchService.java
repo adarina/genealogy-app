@@ -32,6 +32,17 @@ public class PersonSearchService {
         }
     }
 
+    public Optional<Person> findOptionalPersonByIdOrThrowNodeNotFoundException(UUID personId) {
+        Optional<Person> person = personRepository.findById(personId);
+        if (person.isPresent()) {
+            log.info("Person found: {}", person.get());
+            return person;
+        } else {
+            log.error("No person found with id: {}", personId);
+            throw new NodeNotFoundException("No person found with id: " + personId);
+        }
+    }
+
     public Set<Person> findPersonsByIds(Set<UUID> personIds) {
         Set<Person> persons = new HashSet<>();
         for (UUID personId : personIds) {

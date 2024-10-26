@@ -1,7 +1,6 @@
-package com.ada.genealogyapp.event.relationship;
+package com.ada.genealogyapp.family.relationship;
 
-import com.ada.genealogyapp.event.model.Event;
-import com.ada.genealogyapp.event.type.EventRelationshipType;
+import com.ada.genealogyapp.family.model.Family;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -16,19 +15,14 @@ import org.springframework.data.neo4j.core.schema.TargetNode;
 @Getter
 @Setter
 @RelationshipProperties
-public class EventRelationship {
+public class FamilyRelationship {
 
     @Id
     @GeneratedValue
     private Long id;
 
     @TargetNode
-    private Event event;
+    private Family family;
 
-    private EventRelationshipType eventRelationshipType;
 
-    public EventRelationship(Event event, EventRelationshipType eventRelationshipType) {
-        this.event = event;
-        this.eventRelationshipType = eventRelationshipType;
-    }
 }

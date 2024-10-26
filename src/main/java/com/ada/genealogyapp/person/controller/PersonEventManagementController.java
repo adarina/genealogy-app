@@ -6,8 +6,6 @@ import com.ada.genealogyapp.citation.service.CitationCreationService;
 import com.ada.genealogyapp.event.dto.EventRequest;
 import com.ada.genealogyapp.family.dto.UUIDRequest;
 import com.ada.genealogyapp.person.service.PersonEventManagementService;
-import com.ada.genealogyapp.person.service.PersonManagementService;
-import com.ada.genealogyapp.tree.service.TreeTransactionService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -20,16 +18,10 @@ public class PersonEventManagementController {
 
     private final PersonEventManagementService personEventManagementService;
 
-    private final PersonManagementService personManagementService;
-
-    private final TreeTransactionService treeTransactionService;
-
     private final CitationCreationService citationCreationService;
 
-    public PersonEventManagementController(PersonEventManagementService personEventManagementService, PersonManagementService personManagementService, TreeTransactionService treeTransactionService, CitationCreationService citationCreationService) {
+    public PersonEventManagementController(PersonEventManagementService personEventManagementService, CitationCreationService citationCreationService) {
         this.personEventManagementService = personEventManagementService;
-        this.personManagementService = personManagementService;
-        this.treeTransactionService = treeTransactionService;
         this.citationCreationService = citationCreationService;
     }
 

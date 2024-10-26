@@ -4,7 +4,7 @@ import com.ada.genealogyapp.person.model.Participant;
 import com.ada.genealogyapp.citation.model.Citation;
 import com.ada.genealogyapp.event.relationship.EventRelationship;
 import com.ada.genealogyapp.event.type.EventRelationshipType;
-import com.ada.genealogyapp.family.type.FamilyRelationshipType;
+import com.ada.genealogyapp.family.type.RelationshipRelationshipType;
 import com.ada.genealogyapp.person.model.Person;
 import com.ada.genealogyapp.tree.model.Tree;
 import lombok.*;
@@ -30,7 +30,9 @@ public class Family implements Participant {
     @GeneratedValue
     private UUID id;
 
-    private FamilyRelationshipType familyRelationshipType;
+    private String name;
+
+    private RelationshipRelationshipType relationshipRelationshipType;
 
     private EventRelationshipType eventRelationshipType;
 
@@ -55,6 +57,11 @@ public class Family implements Participant {
     @Override
     public UUID getParticipantId() {
         return this.id;
+    }
+
+    @Override
+    public String getParticipantName() {
+        return this.name;
     }
 
 }

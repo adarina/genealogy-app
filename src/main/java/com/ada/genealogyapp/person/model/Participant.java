@@ -4,4 +4,7 @@ import java.util.UUID;
 
 public interface Participant {
     UUID getParticipantId();
+
+    String getParticipantName();
+
 }

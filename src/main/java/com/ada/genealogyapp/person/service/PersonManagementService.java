@@ -60,6 +60,7 @@ public class PersonManagementService {
         updateBirthDate(tx, personId, personRequest.getBirthDate());
         updateGender(tx, personId, personRequest.getGenderType());
 
+        //TODO update .name(request.getFirstname() + " " + request.getLastname())
         log.info("Person updated successfully: {}", personId);
         tx.commit();
     }

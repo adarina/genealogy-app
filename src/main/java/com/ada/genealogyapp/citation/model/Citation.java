@@ -27,9 +27,9 @@ public class Citation {
     @GeneratedValue
     private UUID id;
 
-    public String page;
+    private String page;
 
-    public LocalDate creationDate;
+    private LocalDate creationDate;
 
     @Relationship(type = "HAS_CITATION", direction = Relationship.Direction.INCOMING)
     private Tree tree;

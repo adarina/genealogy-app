@@ -21,13 +21,13 @@ public class File {
 
     @Id
     @GeneratedValue
-    UUID id;
+    private UUID id;
 
-    String name;
+    private String name;
 
-    String type;
+    private String type;
 
-    String path;
+    private String path;
 
     @Relationship(type = "HAS_FILE", direction = Relationship.Direction.INCOMING)
     private Tree fileTree;

@@ -2,10 +2,11 @@ package com.ada.genealogyapp.person.model;
 
 import com.ada.genealogyapp.citation.model.Citation;
 import com.ada.genealogyapp.event.relationship.EventRelationship;
-import com.ada.genealogyapp.family.relationship.ChildRelationship;
+import com.ada.genealogyapp.person.relationship.PersonRelationship;
+import com.ada.genealogyapp.family.relationship.FamilyRelationship;
 import com.ada.genealogyapp.person.type.GenderType;
-import com.ada.genealogyapp.family.type.ChildRelationshipType;
 import com.ada.genealogyapp.tree.model.Tree;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.neo4j.core.schema.GeneratedValue;
@@ -32,6 +33,8 @@ public class Person implements Participant {
     @EqualsAndHashCode.Include
     private UUID id;
 
+    private String name;
+
     private String firstname;
 
     private String lastname;
@@ -40,13 +43,18 @@ public class Person implements Participant {
 
     private GenderType genderType;
 
-    private ChildRelationshipType childRelationshipType;
-
     @Relationship(type = "PARENT_OF", direction = Relationship.Direction.OUTGOING)
-    private Set<ChildRelationship> children = new HashSet<>();
+    private Set<PersonRelationship> children = new HashSet<>();
+
+    @Relationship(type = "CHILD_OF", direction = Relationship.Direction.OUTGOING)
+    @JsonIgnore
+    private Set<PersonRelationship> parents = new HashSet<>();
 
     @Relationship(type = "HAS_EVENT", direction = Relationship.Direction.OUTGOING)
     private Set<EventRelationship> events = new HashSet<>();
+
+    @Relationship(type = "HAS_FAMILY", direction = Relationship.Direction.OUTGOING)
+    private Set<FamilyRelationship> families = new HashSet<>();
 
     @Relationship(type = "HAS_CITATION", direction = Relationship.Direction.OUTGOING)
     private Set<Citation> citations = new HashSet<>();
@@ -57,6 +65,21 @@ public class Person implements Participant {
     @Override
     public UUID getParticipantId() {
         return this.id;
+    }
+
+    @Override
+    public String getParticipantName() {
+        return this.name;
+    }
+
+
+    public Person(String name, String firstname, String lastname, LocalDate birthDate, GenderType genderType, Tree tree) {
+        this.name = name;
+        this.firstname = firstname;
+        this.lastname = lastname;
+        this.birthDate = birthDate;
+        this.genderType = genderType;
+        this.tree = tree;
     }
 
     public Person(String firstname, String lastname, LocalDate birthDate, GenderType genderType, Tree tree) {

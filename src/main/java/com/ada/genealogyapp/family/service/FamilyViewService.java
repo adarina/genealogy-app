@@ -37,7 +37,7 @@ public class FamilyViewService {
                 response.setMotherLastname(family.getMother().getLastname());
                 response.setMotherBirthDate(family.getMother().getBirthDate());
             }
-            response.setFamilyRelationshipType(family.getFamilyRelationshipType());
+            response.setRelationshipRelationshipType(family.getRelationshipRelationshipType());
             familyResponses.add(response);
         }
         return familyResponses;

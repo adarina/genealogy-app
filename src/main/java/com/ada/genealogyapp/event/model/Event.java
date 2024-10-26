@@ -1,11 +1,11 @@
 package com.ada.genealogyapp.event.model;
 
+import com.ada.genealogyapp.event.type.EventRelationshipType;
 import com.ada.genealogyapp.person.model.Participant;
 import com.ada.genealogyapp.citation.model.Citation;
 import com.ada.genealogyapp.event.type.EventType;
 import com.ada.genealogyapp.tree.model.Tree;
 import lombok.*;
-import org.hibernate.annotations.Fetch;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.neo4j.core.schema.GeneratedValue;
 import org.springframework.data.neo4j.core.schema.Node;
@@ -37,6 +37,8 @@ public class Event {
 
     private String description;
 
+    private EventRelationshipType eventRelationshipType;
+
     @Relationship(type = "HAS_CITATION", direction = Relationship.Direction.OUTGOING)
     private Set<Citation> citations = new HashSet<>();
 
@@ -45,11 +47,6 @@ public class Event {
 
     @Relationship(type = "HAS_EVENT", direction = Relationship.Direction.INCOMING)
     private Tree tree;
-
-    public void addParticipant(Participant participant) {
-        participants.add(participant);
-    }
-
 
     public Event(EventType eventType, LocalDate date, String place, String description, Tree tree) {
         this.eventType = eventType;

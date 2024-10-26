@@ -1,7 +1,7 @@
-package com.ada.genealogyapp.family.relationship;
+package com.ada.genealogyapp.person.relationship;
 
 import com.ada.genealogyapp.person.model.Person;
-import com.ada.genealogyapp.family.type.ChildRelationshipType;
+import com.ada.genealogyapp.person.type.PersonRelationshipType;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -14,7 +14,7 @@ import org.springframework.data.neo4j.core.schema.*;
 @Getter
 @Setter
 @RelationshipProperties
-public class ChildRelationship {
+public class PersonRelationship {
 
     @Id
     @GeneratedValue
@@ -23,7 +23,7 @@ public class ChildRelationship {
     @TargetNode
     private Person child;
 
-    private ChildRelationshipType childRelationshipType;
+    private PersonRelationshipType personRelationshipType;
 
 }
 

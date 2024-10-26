@@ -1,5 +1,6 @@
 package com.ada.genealogyapp.person.service;
 
+import com.ada.genealogyapp.person.dto.PersonAncestorsResponse;
 import com.ada.genealogyapp.person.model.Person;
 import com.ada.genealogyapp.person.repostitory.PersonRepository;
 import com.ada.genealogyapp.tree.service.TreeService;
@@ -26,11 +27,12 @@ public class PersonAncestorsViewService {
         this.treeService = treeService;
     }
 
-    public Map<Person, Set<Person>> getPersonAncestors(UUID treeId, UUID personId) {
+    public PersonAncestorsResponse getPersonAncestors(UUID treeId, UUID personId) {
         treeService.findTreeByIdOrThrowNodeNotFoundException(treeId);
         Person person = personService.findPersonByIdOrThrowNodeNotFoundException(personId);
 
-        return buildAncestryMap(person);
+        Map<Person, Set<Person>> ancestorsMap = buildAncestryMap(person);
+        return PersonAncestorsResponse.entityToDtoMapper(person.getId(), person.getName(), person.getBirthDate().toString()).apply(ancestorsMap);
     }
 
     private Map<Person, Set<Person>> buildAncestryMap(Person root) {

@@ -27,6 +27,7 @@ public class PersonRequest {
 
     public static Function<PersonRequest, Person> dtoToEntityMapper() {
         return request -> Person.builder()
+                .name(request.getFirstname() + " " + request.getLastname())
                 .firstname(request.getFirstname())
                 .lastname(request.getLastname())
                 .birthDate(request.getBirthDate())

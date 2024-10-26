@@ -1,6 +1,6 @@
 package com.ada.genealogyapp.family.dto;
 
-import com.ada.genealogyapp.family.type.FamilyRelationshipType;
+import com.ada.genealogyapp.family.type.RelationshipRelationshipType;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -29,6 +29,6 @@ public class FamilyResponse {
 
     private LocalDate motherBirthDate;
 
-    private FamilyRelationshipType familyRelationshipType;
+    private RelationshipRelationshipType relationshipRelationshipType;
 
 }

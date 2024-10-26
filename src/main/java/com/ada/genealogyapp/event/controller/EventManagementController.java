@@ -2,7 +2,6 @@ package com.ada.genealogyapp.event.controller;
 
 import com.ada.genealogyapp.event.dto.EventRequest;
 import com.ada.genealogyapp.event.service.EventManagementService;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 

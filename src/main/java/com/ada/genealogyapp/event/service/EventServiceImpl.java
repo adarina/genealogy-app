@@ -3,7 +3,6 @@ package com.ada.genealogyapp.event.service;
 import com.ada.genealogyapp.event.model.Event;
 import com.ada.genealogyapp.event.repository.EventRepository;
 import com.ada.genealogyapp.exceptions.NodeNotFoundException;
-import com.ada.genealogyapp.tree.model.Tree;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 

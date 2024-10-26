@@ -23,7 +23,7 @@ public class Source {
     @GeneratedValue
     private UUID id;
 
-    public String name;
+    private String name;
 
     @Relationship(type = "HAS_SOURCE", direction = Relationship.Direction.INCOMING)
     private Tree tree;

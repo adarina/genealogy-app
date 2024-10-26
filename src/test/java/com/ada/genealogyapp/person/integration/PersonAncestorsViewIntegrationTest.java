@@ -2,7 +2,7 @@ package com.ada.genealogyapp.person.integration;
 
 import com.ada.genealogyapp.config.IntegrationTestConfig;
 import com.ada.genealogyapp.family.model.Family;
-import com.ada.genealogyapp.family.relationship.ChildRelationship;
+import com.ada.genealogyapp.person.relationship.PersonRelationship;
 import com.ada.genealogyapp.family.repostitory.FamilyRepository;
 import com.ada.genealogyapp.person.model.Person;
 import com.ada.genealogyapp.person.repostitory.PersonRepository;
@@ -57,20 +57,32 @@ class PersonAncestorsViewIntegrationTest extends IntegrationTestConfig {
         Tree tree = new Tree();
         treeRepository.save(tree);
 
-        Person child = new Person("Amalia", "Smith", LocalDate.of(2000, 12, 18), GenderType.MALE, tree);
+        Person child = new Person("Amalia Smith", "Amalia", "Smith", LocalDate.of(2000, 12, 18), GenderType.FEMALE, tree);
         personRepository.save(child);
 
-        Person mother = new Person("Elizabeth", "Black", LocalDate.of(1975, 7, 8), GenderType.FEMALE, tree);
+        Person mother = new Person("Elizabeth Black", "Elizabeth", "Black", LocalDate.of(1975, 7, 8), GenderType.FEMALE, tree);
         personRepository.save(mother);
 
-        Person father = new Person("John", "Smith", LocalDate.of(1975, 1, 12), GenderType.MALE, tree);
+        Person father = new Person("John Smith", "John", "Smith", LocalDate.of(1975, 1, 12), GenderType.MALE, tree);
         personRepository.save(father);
 
-        Person grandmother = new Person("Anne", "White", LocalDate.of(1950, 5, 1), GenderType.FEMALE, tree);
+        Person grandmother = new Person("Anne White", "Anne", "White", LocalDate.of(1950, 5, 1), GenderType.FEMALE, tree);
         personRepository.save(grandmother);
 
-        Person grandfather = new Person("Adalbert", "Black", LocalDate.of(1945, 1, 30), GenderType.MALE, tree);
+        Person grandfather = new Person("Adalbert Black", "Adalbert", "Black", LocalDate.of(1945, 1, 30), GenderType.MALE, tree);
         personRepository.save(grandfather);
+
+        Person greatGrandmother = new Person("Clara Green", "Clara", "Green", LocalDate.of(1920, 4, 15), GenderType.FEMALE, tree);
+        personRepository.save(greatGrandmother);
+
+        Person greatGrandfather = new Person("Frank White", "Frank", "White", LocalDate.of(1918, 6, 25), GenderType.MALE, tree);
+        personRepository.save(greatGrandfather);
+
+        Person greatGrandmotherFather = new Person("Lucy Johnson", "Lucy", "Johnson", LocalDate.of(1922, 3, 10), GenderType.FEMALE, tree);
+        personRepository.save(greatGrandmotherFather);
+
+        Person greatGrandfatherFather = new Person("George Smith", "George", "Smith", LocalDate.of(1920, 2, 20), GenderType.MALE, tree);
+        personRepository.save(greatGrandfatherFather);
 
         Family family = new Family();
         family.setFather(father);
@@ -88,30 +100,26 @@ class PersonAncestorsViewIntegrationTest extends IntegrationTestConfig {
         secondFamily.setChildren(secondChildren);
         familyRepository.save(secondFamily);
 
-        ChildRelationship fatherChildRelationship = new ChildRelationship();
-        fatherChildRelationship.setChild(child);
-        father.getChildren().add(fatherChildRelationship);
-        personRepository.save(father);
+        createPersonRelationship(child, father);
+        createPersonRelationship(child, mother);
+        createPersonRelationship(mother, grandmother);
+        createPersonRelationship(mother, grandfather);
 
-        ChildRelationship motherChildRelationship = new ChildRelationship();
-        motherChildRelationship.setChild(child);
-        mother.getChildren().add(motherChildRelationship);
-        personRepository.save(mother);
-
-        ChildRelationship grandmotherChildRelationship = new ChildRelationship();
-        grandmotherChildRelationship.setChild(mother);
-        grandmother.getChildren().add(grandmotherChildRelationship);
-        personRepository.save(grandmother);
-
-        ChildRelationship grandfatherChildRelationship = new ChildRelationship();
-        grandfatherChildRelationship.setChild(mother);
-        grandfather.getChildren().add(grandfatherChildRelationship);
-        personRepository.save(grandfather);
+        createPersonRelationship(grandmother, greatGrandmother);
+        createPersonRelationship(grandmother, greatGrandfather);
+        createPersonRelationship(father, greatGrandmotherFather);
+        createPersonRelationship(father, greatGrandfatherFather);
 
         mockMvc.perform(get("/api/v1/genealogy/trees/{treeId}/persons/{personId}/ancestors", tree.getId(), child.getId())
                         .contentType(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isOk());
+    }
 
+     void createPersonRelationship(Person child, Person parent) {
+        PersonRelationship personRelationship = new PersonRelationship();
+        personRelationship.setChild(child);
+        parent.getChildren().add(personRelationship);
+        personRepository.save(parent);
     }
 }

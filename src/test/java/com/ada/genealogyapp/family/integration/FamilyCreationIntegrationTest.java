@@ -4,7 +4,7 @@ import com.ada.genealogyapp.config.IntegrationTestConfig;
 import com.ada.genealogyapp.family.dto.FamilyRequest;
 import com.ada.genealogyapp.family.model.Family;
 import com.ada.genealogyapp.family.repostitory.FamilyRepository;
-import com.ada.genealogyapp.family.type.FamilyRelationshipType;
+import com.ada.genealogyapp.family.type.RelationshipRelationshipType;
 import com.ada.genealogyapp.tree.model.Tree;
 import com.ada.genealogyapp.tree.repository.TreeRepository;
 import org.junit.jupiter.api.AfterEach;
@@ -54,7 +54,7 @@ class FamilyCreationIntegrationTest extends IntegrationTestConfig {
         treeRepository.save(tree);
 
         FamilyRequest familyRequest = new FamilyRequest();
-        familyRequest.setFamilyRelationshipType(FamilyRelationshipType.MARRIED);
+        familyRequest.setRelationshipRelationshipType(RelationshipRelationshipType.MARRIED);
 
         mockMvc.perform(post("/api/v1/genealogy/trees/{treeId}/families", tree.getId())
                         .contentType(MediaType.APPLICATION_JSON)
@@ -64,7 +64,7 @@ class FamilyCreationIntegrationTest extends IntegrationTestConfig {
 
         List<Family> families = familyRepository.findAll();
         assertEquals(1, families.size());
-        assertEquals(FamilyRelationshipType.MARRIED, families.get(0).getFamilyRelationshipType());
+        assertEquals(RelationshipRelationshipType.MARRIED, families.get(0).getRelationshipRelationshipType());
     }
 
     @Test
@@ -84,6 +84,6 @@ class FamilyCreationIntegrationTest extends IntegrationTestConfig {
 
         List<Family> families = familyRepository.findAll();
         assertEquals(1, families.size());
-        assertEquals(FamilyRelationshipType.UNKNOWN, families.get(0).getFamilyRelationshipType());
+        assertEquals(RelationshipRelationshipType.UNKNOWN, families.get(0).getRelationshipRelationshipType());
     }
 }

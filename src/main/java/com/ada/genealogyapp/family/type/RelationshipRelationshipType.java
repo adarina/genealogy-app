@@ -1,6 +1,6 @@
 package com.ada.genealogyapp.family.type;
 
-public enum FamilyRelationshipType {
+public enum RelationshipRelationshipType {
     MARRIED,
     CIVIL,
     UNKNOWN,
