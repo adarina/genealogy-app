@@ -47,10 +47,10 @@ class FamilyEventsManagementIntegrationTest extends IntegrationTestConfig {
 
     @AfterEach
     void tearDown() {
-
-        treeRepository.deleteAll();
-        familyRepository.deleteAll();
-        eventRepository.deleteAll();
+//
+//        treeRepository.deleteAll();
+//        familyRepository.deleteAll();
+//        eventRepository.deleteAll();
 
     }
 

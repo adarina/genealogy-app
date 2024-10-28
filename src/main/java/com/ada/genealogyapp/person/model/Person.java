@@ -47,7 +47,6 @@ public class Person implements Participant {
     private Set<PersonRelationship> children = new HashSet<>();
 
     @Relationship(type = "CHILD_OF", direction = Relationship.Direction.OUTGOING)
-    @JsonIgnore
     private Set<PersonRelationship> parents = new HashSet<>();
 
     @Relationship(type = "HAS_EVENT", direction = Relationship.Direction.OUTGOING)

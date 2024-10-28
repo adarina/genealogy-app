@@ -37,7 +37,7 @@ public class PersonEventsManagementService {
     public void addExistingEventToPerson(UUID treeId, UUID personId, UUID eventId, EventRelationshipType eventRelationshipType) {
         Transaction tx = treeTransactionService.startTransactionAndSession();
         Person person = personManagementService.validateTreeAndPerson(treeId, personId);
-        Event event = eventService.findEventById(eventId);
+        Event event = eventService.findEventByIdOrThrowNodeNotFoundException(eventId);
 
         Set<EventRelationship> eventRelationships = person.getEvents();
         for (EventRelationship relationship : eventRelationships) {

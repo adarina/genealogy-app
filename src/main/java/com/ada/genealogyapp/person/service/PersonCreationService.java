@@ -33,14 +33,6 @@ public class PersonCreationService {
         Tree tree = treeService.findTreeByIdOrThrowNodeNotFoundException(treeId);
         person.setTree(tree);
 
-//        person.setName(
-//                (person.getFirstname() != null ? person.getFirstname() : "") +
-//                        " " +
-//                        (person.getLastname() != null ? person.getLastname() : "")
-//        );
-        person.setName("LOL");
-
-
         personRepository.save(person);
         treeService.saveTree(tree);
 

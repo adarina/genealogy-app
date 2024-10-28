@@ -31,14 +31,14 @@ public class FileSearchService {
         return files;
     }
 
-    public File findFileById(UUID fileId) {
+    public File findFileByIdOrThrowNodeNotFoundException(UUID fileId) {
         Optional<File> file = fileRepository.findById(fileId);
         if (file.isPresent()) {
             log.info("File found: {}", file.get());
-            return file.get();
         } else {
             log.error("No file found with id: {}", fileId);
-            return null;
+            throw new NodeNotFoundException("No file found with id: " + fileId);
         }
+        return file.get();
     }
 }

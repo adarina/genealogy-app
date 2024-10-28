@@ -8,44 +8,36 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Getter
-@Setter
 @Builder
-@NoArgsConstructor
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
-@ToString
-@EqualsAndHashCode
 public class PersonAncestorsResponse {
 
     private UUID personId;
+
     private String personName;
+
     private String birthDate;
 
     private List<Ancestor> ancestors;
 
     @Getter
-    @Setter
     @Builder
-    @NoArgsConstructor
-    @AllArgsConstructor(access = AccessLevel.PRIVATE)
-    @ToString
-    @EqualsAndHashCode
     public static class AncestorInfo {
-        private UUID id;
-        private String name;
-        private String birthDate;
 
+        private UUID id;
+
+        private String name;
+
+        private String birthDate;
     }
 
     @Getter
-    @Setter
     @Builder
-    @NoArgsConstructor
-    @AllArgsConstructor(access = AccessLevel.PRIVATE)
-    @ToString
-    @EqualsAndHashCode
     public static class Ancestor {
+
         private UUID personId;
+
         private String personName;
+
         private String birthDate;
 
         private List<AncestorInfo> ancestors;

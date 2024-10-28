@@ -8,21 +8,11 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Getter
-@Setter
 @Builder
-@NoArgsConstructor
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
-@ToString
-@EqualsAndHashCode
 public class PersonEventsResponse {
 
     @Getter
-    @Setter
     @Builder
-    @NoArgsConstructor
-    @AllArgsConstructor(access = AccessLevel.PRIVATE)
-    @ToString
-    @EqualsAndHashCode
     public static class Event {
 
         private UUID id;
@@ -41,29 +31,22 @@ public class PersonEventsResponse {
 
         private List<CitationInfo> citations;
 
-
         @Getter
-        @Setter
-        @NoArgsConstructor
         @AllArgsConstructor
-        @ToString
-        @EqualsAndHashCode
         public static class ParticipantInfo {
 
             private UUID id;
 
             private String name;
+
         }
 
         @Getter
-        @Setter
-        @NoArgsConstructor
         @AllArgsConstructor
-        @ToString
-        @EqualsAndHashCode
         public static class CitationInfo {
 
             private UUID id;
+
         }
     }
 
@@ -72,7 +55,6 @@ public class PersonEventsResponse {
 
     public static Function<Collection<EventRelationship>, PersonEventsResponse> entityToDtoMapper() {
         return eventRelationships -> {
-
             PersonEventsResponseBuilder response = PersonEventsResponse.builder();
             eventRelationships.stream()
                     .map(eventRelationship -> {
@@ -99,7 +81,4 @@ public class PersonEventsResponse {
             return response.build();
         };
     }
-
-
 }
-

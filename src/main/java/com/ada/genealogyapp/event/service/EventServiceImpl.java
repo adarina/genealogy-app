@@ -29,15 +29,4 @@ public class EventServiceImpl implements EventService {
         }
         return event.get();
     }
-
-    public Event findEventById(UUID eventId) {
-        Optional<Event> event = eventRepository.findById(eventId);
-        if (event.isPresent()) {
-            log.info("Event found: {}", event.get());
-            return event.get();
-        } else {
-            log.error("No event found with id: {}", eventId);
-            return null;
-        }
-    }
 }

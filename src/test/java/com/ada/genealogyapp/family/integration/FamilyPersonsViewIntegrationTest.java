@@ -1,10 +1,12 @@
-package com.ada.genealogyapp.person.integration;
+package com.ada.genealogyapp.family.integration;
 
 import com.ada.genealogyapp.config.IntegrationTestConfig;
+import com.ada.genealogyapp.family.dto.UUIDRequest;
 import com.ada.genealogyapp.family.model.Family;
-import com.ada.genealogyapp.person.relationship.PersonRelationship;
+import com.ada.genealogyapp.family.relationship.FamilyRelationship;
 import com.ada.genealogyapp.family.repostitory.FamilyRepository;
 import com.ada.genealogyapp.person.model.Person;
+import com.ada.genealogyapp.person.relationship.PersonRelationship;
 import com.ada.genealogyapp.person.repostitory.PersonRepository;
 import com.ada.genealogyapp.person.type.GenderType;
 import com.ada.genealogyapp.person.type.PersonRelationshipType;
@@ -20,12 +22,13 @@ import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Set;
 
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 
 
-class PersonAncestorsViewIntegrationTest extends IntegrationTestConfig {
+class FamilyPersonsViewIntegrationTest extends IntegrationTestConfig {
+
 
     @Autowired
     TreeRepository treeRepository;
@@ -36,9 +39,9 @@ class PersonAncestorsViewIntegrationTest extends IntegrationTestConfig {
     @Autowired
     FamilyRepository familyRepository;
 
+
     @BeforeEach
     void setUp() {
-
         treeRepository.deleteAll();
         personRepository.deleteAll();
         familyRepository.deleteAll();
@@ -46,14 +49,13 @@ class PersonAncestorsViewIntegrationTest extends IntegrationTestConfig {
 
     @AfterEach
     void tearDown() {
-
-        treeRepository.deleteAll();
-        personRepository.deleteAll();
-        familyRepository.deleteAll();
+//        treeRepository.deleteAll();
+//        familyRepository.deleteAll();
+//        personRepository.deleteAll();
     }
 
     @Test
-    void shouldGetPersonAncestorsSuccessfully() throws Exception {
+    void shouldAddExistingFatherAndExistingChildToFamilySuccessfully() throws Exception {
 
         Tree tree = new Tree();
         treeRepository.save(tree);
@@ -106,22 +108,39 @@ class PersonAncestorsViewIntegrationTest extends IntegrationTestConfig {
         createPersonRelationship(mother, grandmother);
         createPersonRelationship(mother, grandfather);
 
+        createPersonRelationship2(child, father);
+        createPersonRelationship2(child, mother);
+        createPersonRelationship2(mother, grandmother);
+        createPersonRelationship2(mother, grandfather);
+
         createPersonRelationship(grandmother, greatGrandmother);
         createPersonRelationship(grandmother, greatGrandfather);
         createPersonRelationship(father, greatGrandmotherFather);
         createPersonRelationship(father, greatGrandfatherFather);
 
-        mockMvc.perform(get("/api/v1/genealogy/trees/{treeId}/persons/{personId}/ancestors", tree.getId(), child.getId())
+
+        mockMvc.perform(get("/api/v1/genealogy/trees/{treeId}/families/{familyId}/persons/children", tree.getId(), family.getId())
                         .contentType(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isOk());
+
+
     }
 
-     void createPersonRelationship(Person child, Person parent) {
+    void createPersonRelationship(Person child, Person parent) {
         PersonRelationship personRelationship = new PersonRelationship();
         personRelationship.setChild(child);
         personRelationship.setPersonRelationshipType(PersonRelationshipType.BIOLOGICAL);
         parent.getChildren().add(personRelationship);
         personRepository.save(parent);
+    }
+
+    void createPersonRelationship2(Person child, Person parent) {
+        PersonRelationship personRelationship = new PersonRelationship();
+        personRelationship.setChild(parent);
+        personRelationship.setPersonRelationshipType(PersonRelationshipType.BIOLOGICAL);
+        child.getParents().add(personRelationship);
+        personRepository.save(child);
+
     }
 }

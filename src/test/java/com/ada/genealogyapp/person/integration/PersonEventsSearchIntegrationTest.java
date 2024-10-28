@@ -63,11 +63,11 @@ class PersonEventsSearchIntegrationTest extends IntegrationTestConfig {
 
     @AfterEach
     void tearDown() {
-        treeRepository.deleteAll();
-        personRepository.deleteAll();
-        eventRepository.deleteAll();
-        citationRepository.deleteAll();
-        familyRepository.deleteAll();
+//        treeRepository.deleteAll();
+//        personRepository.deleteAll();
+//        eventRepository.deleteAll();
+//        citationRepository.deleteAll();
+//        familyRepository.deleteAll();
     }
 
 

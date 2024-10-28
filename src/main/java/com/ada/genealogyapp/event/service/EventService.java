@@ -8,6 +8,4 @@ public interface EventService {
 
     Event findEventByIdOrThrowNodeNotFoundException(UUID eventId);
 
-    Event findEventById(UUID eventId);
-
 }

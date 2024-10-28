@@ -1,7 +1,7 @@
 package com.ada.genealogyapp.family.controller;
 
 
-import com.ada.genealogyapp.family.dto.FamilyChildResponse;
+import com.ada.genealogyapp.family.dto.FamilyChildrenResponse;
 import com.ada.genealogyapp.family.dto.FamilyParentResponse;
 import com.ada.genealogyapp.family.service.FamilyPersonsViewService;
 import org.springframework.http.ResponseEntity;
@@ -36,8 +36,8 @@ public class FamilyPersonsViewController {
     }
 
     @GetMapping("/children")
-    public ResponseEntity<Set<FamilyChildResponse>> getChildrenInformation(@PathVariable UUID treeId, @PathVariable UUID familyId) {
-        Set<FamilyChildResponse> childrenInformation = familyPersonsViewService.getChildrenInformation(treeId, familyId);
+    public ResponseEntity<FamilyChildrenResponse> getChildrenInformation(@PathVariable UUID treeId, @PathVariable UUID familyId) {
+        FamilyChildrenResponse childrenInformation = familyPersonsViewService.getChildrenInformation(treeId, familyId);
         return ResponseEntity.ok(childrenInformation);
     }
 }

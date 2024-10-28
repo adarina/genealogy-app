@@ -37,7 +37,7 @@ public class FamilyEventsManagementService {
     public void addEventToFamily(UUID treeId, UUID familyId, UUID eventId, EventRelationshipType eventRelationshipType) {
         Transaction tx = treeTransactionService.startTransactionAndSession();
         Family family = familyManagementService.validateTreeAndFamily(treeId, familyId);
-        Event event = eventService.findEventById(eventId);
+        Event event = eventService.findEventByIdOrThrowNodeNotFoundException(eventId);
 
         Set<EventRelationship> eventRelationships = family.getEvents();
         for (EventRelationship relationship : eventRelationships) {
@@ -75,7 +75,7 @@ public class FamilyEventsManagementService {
     public void removeEventFromFamily(UUID treeId, UUID familyId, UUIDRequest UUIDRequest) {
         Transaction tx = treeTransactionService.startTransactionAndSession();
         Family family = familyManagementService.validateTreeAndFamily(treeId, familyId);
-        Event event = eventService.findEventById(UUIDRequest.getId());
+        Event event = eventService.findEventByIdOrThrowNodeNotFoundException(UUIDRequest.getId());
 
         removeEventFromFamily(family, tx, event);
         tx.commit();

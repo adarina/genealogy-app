@@ -33,7 +33,7 @@ public class CitationFilesManagementService {
     public void addExistingFileToCitation(UUID treeId, UUID citationId, UUID fileId) {
         Transaction tx = treeTransactionService.startTransactionAndSession();
         Citation citation = citationManagementService.validateTreeAndCitation(treeId, citationId);
-        File file = fileSearchService.findFileById(fileId);
+        File file = fileSearchService.findFileByIdOrThrowNodeNotFoundException(fileId);
 
         String cypher = "MATCH (c:Citation {id: $citationId}) " +
                 "MATCH (f:File {id: $fileId}) " +

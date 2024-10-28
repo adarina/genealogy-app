@@ -1,14 +1,12 @@
 package com.ada.genealogyapp.family.service;
 
-import com.ada.genealogyapp.family.dto.FamilyChildResponse;
+import com.ada.genealogyapp.family.dto.FamilyChildrenResponse;
 import com.ada.genealogyapp.family.dto.FamilyParentResponse;
 import com.ada.genealogyapp.family.model.Family;
 import com.ada.genealogyapp.person.model.Person;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.util.HashSet;
-import java.util.Set;
 import java.util.UUID;
 
 import static java.util.Objects.nonNull;
@@ -35,14 +33,8 @@ public class FamilyPersonsViewService {
         return nonNull(mother) ? new FamilyParentResponse(mother.getId(), mother.getFirstname(), mother.getLastname(), mother.getBirthDate()) : null;
     }
 
-    public Set<FamilyChildResponse> getChildrenInformation(UUID treeId, UUID familyId) {
+    public FamilyChildrenResponse getChildrenInformation(UUID treeId, UUID familyId) {
         Family family = familyManagementService.validateTreeAndFamily(treeId, familyId);
-        Set<FamilyChildResponse> childrenInformation = new HashSet<>();
-
-        for (Person child : family.getChildren()) {
-            FamilyChildResponse familyChildResponse = new FamilyChildResponse(child.getId(), child.getFirstname(), child.getLastname(), child.getBirthDate(), child.getGenderType().toString());
-            childrenInformation.add(familyChildResponse);
-        }
-        return childrenInformation;
+        return FamilyChildrenResponse.entityToDtoMapper().apply(family.getChildren());
     }
 }

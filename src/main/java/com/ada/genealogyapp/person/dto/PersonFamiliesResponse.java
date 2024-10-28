@@ -10,21 +10,11 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Getter
-@Setter
 @Builder
-@NoArgsConstructor
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
-@ToString
-@EqualsAndHashCode
 public class PersonFamiliesResponse {
 
     @Getter
-    @Setter
     @Builder
-    @NoArgsConstructor
-    @AllArgsConstructor(access = AccessLevel.PRIVATE)
-    @ToString
-    @EqualsAndHashCode
     public static class Family {
 
         private UUID id;
@@ -45,11 +35,7 @@ public class PersonFamiliesResponse {
 
 
         @Getter
-        @Setter
-        @NoArgsConstructor
         @AllArgsConstructor
-        @ToString
-        @EqualsAndHashCode
         public static class ChildInfo {
 
             private UUID childId;

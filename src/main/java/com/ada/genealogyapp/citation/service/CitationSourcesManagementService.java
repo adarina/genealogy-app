@@ -33,7 +33,7 @@ public class CitationSourcesManagementService {
     public void addExistingSourceToCitation(UUID treeId, UUID citationId, UUID sourceId) {
         Transaction tx = treeTransactionService.startTransactionAndSession();
         Citation citation = citationManagementService.validateTreeAndCitation(treeId, citationId);
-        Source source = sourceService.findSourceById(sourceId);
+        Source source = sourceService.findSourceByIdOrThrowNodeNotFoundException(sourceId);
 
         String cypher = "MATCH (c:Citation {id: $citationId}) " +
                 "MATCH (s:Source {id: $sourceId}) " +
