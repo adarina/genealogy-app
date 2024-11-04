@@ -1,84 +1,55 @@
 package com.ada.genealogyapp.person.dto;
 
-import com.ada.genealogyapp.event.relationship.EventRelationship;
+import com.ada.genealogyapp.event.type.EventRelationshipType;
+import com.ada.genealogyapp.event.type.EventType;
 import lombok.*;
 
+import java.time.LocalDate;
 import java.util.*;
-import java.util.function.Function;
-import java.util.stream.Collectors;
+
 
 @Getter
+@Setter
 @Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class PersonEventsResponse {
 
+
+    private UUID id;
+
+    private EventRelationshipType relationship;
+
+    private EventType type;
+
+    private String description;
+
+    private LocalDate date;
+
+    private String place;
+
+
+
+    private List<Participant> participants;
+
+
+    private List<Citation> citations;
+
     @Getter
-    @Builder
-    public static class Event {
+    @AllArgsConstructor
+    public static class Participant {
 
         private UUID id;
 
-        private String type;
+        private String name;
 
-        private String description;
-
-        private String date;
-
-        private String place;
-
-        private String eventRelationshipType;
-
-        private List<ParticipantInfo> participants;
-
-        private List<CitationInfo> citations;
-
-        @Getter
-        @AllArgsConstructor
-        public static class ParticipantInfo {
-
-            private UUID id;
-
-            private String name;
-
-        }
-
-        @Getter
-        @AllArgsConstructor
-        public static class CitationInfo {
-
-            private UUID id;
-
-        }
     }
 
-    @Singular
-    private List<Event> events;
+    @Getter
+    @AllArgsConstructor
+    public static class Citation {
 
-    public static Function<Collection<EventRelationship>, PersonEventsResponse> entityToDtoMapper() {
-        return eventRelationships -> {
-            PersonEventsResponseBuilder response = PersonEventsResponse.builder();
-            eventRelationships.stream()
-                    .map(eventRelationship -> {
-                        com.ada.genealogyapp.event.model.Event event = eventRelationship.getEvent();
-                        return Event.builder()
-                                .id(event.getId())
-                                .type(event.getEventType().name())
-                                .description(event.getDescription())
-                                .date(event.getDate().toString())
-                                .place(event.getPlace())
-                                .eventRelationshipType(eventRelationship.getEventRelationshipType().toString())
-                                .participants(event.getParticipants().stream()
-                                        .map(participant -> new Event.ParticipantInfo(
-                                                participant.getParticipantId(),
-                                                participant.getParticipantName()
-                                        ))
-                                        .collect(Collectors.toList()))
-                                .citations(event.getCitations().stream()
-                                        .map(citation -> new Event.CitationInfo(citation.getId()))
-                                        .collect(Collectors.toList()))
-                                .build();
-                    })
-                    .forEach(response::event);
-            return response.build();
-        };
+        private UUID id;
+
     }
 }

@@ -6,7 +6,6 @@ import com.ada.genealogyapp.person.relationship.PersonRelationship;
 import com.ada.genealogyapp.family.relationship.FamilyRelationship;
 import com.ada.genealogyapp.person.type.GenderType;
 import com.ada.genealogyapp.tree.model.Tree;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.neo4j.core.schema.GeneratedValue;
@@ -39,9 +38,9 @@ public class Person implements Participant {
 
     private String lastname;
 
-    private LocalDate birthDate;
+    private LocalDate birthdate;
 
-    private GenderType genderType;
+    private GenderType gender;
 
     @Relationship(type = "PARENT_OF", direction = Relationship.Direction.OUTGOING)
     private Set<PersonRelationship> children = new HashSet<>();
@@ -58,7 +57,7 @@ public class Person implements Participant {
     @Relationship(type = "HAS_CITATION", direction = Relationship.Direction.OUTGOING)
     private Set<Citation> citations = new HashSet<>();
 
-    @Relationship(type = "HAS_PERSON", direction = Relationship.Direction.INCOMING)
+    @Relationship(type = "BELONGS_TO_TREE", direction = Relationship.Direction.OUTGOING)
     private Tree tree;
 
     @Override
@@ -76,16 +75,16 @@ public class Person implements Participant {
         this.name = name;
         this.firstname = firstname;
         this.lastname = lastname;
-        this.birthDate = birthDate;
-        this.genderType = genderType;
+        this.birthdate = birthDate;
+        this.gender = genderType;
         this.tree = tree;
     }
 
     public Person(String firstname, String lastname, LocalDate birthDate, GenderType genderType, Tree tree) {
         this.firstname = firstname;
         this.lastname = lastname;
-        this.birthDate = birthDate;
-        this.genderType = genderType;
+        this.birthdate = birthDate;
+        this.gender = genderType;
         this.tree = tree;
     }
 }

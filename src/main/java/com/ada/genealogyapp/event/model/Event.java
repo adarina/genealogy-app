@@ -1,6 +1,5 @@
 package com.ada.genealogyapp.event.model;
 
-import com.ada.genealogyapp.event.type.EventRelationshipType;
 import com.ada.genealogyapp.person.model.Participant;
 import com.ada.genealogyapp.citation.model.Citation;
 import com.ada.genealogyapp.event.type.EventType;
@@ -37,15 +36,13 @@ public class Event {
 
     private String description;
 
-    private EventRelationshipType eventRelationshipType;
-
     @Relationship(type = "HAS_CITATION", direction = Relationship.Direction.OUTGOING)
     private Set<Citation> citations = new HashSet<>();
 
     @Relationship(type = "HAS_PARTICIPANT", direction = Relationship.Direction.OUTGOING)
     private Set<Participant> participants = new HashSet<>();
 
-    @Relationship(type = "HAS_EVENT", direction = Relationship.Direction.INCOMING)
+    @Relationship(type = "BELONGS_TO_TREE", direction = Relationship.Direction.OUTGOING)
     private Tree tree;
 
     public Event(EventType eventType, LocalDate date, String place, String description, Tree tree) {

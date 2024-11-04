@@ -30,12 +30,12 @@ public class FamilyViewService {
             if (nonNull(family.getFather())) {
                 response.setFatherFirstname(family.getFather().getFirstname());
                 response.setFatherLastname(family.getFather().getLastname());
-                response.setFatherBirthDate(family.getFather().getBirthDate());
+                response.setFatherBirthDate(family.getFather().getBirthdate());
             }
             if (nonNull(family.getMother())) {
                 response.setMotherFirstname(family.getMother().getFirstname());
                 response.setMotherLastname(family.getMother().getLastname());
-                response.setMotherBirthDate(family.getMother().getBirthDate());
+                response.setMotherBirthDate(family.getMother().getBirthdate());
             }
             response.setRelationshipRelationshipType(family.getRelationshipRelationshipType());
             familyResponses.add(response);

@@ -32,7 +32,7 @@ public class PersonAncestorsViewService {
         Person person = personService.findPersonByIdOrThrowNodeNotFoundException(personId);
 
         Map<Person, Set<Person>> ancestorsMap = buildAncestryMap(person);
-        return PersonAncestorsResponse.entityToDtoMapper(person.getId(), person.getName(), person.getBirthDate().toString()).apply(ancestorsMap);
+        return PersonAncestorsResponse.entityToDtoMapper(person.getId(), person.getName(), person.getBirthdate().toString()).apply(ancestorsMap);
     }
 
     private Map<Person, Set<Person>> buildAncestryMap(Person root) {

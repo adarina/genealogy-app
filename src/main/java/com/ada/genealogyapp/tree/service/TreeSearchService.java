@@ -1,11 +1,13 @@
 package com.ada.genealogyapp.tree.service;
 
 import com.ada.genealogyapp.exceptions.NodeNotFoundException;
+import com.ada.genealogyapp.person.model.Person;
 import com.ada.genealogyapp.tree.model.Tree;
 import com.ada.genealogyapp.tree.repository.TreeRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -38,5 +40,16 @@ public class TreeSearchService {
             throw new NodeNotFoundException("No tree found with id: " + treeId);
         }
         return tree;
+    }
+
+    public List<Tree> getTreesOrThrowNodeNotFoundException() {
+        List<Tree> trees = treeRepository.findAll();
+        if (!trees.isEmpty()) {
+            log.info("Trees found for userId: {}", trees);
+        } else {
+            log.error("No trees found for userId");
+            throw new NodeNotFoundException("No trees found for userId: ");
+        }
+        return trees;
     }
 }

@@ -44,4 +44,10 @@ public class PersonEventManagementController {
         personEventManagementService.addCitationToPersonalEvent(treeId, personId, eventId, citation.getId());
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
+
+    @DeleteMapping()
+    public ResponseEntity<?> removeEventFromPerson(@PathVariable UUID treeId, @PathVariable UUID personId, @PathVariable UUID eventId) {
+        personEventManagementService.removeEventFromPerson(treeId, personId, eventId);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    }
 }

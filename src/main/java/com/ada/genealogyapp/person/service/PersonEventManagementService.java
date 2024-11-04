@@ -1,5 +1,9 @@
 package com.ada.genealogyapp.person.service;
 
+import com.ada.genealogyapp.event.service.EventService;
+import com.ada.genealogyapp.family.dto.UUIDRequest;
+import com.ada.genealogyapp.family.model.Family;
+import com.ada.genealogyapp.person.model.Person;
 import com.ada.genealogyapp.tree.service.TransactionalInNeo4j;
 import com.ada.genealogyapp.citation.model.Citation;
 import com.ada.genealogyapp.citation.service.CitationService;
@@ -29,11 +33,14 @@ public class PersonEventManagementService {
 
     private final CitationService citationService;
 
-    public PersonEventManagementService(PersonManagementService personManagementService, TreeTransactionService treeTransactionService, EventManagementService eventManagementService, CitationService citationService) {
+    private final EventService eventService;
+
+    public PersonEventManagementService(PersonManagementService personManagementService, TreeTransactionService treeTransactionService, EventManagementService eventManagementService, CitationService citationService, EventService eventService) {
         this.personManagementService = personManagementService;
         this.treeTransactionService = treeTransactionService;
         this.eventManagementService = eventManagementService;
         this.citationService = citationService;
+        this.eventService = eventService;
     }
 
 
@@ -75,6 +82,28 @@ public class PersonEventManagementService {
         tx.run(cypher, Map.of("eventId", eventId.toString(), "citationId", citation.getId().toString()));
         log.info("Citation {} added successfully to the personal event {}", citation.getId(), event.getId().toString());
         tx.commit();
+    }
+
+    @TransactionalInNeo4j
+    public void removeEventFromPerson(UUID treeId, UUID personId, UUID eventId) {
+        Transaction tx = treeTransactionService.startTransactionAndSession();
+        Person person = personManagementService.validateTreeAndPerson(treeId, personId);
+        Event event = eventService.findEventByIdOrThrowNodeNotFoundException(eventId);
+
+        removeEventFromPerson(person, tx, event);
+        tx.commit();
+    }
+
+    @TransactionalInNeo4j
+    public void removeEventFromPerson(Person person, Transaction tx, Event event) {
+        String cypher = "MATCH (p:Person {id: $personId}) " +
+                "MATCH (e:Event {id: $eventId}) " +
+                "MATCH (p)-[r1:HAS_EVENT]->(e) " +
+                "MATCH (e)-[r2:HAS_PARTICIPANT]->(p) " +
+                "DELETE r1, r2";
+
+        tx.run(cypher, Map.of("personId", person.getId().toString(), "eventId", event.getId().toString()));
+        log.info("Event {} removed from person {}", event.getId(), person.getId());
     }
 }
 

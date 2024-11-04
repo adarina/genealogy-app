@@ -54,13 +54,13 @@ public class PersonAncestorsResponse {
                     .map(entry -> {
                         Person ancestor = entry.getKey();
                         List<AncestorInfo> ancestors = entry.getValue().stream()
-                                .map(ance -> new AncestorInfo(ance.getId(), ance.getName(), ance.getBirthDate().toString()))
+                                .map(ance -> new AncestorInfo(ance.getId(), ance.getName(), ance.getBirthdate().toString()))
                                 .collect(Collectors.toList());
 
                         return Ancestor.builder()
                                 .personId(ancestor.getId())
                                 .personName(ancestor.getName())
-                                .birthDate(ancestor.getBirthDate().toString())
+                                .birthDate(ancestor.getBirthdate().toString())
                                 .ancestors(ancestors)
                                 .build();
                     })

@@ -30,8 +30,8 @@ public class PersonRequest {
                 .name(request.getFirstname() + " " + request.getLastname())
                 .firstname(request.getFirstname())
                 .lastname(request.getLastname())
-                .birthDate(request.getBirthDate())
-                .genderType(request.getGenderType())
+                .birthdate(request.getBirthDate())
+                .gender(request.getGenderType())
                 .build();
     }
 }

@@ -5,11 +5,12 @@ import com.ada.genealogyapp.person.model.Person;
 import com.ada.genealogyapp.person.repostitory.PersonRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
-import java.util.HashSet;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
+
+
+import java.util.*;
 
 @Slf4j
 @Service
@@ -31,6 +32,21 @@ public class PersonSearchService {
             throw new NodeNotFoundException("No person found with id: " + personId);
         }
     }
+
+    public Page<Person> getPersonsByTreeId(UUID treeId, Pageable pageable) {
+        Page<Person> personsPage = personRepository.findAllByTree_Id(treeId, pageable);
+
+        if (!personsPage.isEmpty()) {
+            log.info("Persons found for treeId {}: {}", treeId, personsPage.getContent());
+        } else {
+            log.error("No persons found for treeId: {}", treeId);
+            throw new NodeNotFoundException("No persons found for treeId: " + treeId);
+        }
+
+        return personsPage;
+    }
+
+
 
     public Optional<Person> findOptionalPersonByIdOrThrowNodeNotFoundException(UUID personId) {
         Optional<Person> person = personRepository.findById(personId);

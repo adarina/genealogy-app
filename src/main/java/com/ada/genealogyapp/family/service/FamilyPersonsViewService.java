@@ -24,13 +24,13 @@ public class FamilyPersonsViewService {
     public FamilyParentResponse getFatherInformation(UUID treeId, UUID familyId) {
         Family family = familyManagementService.validateTreeAndFamily(treeId, familyId);
         Person father = family.getFather();
-        return nonNull(father) ? new FamilyParentResponse(father.getId(), father.getFirstname(), father.getLastname(), father.getBirthDate()) : null;
+        return nonNull(father) ? new FamilyParentResponse(father.getId(), father.getFirstname(), father.getLastname(), father.getBirthdate()) : null;
     }
 
     public FamilyParentResponse getMotherInformation(UUID treeId, UUID familyId) {
         Family family = familyManagementService.validateTreeAndFamily(treeId, familyId);
         Person mother = family.getMother();
-        return nonNull(mother) ? new FamilyParentResponse(mother.getId(), mother.getFirstname(), mother.getLastname(), mother.getBirthDate()) : null;
+        return nonNull(mother) ? new FamilyParentResponse(mother.getId(), mother.getFirstname(), mother.getLastname(), mother.getBirthdate()) : null;
     }
 
     public FamilyChildrenResponse getChildrenInformation(UUID treeId, UUID familyId) {

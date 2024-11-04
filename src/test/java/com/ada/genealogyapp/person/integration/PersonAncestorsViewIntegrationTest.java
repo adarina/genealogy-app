@@ -47,9 +47,9 @@ class PersonAncestorsViewIntegrationTest extends IntegrationTestConfig {
     @AfterEach
     void tearDown() {
 
-        treeRepository.deleteAll();
-        personRepository.deleteAll();
-        familyRepository.deleteAll();
+//        treeRepository.deleteAll();
+//        personRepository.deleteAll();
+//        familyRepository.deleteAll();
     }
 
     @Test

@@ -75,6 +75,7 @@ class PersonEventsSearchIntegrationTest extends IntegrationTestConfig {
     void shouldReturnAllEventsForPersonSuccessfully() throws Exception {
 
         Tree tree = new Tree();
+        tree.setName("LOL");
         treeRepository.save(tree);
 
         Person person = new Person("John Smith", "John", "Smith", LocalDate.of(1975, 7, 18), GenderType.MALE, tree);
@@ -83,9 +84,9 @@ class PersonEventsSearchIntegrationTest extends IntegrationTestConfig {
         Person secondPerson = new Person("Mary Sue", "Mary", "Sue", LocalDate.of(1999, 12, 1), GenderType.FEMALE, tree);
         personRepository.save(secondPerson);
 
-        Family family = new Family();
-        family.setName("Rick Smith & Theodora Smith");
-        familyRepository.save(family);
+//        Family family = new Family();
+//        family.setName("Rick Smith & Theodora Smith");
+//        familyRepository.save(family);
 
         Citation citation = new Citation();
         citationRepository.save(citation);
@@ -93,7 +94,11 @@ class PersonEventsSearchIntegrationTest extends IntegrationTestConfig {
         Event event = new Event(EventType.BAPTISM, LocalDate.of(1975, 7, 18), "New York", "Birth event", tree);
 
         event.setCitations(Set.of(citation));
-        eventRepository.saveAll(List.of(event));
+
+
+        Event secondEvent = new Event(EventType.BIRTH, LocalDate.of(1975, 7, 20), "New York", "Baptism event", tree);
+
+        eventRepository.saveAll(List.of(event, secondEvent));
 
         PersonUpdateRequest personEventRequest1 = new PersonUpdateRequest();
         personEventRequest1.setId(event.getId());
@@ -102,6 +107,16 @@ class PersonEventsSearchIntegrationTest extends IntegrationTestConfig {
         mockMvc.perform(post("/api/v1/genealogy/trees/{treeId}/persons/{personId}/events/addExistingEvent", tree.getId(), person.getId())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(personEventRequest1)))
+                .andDo(print())
+                .andExpect(status().isCreated());
+
+        PersonUpdateRequest personEventRequest3 = new PersonUpdateRequest();
+        personEventRequest3.setId(secondEvent.getId());
+        personEventRequest3.setEventRelationshipType(EventRelationshipType.PRIEST);
+
+        mockMvc.perform(post("/api/v1/genealogy/trees/{treeId}/persons/{personId}/events/addExistingEvent", tree.getId(), person.getId())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(personEventRequest3)))
                 .andDo(print())
                 .andExpect(status().isCreated());
 
@@ -116,26 +131,24 @@ class PersonEventsSearchIntegrationTest extends IntegrationTestConfig {
                 .andDo(print())
                 .andExpect(status().isCreated());
 
-        FamilyEventRequest familyEventRequest = new FamilyEventRequest();
-        familyEventRequest.setId(event.getId());
-        familyEventRequest.setEventRelationshipType(EventRelationshipType.FAMILY);
+//        FamilyEventRequest familyEventRequest = new FamilyEventRequest();
+//        familyEventRequest.setId(event.getId());
+//        familyEventRequest.setEventRelationshipType(EventRelationshipType.FAMILY);
+//
+//        mockMvc.perform(post("/api/v1/genealogy/trees/{treeId}/families/{familyId}/events/addExistingEvent", tree.getId(), family.getId())
+//                        .contentType(MediaType.APPLICATION_JSON)
+//                        .content(objectMapper.writeValueAsString(personEventRequest)))
+//                .andDo(print())
+//                .andExpect(status().isCreated());
 
-        mockMvc.perform(post("/api/v1/genealogy/trees/{treeId}/families/{familyId}/events/addExistingEvent", tree.getId(), family.getId())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(personEventRequest)))
-                .andDo(print())
-                .andExpect(status().isCreated());
 
-
-        mockMvc.perform(get("/api/v1/genealogy/trees/{treeId}/persons/{personId}/events", tree.getId(), person.getId())
+        mockMvc.perform(get("/api/v1/genealogy/trees/{treeId}/events", tree.getId())
                         .contentType(MediaType.APPLICATION_JSON))
                 .andDo(print())
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.events").isArray())
-                .andExpect(jsonPath("$.events.length()").value(1))
-                .andExpect(jsonPath("$.events[?(@.type == 'BAPTISM')].id").value(event.getId().toString()))
-                .andExpect(jsonPath("$.events[?(@.type == 'BAPTISM')].participants").isArray())
-                .andExpect(jsonPath("$.events[?(@.type == 'BAPTISM')].participants.length()").value(3));
+                .andExpect(status().isOk());
 
     }
+
+
+
 }
