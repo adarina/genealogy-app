@@ -1,6 +1,5 @@
 package com.ada.genealogyapp.family.service;
 
-import com.ada.genealogyapp.citation.service.CitationService;
 import com.ada.genealogyapp.event.model.Event;
 import com.ada.genealogyapp.event.service.EventManagementService;
 import com.ada.genealogyapp.event.service.EventService;

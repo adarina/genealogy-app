@@ -16,18 +16,15 @@ import com.ada.genealogyapp.person.type.GenderType;
 import com.ada.genealogyapp.tree.model.Tree;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
-import org.testcontainers.shaded.org.checkerframework.checker.units.qual.A;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 class PersonFamiliesViewIntegrationTest extends IntegrationTestConfig {

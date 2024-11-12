@@ -1,11 +1,9 @@
 package com.ada.genealogyapp.tree.repository;
 
 
-import com.ada.genealogyapp.person.model.Person;
 import com.ada.genealogyapp.tree.model.Tree;
 import org.springframework.data.neo4j.repository.Neo4jRepository;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 

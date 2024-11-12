@@ -21,8 +21,6 @@ public interface PersonRepository extends Neo4jRepository<Person, UUID> {
     @Query("MATCH (p:Person)-[:PARENT_OF]->(c:Person) WHERE c.id = $childId RETURN p")
     Set<Person> findParentsOf(UUID childId);
 
-    Page<Person> findAllByTree_Id(UUID treeId, Pageable pageable);
-
     Page<PersonResponse> findByTreeIdAndFirstnameContainingIgnoreCaseAndLastnameContainingIgnoreCaseAndGenderContaining(UUID treeId, String firstname, String lastname, GenderType gender, Pageable pageable);
 
     Page<PersonResponse> findByTreeIdAndFirstnameContainingIgnoreCaseAndLastnameContainingIgnoreCase(UUID treeId, String firstname, String lastname, Pageable pageable);
