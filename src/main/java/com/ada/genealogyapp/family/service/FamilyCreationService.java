@@ -4,7 +4,7 @@ import com.ada.genealogyapp.tree.service.TransactionalInNeo4j;
 import com.ada.genealogyapp.family.dto.FamilyRequest;
 import com.ada.genealogyapp.family.model.Family;
 import com.ada.genealogyapp.family.repostitory.FamilyRepository;
-import com.ada.genealogyapp.family.type.RelationshipRelationshipType;
+import com.ada.genealogyapp.family.type.StatusType;
 import com.ada.genealogyapp.tree.model.Tree;
 import com.ada.genealogyapp.tree.service.TreeService;
 import lombok.extern.slf4j.Slf4j;
@@ -31,12 +31,12 @@ public class FamilyCreationService {
         Tree tree = treeService.findTreeByIdOrThrowNodeNotFoundException(treeId);
 
         Family family = new Family();
-        family.setFamilyTree(tree);
+        family.setTree(tree);
 
-        if (familyRequest.getRelationshipRelationshipType() == null) {
-            family.setRelationshipRelationshipType(RelationshipRelationshipType.UNKNOWN);
+        if (familyRequest.getStatusType() == null) {
+            family.setStatus(StatusType.UNKNOWN);
         } else {
-            family.setRelationshipRelationshipType(familyRequest.getRelationshipRelationshipType());
+            family.setStatus(familyRequest.getStatusType());
         }
         family.setName("null & null");
 

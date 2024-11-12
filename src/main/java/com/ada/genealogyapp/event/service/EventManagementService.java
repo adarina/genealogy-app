@@ -1,5 +1,7 @@
 package com.ada.genealogyapp.event.service;
 
+import com.ada.genealogyapp.citation.model.Citation;
+import com.ada.genealogyapp.citation.service.CitationService;
 import com.ada.genealogyapp.tree.service.TransactionalInNeo4j;
 import com.ada.genealogyapp.event.dto.EventRequest;
 import com.ada.genealogyapp.event.model.Event;
@@ -26,15 +28,24 @@ public class EventManagementService {
 
     private final EventService eventService;
 
-    public EventManagementService(TreeTransactionService treeTransactionService, TreeService treeService, EventService eventService) {
+    private final CitationService citationService;
+
+    public EventManagementService(TreeTransactionService treeTransactionService, TreeService treeService, EventService eventService, CitationService citationService) {
         this.treeTransactionService = treeTransactionService;
         this.treeService = treeService;
         this.eventService = eventService;
+        this.citationService = citationService;
     }
 
     public Event validateTreeAndEvent(UUID treeId, UUID eventId) {
         treeService.findTreeByIdOrThrowNodeNotFoundException(treeId);
         return eventService.findEventByIdOrThrowNodeNotFoundException(eventId);
+    }
+
+    public Citation validateTreeEventAndCitation(UUID treeId, UUID eventId, UUID citationId) {
+        treeService.findTreeByIdOrThrowNodeNotFoundException(treeId);
+        eventService.findEventByIdOrThrowNodeNotFoundException(eventId);
+        return citationService.findCitationByIdOrThrowNodeNotFoundException(citationId);
     }
 
     @TransactionalInNeo4j
@@ -51,31 +62,35 @@ public class EventManagementService {
         tx.commit();
     }
 
-    public void updateEventType(Transaction tx, UUID personId, EventType eventType) {
+    @TransactionalInNeo4j
+    public void updateEventType(Transaction tx, UUID eventId, EventType eventType) {
         if (nonNull(eventType)) {
             String cypher = "MATCH (e:Event {id: $eventId}) SET e.eventType = $eventType";
-            tx.run(cypher, Map.of("eventId", personId.toString(), "eventType", eventType.toString()));
+            tx.run(cypher, Map.of("eventId", eventId.toString(), "eventType", eventType.toString()));
         }
     }
 
-    public void updateDate(Transaction tx, UUID personId, LocalDate date) {
+    @TransactionalInNeo4j
+    public void updateDate(Transaction tx, UUID eventId, LocalDate date) {
         if (nonNull(date)) {
             String cypher = "MATCH (e:Event {id: $eventId}) SET e.date = $date";
-            tx.run(cypher, Map.of("eventId", personId.toString(), "date", date.toString()));
+            tx.run(cypher, Map.of("eventId", eventId.toString(), "date", date));
         }
     }
 
-    public void updatePlace(Transaction tx, UUID personId, String place) {
+    @TransactionalInNeo4j
+    public void updatePlace(Transaction tx, UUID eventId, String place) {
         if (nonNull(place)) {
             String cypher = "MATCH (e:Event {id: $eventId}) SET e.place = $place";
-            tx.run(cypher, Map.of("eventId", personId.toString(), "place", place));
+            tx.run(cypher, Map.of("eventId", eventId.toString(), "place", place));
         }
     }
 
-    public void updateDescription(Transaction tx, UUID personId, String description) {
+    @TransactionalInNeo4j
+    public void updateDescription(Transaction tx, UUID eventId, String description) {
         if (nonNull(description)) {
-            String cypher = "MATCH (e:Event {id: $eventId}) SET e.description = description";
-            tx.run(cypher, Map.of("eventId", personId.toString(), "description", description));
+            String cypher = "MATCH (e:Event {id: $eventId}) SET e.description = $description";
+            tx.run(cypher, Map.of("eventId", eventId.toString(), "description", description));
         }
     }
 }

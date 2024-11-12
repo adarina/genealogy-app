@@ -43,8 +43,8 @@ class PersonCreationIntegrationTest extends IntegrationTestConfig {
         PersonRequest personRequest = new PersonRequest();
         personRequest.setFirstname("John");
         personRequest.setLastname("Smith");
-        personRequest.setBirthDate(LocalDate.of(1980, 1, 1));
-        personRequest.setGenderType(GenderType.MALE);
+        personRequest.setBirthdate(LocalDate.of(1980, 1, 1));
+        personRequest.setGender(GenderType.MALE);
 
         Tree tree = new Tree();
         tree.setUserId(1L);
@@ -63,8 +63,8 @@ class PersonCreationIntegrationTest extends IntegrationTestConfig {
         PersonRequest personRequest = new PersonRequest();
         personRequest.setFirstname("John");
         personRequest.setLastname("Smith");
-        personRequest.setBirthDate(LocalDate.of(1980, 1, 1));
-        personRequest.setGenderType(GenderType.MALE);
+        personRequest.setBirthdate(LocalDate.of(1980, 1, 1));
+        personRequest.setGender(GenderType.MALE);
 
         UUID nonExistentTreeId = UUID.randomUUID();
 

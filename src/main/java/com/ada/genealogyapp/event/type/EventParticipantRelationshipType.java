@@ -1,6 +1,6 @@
 package com.ada.genealogyapp.event.type;
 
-public enum EventRelationshipType {
+public enum EventParticipantRelationshipType {
     FAMILY,
     WITNESS,
     PRIEST,

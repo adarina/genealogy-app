@@ -1,12 +1,11 @@
 package com.ada.genealogyapp.event.dto;
 
-
+import com.ada.genealogyapp.event.type.EventParticipantRelationshipType;
 import com.ada.genealogyapp.event.type.EventType;
-import com.ada.genealogyapp.person.model.Person;
 import lombok.*;
 
 import java.time.LocalDate;
-import java.util.List;
+import java.util.LinkedHashSet;
 import java.util.UUID;
 
 @Getter
@@ -15,24 +14,44 @@ import java.util.UUID;
 @NoArgsConstructor
 public class EventResponse {
 
-
     private UUID id;
 
     private EventType type;
 
+    private String description;
+
     private LocalDate date;
 
-    private List<Participant> participants;
+    private String place;
+
+    private LinkedHashSet<EventParticipantResponse> participants;
+
+    private LinkedHashSet<EventCitationResponse> citations;
+
 
     @Getter
     @Setter
     @AllArgsConstructor
     @NoArgsConstructor
-    public static class Participant {
+    public static class EventParticipantResponse {
 
         private UUID id;
 
         private String name;
+
+        private EventParticipantRelationshipType relationship;
+
+    }
+
+    @Getter
+    @Setter
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class EventCitationResponse {
+
+        private UUID id;
+
+        private String page;
 
     }
 }

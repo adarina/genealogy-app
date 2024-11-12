@@ -26,14 +26,14 @@ public class PersonEventsManagementController {
 
     @PostMapping("/addExistingEvent")
     public ResponseEntity<?> addExistingEvent(@PathVariable UUID treeId, @PathVariable UUID personId, @RequestBody PersonUpdateRequest personUpdateRequest) {
-        personEventsManagementService.addExistingEventToPerson(treeId, personId, personUpdateRequest.getId(), personUpdateRequest.getEventRelationshipType());
+        personEventsManagementService.addExistingEventToPerson(treeId, personId, personUpdateRequest.getId(), personUpdateRequest.getEventParticipantRelationshipType());
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
     @PostMapping("/addNewEvent")
     public ResponseEntity<?> addNewEvent(@PathVariable UUID treeId, @PathVariable UUID personId, @RequestBody EventRequest eventRequest) {
         Event event = eventCreationService.createEvent(treeId, eventRequest);
-        personEventsManagementService.addExistingEventToPerson(treeId, personId, event.getId(), eventRequest.getEventRelationshipType());
+        personEventsManagementService.addExistingEventToPerson(treeId, personId, event.getId(), eventRequest.getRelationship());
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 }

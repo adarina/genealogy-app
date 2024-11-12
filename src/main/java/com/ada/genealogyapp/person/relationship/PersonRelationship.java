@@ -23,7 +23,7 @@ public class PersonRelationship {
     @TargetNode
     private Person child;
 
-    private PersonRelationshipType personRelationshipType;
+    private PersonRelationshipType relationship;
 
 }
 

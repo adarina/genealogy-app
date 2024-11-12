@@ -1,8 +1,7 @@
 package com.ada.genealogyapp.person.controller;
 
-import com.ada.genealogyapp.event.dto.EventResponse;
+import com.ada.genealogyapp.person.dto.PersonEventResponse;
 import com.ada.genealogyapp.person.dto.PersonEventsResponse;
-import com.ada.genealogyapp.person.dto.PersonResponse;
 import com.ada.genealogyapp.person.service.PersonEventsViewService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -10,7 +9,6 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -29,4 +27,9 @@ public class PersonEventsViewController {
         return ResponseEntity.ok(eventResponses);
     }
 
+    @GetMapping("/{eventId}")
+    public ResponseEntity<PersonEventResponse> getPersonalEvent(@PathVariable UUID treeId, @PathVariable UUID personId, @PathVariable UUID eventId) {
+        PersonEventResponse eventResponse = personEventsViewService.getPersonalEvent(treeId, personId, eventId);
+        return ResponseEntity.ok(eventResponse);
+    }
 }

@@ -32,15 +32,9 @@ public class EventCitationsManagementController {
     }
 
     @PostMapping("/addNewCitation")
-    public ResponseEntity<?> addNewCitation(@PathVariable UUID treeId, @PathVariable UUID eventId, @RequestBody CitationRequest citationRequest) {
+    public ResponseEntity<?> addNewCitationToEvent(@PathVariable UUID treeId, @PathVariable UUID eventId, @RequestBody CitationRequest citationRequest) {
         Citation citation = citationCreationService.createCitation(treeId, citationRequest);
         eventCitationsManagementService.addExistingCitationToEvent(treeId, eventId, citation.getId());
         return ResponseEntity.status(HttpStatus.CREATED).build();
-    }
-
-    @DeleteMapping()
-    public ResponseEntity<?> removeCitationFromEvent(@PathVariable UUID treeId, @PathVariable UUID eventId, @RequestBody EventCitationRequest eventCitationRequest) {
-        eventCitationsManagementService.removeCitationFromEvent(treeId, eventId, eventCitationRequest);
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 }

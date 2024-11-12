@@ -13,6 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.neo4j.driver.Transaction;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
@@ -33,28 +34,6 @@ public class FamilyPersonsManagementService {
         this.personSearchService = personSearchService;
     }
 
-
-    @TransactionalInNeo4j
-    public void addChildToFamily(UUID treeId, UUID familyId, UUID childId) {
-        Transaction tx = treeTransactionService.startTransactionAndSession();
-        Family family = familyManagementService.validateTreeAndFamily(treeId, familyId);
-        Person child = personSearchService.findPersonByIdOrThrowNodeNotFoundException(childId);
-
-        if (family.getChildren().contains(child)) {
-            throw new NodeAlreadyInNodeException("Child " + child.getId() + " is already part of the family " + familyId);
-        }
-        String cypher = "MATCH (f:Family {id: $familyId}) " +
-                "MATCH (p:Person {id: $childId}) " +
-                "MERGE (p)-[:HAS_FAMILY]->(f)" +
-                "MERGE (f)-[:HAS_CHILD]->(p)";
-
-        tx.run(cypher, Map.of("familyId", familyId.toString(), "childId", child.getId().toString()));
-        log.info("Child {} added successfully to the family {}", child.getFirstname(), family.getId());
-
-        addDefaultChildOfParentRelationshipWhenAddingChild(family, tx, child);
-        addDefaultParentOfParentRelationshipWhenAddingChild(family, tx, child);
-        tx.commit();
-    }
 
     @TransactionalInNeo4j
     public void addFatherToFamily(UUID treeId, UUID familyId, UUID fatherId) {
@@ -97,7 +76,7 @@ public class FamilyPersonsManagementService {
 
     @TransactionalInNeo4j
     public void addDefaultParentOfChildRelationshipWhenAddingParent(Family family, Transaction tx, Person parent) {
-        Set<Person> children = family.getChildren();
+        List<Person> children = family.getChildren();
 
         for (Person child : children) {
             PersonRelationshipType type = PersonRelationshipType.BIOLOGICAL;
@@ -113,7 +92,7 @@ public class FamilyPersonsManagementService {
 
     @TransactionalInNeo4j
     public void addDefaultChildOfParentRelationshipWhenAddingParent(Family family, Transaction tx, Person parent) {
-        Set<Person> children = family.getChildren();
+        List<Person> children = family.getChildren();
 
         for (Person child : children) {
             PersonRelationshipType type = PersonRelationshipType.BIOLOGICAL;
@@ -128,62 +107,11 @@ public class FamilyPersonsManagementService {
 
     }
 
-    @TransactionalInNeo4j
-    public void addDefaultChildOfParentRelationshipWhenAddingChild(Family family, Transaction tx, Person child) {
 
-        Person father = family.getFather();
-        Person mother = family.getMother();
-        PersonRelationshipType type = PersonRelationshipType.BIOLOGICAL;
-
-        if (nonNull(father)) {
-            String cypher = "MATCH (p:Person {id: $fatherId}) " +
-                    "MATCH (c:Person {id: $childId}) " +
-                    "MERGE (c)-[r:CHILD_OF {personRelationshipType: $relationshipType}]->(p)";
-
-            tx.run(cypher, Map.of("fatherId", father.getId().toString(), "childId", child.getId().toString(), "relationshipType", type.name()));
-            log.info("Default person relationships added for child {} in family {}", child.getFirstname(), family.getId());
-        }
-
-        if (nonNull(mother)) {
-            String cypher = "MATCH (p:Person {id: $motherId}) " +
-                    "MATCH (c:Person {id: $childId}) " +
-                    "MERGE (c)-[r:CHILD_OF {personRelationshipType: $relationshipType}]->(p)";
-
-            tx.run(cypher, Map.of("motherId", mother.getId().toString(), "childId", child.getId().toString(), "relationshipType", type.name()));
-            log.info("Default person relationships added for child {} in family {}", child.getFirstname(), family.getId());
-        }
-    }
-
-    @TransactionalInNeo4j
-    public void addDefaultParentOfParentRelationshipWhenAddingChild(Family family, Transaction tx, Person child) {
-
-        Person father = family.getFather();
-        Person mother = family.getMother();
-        PersonRelationshipType type = PersonRelationshipType.BIOLOGICAL;
-
-        if (nonNull(father)) {
-            String cypher = "MATCH (p:Person {id: $fatherId}) " +
-                    "MATCH (c:Person {id: $childId}) " +
-                    "MERGE (p)-[r:PARENT_OF {personRelationshipType: $relationshipType}]->(c)";
-
-            tx.run(cypher, Map.of("fatherId", father.getId().toString(), "childId", child.getId().toString(), "relationshipType", type.name()));
-            log.info("Default person relationships added for child {} in family {}", child.getFirstname(), family.getId());
-        }
-
-        if (nonNull(mother)) {
-            String cypher = "MATCH (p:Person {id: $motherId}) " +
-                    "MATCH (c:Person {id: $childId}) " +
-                    "MERGE (p)-[r:PARENT_OF {personRelationshipType: $relationshipType}]->(c)";
-
-            tx.run(cypher, Map.of("motherId", mother.getId().toString(), "childId", child.getId().toString(), "relationshipType", type.name()));
-            log.info("Default person relationships added for child {} in family {}", child.getFirstname(), family.getId());
-        }
-
-    }
 
     @TransactionalInNeo4j
     public void removeParentOfChildRelationship(Family family, Transaction tx, Person parent) {
-        Set<PersonRelationship> personRelationships = parent.getChildren();
+        Set<PersonRelationship> personRelationships = parent.getChildrens();
 
         for (PersonRelationship personRelationship : personRelationships) {
             Person child = personRelationship.getChild();
@@ -197,7 +125,7 @@ public class FamilyPersonsManagementService {
                     "DELETE r1, r2";
 
             tx.run(cypher, Map.of("familyId", family.getId().toString(), "parentId", parent.getId().toString(), "childId", child.getId().toString()));
-            log.info("Parent-child relationship removed for parent {} and child {}", parent.getFirstname(), child.getFirstname());
+            log.info("Parent-child status removed for parent {} and child {}", parent.getFirstname(), child.getFirstname());
         }
     }
 
@@ -215,7 +143,7 @@ public class FamilyPersonsManagementService {
                     "DELETE r";
 
             tx.run(cypher, Map.of("familyId", family.getId().toString(), "fatherId", father.getId().toString(), "childId", child.getId().toString()));
-            log.info("Father-child relationship removed for father {} and child {}", father.getFirstname(), child.getFirstname());
+            log.info("Father-child status removed for father {} and child {}", father.getFirstname(), child.getFirstname());
         }
 
         if (nonNull(mother)) {
@@ -227,7 +155,7 @@ public class FamilyPersonsManagementService {
                     "DELETE r";
 
             tx.run(cypher, Map.of("familyId", family.getId().toString(), "motherId", mother.getId().toString(), "childId", child.getId().toString()));
-            log.info("Mother-child relationship removed for mother {} and child {}", mother.getFirstname(), child.getFirstname());
+            log.info("Mother-child status removed for mother {} and child {}", mother.getFirstname(), child.getFirstname());
         }
     }
 

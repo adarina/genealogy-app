@@ -20,9 +20,9 @@ public class PersonRequest {
 
     private String lastname;
 
-    private LocalDate birthDate;
+    private LocalDate birthdate;
 
-    private GenderType genderType;
+    private GenderType gender;
 
 
     public static Function<PersonRequest, Person> dtoToEntityMapper() {
@@ -30,8 +30,8 @@ public class PersonRequest {
                 .name(request.getFirstname() + " " + request.getLastname())
                 .firstname(request.getFirstname())
                 .lastname(request.getLastname())
-                .birthdate(request.getBirthDate())
-                .gender(request.getGenderType())
+                .birthdate(request.getBirthdate())
+                .gender(request.getGender())
                 .build();
     }
 }

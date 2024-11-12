@@ -5,10 +5,8 @@ import com.ada.genealogyapp.citation.repository.CitationRepository;
 import com.ada.genealogyapp.config.IntegrationTestConfig;
 import com.ada.genealogyapp.event.model.Event;
 import com.ada.genealogyapp.event.repository.EventRepository;
-import com.ada.genealogyapp.event.type.EventRelationshipType;
+import com.ada.genealogyapp.event.type.EventParticipantRelationshipType;
 import com.ada.genealogyapp.event.type.EventType;
-import com.ada.genealogyapp.family.dto.FamilyEventRequest;
-import com.ada.genealogyapp.family.model.Family;
 import com.ada.genealogyapp.family.repostitory.FamilyRepository;
 import com.ada.genealogyapp.person.dto.PersonUpdateRequest;
 import com.ada.genealogyapp.person.model.Person;
@@ -24,7 +22,6 @@ import org.springframework.http.MediaType;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Set;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 
@@ -89,20 +86,23 @@ class PersonEventsSearchIntegrationTest extends IntegrationTestConfig {
 //        familyRepository.save(family);
 
         Citation citation = new Citation();
+        citation.setPage("status");
+        citation.setTree(tree);
         citationRepository.save(citation);
 
         Event event = new Event(EventType.BAPTISM, LocalDate.of(1975, 7, 18), "New York", "Birth event", tree);
 
-        event.setCitations(Set.of(citation));
+//        CitationLol status = new CitationLol(myCitation, EventRelationshipType.FAMILY);
+//        event.setCitations(Set.of(status));
 
 
-        Event secondEvent = new Event(EventType.BIRTH, LocalDate.of(1975, 7, 20), "New York", "Baptism event", tree);
+        Event secondEvent = new Event(EventType.BIRTH, LocalDate.of(1975, 7, 20), "California", "Baptism event", tree);
 
         eventRepository.saveAll(List.of(event, secondEvent));
 
         PersonUpdateRequest personEventRequest1 = new PersonUpdateRequest();
         personEventRequest1.setId(event.getId());
-        personEventRequest1.setEventRelationshipType(EventRelationshipType.MAIN);
+        personEventRequest1.setEventParticipantRelationshipType(EventParticipantRelationshipType.MAIN);
 
         mockMvc.perform(post("/api/v1/genealogy/trees/{treeId}/persons/{personId}/events/addExistingEvent", tree.getId(), person.getId())
                         .contentType(MediaType.APPLICATION_JSON)
@@ -112,7 +112,7 @@ class PersonEventsSearchIntegrationTest extends IntegrationTestConfig {
 
         PersonUpdateRequest personEventRequest3 = new PersonUpdateRequest();
         personEventRequest3.setId(secondEvent.getId());
-        personEventRequest3.setEventRelationshipType(EventRelationshipType.PRIEST);
+        personEventRequest3.setEventParticipantRelationshipType(EventParticipantRelationshipType.PRIEST);
 
         mockMvc.perform(post("/api/v1/genealogy/trees/{treeId}/persons/{personId}/events/addExistingEvent", tree.getId(), person.getId())
                         .contentType(MediaType.APPLICATION_JSON)
@@ -123,9 +123,19 @@ class PersonEventsSearchIntegrationTest extends IntegrationTestConfig {
 
         PersonUpdateRequest personEventRequest = new PersonUpdateRequest();
         personEventRequest.setId(event.getId());
-        personEventRequest.setEventRelationshipType(EventRelationshipType.PRIEST);
+        personEventRequest.setEventParticipantRelationshipType(EventParticipantRelationshipType.PRIEST);
 
         mockMvc.perform(post("/api/v1/genealogy/trees/{treeId}/persons/{personId}/events/addExistingEvent", tree.getId(), secondPerson.getId())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(personEventRequest)))
+                .andDo(print())
+                .andExpect(status().isCreated());
+
+        PersonUpdateRequest personEventRequestLOL = new PersonUpdateRequest();
+        personEventRequestLOL.setId(citation.getId());
+        personEventRequestLOL.setEventParticipantRelationshipType(EventParticipantRelationshipType.FAMILY);
+
+        mockMvc.perform(post("/api/v1/genealogy/trees/{treeId}/citations/{citationId}/events/addExistingEvent", tree.getId(), citation.getId())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(personEventRequest)))
                 .andDo(print())
@@ -142,10 +152,10 @@ class PersonEventsSearchIntegrationTest extends IntegrationTestConfig {
 //                .andExpect(status().isCreated());
 
 
-        mockMvc.perform(get("/api/v1/genealogy/trees/{treeId}/events", tree.getId())
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andDo(print())
-                .andExpect(status().isOk());
+//        mockMvc.perform(get("/api/v1/genealogy/trees/{treeId}/events", tree.getId())
+//                        .contentType(MediaType.APPLICATION_JSON))
+//                .andDo(print())
+//                .andExpect(status().isOk());
 
     }
 

@@ -17,12 +17,12 @@ public class CitationRequest {
 
     public String page;
 
-    public LocalDate creationDate;
+    public LocalDate date;
 
     public static Function<CitationRequest, Citation> dtoToEntityMapper() {
         return request -> Citation.builder()
                 .page(request.getPage())
-                .creationDate(request.getCreationDate())
+                .date(request.getDate())
                 .build();
     }
 }

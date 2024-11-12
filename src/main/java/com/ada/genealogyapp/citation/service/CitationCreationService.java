@@ -1,9 +1,9 @@
 package com.ada.genealogyapp.citation.service;
 
 
+import com.ada.genealogyapp.citation.model.Citation;
 import com.ada.genealogyapp.tree.service.TransactionalInNeo4j;
 import com.ada.genealogyapp.citation.dto.CitationRequest;
-import com.ada.genealogyapp.citation.model.Citation;
 import com.ada.genealogyapp.citation.repository.CitationRepository;
 import com.ada.genealogyapp.tree.model.Tree;
 import com.ada.genealogyapp.tree.service.TreeService;

@@ -32,12 +32,12 @@ public class EventCreationService {
         Event event = EventRequest.dtoToEntityMapper().apply(eventRequest);
 
         Tree tree = treeService.findTreeByIdOrThrowNodeNotFoundException(treeId);
-        tree.getEvents().add(event);
+        event.setTree(tree);
 
         eventRepository.save(event);
         treeService.saveTree(tree);
 
-        log.info("Event created successfully: {}", event.getEventType());
+        log.info("Event created successfully: {}", event.getType());
 
         return event;
     }

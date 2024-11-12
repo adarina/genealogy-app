@@ -1,9 +1,7 @@
 package com.ada.genealogyapp.person.model;
 
-import com.ada.genealogyapp.citation.model.Citation;
-import com.ada.genealogyapp.event.relationship.EventRelationship;
+import com.ada.genealogyapp.event.model.Event;
 import com.ada.genealogyapp.person.relationship.PersonRelationship;
-import com.ada.genealogyapp.family.relationship.FamilyRelationship;
 import com.ada.genealogyapp.person.type.GenderType;
 import com.ada.genealogyapp.tree.model.Tree;
 import lombok.*;
@@ -43,30 +41,22 @@ public class Person implements Participant {
     private GenderType gender;
 
     @Relationship(type = "PARENT_OF", direction = Relationship.Direction.OUTGOING)
-    private Set<PersonRelationship> children = new HashSet<>();
+    private Set<PersonRelationship> childrens = new HashSet<>();
 
-    @Relationship(type = "CHILD_OF", direction = Relationship.Direction.OUTGOING)
-    private Set<PersonRelationship> parents = new HashSet<>();
+    @Relationship(type = "HAS_PARTICIPANT", direction = Relationship.Direction.INCOMING)
+    private Set<Event> events;
 
-    @Relationship(type = "HAS_EVENT", direction = Relationship.Direction.OUTGOING)
-    private Set<EventRelationship> events = new HashSet<>();
-
-    @Relationship(type = "HAS_FAMILY", direction = Relationship.Direction.OUTGOING)
-    private Set<FamilyRelationship> families = new HashSet<>();
-
-    @Relationship(type = "HAS_CITATION", direction = Relationship.Direction.OUTGOING)
-    private Set<Citation> citations = new HashSet<>();
-
-    @Relationship(type = "BELONGS_TO_TREE", direction = Relationship.Direction.OUTGOING)
+    @Relationship(type = "HAS_PERSON", direction = Relationship.Direction.INCOMING)
     private Tree tree;
 
+
     @Override
-    public UUID getParticipantId() {
+    public UUID getId() {
         return this.id;
     }
 
     @Override
-    public String getParticipantName() {
+    public String getName() {
         return this.name;
     }
 

@@ -19,7 +19,7 @@ public class EventManagementController {
         this.eventManagementService = eventManagementService;
     }
 
-    @PutMapping("/updateEventData")
+    @PutMapping
     public ResponseEntity<?> updateEvent(@PathVariable UUID treeId, @PathVariable UUID eventId, @RequestBody EventRequest eventRequest) {
         eventManagementService.updateEventData(treeId, eventId, eventRequest);
         return ResponseEntity.ok().build();

@@ -11,6 +11,8 @@ public enum EventType {
 
     MARRIAGE,
 
-    DIVORCE
+    DIVORCE,
+
+    DEATH
 
 }

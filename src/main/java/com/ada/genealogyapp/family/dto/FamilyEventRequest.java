@@ -1,6 +1,6 @@
 package com.ada.genealogyapp.family.dto;
 
-import com.ada.genealogyapp.event.type.EventRelationshipType;
+import com.ada.genealogyapp.event.type.EventParticipantRelationshipType;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -16,6 +16,6 @@ public class FamilyEventRequest {
 
     public UUID id;
 
-    public EventRelationshipType eventRelationshipType;
+    public EventParticipantRelationshipType eventParticipantRelationshipType;
 
 }

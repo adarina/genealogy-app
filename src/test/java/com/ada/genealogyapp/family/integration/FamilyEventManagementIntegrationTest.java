@@ -69,7 +69,7 @@ class FamilyEventManagementIntegrationTest extends IntegrationTestConfig {
         familyRepository.save(family);
 
         Event event = new Event();
-        event.setEventType(EventType.BIRTH);
+        event.setType(EventType.BIRTH);
         eventRepository.save(event);
 
         EventRequest eventRequest = new EventRequest();

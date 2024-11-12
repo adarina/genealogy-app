@@ -4,7 +4,7 @@ package com.ada.genealogyapp.family.integration;
 import com.ada.genealogyapp.config.IntegrationTestConfig;
 import com.ada.genealogyapp.event.dto.EventRequest;
 import com.ada.genealogyapp.event.model.Event;
-import com.ada.genealogyapp.event.type.EventRelationshipType;
+import com.ada.genealogyapp.event.type.EventParticipantRelationshipType;
 import com.ada.genealogyapp.event.type.EventType;
 import com.ada.genealogyapp.event.repository.EventRepository;
 import com.ada.genealogyapp.family.dto.FamilyEventRequest;
@@ -91,7 +91,7 @@ class FamilyEventsManagementIntegrationTest extends IntegrationTestConfig {
 
         FamilyEventRequest familyEventRequest = new FamilyEventRequest();
         familyEventRequest.setId(event.getId());
-        familyEventRequest.setEventRelationshipType(EventRelationshipType.FAMILY);
+        familyEventRequest.setEventParticipantRelationshipType(EventParticipantRelationshipType.FAMILY);
 
         mockMvc.perform(post("/api/v1/genealogy/trees/{treeId}/families/{familyId}/events/addExistingEvent", tree.getId(), family.getId())
                         .contentType(MediaType.APPLICATION_JSON)

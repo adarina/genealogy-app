@@ -1,7 +1,9 @@
 package com.ada.genealogyapp.person.integration;
 
 import com.ada.genealogyapp.config.IntegrationTestConfig;
+import com.ada.genealogyapp.event.repository.EventRepository;
 import com.ada.genealogyapp.family.model.Family;
+import com.ada.genealogyapp.family.type.StatusType;
 import com.ada.genealogyapp.person.relationship.PersonRelationship;
 import com.ada.genealogyapp.family.repostitory.FamilyRepository;
 import com.ada.genealogyapp.person.model.Person;
@@ -17,7 +19,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -36,12 +40,17 @@ class PersonAncestorsViewIntegrationTest extends IntegrationTestConfig {
     @Autowired
     FamilyRepository familyRepository;
 
+    @Autowired
+    EventRepository eventRepository;
+
     @BeforeEach
     void setUp() {
 
         treeRepository.deleteAll();
         personRepository.deleteAll();
         familyRepository.deleteAll();
+        eventRepository.deleteAll();
+
     }
 
     @AfterEach
@@ -88,7 +97,10 @@ class PersonAncestorsViewIntegrationTest extends IntegrationTestConfig {
         Family family = new Family();
         family.setFather(father);
         family.setMother(mother);
-        Set<Person> children = new HashSet<>();
+        family.setTree(tree);
+        family.setName("Elizabeth");
+        family.setStatus(StatusType.MARRIED);
+        List<Person> children = new ArrayList<>();
         children.add(child);
         family.setChildren(children);
         familyRepository.save(family);
@@ -96,7 +108,10 @@ class PersonAncestorsViewIntegrationTest extends IntegrationTestConfig {
         Family secondFamily = new Family();
         secondFamily.setFather(grandfather);
         secondFamily.setMother(grandmother);
-        Set<Person> secondChildren = new HashSet<>();
+        secondFamily.setTree(tree);
+        secondFamily.setName("Adalbert");
+        secondFamily.setStatus(StatusType.UNKNOWN);
+        List<Person> secondChildren = new ArrayList<>();
         secondChildren.add(mother);
         secondFamily.setChildren(secondChildren);
         familyRepository.save(secondFamily);
@@ -120,8 +135,8 @@ class PersonAncestorsViewIntegrationTest extends IntegrationTestConfig {
      void createPersonRelationship(Person child, Person parent) {
         PersonRelationship personRelationship = new PersonRelationship();
         personRelationship.setChild(child);
-        personRelationship.setPersonRelationshipType(PersonRelationshipType.BIOLOGICAL);
-        parent.getChildren().add(personRelationship);
+        personRelationship.setRelationship(PersonRelationshipType.BIOLOGICAL);
+        parent.getChildrens().add(personRelationship);
         personRepository.save(parent);
     }
 }

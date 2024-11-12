@@ -25,7 +25,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import org.junit.jupiter.api.BeforeEach;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 
@@ -161,8 +163,8 @@ class FamilyPersonsManagementIntegrationTest extends IntegrationTestConfig {
         PersonRequest personRequest = new PersonRequest();
         personRequest.setFirstname("Adalbert");
         personRequest.setLastname("Smith");
-        personRequest.setBirthDate(LocalDate.of(2000, 5, 30));
-        personRequest.setGenderType(GenderType.MALE);
+        personRequest.setBirthdate(LocalDate.of(2000, 5, 30));
+        personRequest.setGender(GenderType.MALE);
 
 
         mockMvc.perform(post("/api/v1/genealogy/trees/{treeId}/families/{familyId}/persons/addNewFather", tree.getId(), family.getId())
@@ -188,7 +190,7 @@ class FamilyPersonsManagementIntegrationTest extends IntegrationTestConfig {
 
         Family family = new Family();
 
-        Set<Person> children = new HashSet<>();
+        List<Person> children = new ArrayList<>();
         children.add(child);
 
         family.setChildren(children);
@@ -223,8 +225,8 @@ class FamilyPersonsManagementIntegrationTest extends IntegrationTestConfig {
         PersonRequest personRequest = new PersonRequest();
         personRequest.setFirstname("Petronella");
         personRequest.setLastname("Smith");
-        personRequest.setBirthDate(LocalDate.of(2003, 4, 8));
-        personRequest.setGenderType(GenderType.FEMALE);
+        personRequest.setBirthdate(LocalDate.of(2003, 4, 8));
+        personRequest.setGender(GenderType.FEMALE);
 
         mockMvc.perform(post("/api/v1/genealogy/trees/{treeId}/families/{familyId}/persons/addNewMother", tree.getId(), family.getId())
                         .contentType(MediaType.APPLICATION_JSON)
@@ -274,7 +276,7 @@ class FamilyPersonsManagementIntegrationTest extends IntegrationTestConfig {
         Person mother = new Person("Anne", "Cleves", LocalDate.of(1975, 10, 10), GenderType.FEMALE, tree);
         Person child = new Person("Claudia", "Smith", LocalDate.of(2004, 4, 9), GenderType.FEMALE, tree);
 
-        Set<Person> children = new HashSet<>();
+        List<Person> children = new ArrayList<>();
         children.add(child);
 
         Family family = new Family();

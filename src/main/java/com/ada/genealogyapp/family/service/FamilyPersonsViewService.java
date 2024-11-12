@@ -1,6 +1,5 @@
 package com.ada.genealogyapp.family.service;
 
-import com.ada.genealogyapp.family.dto.FamilyChildrenResponse;
 import com.ada.genealogyapp.family.dto.FamilyParentResponse;
 import com.ada.genealogyapp.family.model.Family;
 import com.ada.genealogyapp.person.model.Person;
@@ -33,8 +32,4 @@ public class FamilyPersonsViewService {
         return nonNull(mother) ? new FamilyParentResponse(mother.getId(), mother.getFirstname(), mother.getLastname(), mother.getBirthdate()) : null;
     }
 
-    public FamilyChildrenResponse getChildrenInformation(UUID treeId, UUID familyId) {
-        Family family = familyManagementService.validateTreeAndFamily(treeId, familyId);
-        return FamilyChildrenResponse.entityToDtoMapper().apply(family.getChildren());
-    }
 }

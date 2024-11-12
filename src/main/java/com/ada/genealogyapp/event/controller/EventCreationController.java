@@ -19,7 +19,6 @@ public class EventCreationController {
         this.eventCreationService = eventCreationService;
     }
 
-
     @PostMapping
     public ResponseEntity<?> createEvent(@PathVariable UUID treeId, @RequestBody EventRequest eventRequest) {
         eventCreationService.createEvent(treeId, eventRequest);

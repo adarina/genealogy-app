@@ -1,9 +1,7 @@
 package com.ada.genealogyapp.family.integration;
 
 import com.ada.genealogyapp.config.IntegrationTestConfig;
-import com.ada.genealogyapp.family.dto.UUIDRequest;
 import com.ada.genealogyapp.family.model.Family;
-import com.ada.genealogyapp.family.relationship.FamilyRelationship;
 import com.ada.genealogyapp.family.repostitory.FamilyRepository;
 import com.ada.genealogyapp.person.model.Person;
 import com.ada.genealogyapp.person.relationship.PersonRelationship;
@@ -19,7 +17,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -90,7 +90,7 @@ class FamilyPersonsViewIntegrationTest extends IntegrationTestConfig {
         Family family = new Family();
         family.setFather(father);
         family.setMother(mother);
-        Set<Person> children = new HashSet<>();
+        List<Person> children = new ArrayList<>();
         children.add(child);
         family.setChildren(children);
         familyRepository.save(family);
@@ -98,7 +98,7 @@ class FamilyPersonsViewIntegrationTest extends IntegrationTestConfig {
         Family secondFamily = new Family();
         secondFamily.setFather(grandfather);
         secondFamily.setMother(grandmother);
-        Set<Person> secondChildren = new HashSet<>();
+        List<Person> secondChildren = new ArrayList<>();
         secondChildren.add(mother);
         secondFamily.setChildren(secondChildren);
         familyRepository.save(secondFamily);
@@ -130,16 +130,16 @@ class FamilyPersonsViewIntegrationTest extends IntegrationTestConfig {
     void createPersonRelationship(Person child, Person parent) {
         PersonRelationship personRelationship = new PersonRelationship();
         personRelationship.setChild(child);
-        personRelationship.setPersonRelationshipType(PersonRelationshipType.BIOLOGICAL);
-        parent.getChildren().add(personRelationship);
+        personRelationship.setRelationship(PersonRelationshipType.BIOLOGICAL);
+//        parent.getChildren().add(personRelationship);
         personRepository.save(parent);
     }
 
     void createPersonRelationship2(Person child, Person parent) {
         PersonRelationship personRelationship = new PersonRelationship();
         personRelationship.setChild(parent);
-        personRelationship.setPersonRelationshipType(PersonRelationshipType.BIOLOGICAL);
-        child.getParents().add(personRelationship);
+        personRelationship.setRelationship(PersonRelationshipType.BIOLOGICAL);
+//        child.getParents().add(personRelationship);
         personRepository.save(child);
 
     }

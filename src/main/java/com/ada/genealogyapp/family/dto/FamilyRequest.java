@@ -1,6 +1,6 @@
 package com.ada.genealogyapp.family.dto;
 
-import com.ada.genealogyapp.family.type.RelationshipRelationshipType;
+import com.ada.genealogyapp.family.type.StatusType;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -12,6 +12,6 @@ import lombok.Setter;
 @Setter
 public class FamilyRequest {
 
-    public RelationshipRelationshipType relationshipRelationshipType;
+    public StatusType statusType;
 
 }

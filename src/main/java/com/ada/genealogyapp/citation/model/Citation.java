@@ -1,5 +1,6 @@
 package com.ada.genealogyapp.citation.model;
 
+import com.ada.genealogyapp.event.model.Event;
 import com.ada.genealogyapp.file.model.File;
 import com.ada.genealogyapp.source.model.Source;
 import com.ada.genealogyapp.tree.model.Tree;
@@ -21,15 +22,18 @@ import java.util.UUID;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
+
 public class Citation {
 
     @Id
     @GeneratedValue
+    @EqualsAndHashCode.Include
     private UUID id;
 
     private String page;
 
-    private LocalDate creationDate;
+    private LocalDate date;
 
     @Relationship(type = "HAS_CITATION", direction = Relationship.Direction.INCOMING)
     private Tree tree;
@@ -39,5 +43,12 @@ public class Citation {
 
     @Relationship(type = "HAS_FILE", direction = Relationship.Direction.OUTGOING)
     private Set<File> files = new HashSet<>();
+
+    @Relationship(type = "HAS_EVENT_CITATION", direction = Relationship.Direction.INCOMING)
+    private Set<Event> events;
+
+    public Citation(UUID id) {
+        this.id = id;
+    }
 
 }

@@ -35,18 +35,7 @@ public class FamilyPersonsManagementController {
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
-    @PostMapping("/addExistingChild")
-    public ResponseEntity<?> addChildToFamily(@PathVariable UUID treeId, @PathVariable UUID familyId, @RequestBody UUIDRequest UUIDRequest) {
-        familyManagementService.addChildToFamily(treeId, familyId, UUIDRequest.getId());
-        return ResponseEntity.status(HttpStatus.CREATED).build();
-    }
 
-    @PostMapping("/addNewChild")
-    public ResponseEntity<?> createAndAddChildToFamily(@PathVariable UUID treeId, @PathVariable UUID familyId, @RequestBody PersonRequest personRequest) {
-        Person person = personCreationService.createPerson(treeId, personRequest);
-        familyManagementService.addChildToFamily(treeId, familyId, person.getId());
-        return ResponseEntity.status(HttpStatus.CREATED).build();
-    }
 
     @PostMapping("/addNewFather")
     public ResponseEntity<?> createAndAddFatherToFamily(@PathVariable UUID treeId, @PathVariable UUID familyId, @RequestBody PersonRequest personRequest) {

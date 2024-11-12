@@ -23,7 +23,7 @@ public class PersonFamiliesViewController {
 
     @GetMapping
     public ResponseEntity<Page<PersonFamiliesResponse>> getPersonalFamilies(@PathVariable UUID treeId, @PathVariable UUID personId,  @PageableDefault Pageable pageable) {
-        Page<PersonFamiliesResponse> personFamilyInfo = personFamiliesViewService.getPersonalFamilies(treeId, personId, pageable);
-        return ResponseEntity.ok(personFamilyInfo);
+        Page<PersonFamiliesResponse> personFamiliesResponses = personFamiliesViewService.getPersonalFamilies(treeId, personId, pageable);
+        return ResponseEntity.ok(personFamiliesResponses);
     }
 }

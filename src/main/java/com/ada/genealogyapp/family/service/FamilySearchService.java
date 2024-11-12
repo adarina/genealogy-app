@@ -32,7 +32,7 @@ public class FamilySearchService {
     }
 
     public List<Family> getFamiliesByTreeIdOrThrowNodeNotFoundException(UUID treeId) {
-        List<Family> families = familyRepository.findAllByFamilyTree_Id(treeId);
+        List<Family> families = familyRepository.findAllByTree_Id(treeId);
         if (!families.isEmpty()) {
             log.info("Families found for treeId {}: {}", treeId, families);
         } else {

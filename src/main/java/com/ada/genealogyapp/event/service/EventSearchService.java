@@ -3,7 +3,6 @@ package com.ada.genealogyapp.event.service;
 import com.ada.genealogyapp.event.model.Event;
 import com.ada.genealogyapp.event.repository.EventRepository;
 import com.ada.genealogyapp.exceptions.NodeNotFoundException;
-import com.ada.genealogyapp.person.model.Person;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -33,7 +32,7 @@ public class EventSearchService {
     }
 
     public List<Event> getEventsByTreeIdOrThrowNodeNotFoundException(UUID treeId) {
-        List<Event> events = eventRepository.findAllByTree_Id(treeId);
+        List<Event> events = eventRepository.findAllByTreeId(treeId);
         if (!events.isEmpty()) {
             log.info("Events found for treeId {}: {}", treeId, events);
         } else {

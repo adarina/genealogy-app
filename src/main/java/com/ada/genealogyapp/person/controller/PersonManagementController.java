@@ -18,7 +18,7 @@ public class PersonManagementController {
     }
 
 
-    @PutMapping("/updatePersonalData")
+    @PutMapping
     public ResponseEntity<?> updatePerson(@PathVariable UUID treeId, @PathVariable UUID personId, @RequestBody PersonRequest personRequest) {
         personManagementService.updatePersonalData(treeId, personId, personRequest);
         return ResponseEntity.ok().build();

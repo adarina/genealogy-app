@@ -57,39 +57,61 @@ public class PersonManagementService {
 
         updateFirstname(tx, personId, personRequest.getFirstname());
         updateLastname(tx, personId, personRequest.getLastname());
-        updateBirthDate(tx, personId, personRequest.getBirthDate());
-        updateGender(tx, personId, personRequest.getGenderType());
+        updateName(tx, personId, personRequest.getFirstname() + " " + personRequest.getLastname());
+        updateBirthDate(tx, personId, personRequest.getBirthdate());
+        updateGender(tx, personId, personRequest.getGender());
 
-        //TODO update .name(request.getFirstname() + " " + request.getLastname())
         log.info("Person updated successfully: {}", personId);
         tx.commit();
     }
 
-    private void updateFirstname(Transaction tx, UUID personId, String firstname) {
+    @TransactionalInNeo4j
+    public void updateFirstname(Transaction tx, UUID personId, String firstname) {
         if (nonNull(firstname)) {
             String cypher = "MATCH (p:Person {id: $personId}) SET p.firstname = $firstname";
-            tx.run(cypher, Map.of("personId", personId.toString(), "firstname", firstname));
+            tx.run(cypher, Map.of(
+                    "personId", personId.toString(),
+                    "firstname", firstname));
         }
     }
 
-    private void updateLastname(Transaction tx, UUID personId, String lastname) {
+    @TransactionalInNeo4j
+    public void updateLastname(Transaction tx, UUID personId, String lastname) {
         if (nonNull(lastname)) {
             String cypher = "MATCH (p:Person {id: $personId}) SET p.lastname = $lastname";
-            tx.run(cypher, Map.of("personId", personId.toString(), "lastname", lastname));
+            tx.run(cypher, Map.of(
+                    "personId", personId.toString(),
+                    "lastname", lastname));
         }
     }
 
-    private void updateBirthDate(Transaction tx, UUID personId, LocalDate birthDate) {
+    @TransactionalInNeo4j
+    public void updateName(Transaction tx, UUID personId, String name) {
+        if (nonNull(name)) {
+            String cypher = "MATCH (p:Person {id: $personId}) SET p.name = $name";
+            tx.run(cypher, Map.of(
+                    "personId", personId.toString(),
+                    "name", name));
+        }
+    }
+
+    @TransactionalInNeo4j
+    public void updateBirthDate(Transaction tx, UUID personId, LocalDate birthDate) {
         if (nonNull(birthDate)) {
             String cypher = "MATCH (p:Person {id: $personId}) SET p.birthDate = $birthDate";
-            tx.run(cypher, Map.of("personId", personId.toString(), "birthDate", birthDate.toString()));
+            tx.run(cypher, Map.of(
+                    "personId", personId.toString(),
+                    "birthDate", birthDate.toString()));
         }
     }
 
-    private void updateGender(Transaction tx, UUID personId, GenderType genderType) {
+    @TransactionalInNeo4j
+    public void updateGender(Transaction tx, UUID personId, GenderType genderType) {
         if (nonNull(genderType)) {
             String cypher = "MATCH (p:Person {id: $personId}) SET p.genderType = $genderType";
-            tx.run(cypher, Map.of("personId", personId.toString(), "genderType", genderType.name()));
+            tx.run(cypher, Map.of(
+                    "personId", personId.toString(),
+                    "genderType", genderType.name()));
         }
     }
 }

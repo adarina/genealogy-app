@@ -1,12 +1,10 @@
 package com.ada.genealogyapp.family.service;
 
+import com.ada.genealogyapp.event.type.EventParticipantRelationshipType;
 import com.ada.genealogyapp.tree.service.TransactionalInNeo4j;
 import com.ada.genealogyapp.event.model.Event;
-import com.ada.genealogyapp.event.relationship.EventRelationship;
 import com.ada.genealogyapp.event.service.EventServiceImpl;
-import com.ada.genealogyapp.event.type.EventRelationshipType;
 import com.ada.genealogyapp.exceptions.NodeAlreadyInNodeException;
-import com.ada.genealogyapp.family.dto.UUIDRequest;
 import com.ada.genealogyapp.family.model.Family;
 import com.ada.genealogyapp.tree.service.TreeTransactionService;
 import lombok.extern.slf4j.Slf4j;
@@ -14,7 +12,6 @@ import org.neo4j.driver.Transaction;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
-import java.util.Set;
 import java.util.UUID;
 
 import static java.util.Objects.nonNull;
@@ -34,63 +31,30 @@ public class FamilyEventsManagementService {
     }
 
     @TransactionalInNeo4j
-    public void addEventToFamily(UUID treeId, UUID familyId, UUID eventId, EventRelationshipType eventRelationshipType) {
+    public void addEventToFamily(UUID treeId, UUID familyId, UUID eventId, EventParticipantRelationshipType relationship) {
         Transaction tx = treeTransactionService.startTransactionAndSession();
         Family family = familyManagementService.validateTreeAndFamily(treeId, familyId);
         Event event = eventService.findEventByIdOrThrowNodeNotFoundException(eventId);
 
-        Set<EventRelationship> eventRelationships = family.getEvents();
-        for (EventRelationship relationship : eventRelationships) {
-            if (relationship.getEvent().getId().equals(event.getId())) {
+        for (Event existingEvent : family.getEvents()) {
+            if (existingEvent.getId().equals(event.getId())) {
                 throw new NodeAlreadyInNodeException("Event " + event.getId() + " is already part of the family " + familyId);
             }
         }
 
-        EventRelationshipType type = nonNull(eventRelationshipType) ? eventRelationshipType : EventRelationshipType.FAMILY;
-        String cypher = "MATCH (f:Family {id: $familyId}) " +
-                "MATCH (c:Event {id: $eventId}) " +
-                "MERGE (f)-[:HAS_EVENT {eventRelationshipType: $relationshipType}]->(c)";
-
-        tx.run(cypher, Map.of("familyId", familyId.toString(), "eventId", event.getId().toString(), "relationshipType", type.name()));
-        log.info("Event {} added successfully to the family {}", event.getId(), family.getId());
-
-        addDefaultHasParticipantToEvent(tx, family, event);
-        tx.commit();
-
-    }
-
-    @TransactionalInNeo4j
-    public void addDefaultHasParticipantToEvent(Transaction tx, Family family, Event event) {
-
-        String cypher = "MATCH (e:Event {id: $eventId}) " +
-                "MATCH (f:Family {id: $familyId}) " +
-                "SET f:Participant " +
-                "MERGE (e)-[:HAS_PARTICIPANT]->(f)";
-
-        tx.run(cypher, Map.of("familyId", family.getId().toString(), "eventId", event.getId().toString()));
-        log.info("Added family {} as participant to event {}", family.getId(), event.getId());
-    }
-
-    @TransactionalInNeo4j
-    public void removeEventFromFamily(UUID treeId, UUID familyId, UUIDRequest UUIDRequest) {
-        Transaction tx = treeTransactionService.startTransactionAndSession();
-        Family family = familyManagementService.validateTreeAndFamily(treeId, familyId);
-        Event event = eventService.findEventByIdOrThrowNodeNotFoundException(UUIDRequest.getId());
-
-        removeEventFromFamily(family, tx, event);
-        tx.commit();
-    }
-
-    @TransactionalInNeo4j
-    public void removeEventFromFamily(Family family, Transaction tx, Event event) {
+        EventParticipantRelationshipType newRelationship = nonNull(relationship) ? relationship : EventParticipantRelationshipType.MAIN;
         String cypher = "MATCH (f:Family {id: $familyId}) " +
                 "MATCH (e:Event {id: $eventId}) " +
-                "MATCH (f)-[r1:HAS_EVENT]->(e) " +
-                "MATCH (e)-[r2:HAS_PARTICIPANT]->(f) " +
-                "DELETE r1, r2 " +
-                "REMOVE f:Participant";
+                "SET f:Participant " +
+                "MERGE (e)-[:HAS_PARTICIPANT {relationship: $newRelationship}]->(f)";
 
-        tx.run(cypher, Map.of("familyId", family.getId().toString(), "eventId", event.getId().toString()));
-        log.info("Event {} removed from family {}", event.getId(), family.getId());
+        tx.run(cypher, Map.of(
+                "familyId", familyId.toString(),
+                "eventId", event.getId().toString(),
+                "newRelationship", newRelationship.name()));
+
+        log.info("Event {} added successfully to the family {}", event.getId(), family.getId());
+        tx.commit();
+
     }
 }

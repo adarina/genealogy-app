@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalDate;
 import java.util.UUID;
 
 @Getter
@@ -14,5 +15,9 @@ import java.util.UUID;
 public class EventCitationRequest {
 
     public UUID id;
+
+    public String page;
+
+    public LocalDate date;
 
 }

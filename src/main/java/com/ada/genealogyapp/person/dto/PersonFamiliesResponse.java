@@ -3,12 +3,12 @@ package com.ada.genealogyapp.person.dto;
 import lombok.*;
 
 import java.time.LocalDate;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.UUID;
 
 
 @Getter
-@Builder
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
@@ -29,12 +29,14 @@ public class PersonFamiliesResponse {
 
     private LocalDate motherBirthdate;
 
-    private List<Child> children;
+    private LinkedHashSet<PersonFamiliesChildResponse> children;
 
 
     @Getter
+    @Setter
+    @NoArgsConstructor
     @AllArgsConstructor
-    public static class Child {
+    public static class PersonFamiliesChildResponse {
 
         private UUID childId;
 

@@ -65,4 +65,28 @@ class PersonManagementIntegrationTest extends IntegrationTestConfig {
         assertEquals("Adalbert", updatedPerson.getFirstname());
         assertEquals("Smith", updatedPerson.getLastname());
     }
+
+    @Test
+    void shouldUpdatePersonByChangingNameSuccessfullyy() throws Exception {
+
+        Tree tree = new Tree();
+        treeRepository.save(tree);
+
+        Person person = new Person("John", "Smith", LocalDate.of(1975, 7, 18), GenderType.MALE, tree);
+        personRepository.save(person);
+
+        PersonRequest personRequest = new PersonRequest();
+        personRequest.setFirstname("Adalbert");
+
+
+        mockMvc.perform(put("/api/v1/genealogy/trees/{treeId}/persons/{personId}/updatePersonalData", tree.getId(), person.getId())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(personRequest)))
+                .andDo(print())
+                .andExpect(status().isOk());
+
+        Person updatedPerson = personRepository.findById(person.getId()).orElseThrow();
+        assertEquals("Adalbert", updatedPerson.getFirstname());
+        assertEquals("Smith", updatedPerson.getLastname());
+    }
 }

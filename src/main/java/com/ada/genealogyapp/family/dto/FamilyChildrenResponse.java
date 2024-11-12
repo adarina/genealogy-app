@@ -1,73 +1,27 @@
 package com.ada.genealogyapp.family.dto;
 
-import com.ada.genealogyapp.person.model.Person;
+import com.ada.genealogyapp.person.type.PersonRelationshipType;
 import lombok.*;
 
-import java.util.Collection;
-import java.util.List;
+import java.time.LocalDate;
 import java.util.UUID;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 @Getter
 @Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class FamilyChildrenResponse {
 
-    @Singular
-    private List<Child> children;
+    private UUID id;
 
-    @Getter
-    @Builder
-    public static class Child {
+    private String name;
 
-        private UUID id;
+    private LocalDate birthdate;
 
-        private String firstname;
+    private String gender;
 
-        private String lastname;
+    private PersonRelationshipType fatherRelationship;
 
-        private String birthDate;
+    private PersonRelationshipType motherRelationship;
 
-        private String genderType;
-
-        private List<CitationInfo> citations;
-
-        private List<ParentsInfo> parents;
-
-        @Getter
-        @AllArgsConstructor
-        public static class CitationInfo {
-
-            private UUID id;
-        }
-
-        @Getter
-        @AllArgsConstructor
-        public static class ParentsInfo {
-
-            private Long id;
-
-            private String parentRelationshipType;
-        }
-    }
-
-    public static Function<Collection<Person>, FamilyChildrenResponse> entityToDtoMapper() {
-        return persons -> FamilyChildrenResponse.builder()
-                .children(persons.stream()
-                        .map(person -> Child.builder()
-                                .id(person.getId())
-                                .firstname(person.getFirstname())
-                                .lastname(person.getLastname())
-                                .birthDate(person.getBirthdate().toString())
-                                .genderType(person.getGender().toString())
-                                .citations(person.getCitations().stream()
-                                        .map(citation -> new FamilyChildrenResponse.Child.CitationInfo(citation.getId()))
-                                        .collect(Collectors.toList()))
-                                .parents(person.getParents().stream()
-                                        .map(parent -> new FamilyChildrenResponse.Child.ParentsInfo(parent.getId(), parent.getPersonRelationshipType().toString()))
-                                        .collect(Collectors.toList()))
-                                .build())
-                        .collect(Collectors.toList()))
-                .build();
-    }
 }

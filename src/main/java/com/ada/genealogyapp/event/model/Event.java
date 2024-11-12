@@ -1,7 +1,7 @@
 package com.ada.genealogyapp.event.model;
 
-import com.ada.genealogyapp.person.model.Participant;
-import com.ada.genealogyapp.citation.model.Citation;
+import com.ada.genealogyapp.event.relationship.EventCitation;
+import com.ada.genealogyapp.event.relationship.EventParticipant;
 import com.ada.genealogyapp.event.type.EventType;
 import com.ada.genealogyapp.tree.model.Tree;
 import lombok.*;
@@ -28,7 +28,7 @@ public class Event {
     @GeneratedValue
     private UUID id;
 
-    private EventType eventType;
+    private EventType type;
 
     private LocalDate date;
 
@@ -36,17 +36,18 @@ public class Event {
 
     private String description;
 
-    @Relationship(type = "HAS_CITATION", direction = Relationship.Direction.OUTGOING)
-    private Set<Citation> citations = new HashSet<>();
 
     @Relationship(type = "HAS_PARTICIPANT", direction = Relationship.Direction.OUTGOING)
-    private Set<Participant> participants = new HashSet<>();
+    private Set<EventParticipant> participants = new HashSet<>();
 
-    @Relationship(type = "BELONGS_TO_TREE", direction = Relationship.Direction.OUTGOING)
+    @Relationship(type = "HAS_EVENT_CITATION", direction = Relationship.Direction.OUTGOING)
+    private Set<EventCitation> citations = new HashSet<>();
+
+    @Relationship(type = "HAS_EVENT", direction = Relationship.Direction.INCOMING)
     private Tree tree;
 
-    public Event(EventType eventType, LocalDate date, String place, String description, Tree tree) {
-        this.eventType = eventType;
+    public Event(EventType event, LocalDate date, String place, String description, Tree tree) {
+        this.type = event;
         this.date = date;
         this.place = place;
         this.description = description;

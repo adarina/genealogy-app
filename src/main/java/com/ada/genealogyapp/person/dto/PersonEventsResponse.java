@@ -1,6 +1,6 @@
 package com.ada.genealogyapp.person.dto;
 
-import com.ada.genealogyapp.event.type.EventRelationshipType;
+import com.ada.genealogyapp.event.type.EventParticipantRelationshipType;
 import com.ada.genealogyapp.event.type.EventType;
 import lombok.*;
 
@@ -15,10 +15,9 @@ import java.util.*;
 @NoArgsConstructor
 public class PersonEventsResponse {
 
-
     private UUID id;
 
-    private EventRelationshipType relationship;
+    private EventParticipantRelationshipType relationship;
 
     private EventType type;
 
@@ -28,18 +27,15 @@ public class PersonEventsResponse {
 
     private String place;
 
+    private List<PersonEventsParticipantResponse> participants;
 
-
-    private List<Participant> participants;
-
-
-    private List<Citation> citations;
+    private List<PersonEventsCitationResponse> citations;
 
     @Getter
     @AllArgsConstructor
-    public static class Participant {
-
-        private UUID id;
+    @Setter
+    @NoArgsConstructor
+    public static class PersonEventsParticipantResponse {
 
         private String name;
 
@@ -47,9 +43,11 @@ public class PersonEventsResponse {
 
     @Getter
     @AllArgsConstructor
-    public static class Citation {
+    @Setter
+    @NoArgsConstructor
+    public static class PersonEventsCitationResponse {
 
-        private UUID id;
+        private String id;
 
     }
 }

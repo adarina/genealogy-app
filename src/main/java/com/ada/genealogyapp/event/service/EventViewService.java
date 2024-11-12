@@ -1,46 +1,67 @@
 package com.ada.genealogyapp.event.service;
 
 
+import com.ada.genealogyapp.event.dto.EventFilterRequest;
+import com.ada.genealogyapp.event.dto.EventsResponse;
 import com.ada.genealogyapp.event.dto.EventResponse;
-import com.ada.genealogyapp.event.model.Event;
-
-
+import com.ada.genealogyapp.event.repository.EventRepository;
+import com.ada.genealogyapp.event.type.EventType;
+import com.ada.genealogyapp.exceptions.NodeNotFoundException;
+import com.ada.genealogyapp.tree.service.TreeService;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
-import java.util.stream.Collectors;
+import java.util.*;
+
+import static java.util.Objects.nonNull;
 
 
 @Service
 @Slf4j
 public class EventViewService {
 
-    private final EventSearchService eventSearchService;
 
-    public EventViewService(EventSearchService eventSearchService) {
-        this.eventSearchService = eventSearchService;
+    private final EventRepository eventRepository;
+    private final TreeService treeService;
+
+    public EventViewService(EventRepository eventRepository, TreeService treeService) {
+        this.eventRepository = eventRepository;
+        this.treeService = treeService;
     }
 
-    public List<EventResponse> getEvents(UUID treeId) {
-        List<Event> events = eventSearchService.getEventsByTreeIdOrThrowNodeNotFoundException(treeId);
-        List<EventResponse> eventResponses = new ArrayList<>();
+    public Page<EventsResponse> getEvents(UUID treeId, String filter, Pageable pageable) throws JsonProcessingException {
 
-        for (Event event : events) {
-            EventResponse response = new EventResponse();
-            response.setId(event.getId());
-            response.setType(event.getEventType());
-            response.setDate(event.getDate());
+        treeService.findTreeByIdOrThrowNodeNotFoundException(treeId);
+        ObjectMapper objectMapper = new ObjectMapper();
+        EventFilterRequest filterRequest = objectMapper.readValue(filter, EventFilterRequest.class);
 
-            List<EventResponse.Participant> participants = event.getParticipants().stream()
-                    .map(person -> new EventResponse.Participant(person.getParticipantId(), person.getParticipantName()))
-                    .collect(Collectors.toList());
-            response.setParticipants(participants);
+        String participants = filterRequest.getParticipants();
+        String description = filterRequest.getDescription();
+        EventType type = null;
 
-            eventResponses.add(response);
+        if (nonNull(filterRequest.getType())) {
+            try {
+                type = EventType.valueOf(filterRequest.getType().toUpperCase());
+            } catch (IllegalArgumentException e) {
+                log.warn("Invalid type value: {}", filterRequest.getType());
+            }
         }
-        return eventResponses;
+
+        Page<EventsResponse> eventsPage;
+        if (nonNull(type)) {
+            eventsPage = eventRepository.findEventsResponseByTreeIdWithParticipantsAndDescriptionContainingIgnoreCaseAndParticipantsContainingIgnoreCaseAndTypeContaining(treeId, description != null ? description : "", participants != null ? participants : "", type, pageable);
+        } else {
+            eventsPage = eventRepository.findByTreeIdWithParticipantsAndDescriptionContainingIgnoreCaseAndParticipantsContainingIgnoreCase(treeId, description != null ? description : "", participants != null ? participants : "", pageable);
+        }
+        return eventsPage;
+    }
+
+    public EventResponse getEvent(UUID treeId, UUID eventId) {
+        return eventRepository.findEventResponseByTreeIdAndEventId(treeId, eventId)
+                .orElseThrow(() -> new NodeNotFoundException("Event " + eventId.toString() + " not found for tree " + treeId.toString()));
     }
 }

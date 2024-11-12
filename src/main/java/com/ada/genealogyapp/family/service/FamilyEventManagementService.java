@@ -1,12 +1,12 @@
 package com.ada.genealogyapp.family.service;
 
-import com.ada.genealogyapp.tree.service.TransactionalInNeo4j;
-import com.ada.genealogyapp.citation.model.Citation;
 import com.ada.genealogyapp.citation.service.CitationService;
-import com.ada.genealogyapp.event.dto.EventRequest;
 import com.ada.genealogyapp.event.model.Event;
 import com.ada.genealogyapp.event.service.EventManagementService;
-import com.ada.genealogyapp.exceptions.NodeAlreadyInNodeException;
+import com.ada.genealogyapp.event.service.EventService;
+import com.ada.genealogyapp.family.model.Family;
+import com.ada.genealogyapp.person.dto.PersonEventRequest;
+import com.ada.genealogyapp.tree.service.TransactionalInNeo4j;
 import com.ada.genealogyapp.tree.service.TreeTransactionService;
 import lombok.extern.slf4j.Slf4j;
 import org.neo4j.driver.Transaction;
@@ -14,8 +14,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.Map;
 import java.util.UUID;
-
-import static java.util.Objects.nonNull;
 
 @Service
 @Slf4j
@@ -27,17 +25,18 @@ public class FamilyEventManagementService {
 
     private final EventManagementService eventManagementService;
 
-    private final CitationService citationService;
+    private final EventService eventService;
 
-    public FamilyEventManagementService(FamilyManagementService familyManagementService, TreeTransactionService treeTransactionService, EventManagementService eventManagementService, CitationService citationService) {
+
+    public FamilyEventManagementService(FamilyManagementService familyManagementService, TreeTransactionService treeTransactionService, EventManagementService eventManagementService, EventService eventService) {
         this.familyManagementService = familyManagementService;
         this.treeTransactionService = treeTransactionService;
         this.eventManagementService = eventManagementService;
-        this.citationService = citationService;
+        this.eventService = eventService;
     }
 
     @TransactionalInNeo4j
-    public void updateFamilyEvent(UUID treeId, UUID familyId, UUID eventId, EventRequest eventRequest) {
+    public void updateFamilyEvent(UUID treeId, UUID familyId, UUID eventId, PersonEventRequest eventRequest) {
         Transaction tx = treeTransactionService.startTransactionAndSession();
         Event event = familyManagementService.validateTreeFamilyAndEvent(treeId, familyId, eventId);
 
@@ -46,33 +45,36 @@ public class FamilyEventManagementService {
         eventManagementService.updatePlace(tx, event.getId(), eventRequest.getPlace());
         eventManagementService.updateDescription(tx, event.getId(), eventRequest.getDescription());
 
-        if (nonNull(eventRequest.getEventRelationshipType())) {
-            String cypher = "MATCH (f:Family {id: $familyId}) " +
-                    "MATCH (f)-[r:HAS_EVENT]->(e:Event {id: $eventId}) " +
-                    "SET r.eventRelationshipType = $relationshipType";
+        String cypher = "MATCH (e:Event)-[r:HAS_PARTICIPANT]->(p:Participant) " +
+                "WHERE e.id = $eventId AND p.id = $familyId " +
+                "SET r.relationship = $relationship " +
+                "RETURN e, r";
 
-            tx.run(cypher, Map.of("familyId", familyId, "eventId", event.getId().toString(), "relationshipType", eventRequest.getEventRelationshipType().name()));
+        tx.run(cypher, Map.of(
+                "eventId", eventId.toString(),
+                "familyId", familyId.toString(),
+                "relationship", eventRequest.getRelationship().toString()));
 
-            log.info("Updated event {} in family {}", event.getId(), familyId);
-        }
+        log.info("Updated event {} for family {} with new relationship {}", eventId, familyId, eventRequest.getRelationship());
         tx.commit();
     }
 
+
     @TransactionalInNeo4j
-    public void addCitationToFamilyEvent(UUID treeId, UUID familyId, UUID eventId, UUID citationId) {
+    public void removeEventFromFamily(UUID treeId, UUID familyId, UUID eventId) {
         Transaction tx = treeTransactionService.startTransactionAndSession();
-        Event event = familyManagementService.validateTreeFamilyAndEvent(treeId, familyId, eventId);
+        Family family = familyManagementService.validateTreeAndFamily(treeId, familyId);
+        Event event = eventService.findEventByIdOrThrowNodeNotFoundException(eventId);
 
-        Citation citation = citationService.findCitationByIdOrThrowNodeNotFoundException(citationId);
-        if (event.getCitations().contains(citation)) {
-            throw new NodeAlreadyInNodeException("Citation " + citation.getId() + " is already part of the family event " + eventId);
-        }
-        String cypher = "MATCH (e:Event {id: $eventId}) " +
-                "MATCH (c:Citation {id: $citationId}) " +
-                "MERGE (e)-[:HAS_CITATION]->(c)";
+        String cypher = "MATCH (e:Event)-[r:HAS_PARTICIPANT]->(p:Participant) " +
+                "WHERE e.id = $eventId AND p.id = $familyId " +
+                "DELETE r";
 
-        tx.run(cypher, Map.of("eventId", eventId.toString(), "citationId", citation.getId().toString()));
-        log.info("Citation {} added successfully to the family event {}", citation.getId(), event.getId().toString());
+        tx.run(cypher, Map.of(
+                "familyId", family.getId().toString(),
+                "eventId", event.getId().toString()));
+
+        log.info("Event {} removed from family {}", event.getId(), family.getId());
         tx.commit();
     }
 }

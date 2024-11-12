@@ -1,7 +1,7 @@
 package com.ada.genealogyapp.event.relationship;
 
 import com.ada.genealogyapp.event.model.Event;
-import com.ada.genealogyapp.event.type.EventRelationshipType;
+import com.ada.genealogyapp.event.type.EventParticipantRelationshipType;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -25,6 +25,6 @@ public class EventRelationship {
     @TargetNode
     private Event event;
 
-    private EventRelationshipType eventRelationshipType;
+    private EventParticipantRelationshipType relationship;
 
 }
