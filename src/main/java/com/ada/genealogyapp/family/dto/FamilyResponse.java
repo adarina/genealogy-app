@@ -6,13 +6,14 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalDate;
 import java.util.UUID;
 
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class FamiliesResponse {
+public class FamilyResponse {
 
     private UUID id;
 
@@ -21,4 +22,8 @@ public class FamiliesResponse {
     private String motherName;
 
     private String fatherName;
+
+    private LocalDate fatherBirthdate;
+
+    private LocalDate motherBirthdate;
 }

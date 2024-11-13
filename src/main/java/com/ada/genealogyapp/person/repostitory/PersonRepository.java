@@ -4,7 +4,6 @@ import com.ada.genealogyapp.person.dto.PersonEventResponse;
 import com.ada.genealogyapp.person.dto.PersonFamiliesResponse;
 import com.ada.genealogyapp.person.dto.PersonResponse;
 import com.ada.genealogyapp.person.model.Person;
-import com.ada.genealogyapp.person.type.GenderType;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.neo4j.repository.Neo4jRepository;
@@ -110,7 +109,7 @@ public interface PersonRepository extends Neo4jRepository<Person, UUID> {
                        p.birthdate AS birthdate,
                        p.gender AS gender
             """)
-    Optional<PersonResponse> findPersonResponseByTreeIdAndPersonId(@Param("treeId") UUID treeId, @Param("personId") UUID personId);
+    Optional<PersonResponse> findByTreeIdAndPersonId(@Param("treeId") UUID treeId, @Param("personId") UUID personId);
 
     @Query(value = """
             MATCH (f:Family)

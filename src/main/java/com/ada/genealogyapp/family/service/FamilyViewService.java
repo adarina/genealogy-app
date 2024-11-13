@@ -1,6 +1,7 @@
 package com.ada.genealogyapp.family.service;
 
-import com.ada.genealogyapp.family.dto.FamiliesResponse;
+import com.ada.genealogyapp.exceptions.NodeNotFoundException;
+import com.ada.genealogyapp.family.dto.FamilyResponse;
 import com.ada.genealogyapp.family.dto.FamilyFilterRequest;
 import com.ada.genealogyapp.family.repostitory.FamilyRepository;
 import com.ada.genealogyapp.tree.repository.TreeRepository;
@@ -30,7 +31,7 @@ public class FamilyViewService {
         this.treeRepository = treeRepository;
     }
 
-    public Page<FamiliesResponse> getFamilies(UUID treeId, String filter, Pageable pageable) throws JsonProcessingException {
+    public Page<FamilyResponse> getFamilies(UUID treeId, String filter, Pageable pageable) throws JsonProcessingException {
         FamilyFilterRequest filterRequest = objectMapper.readValue(filter, FamilyFilterRequest.class);
         treeRepository.findById(treeId).orElseThrow(() ->
                 new EntityNotFoundException("Tree with ID " + treeId + " not found"));
@@ -41,5 +42,10 @@ public class FamilyViewService {
                 Optional.ofNullable(filterRequest.getStatus()).orElse(""),
                 pageable
         );
+    }
+
+    public FamilyResponse getFamily(UUID treeId, UUID familyId) {
+        return familyRepository.findByTreeIdAndFamilyId(treeId, familyId)
+                .orElseThrow(() -> new NodeNotFoundException("Family " + familyId.toString() + " not found for tree " + treeId.toString()));
     }
 }

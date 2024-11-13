@@ -1,11 +1,11 @@
 package com.ada.genealogyapp.family.repostitory;
 
-import com.ada.genealogyapp.family.dto.FamiliesResponse;
+import com.ada.genealogyapp.family.dto.FamilyResponse;
 import com.ada.genealogyapp.family.dto.FamilyChildrenResponse;
 import com.ada.genealogyapp.family.dto.FamilyEventResponse;
 import com.ada.genealogyapp.family.dto.FamilyEventsResponse;
 import com.ada.genealogyapp.family.model.Family;
-import com.ada.genealogyapp.family.type.StatusType;
+import com.ada.genealogyapp.person.dto.PersonResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.neo4j.repository.Neo4jRepository;
@@ -43,7 +43,7 @@ public interface FamilyRepository extends Neo4jRepository<Family, UUID> {
                     WHERE t.id = $treeId
                     RETURN count(f)
                     """)
-    Page<FamiliesResponse> findByTreeIdAndFilteredParentNamesAndStatus(@Param("treeId") UUID treeId, String motherName, String fatherName, String status, Pageable pageable);
+    Page<FamilyResponse> findByTreeIdAndFilteredParentNamesAndStatus(@Param("treeId") UUID treeId, String motherName, String fatherName, String status, Pageable pageable);
 
     @Query("""
                 MATCH (e:Event {id: $eventId})
@@ -132,4 +132,22 @@ public interface FamilyRepository extends Neo4jRepository<Family, UUID> {
                         RETURN count(child)
                     """)
     Page<FamilyChildrenResponse> findChildren(@Param("familyId") UUID familyId, Pageable pageable);
+
+    @Query("""
+                MATCH (f:Family {id: $familyId})
+                MATCH (t:Tree {id: $treeId})
+                MERGE (t)-[:HAS_FAMILY]->(f)
+                WITH f
+                OPTIONAL MATCH (f)-[:HAS_FATHER]->(father:Person)
+                OPTIONAL MATCH (f)-[:HAS_MOTHER]->(mother:Person)
+                WITH f, father, mother
+                RETURN f.id AS id,
+                       f.status AS status,
+                       father.name AS fatherName,
+                       mother.name AS motherName,
+                       father.birthdate AS fatherBirthdate,
+                       mother.birthdate AS motherBirthdate
+            """)
+    Optional<FamilyResponse> findByTreeIdAndFamilyId(@Param("treeId") UUID treeId, @Param("familyId") UUID familyId);
+
 }

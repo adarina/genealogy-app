@@ -1,6 +1,5 @@
 package com.ada.genealogyapp.event.dto;
 
-import com.ada.genealogyapp.event.type.EventParticipantRelationshipType;
 import com.ada.genealogyapp.event.type.EventType;
 import lombok.*;
 
@@ -27,21 +26,5 @@ public class EventResponse {
     private LinkedHashSet<EventParticipantResponse> participants;
 
     private LinkedHashSet<EventCitationResponse> citations;
-
-
-    @Getter
-    @Setter
-    @AllArgsConstructor
-    @NoArgsConstructor
-    public static class EventParticipantResponse {
-
-        private UUID id;
-
-        private String name;
-
-        private EventParticipantRelationshipType relationship;
-
-    }
-
 
 }
