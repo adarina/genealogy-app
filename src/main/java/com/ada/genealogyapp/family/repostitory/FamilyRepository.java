@@ -23,6 +23,7 @@ public interface FamilyRepository extends Neo4jRepository<Family, UUID> {
     @Query(value = """
             MATCH (t:Tree)-[:HAS_FAMILY]->(f:Family)
             WHERE t.id = $treeId
+            AND ($status = '' OR f.status = toUpper($status))
             OPTIONAL MATCH (f)-[:HAS_MOTHER]->(p1:Person)
             WITH f, p1.name AS motherName
             WHERE toLower(motherName) CONTAINS toLower($motherName)
@@ -42,33 +43,7 @@ public interface FamilyRepository extends Neo4jRepository<Family, UUID> {
                     WHERE t.id = $treeId
                     RETURN count(f)
                     """)
-    Page<FamiliesResponse> findByTreeIdWithParentsAndMotherNameContainingIgnoreCaseAndFatherNameContainingIgnoreCase(@Param("treeId") UUID treeId, String motherName, String fatherName, Pageable pageable);
-
-    @Query(value = """
-            MATCH (t:Tree)-[:HAS_FAMILY]->(f:Family)
-            WHERE t.id = $treeId
-            AND f.status CONTAINS $status
-            OPTIONAL MATCH (f)-[:HAS_MOTHER]->(p1:Person)
-            WITH f, p1.name AS motherName
-            WHERE toLower(motherName) CONTAINS toLower($motherName)
-            OPTIONAL MATCH (f)-[:HAS_FATHER]->(p2:Person)
-            WITH f, motherName, p2.name AS fatherName
-            WHERE toLower(fatherName) CONTAINS toLower($fatherName)
-            RETURN f.id AS id,
-                   f.status AS status
-                   motherName,
-                   fatherName
-            :#{orderBy(#pageable)}
-            SKIP $skip
-            LIMIT $limit
-            """,
-            countQuery = """
-                    MATCH (t:Tree)-[:HAS_FAMILY]->(f:Family)
-                    WHERE t.id = $treeId
-                    RETURN count(f)
-                    """)
-    Page<FamiliesResponse> findByTreeIdWithParentsAndMotherNameContainingIgnoreCaseAndFatherNameContainingIgnoreCaseAndStatusContaining(@Param("treeId") UUID treeId, String motherName, String fatherName, StatusType status, Pageable pageable);
-
+    Page<FamiliesResponse> findByTreeIdAndFilteredParentNamesAndStatus(@Param("treeId") UUID treeId, String motherName, String fatherName, String status, Pageable pageable);
 
     @Query("""
                 MATCH (e:Event {id: $eventId})

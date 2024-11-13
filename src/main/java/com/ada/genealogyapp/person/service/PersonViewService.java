@@ -7,8 +7,11 @@ import com.ada.genealogyapp.person.dto.PersonResponse;
 import com.ada.genealogyapp.person.repostitory.PersonRepository;
 
 import com.ada.genealogyapp.person.type.GenderType;
+import com.ada.genealogyapp.tree.repository.TreeRepository;
+import com.ada.genealogyapp.tree.service.TreeService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
@@ -26,33 +29,27 @@ public class PersonViewService {
 
     private final PersonRepository personRepository;
 
-    public PersonViewService(PersonRepository personRepository) {
+    private final ObjectMapper objectMapper;
+
+    private final TreeRepository treeRepository;
+
+    public PersonViewService(PersonRepository personRepository, ObjectMapper objectMapper, TreeRepository treeRepository) {
         this.personRepository = personRepository;
+        this.objectMapper = objectMapper;
+        this.treeRepository = treeRepository;
     }
 
     public Page<PersonResponse> getPersons(UUID treeId, String filter, Pageable pageable) throws JsonProcessingException {
-        ObjectMapper objectMapper = new ObjectMapper();
         PersonFilterRequest filterRequest = objectMapper.readValue(filter, PersonFilterRequest.class);
-
-        String firstname = filterRequest.getFirstname();
-        String lastname = filterRequest.getLastname();
-        GenderType gender = null;
-
-        if (nonNull(filterRequest.getGender())) {
-            try {
-                gender = GenderType.valueOf(filterRequest.getGender().toUpperCase());
-            } catch (IllegalArgumentException e) {
-                log.warn("Invalid gender value: {}", filterRequest.getGender());
-            }
-        }
-
-        Page<PersonResponse> personsPage;
-        if (nonNull(gender)) {
-            personsPage = personRepository.findByTreeIdAndFirstnameContainingIgnoreCaseAndLastnameContainingIgnoreCaseAndGenderContaining(treeId, firstname != null ? firstname : "", lastname != null ? lastname : "", gender, pageable);
-        } else {
-            personsPage = personRepository.findByTreeIdAndFirstnameContainingIgnoreCaseAndLastnameContainingIgnoreCase(treeId, firstname != null ? firstname : "", lastname != null ? lastname : "", pageable);
-        }
-        return personsPage;
+        treeRepository.findById(treeId).orElseThrow(() ->
+                new EntityNotFoundException("Tree with ID " + treeId + " not found"));
+        return personRepository.findByTreeIdAndFilteredFirstnameLastnameAndGender(
+                treeId,
+                Optional.ofNullable(filterRequest.getFirstname()).orElse(""),
+                Optional.ofNullable(filterRequest.getLastname()).orElse(""),
+                Optional.ofNullable(filterRequest.getGender()).orElse(""),
+                pageable
+        );
     }
 
     public PersonResponse getPerson(UUID treeId, UUID personId) {

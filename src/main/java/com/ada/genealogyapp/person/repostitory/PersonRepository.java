@@ -21,9 +21,28 @@ public interface PersonRepository extends Neo4jRepository<Person, UUID> {
     @Query("MATCH (p:Person)-[:PARENT_OF]->(c:Person) WHERE c.id = $childId RETURN p")
     Set<Person> findParentsOf(UUID childId);
 
-    Page<PersonResponse> findByTreeIdAndFirstnameContainingIgnoreCaseAndLastnameContainingIgnoreCaseAndGenderContaining(UUID treeId, String firstname, String lastname, GenderType gender, Pageable pageable);
+    @Query(value = """
+            MATCH (t:Tree)-[:HAS_PERSON]->(p:Person)
+            WHERE t.id = $treeId
+            AND (toLower(p.firstname) CONTAINS toLower($firstname) OR $firstname = '')
+            AND (toLower(p.lastname) CONTAINS toLower($lastname) OR $lastname = '')
+            AND (p.gender = $gender OR $gender = '')
+            RETURN p.id AS id,
+                    p.firstname AS firstname,
+                    p.lastname AS lastname,
+                    p.birthdate AS birthdate,
+                    p.gender AS gender
+            :#{orderBy(#pageable)}
+            SKIP $skip
+            LIMIT $limit
+            """,
+            countQuery = """
+                        MATCH (t:Tree)-[:HAS_PERSON]->(p:Person)
+                        WHERE t.id = $treeId
+                        RETURN count(p)
+                    """)
+    Page<PersonResponse> findByTreeIdAndFilteredFirstnameLastnameAndGender(@Param("treeId") UUID treeId, String firstname, String lastname, String gender, Pageable pageable);
 
-    Page<PersonResponse> findByTreeIdAndFirstnameContainingIgnoreCaseAndLastnameContainingIgnoreCase(UUID treeId, String firstname, String lastname, Pageable pageable);
 
     @Query("""
                 MATCH (e:Event {id: $eventId})

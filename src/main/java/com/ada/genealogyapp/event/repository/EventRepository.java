@@ -5,7 +5,6 @@ import com.ada.genealogyapp.event.dto.EventCitationsResponse;
 import com.ada.genealogyapp.event.dto.EventsResponse;
 import com.ada.genealogyapp.event.dto.EventResponse;
 import com.ada.genealogyapp.event.model.Event;
-import com.ada.genealogyapp.event.type.EventType;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.neo4j.repository.Neo4jRepository;
@@ -45,22 +44,24 @@ public interface EventRepository extends Neo4jRepository<Event, UUID> {
                        citations,
                        participants
             """)
-    Optional<EventResponse> findEventResponseByTreeIdAndEventId(@Param("treeId") UUID treeId, @Param("eventId") UUID eventId);
+    Optional<EventResponse> findByTreeIdAndEventId(@Param("treeId") UUID treeId, @Param("eventId") UUID eventId);
+
 
     @Query(value = """
             MATCH (t:Tree)-[:HAS_EVENT]->(e:Event)
             WHERE t.id = $treeId
-              AND toLower(e.description) CONTAINS toLower($description)
+            AND (toLower(e.description) CONTAINS toLower($description) OR $description = '')
+            AND ($type = '' OR e.type = toUpper($type))
             OPTIONAL MATCH (e)-[:HAS_PARTICIPANT]->(p:Participant)
             WITH e, COLLECT(COALESCE(p.name, '')) AS participants
-            WITH e, REDUCE(s = '', participant IN participants | s + CASE WHEN s = '' THEN participant ELSE ', ' + participant END) AS participantsNames
-            WHERE toLower(participantsNames) CONTAINS toLower($participants)
+            WITH e, REDUCE(s = '', participant IN participants | s + CASE WHEN s = '' THEN participant ELSE ', ' + participant END) AS participantNames
+            WHERE toLower(participantNames) CONTAINS toLower($participants) OR $participants = ''
             RETURN e.id AS id,
                    e.description AS description,
                    e.date AS date,
                    e.type AS type,
                    e.place AS place,
-                   participantsNames
+                   participantNames
                    :#{orderBy(#pageable)}
                    SKIP $skip
                    LIMIT $limit
@@ -70,34 +71,7 @@ public interface EventRepository extends Neo4jRepository<Event, UUID> {
                     WHERE t.id = $treeId
                     RETURN count(e)
                     """)
-    Page<EventsResponse> findByTreeIdWithParticipantsAndDescriptionContainingIgnoreCaseAndParticipantsContainingIgnoreCase(@Param("treeId") UUID treeId, String description, String participants, Pageable pageable);
-
-    @Query(value = """
-            MATCH (t:Tree)-[:HAS_EVENT]->(e:Event)
-            WHERE t.id = $treeId
-              AND toLower(e.description) CONTAINS toLower($description)
-              AND e.type CONTAINS $type
-            OPTIONAL MATCH (e)-[:HAS_PARTICIPANT]->(p:Participant)
-            WITH e, COLLECT(COALESCE(p.name, '')) AS participants
-            WITH e, REDUCE(s = '', participant IN participants | s + CASE WHEN s = '' THEN participant ELSE ', ' + participant END) AS participantsNames
-            WHERE toLower(participantsNames) CONTAINS toLower($participants)
-            RETURN e.id AS id,
-                   e.description AS description,
-                   e.date AS date,
-                   e.type AS type,
-                   e.place AS place,
-                   participantsNames
-                   :#{orderBy(#pageable)}
-                   SKIP $skip
-                   LIMIT $limit
-                   """,
-            countQuery = """
-                    MATCH (t:Tree)-[:HAS_EVENT]->(e:Event)
-                    WHERE t.id = $treeId
-                    RETURN count(e)
-                    """)
-    Page<EventsResponse> findEventsResponseByTreeIdWithParticipantsAndDescriptionContainingIgnoreCaseAndParticipantsContainingIgnoreCaseAndTypeContaining(@Param("treeId") UUID treeId, String description, String participants, EventType type, Pageable pageable);
-
+    Page<EventsResponse> findByTreeIdAndFilteredDescriptionParticipantNamesAndType(@Param("treeId") UUID treeId, String description, String participants, String type, Pageable pageable);
 
     @Query(value = """
             MATCH (c:Citation)<-[r1:HAS_EVENT_CITATION]-(e1:Event)

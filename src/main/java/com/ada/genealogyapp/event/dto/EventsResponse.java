@@ -26,6 +26,6 @@ public class EventsResponse {
 
     private EventType type;
 
-    private String participantsNames;
+    private String participantNames;
 
 }

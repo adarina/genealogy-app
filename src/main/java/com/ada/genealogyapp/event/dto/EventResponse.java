@@ -43,15 +43,5 @@ public class EventResponse {
 
     }
 
-    @Getter
-    @Setter
-    @AllArgsConstructor
-    @NoArgsConstructor
-    public static class EventCitationResponse {
 
-        private UUID id;
-
-        private String page;
-
-    }
 }
