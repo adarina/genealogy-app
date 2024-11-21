@@ -1,9 +1,8 @@
 package com.ada.genealogyapp.tree.dto;
 
-import com.ada.genealogyapp.tree.model.Tree;
+
 import lombok.*;
 
-import java.util.function.Function;
 
 
 @Getter

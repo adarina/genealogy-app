@@ -1,6 +1,5 @@
 package com.ada.genealogyapp.event.service;
 
-import com.ada.genealogyapp.event.dto.EventCitationsResponse;
 import com.ada.genealogyapp.event.dto.EventParticipantsResponse;
 import com.ada.genealogyapp.event.repository.EventRepository;
 import com.ada.genealogyapp.tree.service.TreeService;

@@ -1,15 +1,15 @@
 package com.ada.genealogyapp.event.dto;
 
-import com.ada.genealogyapp.event.model.Event;
+
 import com.ada.genealogyapp.event.type.EventParticipantRelationshipType;
 import com.ada.genealogyapp.event.type.EventType;
-//import com.ada.genealogyapp.person.dto.PersonEventRequest;
+
 import lombok.*;
 
 import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
-import java.util.function.Function;
+
 
 @Getter
 @Setter

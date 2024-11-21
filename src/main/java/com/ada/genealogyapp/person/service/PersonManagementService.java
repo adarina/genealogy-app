@@ -2,7 +2,6 @@ package com.ada.genealogyapp.person.service;
 
 
 import com.ada.genealogyapp.tree.service.TransactionalInNeo4j;
-import com.ada.genealogyapp.event.service.EventService;
 import com.ada.genealogyapp.person.dto.PersonRequest;
 import com.ada.genealogyapp.person.model.Person;
 import com.ada.genealogyapp.tree.service.TreeService;

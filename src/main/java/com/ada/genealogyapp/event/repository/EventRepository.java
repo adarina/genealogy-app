@@ -16,8 +16,6 @@ import java.util.UUID;
 
 public interface EventRepository extends Neo4jRepository<Event, UUID> {
 
-    @Query("MATCH (e:Event)<-[:HAS_EVENT]-(t:Tree {id: $treeId}) RETURN e")
-    List<Event> findAllByTreeId(UUID treeId);
 
     @Query("""
                 MATCH (e:Event {id: $eventId})

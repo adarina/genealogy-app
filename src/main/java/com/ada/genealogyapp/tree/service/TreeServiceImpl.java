@@ -1,7 +1,6 @@
 package com.ada.genealogyapp.tree.service;
 
 import com.ada.genealogyapp.exceptions.NodeNotFoundException;
-import com.ada.genealogyapp.family.model.Family;
 import com.ada.genealogyapp.tree.model.Tree;
 import com.ada.genealogyapp.tree.repository.TreeRepository;
 import lombok.extern.slf4j.Slf4j;

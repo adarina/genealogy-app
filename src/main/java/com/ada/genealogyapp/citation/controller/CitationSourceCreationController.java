@@ -1,10 +1,6 @@
 package com.ada.genealogyapp.citation.controller;
 
 import com.ada.genealogyapp.citation.service.CitationSourceManagementService;
-import com.ada.genealogyapp.family.service.FamilyMotherManagementService;
-import com.ada.genealogyapp.person.dto.PersonRequest;
-import com.ada.genealogyapp.person.model.Person;
-import com.ada.genealogyapp.person.service.PersonCreationService;
 import com.ada.genealogyapp.source.dto.SourceRequest;
 import com.ada.genealogyapp.source.model.Source;
 import com.ada.genealogyapp.source.service.SourceCreationService;

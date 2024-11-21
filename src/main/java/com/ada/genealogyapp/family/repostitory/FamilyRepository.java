@@ -5,14 +5,12 @@ import com.ada.genealogyapp.family.dto.FamilyChildrenResponse;
 import com.ada.genealogyapp.family.dto.FamilyEventResponse;
 import com.ada.genealogyapp.family.dto.FamilyEventsResponse;
 import com.ada.genealogyapp.family.model.Family;
-import com.ada.genealogyapp.person.dto.PersonResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.neo4j.repository.Neo4jRepository;
 import org.springframework.data.neo4j.repository.query.Query;
 import org.springframework.data.repository.query.Param;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
