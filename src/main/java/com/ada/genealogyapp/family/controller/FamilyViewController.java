@@ -2,7 +2,6 @@ package com.ada.genealogyapp.family.controller;
 
 import com.ada.genealogyapp.family.dto.FamilyResponse;
 import com.ada.genealogyapp.family.service.FamilyViewService;
-import com.ada.genealogyapp.person.dto.PersonResponse;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

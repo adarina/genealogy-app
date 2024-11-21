@@ -3,9 +3,9 @@ package com.ada.genealogyapp.person.service;
 import com.ada.genealogyapp.tree.service.TransactionalInNeo4j;
 import com.ada.genealogyapp.person.dto.PersonRequest;
 import com.ada.genealogyapp.person.model.Person;
-import com.ada.genealogyapp.person.repostitory.PersonRepository;
 import com.ada.genealogyapp.tree.model.Tree;
 import com.ada.genealogyapp.tree.service.TreeService;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -14,29 +14,28 @@ import java.util.UUID;
 
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class PersonCreationService {
-
 
     private final TreeService treeService;
 
-    private final PersonRepository personRepository;
+    private final PersonService personService;
 
-    public PersonCreationService(TreeService treeService, PersonRepository personRepository) {
-        this.treeService = treeService;
-        this.personRepository = personRepository;
-    }
-
+    //TODO validation
     @TransactionalInNeo4j
     public Person createPerson(UUID treeId, PersonRequest personRequest) {
-        Person person = PersonRequest.dtoToEntityMapper().apply(personRequest);
+        Tree tree = treeService.findTreeById(treeId);
 
-        Tree tree = treeService.findTreeByIdOrThrowNodeNotFoundException(treeId);
-        person.setTree(tree);
+        Person person = Person.builder()
+                .tree(tree)
+                .firstname(personRequest.getFirstname())
+                .lastname(personRequest.getLastname())
+                .name(personRequest.getFirstname() + " " + personRequest.getLastname())
+                .birthdate(personRequest.getBirthdate())
+                .gender(personRequest.getGender())
+                .build();
 
-        personRepository.save(person);
-        treeService.saveTree(tree);
-
-        log.info("Person created successfully: {}", person.getFirstname());
+        personService.savePerson(person);
         return person;
     }
 }

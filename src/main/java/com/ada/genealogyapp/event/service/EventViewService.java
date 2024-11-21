@@ -6,7 +6,7 @@ import com.ada.genealogyapp.event.dto.EventsResponse;
 import com.ada.genealogyapp.event.dto.EventResponse;
 import com.ada.genealogyapp.event.repository.EventRepository;
 import com.ada.genealogyapp.exceptions.NodeNotFoundException;
-import com.ada.genealogyapp.tree.repository.TreeRepository;
+import com.ada.genealogyapp.tree.service.TreeService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
@@ -22,18 +22,20 @@ import java.util.*;
 public class EventViewService {
 
     private final EventRepository eventRepository;
-    private final TreeRepository treeRepository;
+    private final TreeService treeService;
+    private final EventService eventService;
     private final ObjectMapper objectMapper;
 
-    public EventViewService(EventRepository eventRepository, TreeRepository treeRepository, ObjectMapper objectMapper) {
+    public EventViewService(EventRepository eventRepository, TreeService treeService, EventService eventService, ObjectMapper objectMapper) {
         this.eventRepository = eventRepository;
-        this.treeRepository = treeRepository;
+        this.treeService = treeService;
+        this.eventService = eventService;
         this.objectMapper = objectMapper;
     }
 
+
     public Page<EventsResponse> getEvents(UUID treeId, String filter, Pageable pageable) throws JsonProcessingException {
-        treeRepository.findById(treeId).orElseThrow(() ->
-                new NodeNotFoundException("Tree with ID " + treeId + " not found"));
+        treeService.ensureTreeExists(treeId);
         EventFilterRequest filterRequest = objectMapper.readValue(filter, EventFilterRequest.class);
         return eventRepository.findByTreeIdAndFilteredDescriptionParticipantNamesAndType(
                 treeId,
@@ -45,6 +47,8 @@ public class EventViewService {
     }
 
     public EventResponse getEvent(UUID treeId, UUID eventId) {
+        treeService.ensureTreeExists(treeId);
+        eventService.ensureEventExists(eventId);
         return eventRepository.findByTreeIdAndEventId(treeId, eventId)
                 .orElseThrow(() -> new NodeNotFoundException("Event " + eventId.toString() + " not found for tree " + treeId.toString()));
     }

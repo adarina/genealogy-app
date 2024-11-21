@@ -2,6 +2,8 @@ package com.ada.genealogyapp.family.service;
 
 import com.ada.genealogyapp.family.dto.FamilyChildrenResponse;
 import com.ada.genealogyapp.family.repostitory.FamilyRepository;
+import com.ada.genealogyapp.tree.service.TreeService;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -11,19 +13,18 @@ import java.util.UUID;
 
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class FamilyChildrenViewService {
 
     private final FamilyRepository familyRepository;
 
-    private final FamilyManagementService familyManagementService;
+    private final TreeService treeService;
 
-    public FamilyChildrenViewService(FamilyRepository familyRepository, FamilyManagementService familyManagementService) {
-        this.familyRepository = familyRepository;
-        this.familyManagementService = familyManagementService;
-    }
+    private final FamilyService familyService;
 
     public Page<FamilyChildrenResponse> getChildren(UUID treeId, UUID familyId, Pageable pageable) {
-        familyManagementService.validateTreeAndFamily(treeId, familyId);
+        treeService.ensureTreeExists(treeId);
+        familyService.ensureFamilyExists(familyId);
         return familyRepository.findChildren(familyId, pageable);
     }
 }

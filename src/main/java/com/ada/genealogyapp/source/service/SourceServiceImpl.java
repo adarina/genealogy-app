@@ -3,10 +3,10 @@ package com.ada.genealogyapp.source.service;
 import com.ada.genealogyapp.exceptions.NodeNotFoundException;
 import com.ada.genealogyapp.source.model.Source;
 import com.ada.genealogyapp.source.repository.SourceRepository;
+import com.ada.genealogyapp.tree.service.TransactionalInNeo4j;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.util.Optional;
 import java.util.UUID;
 
 @Slf4j
@@ -19,14 +19,20 @@ public class SourceServiceImpl implements SourceService {
         this.sourceRepository = sourceRepository;
     }
 
-    public Source findSourceByIdOrThrowNodeNotFoundException(UUID sourceId) {
-        Optional<Source> source = sourceRepository.findById(sourceId);
-        if (source.isPresent()) {
-            log.info("Source found: {}", source.get());
-        } else {
-            log.error("No source found with id: {}", sourceId);
-            throw new NodeNotFoundException("No source found with id: " + sourceId);
+    public Source findSourceById(UUID sourceId) {
+        return sourceRepository.findById(sourceId)
+                .orElseThrow(() -> new NodeNotFoundException("Source not found with ID: " + sourceId));
+    }
+
+    public void ensureSourceExists(UUID sourceId) {
+        if (!sourceRepository.existsById(sourceId)) {
+            throw new NodeNotFoundException("Source not found with ID: " + sourceId);
         }
-        return source.get();
+    }
+
+    @TransactionalInNeo4j
+    public void saveSource(Source source) {
+        Source savedSource = sourceRepository.save(source);
+        log.info("Source saved successfully: {}", savedSource);
     }
 }

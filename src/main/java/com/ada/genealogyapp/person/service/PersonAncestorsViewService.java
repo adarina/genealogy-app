@@ -27,9 +27,10 @@ public class PersonAncestorsViewService {
         this.treeService = treeService;
     }
 
+    //TODO fix this entity mapper
     public PersonAncestorsResponse getPersonAncestors(UUID treeId, UUID personId) {
-        treeService.findTreeByIdOrThrowNodeNotFoundException(treeId);
-        Person person = personService.findPersonByIdOrThrowNodeNotFoundException(personId);
+        treeService.ensureTreeExists(treeId);
+        Person person = personService.findPersonById(personId);
 
         Map<Person, Set<Person>> ancestorsMap = buildAncestryMap(person);
         return PersonAncestorsResponse.entityToDtoMapper(person.getId(), person.getName(), person.getBirthdate().toString()).apply(ancestorsMap);

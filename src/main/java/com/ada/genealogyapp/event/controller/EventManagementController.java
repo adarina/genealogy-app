@@ -2,6 +2,7 @@ package com.ada.genealogyapp.event.controller;
 
 import com.ada.genealogyapp.event.dto.EventRequest;
 import com.ada.genealogyapp.event.service.EventManagementService;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -21,7 +22,13 @@ public class EventManagementController {
 
     @PutMapping
     public ResponseEntity<?> updateEvent(@PathVariable UUID treeId, @PathVariable UUID eventId, @RequestBody EventRequest eventRequest) {
-        eventManagementService.updateEventData(treeId, eventId, eventRequest);
+        eventManagementService.updateEvent(treeId, eventId, eventRequest);
         return ResponseEntity.ok().build();
+    }
+
+    @DeleteMapping()
+    public ResponseEntity<?> deleteEvent(@PathVariable UUID treeId, @PathVariable UUID eventId) {
+        eventManagementService.deleteEvent(treeId, eventId);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 }

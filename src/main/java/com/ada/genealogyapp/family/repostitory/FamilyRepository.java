@@ -18,22 +18,25 @@ import java.util.UUID;
 
 public interface FamilyRepository extends Neo4jRepository<Family, UUID> {
 
-    List<Family> findAllByTree_Id(UUID treeId);
 
     @Query(value = """
             MATCH (t:Tree)-[:HAS_FAMILY]->(f:Family)
             WHERE t.id = $treeId
             AND ($status = '' OR f.status = toUpper($status))
             OPTIONAL MATCH (f)-[:HAS_MOTHER]->(p1:Person)
-            WITH f, p1.name AS motherName
+            WITH f, COALESCE(p1.name, '') AS motherName, p1.birthdate AS motherBirthdate, p1.id AS motherId
             WHERE toLower(motherName) CONTAINS toLower($motherName)
             OPTIONAL MATCH (f)-[:HAS_FATHER]->(p2:Person)
-            WITH f, motherName, p2.name AS fatherName
+            WITH f, motherBirthdate, motherName, motherId, COALESCE(p2.name, '') AS fatherName, p2.birthdate AS fatherBirthdate, p2.id AS fatherId
             WHERE toLower(fatherName) CONTAINS toLower($fatherName)
             RETURN f.id AS id,
                    f.status AS status,
                    motherName,
-                   fatherName
+                   fatherName,
+                   motherId,
+                   fatherId,
+                   motherBirthdate,
+                   fatherBirthdate
             :#{orderBy(#pageable)}
             SKIP $skip
             LIMIT $limit
@@ -143,6 +146,8 @@ public interface FamilyRepository extends Neo4jRepository<Family, UUID> {
                 WITH f, father, mother
                 RETURN f.id AS id,
                        f.status AS status,
+                       father.id AS fatherId,
+                       mother.id AS motherId,
                        father.name AS fatherName,
                        mother.name AS motherName,
                        father.birthdate AS fatherBirthdate,

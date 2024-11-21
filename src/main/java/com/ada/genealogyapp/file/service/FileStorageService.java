@@ -41,7 +41,7 @@ public class FileStorageService {
 
     @TransactionalInNeo4j
     public File storeFile(UUID treeId, MultipartFile multipartFile) {
-        Tree tree = treeService.findTreeByIdOrThrowNodeNotFoundException(treeId);
+        Tree tree = treeService.findTreeById(treeId);
 
         if (multipartFile.isEmpty()) {
             throw new StorageException("Failed to store empty file");

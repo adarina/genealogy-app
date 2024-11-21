@@ -26,4 +26,8 @@ public class FamilyResponse {
     private LocalDate fatherBirthdate;
 
     private LocalDate motherBirthdate;
+
+    private UUID motherId;
+
+    private UUID fatherId;
 }

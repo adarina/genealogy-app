@@ -5,6 +5,7 @@ import com.ada.genealogyapp.event.dto.EventCitationResponse;
 import com.ada.genealogyapp.event.dto.EventCitationsResponse;
 import com.ada.genealogyapp.event.repository.EventRepository;
 import com.ada.genealogyapp.exceptions.NodeNotFoundException;
+import com.ada.genealogyapp.tree.service.TreeService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -16,22 +17,26 @@ import java.util.UUID;
 @Service
 public class EventCitationsViewService {
 
-    private final EventManagementService eventManagementService;
 
     private final EventRepository eventRepository;
+    private final TreeService treeService;
+    private final EventService eventService;
 
-    public EventCitationsViewService(EventManagementService eventManagementService, EventRepository eventRepository) {
-        this.eventManagementService = eventManagementService;
+    public EventCitationsViewService(EventRepository eventRepository, TreeService treeService, EventService eventService) {
         this.eventRepository = eventRepository;
+        this.treeService = treeService;
+        this.eventService = eventService;
     }
 
     public Page<EventCitationsResponse> getEventCitations(UUID treeId, UUID eventId, Pageable pageable) {
-        eventManagementService.validateTreeAndEvent(treeId, eventId);
+        treeService.ensureTreeExists(treeId);
+        eventService.ensureEventExists(eventId);
         return eventRepository.findEventCitations(eventId, pageable);
     }
 
     public EventCitationResponse getEventCitation(UUID treeId, UUID eventId, UUID citationId) {
-        eventManagementService.validateTreeAndEvent(treeId, eventId);
+        treeService.ensureTreeExists(treeId);
+        eventService.ensureEventExists(eventId);
         return eventRepository.findEventCitation(eventId, citationId)
                 .orElseThrow(() -> new NodeNotFoundException("Citation " + citationId.toString() + " not found for tree " + treeId.toString() + " and event " + eventId.toString()));
     }

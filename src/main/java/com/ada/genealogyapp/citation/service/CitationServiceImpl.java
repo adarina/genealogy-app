@@ -3,30 +3,36 @@ package com.ada.genealogyapp.citation.service;
 import com.ada.genealogyapp.citation.model.Citation;
 import com.ada.genealogyapp.citation.repository.CitationRepository;
 import com.ada.genealogyapp.exceptions.NodeNotFoundException;
+import com.ada.genealogyapp.tree.service.TransactionalInNeo4j;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.util.Optional;
 import java.util.UUID;
 
 @Service
 @Slf4j
-public class CitationServiceImpl implements CitationService{
+public class CitationServiceImpl implements CitationService {
 
-    private  final CitationRepository citationRepository;
+    private final CitationRepository citationRepository;
 
     public CitationServiceImpl(CitationRepository citationRepository) {
         this.citationRepository = citationRepository;
     }
 
-    public Citation findCitationByIdOrThrowNodeNotFoundException(UUID citationId) {
-        Optional<Citation> citation = citationRepository.findById(citationId);
-        if (citation.isPresent()) {
-            log.info("Citation found: {}", citation.get());
-        } else {
-            log.error("No citation found with id: {}", citationId);
-            throw new NodeNotFoundException("No citation found with id: " + citationId);
+    public Citation findCitationById(UUID citationId) {
+        return citationRepository.findById(citationId)
+                .orElseThrow(() -> new NodeNotFoundException("Citation not found with ID: " + citationId));
+    }
+
+    public void ensureCitationExists(UUID citationId) {
+        if (!citationRepository.existsById(citationId)) {
+            throw new NodeNotFoundException("Citation not found with ID: " + citationId);
         }
-        return citation.get();
+    }
+
+    @TransactionalInNeo4j
+    public void saveCitation(Citation citation) {
+        Citation savedCitation = citationRepository.save(citation);
+        log.info("Citation saved successfully: {}", savedCitation);
     }
 }

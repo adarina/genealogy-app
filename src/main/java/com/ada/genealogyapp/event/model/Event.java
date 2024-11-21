@@ -15,17 +15,19 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
-@NoArgsConstructor
-@ToString
 @Node
-@Builder
+@ToString
 @Getter
 @Setter
+@Builder
 @AllArgsConstructor
+@NoArgsConstructor
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class Event {
 
     @Id
     @GeneratedValue
+    @EqualsAndHashCode.Include
     private UUID id;
 
     private EventType type;
@@ -53,4 +55,15 @@ public class Event {
         this.description = description;
         this.tree = tree;
     }
+
+    public boolean isFamilyAlreadyInEvent(UUID familyId) {
+        return participants.stream()
+                .anyMatch(ep -> ep.getParticipant().getId().equals(familyId));
+    }
+
+    public boolean isCitationAlreadyInEvent(UUID citationId) {
+        return citations.stream()
+                .anyMatch(ec -> ec.getCitation().getId().equals(citationId));
+    }
+
 }

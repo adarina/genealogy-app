@@ -1,7 +1,8 @@
 package com.ada.genealogyapp.family.controller;
 
+import com.ada.genealogyapp.event.dto.EventRequest;
+import com.ada.genealogyapp.event.service.EventManagementService;
 import com.ada.genealogyapp.family.service.FamilyEventManagementService;
-import com.ada.genealogyapp.person.dto.PersonEventRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -13,22 +14,31 @@ import java.util.UUID;
 public class FamilyEventManagementController {
 
     private final FamilyEventManagementService familyEventManagementService;
+    private final EventManagementService eventManagementService;
 
-    public FamilyEventManagementController(FamilyEventManagementService familyEventManagementService) {
+    public FamilyEventManagementController(FamilyEventManagementService familyEventManagementService, EventManagementService eventManagementService) {
         this.familyEventManagementService = familyEventManagementService;
+        this.eventManagementService = eventManagementService;
     }
 
-    @PutMapping()
-    public ResponseEntity<?> updateFamilyEvent(@PathVariable UUID treeId, @PathVariable UUID familyId, @PathVariable UUID eventId, @RequestBody PersonEventRequest eventRequest) {
-        familyEventManagementService.updateFamilyEvent(treeId, familyId, eventId, eventRequest);
+    @PutMapping
+    public ResponseEntity<?> updateEventInFamily(@PathVariable UUID treeId, @PathVariable UUID familyId, @PathVariable UUID eventId, @RequestBody EventRequest eventRequest) {
+        eventManagementService.updateEvent(treeId, eventId, eventRequest);
+        familyEventManagementService.updateEventInFamily(treeId, familyId, eventId, eventRequest);
         return ResponseEntity.ok().build();
     }
 
-    @DeleteMapping()
-    public ResponseEntity<?> removeEventFromFamily(@PathVariable UUID treeId, @PathVariable UUID familyId, @PathVariable UUID eventId) {
-        familyEventManagementService.removeEventFromFamily(treeId, familyId, eventId);
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    //TODO custom relationship
+    @PostMapping
+    public ResponseEntity<?> addFamilyToEvent(@PathVariable UUID treeId, @PathVariable UUID familyId, @PathVariable UUID eventId) {
+        familyEventManagementService.addFamilyToEvent(treeId, familyId, eventId);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
+    @DeleteMapping
+    public ResponseEntity<?> removeFamilyFromEvent(@PathVariable UUID treeId, @PathVariable UUID familyId, @PathVariable UUID eventId) {
+        familyEventManagementService.removeFamilyFromEvent(treeId, familyId, eventId);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    }
 }
 

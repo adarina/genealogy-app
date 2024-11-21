@@ -1,16 +1,15 @@
 package com.ada.genealogyapp.event.repository;
 
-import com.ada.genealogyapp.event.dto.EventCitationResponse;
-import com.ada.genealogyapp.event.dto.EventCitationsResponse;
-import com.ada.genealogyapp.event.dto.EventsResponse;
-import com.ada.genealogyapp.event.dto.EventResponse;
+import com.ada.genealogyapp.event.dto.*;
 import com.ada.genealogyapp.event.model.Event;
+import com.ada.genealogyapp.event.type.EventType;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.neo4j.repository.Neo4jRepository;
 import org.springframework.data.neo4j.repository.query.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -101,4 +100,33 @@ public interface EventRepository extends Neo4jRepository<Event, UUID> {
                    c.date AS date
             """)
     Optional<EventCitationResponse> findEventCitation(UUID eventId, UUID citationId);
+
+
+    @Query("""
+                MATCH (e:Event {id: $eventId})
+                SET e.type = COALESCE($type, e.type),
+                    e.date = COALESCE($date, e.date),
+                    e.place = COALESCE($place, e.place),
+                    e.description = COALESCE($description, e.description)
+                RETURN e
+            """)
+    void updateEvent(UUID eventId, EventType type, LocalDate date, String place, String description);
+
+    @Query(value = """
+            MATCH (p:Participant)<-[r1:HAS_PARTICIPANT]-(e1:Event)
+            WHERE e1.id = $eventId
+            WITH p
+            RETURN p.id AS id,
+                   p.name AS name
+            :#{orderBy(#pageable)}
+            SKIP $skip
+            LIMIT $limit
+            """,
+            countQuery = """
+                        MATCH (p:Participant)-[r1:HAS_PARTICIPANT]->(e1:Event)
+                        WHERE e1.id = $eventId
+                        RETURN count(p)
+                    """
+    )
+    Page<EventParticipantsResponse> findEventParticipants(UUID eventId, Pageable pageable);
 }

@@ -7,6 +7,8 @@ import org.neo4j.driver.SessionConfig;
 import org.neo4j.driver.Transaction;
 import org.springframework.stereotype.Service;
 
+import java.util.function.Consumer;
+
 @Slf4j
 @Service
 public class TreeTransactionService {
@@ -76,5 +78,14 @@ public class TreeTransactionService {
             throw new IllegalStateException("Transaction has not been started or already closed");
         }
         return currentTransaction;
+    }
+
+    public void runInTransaction(Consumer<Transaction> transactionConsumer) {
+        try (Session session = driver.session(); Transaction tx = session.beginTransaction()) {
+            transactionConsumer.accept(tx);
+            tx.commit();
+        } catch (Exception e) {
+            throw new RuntimeException("Transaction failed", e);
+        }
     }
 }

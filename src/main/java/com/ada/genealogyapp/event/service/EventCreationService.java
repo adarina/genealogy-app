@@ -4,7 +4,6 @@ package com.ada.genealogyapp.event.service;
 import com.ada.genealogyapp.tree.service.TransactionalInNeo4j;
 import com.ada.genealogyapp.event.dto.EventRequest;
 import com.ada.genealogyapp.event.model.Event;
-import com.ada.genealogyapp.event.repository.EventRepository;
 import com.ada.genealogyapp.tree.model.Tree;
 import com.ada.genealogyapp.tree.service.TreeService;
 import lombok.extern.slf4j.Slf4j;
@@ -20,25 +19,27 @@ public class EventCreationService {
 
     private final TreeService treeService;
 
-    private  final EventRepository eventRepository;
+    private final EventService eventService;
 
-    public EventCreationService(TreeService treeService, EventRepository eventRepository) {
+    public EventCreationService(TreeService treeService, EventService eventService) {
         this.treeService = treeService;
-        this.eventRepository = eventRepository;
+        this.eventService = eventService;
     }
 
+    //TODO validation
     @TransactionalInNeo4j
     public Event createEvent(UUID treeId, EventRequest eventRequest) {
-        Event event = EventRequest.dtoToEntityMapper().apply(eventRequest);
+        Tree tree = treeService.findTreeById(treeId);
 
-        Tree tree = treeService.findTreeByIdOrThrowNodeNotFoundException(treeId);
-        event.setTree(tree);
+        Event event = Event.builder()
+                .tree(tree)
+                .type(eventRequest.getType())
+                .place(eventRequest.getPlace())
+                .description(eventRequest.getDescription())
+                .date(eventRequest.getDate())
+                .build();
 
-        eventRepository.save(event);
-        treeService.saveTree(tree);
-
-        log.info("Event created successfully: {}", event.getType());
-
+        eventService.saveEvent(event);
         return event;
     }
 }

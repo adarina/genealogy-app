@@ -2,6 +2,7 @@ package com.ada.genealogyapp.person.controller;
 
 import com.ada.genealogyapp.person.dto.PersonRequest;
 import com.ada.genealogyapp.person.service.PersonManagementService;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,7 +21,13 @@ public class PersonManagementController {
 
     @PutMapping
     public ResponseEntity<?> updatePerson(@PathVariable UUID treeId, @PathVariable UUID personId, @RequestBody PersonRequest personRequest) {
-        personManagementService.updatePersonalData(treeId, personId, personRequest);
+        personManagementService.updatePerson(treeId, personId, personRequest);
         return ResponseEntity.ok().build();
+    }
+
+    @DeleteMapping()
+    public ResponseEntity<?> deletePerson(@PathVariable UUID treeId, @PathVariable UUID personId) {
+        personManagementService.deletePerson(treeId, personId);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 }

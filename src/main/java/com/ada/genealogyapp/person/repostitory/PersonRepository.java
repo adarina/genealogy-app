@@ -20,6 +20,7 @@ public interface PersonRepository extends Neo4jRepository<Person, UUID> {
     @Query("MATCH (p:Person)-[:PARENT_OF]->(c:Person) WHERE c.id = $childId RETURN p")
     Set<Person> findParentsOf(UUID childId);
 
+
     @Query(value = """
             MATCH (t:Tree)-[:HAS_PERSON]->(p:Person)
             WHERE t.id = $treeId

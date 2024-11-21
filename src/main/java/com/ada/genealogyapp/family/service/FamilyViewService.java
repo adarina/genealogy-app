@@ -4,10 +4,9 @@ import com.ada.genealogyapp.exceptions.NodeNotFoundException;
 import com.ada.genealogyapp.family.dto.FamilyResponse;
 import com.ada.genealogyapp.family.dto.FamilyFilterRequest;
 import com.ada.genealogyapp.family.repostitory.FamilyRepository;
-import com.ada.genealogyapp.tree.repository.TreeRepository;
+import com.ada.genealogyapp.tree.service.TreeService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import jakarta.persistence.EntityNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -22,19 +21,20 @@ public class FamilyViewService {
 
     private final FamilyRepository familyRepository;
     private final ObjectMapper objectMapper;
-    private final TreeRepository treeRepository;
+    private final TreeService treeService;
+    private final FamilyService familyService;
 
-
-    public FamilyViewService(FamilyRepository familyRepository, ObjectMapper objectMapper, TreeRepository treeRepository) {
+    public FamilyViewService(FamilyRepository familyRepository, ObjectMapper objectMapper, TreeService treeService, FamilyService familyService) {
         this.familyRepository = familyRepository;
         this.objectMapper = objectMapper;
-        this.treeRepository = treeRepository;
+        this.treeService = treeService;
+        this.familyService = familyService;
     }
 
     public Page<FamilyResponse> getFamilies(UUID treeId, String filter, Pageable pageable) throws JsonProcessingException {
         FamilyFilterRequest filterRequest = objectMapper.readValue(filter, FamilyFilterRequest.class);
-        treeRepository.findById(treeId).orElseThrow(() ->
-                new EntityNotFoundException("Tree with ID " + treeId + " not found"));
+        treeService.ensureTreeExists(treeId);
+
         return familyRepository.findByTreeIdAndFilteredParentNamesAndStatus(
                 treeId,
                 Optional.ofNullable(filterRequest.getMotherName()).orElse(""),
@@ -45,6 +45,9 @@ public class FamilyViewService {
     }
 
     public FamilyResponse getFamily(UUID treeId, UUID familyId) {
+        treeService.ensureTreeExists(treeId);
+        familyService.ensureFamilyExists(familyId);
+
         return familyRepository.findByTreeIdAndFamilyId(treeId, familyId)
                 .orElseThrow(() -> new NodeNotFoundException("Family " + familyId.toString() + " not found for tree " + treeId.toString()));
     }

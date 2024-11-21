@@ -1,7 +1,6 @@
 package com.ada.genealogyapp.event.controller;
 
 
-import com.ada.genealogyapp.event.dto.EventCitationRequest;
 import com.ada.genealogyapp.event.service.EventCitationManagementService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,15 +19,15 @@ public class EventCitationManagementController {
         this.eventCitationManagementService = eventCitationManagementService;
     }
 
-    @PutMapping()
-    public ResponseEntity<?> updateEventCitation(@PathVariable UUID treeId, @PathVariable UUID eventId, @PathVariable UUID citationId, @RequestBody EventCitationRequest eventCitationRequest) {
-        eventCitationManagementService.updateEventCitation(treeId, eventId, citationId, eventCitationRequest);
-        return ResponseEntity.ok().build();
-    }
-
     @DeleteMapping()
     public ResponseEntity<?> removeCitationFromEvent(@PathVariable UUID treeId, @PathVariable UUID eventId, @PathVariable UUID citationId) {
         eventCitationManagementService.removeCitationFromEvent(treeId, eventId, citationId);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    }
+
+    @PostMapping
+    public ResponseEntity<?> addCitationToEvent(@PathVariable UUID treeId, @PathVariable UUID eventId, @PathVariable UUID citationId) {
+        eventCitationManagementService.addCitationToEvent(treeId, eventId, citationId);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 }

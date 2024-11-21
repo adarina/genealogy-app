@@ -134,7 +134,7 @@ class PersonAncestorsViewIntegrationTest extends IntegrationTestConfig {
         PersonRelationship personRelationship = new PersonRelationship();
         personRelationship.setChild(child);
         personRelationship.setRelationship(PersonRelationshipType.BIOLOGICAL);
-        parent.getChildrens().add(personRelationship);
+        parent.getRelationships().add(personRelationship);
         personRepository.save(parent);
     }
 }

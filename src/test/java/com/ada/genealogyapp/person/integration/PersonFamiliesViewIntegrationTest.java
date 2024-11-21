@@ -143,7 +143,7 @@ class PersonFamiliesViewIntegrationTest extends IntegrationTestConfig {
         PersonRelationship fatherPersonRelationship2 = new PersonRelationship();
         fatherPersonRelationship.setChild(child);
         fatherPersonRelationship2.setChild(father);
-        father.getChildrens().add(fatherPersonRelationship);
+        father.getRelationships().add(fatherPersonRelationship);
 //        child.getParents().add(fatherPersonRelationship2);
         personRepository.save(father);
         personRepository.save(child);
@@ -152,7 +152,7 @@ class PersonFamiliesViewIntegrationTest extends IntegrationTestConfig {
         PersonRelationship motherPersonRelationship2 = new PersonRelationship();
         motherPersonRelationship.setChild(child);
         motherPersonRelationship2.setChild(mother);
-        mother.getChildrens().add(motherPersonRelationship);
+        mother.getRelationships().add(motherPersonRelationship);
 //        child.getParents().add(motherPersonRelationship2);
         personRepository.save(mother);
         personRepository.save(child);
@@ -161,7 +161,7 @@ class PersonFamiliesViewIntegrationTest extends IntegrationTestConfig {
         PersonRelationship fatherPersonRelationship20 = new PersonRelationship();
         fatherPersonRelationship0.setChild(secondChild);
         fatherPersonRelationship20.setChild(father);
-        father.getChildrens().add(fatherPersonRelationship0);
+        father.getRelationships().add(fatherPersonRelationship0);
 //        secondChild.getParents().add(fatherPersonRelationship20);
         personRepository.save(father);
         personRepository.save(secondChild);
@@ -170,7 +170,7 @@ class PersonFamiliesViewIntegrationTest extends IntegrationTestConfig {
         PersonRelationship motherPersonRelationship20 = new PersonRelationship();
         motherPersonRelationship0.setChild(secondChild);
         motherPersonRelationship20.setChild(mother);
-        mother.getChildrens().add(motherPersonRelationship0);
+        mother.getRelationships().add(motherPersonRelationship0);
 //        secondChild.getParents().add(motherPersonRelationship20);
         personRepository.save(mother);
         personRepository.save(secondChild);
@@ -179,7 +179,7 @@ class PersonFamiliesViewIntegrationTest extends IntegrationTestConfig {
         PersonRelationship fatherPersonRelationship200 = new PersonRelationship();
         fatherPersonRelationship00.setChild(thirdChild);
         fatherPersonRelationship200.setChild(father);
-        father.getChildrens().add(fatherPersonRelationship00);
+        father.getRelationships().add(fatherPersonRelationship00);
 //        thirdChild.getParents().add(fatherPersonRelationship200);
         personRepository.save(father);
         personRepository.save(thirdChild);
@@ -188,7 +188,7 @@ class PersonFamiliesViewIntegrationTest extends IntegrationTestConfig {
         PersonRelationship motherPersonRelationship200 = new PersonRelationship();
         motherPersonRelationship00.setChild(thirdChild);
         motherPersonRelationship200.setChild(mother);
-        mother.getChildrens().add(motherPersonRelationship00);
+        mother.getRelationships().add(motherPersonRelationship00);
 //        thirdChild.getParents().add(motherPersonRelationship200);
         personRepository.save(mother);
         personRepository.save(thirdChild);
@@ -197,7 +197,7 @@ class PersonFamiliesViewIntegrationTest extends IntegrationTestConfig {
         PersonRelationship grandmotherPersonRelationship2 = new PersonRelationship();
         grandmotherPersonRelationship.setChild(mother);
         grandmotherPersonRelationship2.setChild(grandmother);
-        grandmother.getChildrens().add(grandmotherPersonRelationship);
+        grandmother.getRelationships().add(grandmotherPersonRelationship);
 //        mother.getParents().add(grandmotherPersonRelationship2);
         personRepository.save(grandmother);
         personRepository.save(mother);
@@ -206,7 +206,7 @@ class PersonFamiliesViewIntegrationTest extends IntegrationTestConfig {
         PersonRelationship grandfatherPersonRelationship2 = new PersonRelationship();
         grandfatherPersonRelationship.setChild(mother);
         grandfatherPersonRelationship2.setChild(grandfather);
-        grandfather.getChildrens().add(grandfatherPersonRelationship);
+        grandfather.getRelationships().add(grandfatherPersonRelationship);
 //        mother.getParents().add(grandfatherPersonRelationship2);
         personRepository.save(grandfather);
         personRepository.save(mother);

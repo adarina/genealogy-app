@@ -1,6 +1,5 @@
 package com.ada.genealogyapp.person.model;
 
-import com.ada.genealogyapp.event.model.Event;
 import com.ada.genealogyapp.person.relationship.PersonRelationship;
 import com.ada.genealogyapp.person.type.GenderType;
 import com.ada.genealogyapp.tree.model.Tree;
@@ -41,25 +40,10 @@ public class Person implements Participant {
     private GenderType gender;
 
     @Relationship(type = "PARENT_OF", direction = Relationship.Direction.OUTGOING)
-    private Set<PersonRelationship> childrens = new HashSet<>();
-
-    @Relationship(type = "HAS_PARTICIPANT", direction = Relationship.Direction.INCOMING)
-    private Set<Event> events;
+    private Set<PersonRelationship> relationships = new HashSet<>();
 
     @Relationship(type = "HAS_PERSON", direction = Relationship.Direction.INCOMING)
     private Tree tree;
-
-
-    @Override
-    public UUID getId() {
-        return this.id;
-    }
-
-    @Override
-    public String getName() {
-        return this.name;
-    }
-
 
     public Person(String name, String firstname, String lastname, LocalDate birthDate, GenderType genderType, Tree tree) {
         this.name = name;
@@ -77,4 +61,5 @@ public class Person implements Participant {
         this.gender = genderType;
         this.tree = tree;
     }
+
 }

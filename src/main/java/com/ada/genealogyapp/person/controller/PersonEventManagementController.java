@@ -1,6 +1,7 @@
 package com.ada.genealogyapp.person.controller;
 
-import com.ada.genealogyapp.person.dto.PersonEventRequest;
+import com.ada.genealogyapp.event.dto.EventRequest;
+import com.ada.genealogyapp.event.service.EventManagementService;
 import com.ada.genealogyapp.person.service.PersonEventManagementService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,20 +15,31 @@ public class PersonEventManagementController {
 
     private final PersonEventManagementService personEventManagementService;
 
-    public PersonEventManagementController(PersonEventManagementService personEventManagementService) {
+    private final EventManagementService eventManagementService;
+
+    public PersonEventManagementController(PersonEventManagementService personEventManagementService, EventManagementService eventManagementService) {
         this.personEventManagementService = personEventManagementService;
+        this.eventManagementService = eventManagementService;
     }
 
 
-    @PutMapping()
-    public ResponseEntity<?> updatePersonalEvent(@PathVariable UUID treeId, @PathVariable UUID personId, @PathVariable UUID eventId, @RequestBody PersonEventRequest personEventRequest) {
-        personEventManagementService.updatePersonalEvent(treeId, personId, eventId, personEventRequest);
+    @PutMapping
+    public ResponseEntity<?> updateEventInPerson(@PathVariable UUID treeId, @PathVariable UUID personId, @PathVariable UUID eventId, @RequestBody EventRequest eventRequest) {
+        eventManagementService.updateEvent(treeId, eventId, eventRequest);
+        personEventManagementService.updateEventInPerson(treeId, personId, eventId, eventRequest);
         return ResponseEntity.ok().build();
     }
 
-    @DeleteMapping()
+    @DeleteMapping
     public ResponseEntity<?> removeEventFromPerson(@PathVariable UUID treeId, @PathVariable UUID personId, @PathVariable UUID eventId) {
         personEventManagementService.removeEventFromPerson(treeId, personId, eventId);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    }
+
+    //TODO custom relationship
+    @PostMapping
+    public ResponseEntity<?> addPersonToEvent(@PathVariable UUID treeId, @PathVariable UUID personId, @PathVariable UUID eventId) {
+        personEventManagementService.addPersonToEvent(treeId, personId, eventId);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 }

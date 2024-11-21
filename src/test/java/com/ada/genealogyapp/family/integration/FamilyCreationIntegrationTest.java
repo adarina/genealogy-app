@@ -54,7 +54,7 @@ class FamilyCreationIntegrationTest extends IntegrationTestConfig {
         treeRepository.save(tree);
 
         FamilyRequest familyRequest = new FamilyRequest();
-        familyRequest.setStatusType(StatusType.MARRIED);
+        familyRequest.setStatus(StatusType.MARRIED);
 
         mockMvc.perform(post("/api/v1/genealogy/trees/{treeId}/families", tree.getId())
                         .contentType(MediaType.APPLICATION_JSON)

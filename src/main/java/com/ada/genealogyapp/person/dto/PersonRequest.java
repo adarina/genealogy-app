@@ -1,11 +1,10 @@
 package com.ada.genealogyapp.person.dto;
 
 import com.ada.genealogyapp.person.type.GenderType;
-import com.ada.genealogyapp.person.model.Person;
+import com.ada.genealogyapp.person.type.PersonRelationshipType;
 import lombok.*;
 
 import java.time.LocalDate;
-import java.util.function.Function;
 
 @Getter
 @Setter
@@ -24,14 +23,8 @@ public class PersonRequest {
 
     private GenderType gender;
 
+    private PersonRelationshipType motherRelationship;
 
-    public static Function<PersonRequest, Person> dtoToEntityMapper() {
-        return request -> Person.builder()
-                .name(request.getFirstname() + " " + request.getLastname())
-                .firstname(request.getFirstname())
-                .lastname(request.getLastname())
-                .birthdate(request.getBirthdate())
-                .gender(request.getGender())
-                .build();
-    }
+    private PersonRelationshipType fatherRelationship;
+
 }

@@ -3,10 +3,10 @@ package com.ada.genealogyapp.event.service;
 import com.ada.genealogyapp.event.model.Event;
 import com.ada.genealogyapp.event.repository.EventRepository;
 import com.ada.genealogyapp.exceptions.NodeNotFoundException;
+import com.ada.genealogyapp.tree.service.TransactionalInNeo4j;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -19,14 +19,26 @@ public class EventServiceImpl implements EventService {
         this.eventRepository = eventRepository;
     }
 
-    public Event findEventByIdOrThrowNodeNotFoundException(UUID eventId) {
-        Optional<Event> event = eventRepository.findById(eventId);
-        if (event.isPresent()) {
-            log.info("Event found: {}", event.get());
-        } else {
-            log.error("No event found with id: {}", eventId);
-            throw new NodeNotFoundException("No event found with id: " + eventId);
+    public Event findEventById(UUID eventId) {
+        return eventRepository.findById(eventId)
+                .orElseThrow(() -> new NodeNotFoundException("Event not found with ID: " + eventId));
+    }
+
+    public void ensureEventExists(UUID eventId) {
+        if (!eventRepository.existsById(eventId)) {
+            throw new NodeNotFoundException("Event not found with ID: " + eventId);
         }
-        return event.get();
+    }
+
+    @TransactionalInNeo4j
+    public void saveEvent(Event event) {
+        Event savedEvent = eventRepository.save(event);
+        log.info("Event saved successfully: {}", savedEvent);
+    }
+
+    @TransactionalInNeo4j
+    public void deleteEvent(Event event) {
+        eventRepository.delete(event);
+        log.info("Event deleted successfully: {}", event.getId());
     }
 }

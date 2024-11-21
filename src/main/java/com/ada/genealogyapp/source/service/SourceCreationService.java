@@ -1,9 +1,9 @@
 package com.ada.genealogyapp.source.service;
 
+
 import com.ada.genealogyapp.tree.service.TransactionalInNeo4j;
 import com.ada.genealogyapp.source.dto.SourceRequest;
 import com.ada.genealogyapp.source.model.Source;
-import com.ada.genealogyapp.source.repository.SourceRepository;
 import com.ada.genealogyapp.tree.model.Tree;
 import com.ada.genealogyapp.tree.service.TreeService;
 import lombok.extern.slf4j.Slf4j;
@@ -15,29 +15,26 @@ import java.util.UUID;
 @Slf4j
 public class SourceCreationService {
 
-    private final SourceRepository sourceRepository;
+    private final SourceService sourceService;
 
     private final TreeService treeService;
 
-
-    public SourceCreationService(SourceRepository sourceRepository, TreeService treeService) {
-        this.sourceRepository = sourceRepository;
+    public SourceCreationService(SourceService sourceService, TreeService treeService) {
+        this.sourceService = sourceService;
         this.treeService = treeService;
     }
 
+
+    //TODO validation
     @TransactionalInNeo4j
     public Source createSource(UUID treeId, SourceRequest sourceRequest) {
-        Source source = SourceRequest.dtoToEntityMapper().apply(sourceRequest);
+        Tree tree = treeService.findTreeById(treeId);
+        Source source = Source.builder()
+                .tree(tree)
+                .name(sourceRequest.getName())
+                .build();
 
-        Tree tree = treeService.findTreeByIdOrThrowNodeNotFoundException(treeId);
-
-        source.setTree(tree);
-
-        sourceRepository.save(source);
-        treeService.saveTree(tree);
-
-        log.info("Source created successfully: {}", source.getName());
-
+        sourceService.saveSource(source);
         return source;
     }
 }

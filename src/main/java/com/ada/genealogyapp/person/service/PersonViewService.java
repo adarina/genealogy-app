@@ -6,10 +6,9 @@ import com.ada.genealogyapp.person.dto.PersonFilterRequest;
 import com.ada.genealogyapp.person.dto.PersonResponse;
 import com.ada.genealogyapp.person.repostitory.PersonRepository;
 
-import com.ada.genealogyapp.tree.repository.TreeRepository;
+import com.ada.genealogyapp.tree.service.TreeService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import jakarta.persistence.EntityNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
@@ -27,18 +26,20 @@ public class PersonViewService {
 
     private final ObjectMapper objectMapper;
 
-    private final TreeRepository treeRepository;
+    private final TreeService treeService;
 
-    public PersonViewService(PersonRepository personRepository, ObjectMapper objectMapper, TreeRepository treeRepository) {
+    private final PersonService personService;
+
+    public PersonViewService(PersonRepository personRepository, ObjectMapper objectMapper, TreeService treeService, PersonService personService) {
         this.personRepository = personRepository;
         this.objectMapper = objectMapper;
-        this.treeRepository = treeRepository;
+        this.treeService = treeService;
+        this.personService = personService;
     }
 
     public Page<PersonResponse> getPersons(UUID treeId, String filter, Pageable pageable) throws JsonProcessingException {
         PersonFilterRequest filterRequest = objectMapper.readValue(filter, PersonFilterRequest.class);
-        treeRepository.findById(treeId).orElseThrow(() ->
-                new EntityNotFoundException("Tree with ID " + treeId + " not found"));
+        treeService.ensureTreeExists(treeId);
         return personRepository.findByTreeIdAndFilteredFirstnameLastnameAndGender(
                 treeId,
                 Optional.ofNullable(filterRequest.getFirstname()).orElse(""),
@@ -49,6 +50,8 @@ public class PersonViewService {
     }
 
     public PersonResponse getPerson(UUID treeId, UUID personId) {
+        treeService.ensureTreeExists(treeId);
+        personService.ensurePersonExists(personId);
         return personRepository.findByTreeIdAndPersonId(treeId, personId)
                 .orElseThrow(() -> new NodeNotFoundException("Person " + personId.toString() + " not found for tree " + treeId.toString()));
     }

@@ -1,6 +1,5 @@
 package com.ada.genealogyapp.citation.model;
 
-import com.ada.genealogyapp.event.model.Event;
 import com.ada.genealogyapp.file.model.File;
 import com.ada.genealogyapp.source.model.Source;
 import com.ada.genealogyapp.tree.model.Tree;
@@ -14,6 +13,8 @@ import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
+
+import static java.util.Objects.nonNull;
 
 
 @Node
@@ -38,17 +39,21 @@ public class Citation {
     @Relationship(type = "HAS_CITATION", direction = Relationship.Direction.INCOMING)
     private Tree tree;
 
-    @Relationship(type = "HAS_SOURCE", direction = Relationship.Direction.OUTGOING)
-    private Set<Source> sources = new HashSet<>();
+    @Relationship(type = "HAS_CITATION_SOURCE", direction = Relationship.Direction.OUTGOING)
+    private Source source;
 
     @Relationship(type = "HAS_FILE", direction = Relationship.Direction.OUTGOING)
     private Set<File> files = new HashSet<>();
 
-    @Relationship(type = "HAS_EVENT_CITATION", direction = Relationship.Direction.INCOMING)
-    private Set<Event> events;
-
-    public Citation(UUID id) {
-        this.id = id;
+    public boolean hasSource(Source source) {
+        return nonNull(this.source) && this.source.equals(source);
     }
 
+    public void addSource(Source source) {
+        this.source = source;
+    }
+
+    public void removeSource() {
+        this.source = null;
+    }
 }

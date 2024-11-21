@@ -2,18 +2,17 @@ package com.ada.genealogyapp.person.relationship;
 
 import com.ada.genealogyapp.person.model.Person;
 import com.ada.genealogyapp.person.type.PersonRelationshipType;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 import org.springframework.data.neo4j.core.schema.*;
 
 
 @NoArgsConstructor
+@AllArgsConstructor
 @ToString
 @Getter
 @Setter
 @RelationshipProperties
+@Builder
 public class PersonRelationship {
 
     @Id
@@ -25,5 +24,9 @@ public class PersonRelationship {
 
     private PersonRelationshipType relationship;
 
+    public PersonRelationship(Person child, PersonRelationshipType relationship) {
+        this.child = child;
+        this.relationship = relationship;
+    }
 }
 

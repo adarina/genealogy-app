@@ -4,6 +4,7 @@ import com.ada.genealogyapp.tree.service.TransactionalInNeo4j;
 import com.ada.genealogyapp.citation.model.Citation;
 import com.ada.genealogyapp.file.model.File;
 import com.ada.genealogyapp.file.service.FileSearchService;
+import com.ada.genealogyapp.tree.service.TreeService;
 import com.ada.genealogyapp.tree.service.TreeTransactionService;
 import lombok.extern.slf4j.Slf4j;
 import org.neo4j.driver.Transaction;
@@ -18,21 +19,25 @@ public class CitationFilesManagementService {
 
     private final TreeTransactionService treeTransactionService;
 
-    private final CitationManagementService citationManagementService;
+    private final CitationService citationService;
 
     private final FileSearchService fileSearchService;
 
-    public CitationFilesManagementService(TreeTransactionService treeTransactionService, CitationManagementService citationManagementService, FileSearchService fileSearchService) {
+    private final TreeService treeService;
+
+    public CitationFilesManagementService(TreeTransactionService treeTransactionService, CitationService citationService, FileSearchService fileSearchService, TreeService treeService) {
         this.treeTransactionService = treeTransactionService;
-        this.citationManagementService = citationManagementService;
+        this.citationService = citationService;
         this.fileSearchService = fileSearchService;
+        this.treeService = treeService;
     }
 
 
     @TransactionalInNeo4j
     public void addExistingFileToCitation(UUID treeId, UUID citationId, UUID fileId) {
         Transaction tx = treeTransactionService.startTransactionAndSession();
-        Citation citation = citationManagementService.validateTreeAndCitation(treeId, citationId);
+        treeService.ensureTreeExists(treeId);
+        Citation citation = citationService.findCitationById(citationId);
         File file = fileSearchService.findFileByIdOrThrowNodeNotFoundException(fileId);
 
         String cypher = "MATCH (c:Citation {id: $citationId}) " +

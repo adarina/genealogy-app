@@ -12,6 +12,6 @@ import lombok.Setter;
 @Setter
 public class FamilyRequest {
 
-    public StatusType statusType;
+    public StatusType status;
 
 }

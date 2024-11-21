@@ -1,91 +1,72 @@
 package com.ada.genealogyapp.family.service;
 
 
-import com.ada.genealogyapp.family.dto.FamilyChildRequest;
+import com.ada.genealogyapp.exceptions.NodeAlreadyInNodeException;
 import com.ada.genealogyapp.family.model.Family;
+import com.ada.genealogyapp.person.dto.PersonRequest;
 import com.ada.genealogyapp.person.model.Person;
-import com.ada.genealogyapp.person.service.PersonManagementService;
 import com.ada.genealogyapp.person.service.PersonService;
+import com.ada.genealogyapp.person.service.RelationshipManager;
 import com.ada.genealogyapp.tree.service.TransactionalInNeo4j;
-import com.ada.genealogyapp.tree.service.TreeTransactionService;
+import com.ada.genealogyapp.tree.service.TreeService;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.neo4j.driver.Transaction;
 import org.springframework.stereotype.Service;
 
-import java.util.Map;
 import java.util.UUID;
+
 
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class FamilyChildManagementService {
-
-
-    private final TreeTransactionService treeTransactionService;
-
-    private final PersonManagementService personManagementService;
-
-    private final FamilyManagementService familyManagementService;
 
     private final PersonService personService;
 
-    public FamilyChildManagementService(TreeTransactionService treeTransactionService, PersonManagementService personManagementService, FamilyManagementService familyManagementService, PersonService personService) {
-        this.treeTransactionService = treeTransactionService;
-        this.personManagementService = personManagementService;
-        this.familyManagementService = familyManagementService;
-        this.personService = personService;
-    }
+    private final TreeService treeService;
+
+    private final FamilyService familyService;
+
+    private final RelationshipManager relationshipManager;
 
     @TransactionalInNeo4j
-    public void updateFamilyChild(UUID treeId, UUID familyId, UUID childId, FamilyChildRequest familyChildRequest) {
-        Transaction tx = treeTransactionService.startTransactionAndSession();
-        familyManagementService.validateTreeAndFamily(treeId, familyId);
+    public void addChildToFamily(UUID treeId, UUID familyId, UUID childId) {
+        treeService.ensureTreeExists(treeId);
+        Family family = familyService.findFamilyById(familyId);
+        Person child = personService.findPersonById(childId);
 
-        personManagementService.updateFirstname(tx, childId, familyChildRequest.getFirstname());
-        personManagementService.updateLastname(tx, childId, familyChildRequest.getLastname());
-        personManagementService.updateName(tx, childId, familyChildRequest.getFirstname() + " " + familyChildRequest.getLastname());
-        personManagementService.updateBirthDate(tx, childId, familyChildRequest.getBirthdate());
-        personManagementService.updateGender(tx, childId, familyChildRequest.getGender());
+        if (family.hasChild(child)) {
+            throw new NodeAlreadyInNodeException("Child " + childId + " is already part of the family " + familyId);
+        }
 
-        String cypher = "MATCH (family:Family)-[r:HAS_CHILD]->(child:Person) " +
-                "WHERE child.id = $childId AND family.id = $familyId " +
-                "OPTIONAL MATCH (family)-[:HAS_FATHER]->(father:Person) " +
-                "OPTIONAL MATCH (family)-[:HAS_MOTHER]->(mother:Person) " +
-                "OPTIONAL MATCH (father)-[r1:PARENT_OF]->(child) " +
-                "OPTIONAL MATCH (mother)-[r2:PARENT_OF]->(child) " +
-                "WITH r1, r2 " +
-                "SET r1.relationship = CASE WHEN r1 IS NOT NULL THEN $fatherRelationship ELSE r1.relationship END, " +
-                "    r2.relationship = CASE WHEN r2 IS NOT NULL THEN $motherRelationship ELSE r2.relationship END ";
+        family.addChild(child);
+        familyService.saveFamily(family);
 
+        relationshipManager.addDefaultParentChildRelationships(family, child);
+        log.info("Child {} added successfully to the family {}", childId, familyId);
+    }
 
-        tx.run(cypher, Map.of(
-                "familyId", familyId.toString(),
-                "childId", childId.toString(),
-                "fatherRelationship", familyChildRequest.getFatherRelationship().name(),
-                "motherRelationship", familyChildRequest.getMotherRelationship().name()));
+    //TODO validation
+    @TransactionalInNeo4j
+    public void updateChildInFamily(UUID treeId, UUID familyId, UUID childId, PersonRequest personRequest) {
+        treeService.ensureTreeExists(treeId);
+        Family family = familyService.findFamilyById(familyId);
+        Person child = personService.findPersonById(childId);
 
-        log.info("Child updated successfully: {}", childId);
-        tx.commit();
+        relationshipManager.updateParentChildRelationships(family, child, personRequest);
+        log.info("Child {} relationships updated in family {}", childId, familyId);
     }
 
     @TransactionalInNeo4j
     public void removeChildFromFamily(UUID treeId, UUID familyId, UUID childId) {
-        Transaction tx = treeTransactionService.startTransactionAndSession();
-        Family family = familyManagementService.validateTreeAndFamily(treeId, familyId);
-        Person child = personService.findPersonByIdOrThrowNodeNotFoundException(childId);
+        treeService.ensureTreeExists(treeId);
+        Family family = familyService.findFamilyById(familyId);
+        Person child = personService.findPersonById(childId);
 
-        String cypher = "MATCH (family:Family)-[r:HAS_CHILD]->(child:Person) " +
-                "WHERE child.id = $childId AND family.id = $familyId " +
-                "OPTIONAL MATCH (family)-[:HAS_FATHER]->(father:Person) " +
-                "OPTIONAL MATCH (family)-[:HAS_MOTHER]->(mother:Person) " +
-                "OPTIONAL MATCH (father)-[r1:PARENT_OF]->(child) " +
-                "OPTIONAL MATCH (mother)-[r2:PARENT_OF]->(child) " +
-                "DELETE r, r1, r2";
+        family.removeChild(child);
+        relationshipManager.removeParentChildRelationships(family, child);
+        familyService.saveFamily(family);
 
-        tx.run(cypher, Map.of(
-                "familyId", family.getId().toString(),
-                "childId", child.getId().toString()));
-
-        log.info("Child {} removed from family {}", child.getId(), family.getId());
-        tx.commit();
+        log.info("Child {} removed from family {}", childId, familyId);
     }
 }

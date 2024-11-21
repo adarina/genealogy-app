@@ -1,6 +1,5 @@
 package com.ada.genealogyapp.family.model;
 
-import com.ada.genealogyapp.event.model.Event;
 import com.ada.genealogyapp.person.model.Participant;
 import com.ada.genealogyapp.family.type.StatusType;
 import com.ada.genealogyapp.person.model.Person;
@@ -12,6 +11,8 @@ import org.springframework.data.neo4j.core.schema.Node;
 import org.springframework.data.neo4j.core.schema.Relationship;
 
 import java.util.*;
+
+import static java.util.Objects.nonNull;
 
 @Node
 @Getter
@@ -40,19 +41,42 @@ public class Family implements Participant {
     @Relationship(type = "HAS_CHILD", direction = Relationship.Direction.OUTGOING)
     private List<Person> children = new ArrayList<>();
 
-    @Relationship(type = "HAS_PARTICIPANT", direction = Relationship.Direction.INCOMING)
-    private Set<Event> events;
-
     @Relationship(type = "HAS_FAMILY", direction = Relationship.Direction.INCOMING)
     private Tree tree;
 
-    @Override
-    public UUID getId() {
-        return this.id;
+    public boolean hasChild(Person child) {
+        return children.contains(child);
     }
 
-    @Override
-    public String getName() {
-        return this.name;
+    public boolean hasMother(Person mother) {
+        return nonNull(this.mother) && this.mother.equals(mother);
+    }
+
+    public boolean hasFather(Person father) {
+        return nonNull(this.father) && this.father.equals(father);
+    }
+
+    public void addChild(Person child) {
+        children.add(child);
+    }
+
+    public void addMother(Person mother) {
+        this.mother = mother;
+    }
+
+    public void addFather(Person father) {
+        this.father = father;
+    }
+
+    public void removeChild(Person child) {
+        children.remove(child);
+    }
+
+    public void removeFather() {
+        this.father = null;
+    }
+
+    public void removeMother() {
+        this.mother = null;
     }
 }

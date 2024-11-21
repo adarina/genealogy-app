@@ -1,6 +1,7 @@
 package com.ada.genealogyapp.tree.service;
 
 import com.ada.genealogyapp.exceptions.NodeNotFoundException;
+import com.ada.genealogyapp.family.model.Family;
 import com.ada.genealogyapp.tree.model.Tree;
 import com.ada.genealogyapp.tree.repository.TreeRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -19,15 +20,14 @@ public class TreeServiceImpl implements TreeService {
         this.treeRepository = treeRepository;
     }
 
-    public Tree findTreeByIdOrThrowNodeNotFoundException(UUID treeId) {
-        Optional<Tree> tree = treeRepository.findById(treeId);
+    public Optional<Tree> findTreeByNameAndUserId(String name, Long userId) {
+        Optional<Tree> tree = treeRepository.findByNameAndUserId(name, userId);
         if (tree.isPresent()) {
             log.info("Tree found: {}", tree.get());
         } else {
-            log.error("No tree found with id: {}", treeId);
-            throw new NodeNotFoundException("Tree with id " + treeId + " does not exist");
+            log.error("No tree found with userId: {}", userId);
         }
-        return tree.get();
+        return tree;
     }
 
     public void saveTree(Tree tree) {
@@ -35,5 +35,14 @@ public class TreeServiceImpl implements TreeService {
         log.info("Tree saved successfully: {}", savedTree);
     }
 
+    public void ensureTreeExists(UUID treeId) {
+        if (!treeRepository.existsById(treeId)) {
+            throw new NodeNotFoundException("Tree not found with ID: " + treeId);
+        }
+    }
 
+    public Tree findTreeById(UUID treeId) {
+        return treeRepository.findById(treeId)
+                .orElseThrow(() -> new NodeNotFoundException("Tree not found with ID: " + treeId));
+    }
 }

@@ -6,5 +6,10 @@ import java.util.UUID;
 
 public interface SourceService {
 
-    Source findSourceByIdOrThrowNodeNotFoundException(UUID sourceId);
+
+   Source findSourceById(UUID sourceId);
+
+    void ensureSourceExists(UUID sourceId);
+
+    void saveSource(Source source);
 }

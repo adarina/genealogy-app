@@ -19,12 +19,6 @@ public class TreeRequest {
 
     private Long userId;
 
-    public static Function<TreeRequest, Tree> dtoToEntityMapper() {
-        return request -> Tree.builder()
-                .name(request.getName())
-                .userId(request.getUserId())
-                .build();
-    }
 }
 
 
