@@ -3,7 +3,6 @@ package com.ada.genealogyapp.tree.service;
 import com.ada.genealogyapp.exceptions.NodeAlreadyExistsException;
 import com.ada.genealogyapp.tree.dto.TreeRequest;
 import com.ada.genealogyapp.tree.model.Tree;
-import com.ada.genealogyapp.tree.repository.TreeRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
