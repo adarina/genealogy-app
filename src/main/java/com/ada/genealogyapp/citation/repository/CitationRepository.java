@@ -1,8 +1,10 @@
 package com.ada.genealogyapp.citation.repository;
 
+import com.ada.genealogyapp.citation.dto.CitationFilesResponse;
 import com.ada.genealogyapp.citation.dto.CitationResponse;
 import com.ada.genealogyapp.citation.dto.CitationsResponse;
 import com.ada.genealogyapp.citation.model.Citation;
+import com.ada.genealogyapp.event.dto.EventCitationsResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.neo4j.repository.Neo4jRepository;
@@ -59,5 +61,25 @@ public interface CitationRepository extends Neo4jRepository<Citation, UUID> {
                        s.id AS sourceId
             """)
     Optional<CitationResponse> findByTreeIdAndCitationId(@Param("treeId") UUID treeId, @Param("citationId") UUID citationId);
+
+    @Query(value = """
+            MATCH (f:File)<-[:HAS_CITATION_FILE]-(c:Citation)
+            WHERE c.id = $citationId
+            WITH f
+            RETURN f.id AS id,
+                   f.name AS name,
+                   f.type AS type,
+                   'http://localhost:8080/upload-dir/' + f.filename AS path
+            :#{orderBy(#pageable)}
+            SKIP $skip
+            LIMIT $limit
+            """,
+            countQuery = """
+                        MATCH (f:File)<-[:HAS_CITATION_FILE]-(c:Citation)
+                        WHERE c.id = $citationId
+                        RETURN count(f)
+                    """
+    )
+    Page<CitationFilesResponse> findCitationFiles(UUID citationId, Pageable pageable);
 
 }

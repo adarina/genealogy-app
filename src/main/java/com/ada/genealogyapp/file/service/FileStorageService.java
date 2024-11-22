@@ -62,13 +62,13 @@ public class FileStorageService {
                 .name(multipartFile.getOriginalFilename())
                 .type(multipartFile.getContentType())
                 .path(destinationFile.toString())
+                .filename(multipartFile.getOriginalFilename())
                 .fileTree(tree)
                 .build();
 
         fileRepository.save(file);
-        treeService.saveTree(tree);
-
         log.info("File storage successfully: {}", file.getName());
+
         return file;
     }
 }

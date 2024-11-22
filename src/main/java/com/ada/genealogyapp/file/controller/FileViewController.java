@@ -1,5 +1,6 @@
 package com.ada.genealogyapp.file.controller;
 
+import com.ada.genealogyapp.file.dto.FileResponse;
 import com.ada.genealogyapp.file.model.File;
 import com.ada.genealogyapp.file.service.FileViewService;
 import org.springframework.http.ResponseEntity;
@@ -28,4 +29,9 @@ public class FileViewController {
         return ResponseEntity.ok(files);
     }
 
+    @GetMapping("/{fileId}")
+    public ResponseEntity<FileResponse> getFile(@PathVariable UUID treeId, @PathVariable UUID fileId) {
+        FileResponse fileResponse = fileViewService.getFile(treeId, fileId);
+        return ResponseEntity.ok(fileResponse);
+    }
 }

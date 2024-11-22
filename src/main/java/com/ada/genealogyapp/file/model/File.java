@@ -16,14 +16,18 @@ import java.util.UUID;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class File {
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 
+public class File {
 
     @Id
     @GeneratedValue
+    @EqualsAndHashCode.Include
     private UUID id;
 
     private String name;
+
+    private String filename;
 
     private String type;
 

@@ -3,35 +3,36 @@ package com.ada.genealogyapp.file.service;
 import com.ada.genealogyapp.exceptions.NodeNotFoundException;
 import com.ada.genealogyapp.file.model.File;
 import com.ada.genealogyapp.file.repository.FileRepository;
+import com.ada.genealogyapp.tree.service.TransactionalInNeo4j;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 import java.util.UUID;
 
 @Service
 @Slf4j
-public class FileSearchService {
+public class FileServiceImpl implements FileService {
 
     private final FileRepository fileRepository;
 
-    public FileSearchService(FileRepository fileRepository) {
+    public FileServiceImpl(FileRepository fileRepository) {
         this.fileRepository = fileRepository;
-    }
-
-    public List<File> getFilesByTreeIdOrThrowNodeNotFoundException(UUID treeId) {
-        List<File> files = fileRepository.findAllByFileTree_Id(treeId);
-        if (!files.isEmpty()) {
-            log.info("Files found for treeId {}: {}", treeId, files);
-        } else {
-            log.error("No files found for treeId: {}", treeId);
-            throw new NodeNotFoundException("No files found for treeId: " + treeId);
-        }
-        return files;
     }
 
     public File findFileById(UUID fileId) {
         return fileRepository.findById(fileId)
                 .orElseThrow(() -> new NodeNotFoundException("File not found with ID: " + fileId));
+    }
+
+    public void ensureFileExists(UUID fileId) {
+        if (!fileRepository.existsById(fileId)) {
+            throw new NodeNotFoundException("File not found with ID: " + fileId);
+        }
+    }
+
+    @TransactionalInNeo4j
+    public void saveFile(File file) {
+        File savedFile = fileRepository.save(file);
+        log.info("File saved successfully: {}", savedFile);
     }
 }

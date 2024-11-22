@@ -42,7 +42,7 @@ public class Citation {
     @Relationship(type = "HAS_CITATION_SOURCE", direction = Relationship.Direction.OUTGOING)
     private Source source;
 
-    @Relationship(type = "HAS_FILE", direction = Relationship.Direction.OUTGOING)
+    @Relationship(type = "HAS_CITATION_FILE", direction = Relationship.Direction.OUTGOING)
     private Set<File> files = new HashSet<>();
 
     public boolean hasSource(Source source) {
@@ -56,4 +56,17 @@ public class Citation {
     public void removeSource() {
         this.source = null;
     }
+
+    public boolean hasFile(File file) {
+        return files.contains(file);
+    }
+
+    public void addFile(File file) {
+        files.add(file);
+    }
+
+    public void removeFile(File file) {
+        files.remove(file);
+    }
+
 }

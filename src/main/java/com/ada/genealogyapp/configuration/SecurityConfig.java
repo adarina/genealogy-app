@@ -60,6 +60,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(authorizationManagerRequestMatcherRegistry ->
                         authorizationManagerRequestMatcherRegistry
                                 .requestMatchers("/api/v1/genealogy/login").permitAll()
+                                .requestMatchers("/upload-dir/**").permitAll()
                                 .requestMatchers("/api/v1/genealogy/register").permitAll()
                                 .requestMatchers("/api/v1/genealogy/trees/**").permitAll()
                                 .requestMatchers("/api/v1/genealogy/all/**").hasRole("ADMIN")

@@ -1,16 +1,16 @@
 package com.ada.genealogyapp.file.dto;
 
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.UUID;
 @Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@Setter
-public class FileCitationRequest {
+public class FileRequest {
 
-    public UUID id;
+    private String name;
 }
