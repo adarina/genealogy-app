@@ -1,72 +1,24 @@
 package com.ada.genealogyapp.person.dto;
 
-import com.ada.genealogyapp.person.model.Person;
 import lombok.*;
 
 import java.util.*;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 @Getter
+@Setter
 @Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class PersonAncestorsResponse {
 
-    private UUID personId;
+    private UUID id;
 
-    private String personName;
+    private String name;
 
-    private String birthDate;
+    private String gender;
 
-    private List<Ancestor> ancestors;
+    private String birthdate;
 
-    @Getter
-    @Builder
-    public static class AncestorInfo {
+    private List<PersonAncestorsResponse> ancestors;
 
-        private UUID id;
-
-        private String name;
-
-        private String birthDate;
-    }
-
-    @Getter
-    @Builder
-    public static class Ancestor {
-
-        private UUID personId;
-
-        private String personName;
-
-        private String birthDate;
-
-        private List<AncestorInfo> ancestors;
-    }
-
-    public static Function<Map<Person, Set<Person>>, PersonAncestorsResponse> entityToDtoMapper(UUID personId, String personName, String birthDate) {
-        return ancestorsMap -> {
-            PersonAncestorsResponseBuilder response = PersonAncestorsResponse.builder()
-                    .personId(personId)
-                    .personName(personName)
-                    .birthDate(birthDate);
-
-            List<Ancestor> ancestorsResponseList = ancestorsMap.entrySet().stream()
-                    .map(entry -> {
-                        Person ancestor = entry.getKey();
-                        List<AncestorInfo> ancestors = entry.getValue().stream()
-                                .map(ance -> new AncestorInfo(ance.getId(), ance.getName(), ance.getBirthdate().toString()))
-                                .collect(Collectors.toList());
-
-                        return Ancestor.builder()
-                                .personId(ancestor.getId())
-                                .personName(ancestor.getName())
-                                .birthDate(ancestor.getBirthdate().toString())
-                                .ancestors(ancestors)
-                                .build();
-                    })
-                    .collect(Collectors.toList());
-            response.ancestors(ancestorsResponseList);
-            return response.build();
-        };
-    }
 }
