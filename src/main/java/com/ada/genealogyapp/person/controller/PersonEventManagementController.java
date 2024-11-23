@@ -36,10 +36,9 @@ public class PersonEventManagementController {
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
-    //TODO custom relationship
     @PostMapping
-    public ResponseEntity<?> addPersonToEvent(@PathVariable UUID treeId, @PathVariable UUID personId, @PathVariable UUID eventId) {
-        personEventManagementService.addPersonToEvent(treeId, personId, eventId);
+    public ResponseEntity<?> addPersonToEvent(@PathVariable UUID treeId, @PathVariable UUID personId, @PathVariable UUID eventId, @RequestBody EventRequest eventRequest) {
+        personEventManagementService.addPersonToEvent(treeId, personId, eventId, eventRequest);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 }

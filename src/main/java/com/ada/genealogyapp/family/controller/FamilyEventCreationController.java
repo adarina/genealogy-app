@@ -24,7 +24,7 @@ public class FamilyEventCreationController {
     @PostMapping
     public ResponseEntity<?> createAndAddFamilyToEvent(@PathVariable UUID treeId, @PathVariable UUID familyId, @RequestBody EventRequest eventRequest) {
         Event event = eventCreationService.createEvent(treeId, eventRequest);
-        familyEventManagementService.addFamilyToEvent(treeId, familyId, event.getId());
+        familyEventManagementService.addFamilyToEvent(treeId, familyId, event.getId(), eventRequest);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 }

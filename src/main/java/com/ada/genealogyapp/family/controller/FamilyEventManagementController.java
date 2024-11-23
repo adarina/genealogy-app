@@ -28,10 +28,9 @@ public class FamilyEventManagementController {
         return ResponseEntity.ok().build();
     }
 
-    //TODO custom relationship
     @PostMapping
-    public ResponseEntity<?> addFamilyToEvent(@PathVariable UUID treeId, @PathVariable UUID familyId, @PathVariable UUID eventId) {
-        familyEventManagementService.addFamilyToEvent(treeId, familyId, eventId);
+    public ResponseEntity<?> addFamilyToEvent(@PathVariable UUID treeId, @PathVariable UUID familyId, @PathVariable UUID eventId, @RequestBody EventRequest eventRequest) {
+        familyEventManagementService.addFamilyToEvent(treeId, familyId, eventId, eventRequest);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 

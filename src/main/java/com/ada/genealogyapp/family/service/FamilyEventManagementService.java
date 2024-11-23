@@ -51,7 +51,7 @@ public class FamilyEventManagementService {
     }
 
     @TransactionalInNeo4j
-    public void addFamilyToEvent(UUID treeId, UUID familyId, UUID eventId) {
+    public void addFamilyToEvent(UUID treeId, UUID familyId, UUID eventId, EventRequest eventRequest) {
         treeService.ensureTreeExists(treeId);
         Family family = familyService.findFamilyById(familyId);
         Event event = eventService.findEventById(eventId);
@@ -60,7 +60,7 @@ public class FamilyEventManagementService {
             throw new NodeAlreadyInNodeException("Family " + familyId + " is already a participant of the event " + eventId);
         }
 
-        relationshipManager.addEventParticipantRelationship(event, family, EventParticipantRelationshipType.FAMILY);
+        relationshipManager.addEventParticipantRelationship(event, family, eventRequest.getRelationship());
         log.info("Family {} added successfully to the event {}", familyId, eventId);
     }
 }

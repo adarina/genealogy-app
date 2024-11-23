@@ -23,9 +23,9 @@ public class PersonEventCreationController {
     }
 
     @PostMapping
-    public ResponseEntity<?> addNewEvent(@PathVariable UUID treeId, @PathVariable UUID personId, @RequestBody EventRequest eventRequest) {
+    public ResponseEntity<?> createAndAddPersonToNewEvent(@PathVariable UUID treeId, @PathVariable UUID personId, @RequestBody EventRequest eventRequest) {
         Event event = eventCreationService.createEvent(treeId, eventRequest);
-        personEventManagementService.addPersonToEvent(treeId, personId, event.getId());
+        personEventManagementService.addPersonToEvent(treeId, personId, event.getId(), eventRequest);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 }

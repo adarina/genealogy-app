@@ -50,7 +50,7 @@ public class PersonEventManagementService {
     }
 
     @TransactionalInNeo4j
-    public void addPersonToEvent(UUID treeId, UUID personId, UUID eventId) {
+    public void addPersonToEvent(UUID treeId, UUID personId, UUID eventId, EventRequest eventRequest) {
         treeService.ensureTreeExists(treeId);
         Person person = personService.findPersonById(personId);
         Event event = eventService.findEventById(eventId);
@@ -59,7 +59,7 @@ public class PersonEventManagementService {
             throw new NodeAlreadyInNodeException("Person " + personId + " is already a participant of the event " + eventId);
         }
 
-        relationshipManager.addEventParticipantRelationship(event, person, EventParticipantRelationshipType.MAIN);
+        relationshipManager.addEventParticipantRelationship(event, person, eventRequest.getRelationship());
         log.info("Person {} added successfully to the event {}", personId, eventId);
     }
 }
