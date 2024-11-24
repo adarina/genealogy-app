@@ -54,13 +54,4 @@ public class Person implements Participant {
         this.gender = genderType;
         this.tree = tree;
     }
-
-    public Person(String firstname, String lastname, LocalDate birthDate, GenderType genderType, Tree tree) {
-        this.firstname = firstname;
-        this.lastname = lastname;
-        this.birthdate = birthDate;
-        this.gender = genderType;
-        this.tree = tree;
-    }
-
 }
