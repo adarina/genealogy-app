@@ -4,6 +4,7 @@ import com.ada.genealogyapp.event.service.EventService;
 import com.ada.genealogyapp.exceptions.NodeAlreadyInNodeException;
 import com.ada.genealogyapp.participant.dto.ParticipantEventRequest;
 import com.ada.genealogyapp.person.model.Person;
+import com.ada.genealogyapp.relationship.RelationshipManager;
 import com.ada.genealogyapp.tree.service.TransactionalInNeo4j;
 import com.ada.genealogyapp.event.model.Event;
 import com.ada.genealogyapp.tree.service.TreeService;
@@ -54,7 +55,7 @@ public class PersonEventManagementService {
         Person person = personService.findPersonById(personId);
         Event event = eventService.findEventById(eventId);
 
-        if (event.isFamilyAlreadyInEvent(personId)) {
+        if (event.isParticipantAlreadyInEvent(personId)) {
             throw new NodeAlreadyInNodeException("Person " + personId + " is already a participant of the event " + eventId);
         }
 

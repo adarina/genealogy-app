@@ -71,6 +71,14 @@ public class ExceptionHandlers {
                         .message(ex.getMessage()).build());
     }
 
+    @ExceptionHandler(ValidationException.class)
+    public ResponseEntity<ExceptionResponse> handleValidationException(ValidationException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(ExceptionResponse.builder()
+                        .errorTime(LocalDateTime.now().format(formatter))
+                        .message(ex.getMessage()).build());
+    }
+
     @ExceptionHandler(NodeAlreadyExistsException.class)
     public ResponseEntity<ExceptionResponse> handleNodeAlreadyExistsException(NodeAlreadyExistsException ex) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)

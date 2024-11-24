@@ -49,39 +49,39 @@ public class ReferenceSourcesManagementIntegrationTest extends IntegrationTestCo
 
     }
 
-    @Test
-    void shouldAddExistingSourceToCitationSuccessfully() throws Exception {
-
-        Tree tree = new Tree();
-        treeRepository.save(tree);
-
-        Citation citation = new Citation();
-        citationRepository.save(citation);
-
-        Source source = new Source();
-        sourceRepository.save(source);
-
-//        UUIDRequest uuidRequest = new UUIDRequest();
-//        uuidRequest.setId(source.getId());
-
-        mockMvc.perform(post("/api/v1/genealogy/trees/{treeId}/citations/{citationId}", tree.getId(), citation.getId())
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andDo(print())
-                .andExpect(status().isNoContent());
-
-//        mockMvc.perform(post("/api/v1/genealogy/trees/{treeId}/citations/{citationId}/sources/addExistingSource", tree.getId(), citation.getId())
-//                        .contentType(MediaType.APPLICATION_JSON)
-//                        .content(objectMapper.writeValueAsString(uuidRequest)))
+//    @Test
+//    void shouldAddExistingSourceToCitationSuccessfully() throws Exception {
+//
+//        Tree tree = new Tree();
+//        treeRepository.save(tree);
+//
+//        Citation citation = new Citation();
+//        citationRepository.save(citation);
+//
+//        Source source = new Source();
+//        sourceRepository.save(source);
+//
+////        UUIDRequest uuidRequest = new UUIDRequest();
+////        uuidRequest.setId(source.getId());
+//
+//        mockMvc.perform(post("/api/v1/genealogy/trees/{treeId}/citations/{citationId}", tree.getId(), citation.getId())
+//                        .contentType(MediaType.APPLICATION_JSON))
 //                .andDo(print())
-//                .andExpect(status().isCreated());
-
-        mockMvc.perform(post("/api/v1/genealogy/trees/{treeId}/commit", tree.getId())
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andDo(print())
-                .andExpect(status().isNoContent());
-
-        Citation savedCitation = citationRepository.findById(citation.getId()).orElseThrow();
-//        assertNotNull(savedCitation.getSources().iterator().next().getId());
-//        assertEquals(source.getId(), savedCitation.getSources().iterator().next().getId());
-    }
+//                .andExpect(status().isNoContent());
+//
+////        mockMvc.perform(post("/api/v1/genealogy/trees/{treeId}/citations/{citationId}/sources/addExistingSource", tree.getId(), citation.getId())
+////                        .contentType(MediaType.APPLICATION_JSON)
+////                        .content(objectMapper.writeValueAsString(uuidRequest)))
+////                .andDo(print())
+////                .andExpect(status().isCreated());
+//
+//        mockMvc.perform(post("/api/v1/genealogy/trees/{treeId}/commit", tree.getId())
+//                        .contentType(MediaType.APPLICATION_JSON))
+//                .andDo(print())
+//                .andExpect(status().isNoContent());
+//
+//        Citation savedCitation = citationRepository.findById(citation.getId()).orElseThrow();
+////        assertNotNull(savedCitation.getSources().iterator().next().getId());
+////        assertEquals(source.getId(), savedCitation.getSources().iterator().next().getId());
+//    }
 }

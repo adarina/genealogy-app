@@ -23,14 +23,21 @@ public class EventManagementService {
 
     private final EventRepository eventRepository;
 
-    //TODO validation
+    private final EventValidationService eventValidationService;
+
     @TransactionalInNeo4j
     public void updateEvent(UUID treeId, UUID eventId, EventRequest eventRequest) {
         treeService.ensureTreeExists(treeId);
-        eventService.ensureEventExists(eventId);
+        Event event = eventService.findEventById(eventId);
 
-        eventRepository.updateEvent(eventId, eventRequest.getType(), eventRequest.getDate(), eventRequest.getPlace(), eventRequest.getDescription());
-        log.info("Event updated successfully: {}", eventId);
+        event.setDescription(eventRequest.getDescription());
+        event.setPlace(eventRequest.getPlace());
+        event.setDate(eventRequest.getDate());
+        event.setType(eventRequest.getType());
+
+        eventValidationService.validateEvent(event);
+
+        eventService.saveEvent(event);
     }
 
     @TransactionalInNeo4j

@@ -48,9 +48,9 @@ public class Event {
     @Relationship(type = "HAS_EVENT", direction = Relationship.Direction.INCOMING)
     private Tree tree;
 
-    public boolean isFamilyAlreadyInEvent(UUID familyId) {
+    public boolean isParticipantAlreadyInEvent(UUID participantId) {
         return participants.stream()
-                .anyMatch(ep -> ep.getParticipant().getId().equals(familyId));
+                .anyMatch(ep -> ep.getParticipant().getId().equals(participantId));
     }
 
     public boolean isCitationAlreadyInEvent(UUID citationId) {

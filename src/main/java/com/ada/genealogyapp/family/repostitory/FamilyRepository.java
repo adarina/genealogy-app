@@ -59,7 +59,7 @@ public interface FamilyRepository extends Neo4jRepository<Family, UUID> {
                 WITH e, relationship, participants, COLLECT({
                     id: c.id,
                     page: c.page,
-                    date: d.date
+                    date: c.date
                 }) AS citations
                 RETURN e.id AS id,
                        e.type AS type,

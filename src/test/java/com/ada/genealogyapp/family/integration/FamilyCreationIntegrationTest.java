@@ -68,22 +68,20 @@ class FamilyCreationIntegrationTest extends IntegrationTestConfig {
     }
 
     @Test
-    void shouldCreateFamilySuccessfullyWhenFamilyRelationshipTypeINull() throws Exception {
+    void shouldTrowValidationExceptionWhenFamilyRelationshipTypeIsNull() throws Exception {
 
         Tree tree = new Tree();
         treeRepository.save(tree);
 
         FamilyRequest familyRequest = new FamilyRequest();
 
-
         mockMvc.perform(post("/api/v1/genealogy/trees/{treeId}/families", tree.getId())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(familyRequest)))
                 .andDo(print())
-                .andExpect(status().isCreated());
+                .andExpect(status().isBadRequest());
 
         List<Family> families = familyRepository.findAll();
-        assertEquals(1, families.size());
-        assertEquals(StatusType.UNKNOWN, families.get(0).getStatus());
+        assertEquals(0, families.size());
     }
 }

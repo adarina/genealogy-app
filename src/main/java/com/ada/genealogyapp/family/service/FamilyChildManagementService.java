@@ -6,7 +6,7 @@ import com.ada.genealogyapp.family.dto.FamilyChildRequest;
 import com.ada.genealogyapp.family.model.Family;
 import com.ada.genealogyapp.person.model.Person;
 import com.ada.genealogyapp.person.service.PersonService;
-import com.ada.genealogyapp.person.service.RelationshipManager;
+import com.ada.genealogyapp.relationship.RelationshipManager;
 import com.ada.genealogyapp.tree.service.TransactionalInNeo4j;
 import com.ada.genealogyapp.tree.service.TreeService;
 import lombok.RequiredArgsConstructor;

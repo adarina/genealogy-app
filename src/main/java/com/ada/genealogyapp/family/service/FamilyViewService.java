@@ -32,8 +32,8 @@ public class FamilyViewService {
     }
 
     public Page<FamilyResponse> getFamilies(UUID treeId, String filter, Pageable pageable) throws JsonProcessingException {
-        FamilyFilterRequest filterRequest = objectMapper.readValue(filter, FamilyFilterRequest.class);
         treeService.ensureTreeExists(treeId);
+        FamilyFilterRequest filterRequest = objectMapper.readValue(filter, FamilyFilterRequest.class);
 
         return familyRepository.findByTreeIdAndFilteredParentNamesAndStatus(
                 treeId,

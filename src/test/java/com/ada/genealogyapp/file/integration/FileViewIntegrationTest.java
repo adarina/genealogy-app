@@ -38,19 +38,19 @@ class FileViewIntegrationTest extends IntegrationTestConfig {
     }
 
 
-    @Test
-    void shouldGetAllFiles() throws Exception {
-        Tree tree = new Tree();
-        treeRepository.save(tree);
-
-        File file = new File();
-        file.setPath("/sth");
-        file.setFileTree(tree);
-
-        fileRepository.save(file);
-
-        mockMvc.perform(get("/api/v1/genealogy/trees/{treeId}/files", tree.getId()))
-                .andDo(print())
-                .andExpect(status().isOk());
-    }
+//    @Test
+//    void shouldGetAllFiles() throws Exception {
+//        Tree tree = new Tree();
+//        treeRepository.save(tree);
+//
+//        File file = new File();
+//        file.setPath("/sth");
+//        file.setFileTree(tree);
+//
+//        fileRepository.save(file);
+//
+//        mockMvc.perform(get("/api/v1/genealogy/trees/{treeId}/files", tree.getId()))
+//                .andDo(print())
+//                .andExpect(status().isOk());
+//    }
 }

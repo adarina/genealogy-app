@@ -3,7 +3,6 @@ package com.ada.genealogyapp.citation.dto;
 import lombok.*;
 
 import java.time.LocalDate;
-import java.util.UUID;
 
 @Getter
 @Setter
@@ -13,8 +12,6 @@ import java.util.UUID;
 @ToString
 @EqualsAndHashCode
 public class CitationRequest {
-
-    public UUID id;
 
     public String page;
 

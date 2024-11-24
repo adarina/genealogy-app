@@ -1,4 +1,4 @@
-package com.ada.genealogyapp.person.service;
+package com.ada.genealogyapp.relationship;
 
 import com.ada.genealogyapp.citation.model.Citation;
 import com.ada.genealogyapp.event.model.Event;
@@ -11,6 +11,7 @@ import com.ada.genealogyapp.family.model.Family;
 import com.ada.genealogyapp.participant.model.Participant;
 import com.ada.genealogyapp.person.model.Person;
 import com.ada.genealogyapp.person.relationship.PersonRelationship;
+import com.ada.genealogyapp.person.service.PersonService;
 import com.ada.genealogyapp.person.type.PersonRelationshipType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;

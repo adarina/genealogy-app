@@ -1,7 +1,7 @@
 package com.ada.genealogyapp.family.service;
 
 import com.ada.genealogyapp.person.service.PersonService;
-import com.ada.genealogyapp.person.service.RelationshipManager;
+import com.ada.genealogyapp.relationship.RelationshipManager;
 import com.ada.genealogyapp.tree.service.TransactionalInNeo4j;
 import com.ada.genealogyapp.exceptions.NodeAlreadyInNodeException;
 import com.ada.genealogyapp.family.model.Family;

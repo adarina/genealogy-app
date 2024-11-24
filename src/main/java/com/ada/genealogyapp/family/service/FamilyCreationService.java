@@ -21,9 +21,10 @@ public class FamilyCreationService {
 
     private final FamilyService familyService;
 
-    //TODO validation
+    private final FamilyValidationService familyValidationService;
+
     @TransactionalInNeo4j
-    public void createFamily(UUID treeId, FamilyRequest familyRequest) {
+    public Family createFamily(UUID treeId, FamilyRequest familyRequest) {
         Tree tree = treeService.findTreeById(treeId);
 
         Family family = Family.builder()
@@ -32,7 +33,10 @@ public class FamilyCreationService {
                 .name("null & null")
                 .build();
 
+        familyValidationService.validateFamily(family);
+
         familyService.saveFamily(family);
         log.info("Family created successfully: {}", family);
+        return family;
     }
 }

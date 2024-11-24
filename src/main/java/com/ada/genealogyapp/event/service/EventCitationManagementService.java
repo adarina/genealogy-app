@@ -5,7 +5,7 @@ import com.ada.genealogyapp.citation.model.Citation;
 import com.ada.genealogyapp.citation.service.CitationService;
 import com.ada.genealogyapp.event.model.Event;
 import com.ada.genealogyapp.exceptions.NodeAlreadyInNodeException;
-import com.ada.genealogyapp.person.service.RelationshipManager;
+import com.ada.genealogyapp.relationship.RelationshipManager;
 import com.ada.genealogyapp.tree.service.TransactionalInNeo4j;
 import com.ada.genealogyapp.tree.service.TreeService;
 import lombok.extern.slf4j.Slf4j;

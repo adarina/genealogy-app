@@ -29,6 +29,6 @@ public class EventParticipantsViewService {
     public Page<EventParticipantResponse> getEventParticipants(UUID treeId, UUID eventId, Pageable pageable) {
         treeService.ensureTreeExists(treeId);
         eventService.ensureEventExists(eventId);
-        return eventRepository.findEventParticipants(eventId, pageable);
+        return eventRepository.findEventParticipants(treeId, eventId, pageable);
     }
 }
