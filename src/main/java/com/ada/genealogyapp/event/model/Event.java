@@ -48,14 +48,6 @@ public class Event {
     @Relationship(type = "HAS_EVENT", direction = Relationship.Direction.INCOMING)
     private Tree tree;
 
-    public Event(EventType event, LocalDate date, String place, String description, Tree tree) {
-        this.type = event;
-        this.date = date;
-        this.place = place;
-        this.description = description;
-        this.tree = tree;
-    }
-
     public boolean isFamilyAlreadyInEvent(UUID familyId) {
         return participants.stream()
                 .anyMatch(ep -> ep.getParticipant().getId().equals(familyId));

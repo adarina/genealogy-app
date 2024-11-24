@@ -1,4 +1,4 @@
-package com.ada.genealogyapp.person.model;
+package com.ada.genealogyapp.participant.model;
 
 import org.springframework.data.neo4j.core.schema.Node;
 

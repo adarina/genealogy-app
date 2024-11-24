@@ -1,8 +1,7 @@
 package com.ada.genealogyapp.citation.controller;
 
 
-import com.ada.genealogyapp.citation.dto.CitationResponse;
-import com.ada.genealogyapp.citation.dto.CitationsResponse;
+import com.ada.genealogyapp.citation.dto.CitationSourceResponse;
 import com.ada.genealogyapp.citation.service.CitationViewService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.springframework.data.domain.Page;
@@ -24,14 +23,14 @@ public class CitationViewController {
     }
 
     @GetMapping
-    public ResponseEntity<Page<CitationsResponse>> getCitations(@PathVariable UUID treeId, @RequestParam String filter, @PageableDefault Pageable pageable) throws JsonProcessingException {
-        Page<CitationsResponse> citationResponses = citationViewService.getCitations(treeId, filter, pageable);
+    public ResponseEntity<Page<CitationSourceResponse>> getCitations(@PathVariable UUID treeId, @RequestParam String filter, @PageableDefault Pageable pageable) throws JsonProcessingException {
+        Page<CitationSourceResponse> citationResponses = citationViewService.getCitations(treeId, filter, pageable);
         return ResponseEntity.ok(citationResponses);
     }
 
     @GetMapping("/{citationId}")
-    public ResponseEntity<CitationResponse> getCitation(@PathVariable UUID treeId, @PathVariable UUID citationId) {
-        CitationResponse citationResponse = citationViewService.getCitation(treeId, citationId);
+    public ResponseEntity<CitationSourceResponse> getCitation(@PathVariable UUID treeId, @PathVariable UUID citationId) {
+        CitationSourceResponse citationResponse = citationViewService.getCitation(treeId, citationId);
         return ResponseEntity.ok(citationResponse);
     }
 }

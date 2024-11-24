@@ -1,5 +1,7 @@
 package com.ada.genealogyapp.person.dto;
 
+import com.ada.genealogyapp.event.dto.EventCitationResponse;
+import com.ada.genealogyapp.event.dto.EventParticipantResponse;
 import com.ada.genealogyapp.event.type.EventParticipantRelationshipType;
 import com.ada.genealogyapp.event.type.EventType;
 import lombok.AllArgsConstructor;
@@ -30,33 +32,8 @@ public class PersonEventResponse {
 
     private EventParticipantRelationshipType relationship;
 
-    private List<PersonEventParticipantResponse> participants;
+    private List<EventParticipantResponse> participants;
 
-    private List<PersonEventCitationResponse> citations;
+    private List<EventCitationResponse> citations;
 
-    @Getter
-    @Setter
-    @AllArgsConstructor
-    @NoArgsConstructor
-    public static class PersonEventParticipantResponse {
-
-        private UUID id;
-
-        private String name;
-
-        private EventParticipantRelationshipType relationship;
-
-    }
-
-    @Getter
-    @Setter
-    @AllArgsConstructor
-    @NoArgsConstructor
-    public static class PersonEventCitationResponse {
-
-        private UUID id;
-
-        private String page;
-
-    }
 }

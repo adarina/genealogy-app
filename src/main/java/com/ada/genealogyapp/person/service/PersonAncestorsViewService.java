@@ -1,6 +1,6 @@
 package com.ada.genealogyapp.person.service;
 
-import com.ada.genealogyapp.person.dto.PersonAncestorsResponse;
+import com.ada.genealogyapp.person.dto.PersonAncestorResponse;
 import com.ada.genealogyapp.person.model.Person;
 import com.ada.genealogyapp.person.repostitory.PersonRepository;
 import com.ada.genealogyapp.person.type.GenderType;
@@ -25,7 +25,7 @@ public class PersonAncestorsViewService {
         this.treeService = treeService;
     }
 
-    public PersonAncestorsResponse getPersonAncestors(UUID treeId, UUID personId) {
+    public PersonAncestorResponse getPersonAncestors(UUID treeId, UUID personId) {
         treeService.ensureTreeExists(treeId);
         Person person = personService.findPersonById(personId);
 
@@ -33,10 +33,10 @@ public class PersonAncestorsViewService {
         return mapToResponse(person, ancestorsMap);
     }
 
-    private PersonAncestorsResponse mapToResponse(Person person, Map<Person, Set<Person>> ancestryMap) {
+    private PersonAncestorResponse mapToResponse(Person person, Map<Person, Set<Person>> ancestryMap) {
         if (person == null) return null;
 
-        List<PersonAncestorsResponse> ancestors = Optional.ofNullable(ancestryMap.get(person))
+        List<PersonAncestorResponse> ancestors = Optional.ofNullable(ancestryMap.get(person))
                 .orElse(Collections.emptySet())
                 .stream()
                 .sorted((firstPerson, secondPerson) -> {
@@ -50,7 +50,7 @@ public class PersonAncestorsViewService {
                 .map(parent -> mapToResponse(parent, ancestryMap))
                 .toList();
 
-        return PersonAncestorsResponse.builder()
+        return PersonAncestorResponse.builder()
                 .id(person.getId())
                 .name(person.getFirstname() + " " + person.getLastname())
                 .gender(person.getGender().toString())

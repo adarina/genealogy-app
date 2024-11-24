@@ -11,4 +11,6 @@ public interface CitationService {
     void saveCitation(Citation citation);
 
     void ensureCitationExists(UUID citationId);
+
+    void deleteCitation(Citation citation);
 }

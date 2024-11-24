@@ -1,5 +1,6 @@
 package com.ada.genealogyapp.person.model;
 
+import com.ada.genealogyapp.participant.model.Participant;
 import com.ada.genealogyapp.person.relationship.PersonRelationship;
 import com.ada.genealogyapp.person.type.GenderType;
 import com.ada.genealogyapp.tree.model.Tree;

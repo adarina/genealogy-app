@@ -1,6 +1,6 @@
-package com.ada.genealogyapp.event;
+package com.ada.genealogyapp.event.controller;
 
-import com.ada.genealogyapp.event.dto.EventParticipantsResponse;
+import com.ada.genealogyapp.event.dto.EventParticipantResponse;
 import com.ada.genealogyapp.event.service.EventParticipantsViewService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -25,8 +25,8 @@ public class EventParticipantsViewController {
     }
 
     @GetMapping
-    public ResponseEntity<Page<EventParticipantsResponse>> getEventCitations(@PathVariable UUID treeId, @PathVariable UUID eventId, @PageableDefault Pageable pageable) {
-        Page<EventParticipantsResponse> participantResponses = eventParticipantsViewService.getEventParticipants(treeId, eventId, pageable);
+    public ResponseEntity<Page<EventParticipantResponse>> getEventParticipants(@PathVariable UUID treeId, @PathVariable UUID eventId, @PageableDefault Pageable pageable) {
+        Page<EventParticipantResponse> participantResponses = eventParticipantsViewService.getEventParticipants(treeId, eventId, pageable);
         return ResponseEntity.ok(participantResponses);
     }
 }

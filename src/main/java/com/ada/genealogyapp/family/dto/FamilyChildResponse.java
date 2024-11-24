@@ -1,24 +1,15 @@
 package com.ada.genealogyapp.family.dto;
 
+import com.ada.genealogyapp.person.dto.PersonResponse;
 import com.ada.genealogyapp.person.type.PersonRelationshipType;
 import lombok.*;
 
-import java.time.LocalDate;
-import java.util.UUID;
 
 @Getter
-@Builder
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class FamilyChildrenResponse {
-
-    private UUID id;
-
-    private String name;
-
-    private LocalDate birthdate;
-
-    private String gender;
+public class FamilyChildResponse extends PersonResponse {
 
     private PersonRelationshipType fatherRelationship;
 

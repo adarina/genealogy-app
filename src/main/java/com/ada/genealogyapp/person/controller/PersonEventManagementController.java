@@ -1,7 +1,7 @@
 package com.ada.genealogyapp.person.controller;
 
-import com.ada.genealogyapp.event.dto.EventRequest;
 import com.ada.genealogyapp.event.service.EventManagementService;
+import com.ada.genealogyapp.participant.dto.ParticipantEventRequest;
 import com.ada.genealogyapp.person.service.PersonEventManagementService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,9 +24,9 @@ public class PersonEventManagementController {
 
 
     @PutMapping
-    public ResponseEntity<?> updateEventInPerson(@PathVariable UUID treeId, @PathVariable UUID personId, @PathVariable UUID eventId, @RequestBody EventRequest eventRequest) {
-        eventManagementService.updateEvent(treeId, eventId, eventRequest);
-        personEventManagementService.updateEventInPerson(treeId, personId, eventId, eventRequest);
+    public ResponseEntity<?> updateEventInPerson(@PathVariable UUID treeId, @PathVariable UUID personId, @PathVariable UUID eventId, @RequestBody ParticipantEventRequest participantEventRequest) {
+        eventManagementService.updateEvent(treeId, eventId, participantEventRequest);
+        personEventManagementService.updateEventInPerson(treeId, personId, eventId, participantEventRequest);
         return ResponseEntity.ok().build();
     }
 
@@ -37,8 +37,8 @@ public class PersonEventManagementController {
     }
 
     @PostMapping
-    public ResponseEntity<?> addPersonToEvent(@PathVariable UUID treeId, @PathVariable UUID personId, @PathVariable UUID eventId, @RequestBody EventRequest eventRequest) {
-        personEventManagementService.addPersonToEvent(treeId, personId, eventId, eventRequest);
+    public ResponseEntity<?> addPersonToEvent(@PathVariable UUID treeId, @PathVariable UUID personId, @PathVariable UUID eventId, @RequestBody ParticipantEventRequest participantEventRequest) {
+        personEventManagementService.addPersonToEvent(treeId, personId, eventId, participantEventRequest);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 }

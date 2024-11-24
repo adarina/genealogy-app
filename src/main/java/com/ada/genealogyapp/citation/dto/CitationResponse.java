@@ -21,8 +21,4 @@ public class CitationResponse {
 
     private LocalDate date;
 
-    private String name;
-
-    private UUID sourceId;
-
 }

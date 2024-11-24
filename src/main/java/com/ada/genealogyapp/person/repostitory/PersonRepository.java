@@ -1,7 +1,7 @@
 package com.ada.genealogyapp.person.repostitory;
 
 import com.ada.genealogyapp.person.dto.PersonEventResponse;
-import com.ada.genealogyapp.person.dto.PersonFamiliesResponse;
+import com.ada.genealogyapp.person.dto.PersonFamilyResponse;
 import com.ada.genealogyapp.person.dto.PersonResponse;
 import com.ada.genealogyapp.person.model.Person;
 import org.springframework.data.domain.Page;
@@ -9,7 +9,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.neo4j.repository.Neo4jRepository;
 import org.springframework.data.neo4j.repository.query.Query;
 import org.springframework.data.repository.query.Param;
-import com.ada.genealogyapp.person.dto.PersonEventsResponse;
 
 import java.util.Optional;
 import java.util.Set;
@@ -84,10 +83,14 @@ public interface PersonRepository extends Neo4jRepository<Person, UUID> {
                     e.description AS description,
                     relationship,
                     COLLECT({
-                        name: COALESCE(p2.name, 'p1.name')
+                        name: COALESCE(p2.name, p1.name),
+                        id: COALESCE(p2.id, p1.id),
+                        relationship: COALESCE(r2.relationship, relationship)
                     }) AS participants,
                     COLLECT({
-                        id: COALESCE(c.id, '')
+                        id: c.id,
+                        page: c.page,
+                        date: c.date
                     }) AS citations
                     :#{orderBy(#pageable)}
                     SKIP $skip
@@ -98,7 +101,7 @@ public interface PersonRepository extends Neo4jRepository<Person, UUID> {
                         WHERE p1.id = $personId
                         RETURN count(e)
                     """)
-    Page<PersonEventsResponse> findPersonalEvents(@Param("personId") UUID personId, Pageable pageable);
+    Page<PersonEventResponse> findPersonalEvents(@Param("personId") UUID personId, Pageable pageable);
 
     @Query("""
                 MATCH (p:Person {id: $personId})
@@ -145,7 +148,7 @@ public interface PersonRepository extends Neo4jRepository<Person, UUID> {
                             OR (f)-[:HAS_CHILD]->(:Person {id: $personId})
                          RETURN count(f)
                     """)
-    Page<PersonFamiliesResponse> findPersonalFamilies(@Param("personId") UUID personId, Pageable pageable);
+    Page<PersonFamilyResponse> findPersonalFamilies(@Param("personId") UUID personId, Pageable pageable);
 
 }
 

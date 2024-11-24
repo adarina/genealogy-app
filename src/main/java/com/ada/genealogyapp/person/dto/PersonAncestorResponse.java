@@ -9,7 +9,7 @@ import java.util.*;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class PersonAncestorsResponse {
+public class PersonAncestorResponse {
 
     private UUID id;
 
@@ -19,6 +19,6 @@ public class PersonAncestorsResponse {
 
     private String birthdate;
 
-    private List<PersonAncestorsResponse> ancestors;
+    private List<PersonAncestorResponse> ancestors;
 
 }

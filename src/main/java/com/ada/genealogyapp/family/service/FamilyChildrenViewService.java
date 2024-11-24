@@ -1,6 +1,6 @@
 package com.ada.genealogyapp.family.service;
 
-import com.ada.genealogyapp.family.dto.FamilyChildrenResponse;
+import com.ada.genealogyapp.family.dto.FamilyChildResponse;
 import com.ada.genealogyapp.family.repostitory.FamilyRepository;
 import com.ada.genealogyapp.tree.service.TreeService;
 import lombok.RequiredArgsConstructor;
@@ -22,7 +22,7 @@ public class FamilyChildrenViewService {
 
     private final FamilyService familyService;
 
-    public Page<FamilyChildrenResponse> getChildren(UUID treeId, UUID familyId, Pageable pageable) {
+    public Page<FamilyChildResponse> getChildren(UUID treeId, UUID familyId, Pageable pageable) {
         treeService.ensureTreeExists(treeId);
         familyService.ensureFamilyExists(familyId);
         return familyRepository.findChildren(familyId, pageable);

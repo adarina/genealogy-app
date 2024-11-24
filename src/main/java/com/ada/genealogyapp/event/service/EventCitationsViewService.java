@@ -2,7 +2,6 @@ package com.ada.genealogyapp.event.service;
 
 
 import com.ada.genealogyapp.event.dto.EventCitationResponse;
-import com.ada.genealogyapp.event.dto.EventCitationsResponse;
 import com.ada.genealogyapp.event.repository.EventRepository;
 import com.ada.genealogyapp.exceptions.NodeNotFoundException;
 import com.ada.genealogyapp.tree.service.TreeService;
@@ -28,7 +27,7 @@ public class EventCitationsViewService {
         this.eventService = eventService;
     }
 
-    public Page<EventCitationsResponse> getEventCitations(UUID treeId, UUID eventId, Pageable pageable) {
+    public Page<EventCitationResponse> getEventCitations(UUID treeId, UUID eventId, Pageable pageable) {
         treeService.ensureTreeExists(treeId);
         eventService.ensureEventExists(eventId);
         return eventRepository.findEventCitations(eventId, pageable);

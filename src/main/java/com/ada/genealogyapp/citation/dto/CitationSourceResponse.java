@@ -1,23 +1,19 @@
-package com.ada.genealogyapp.event.dto;
+package com.ada.genealogyapp.citation.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.time.LocalDate;
 import java.util.UUID;
 
 @Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@Setter
-public class EventCitationRequest {
+public class CitationSourceResponse extends CitationResponse {
 
-    public UUID id;
+    private String name;
 
-    public String page;
-
-    public LocalDate date;
-
+    private UUID sourceId;
 }

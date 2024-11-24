@@ -21,6 +21,8 @@ public class PersonResponse {
 
     private String lastname;
 
+    private String name;
+
     private LocalDate birthdate;
 
     private GenderType gender;

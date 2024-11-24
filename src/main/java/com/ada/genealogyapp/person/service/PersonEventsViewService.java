@@ -2,7 +2,6 @@ package com.ada.genealogyapp.person.service;
 
 import com.ada.genealogyapp.exceptions.NodeNotFoundException;
 import com.ada.genealogyapp.person.dto.PersonEventResponse;
-import com.ada.genealogyapp.person.dto.PersonEventsResponse;
 import com.ada.genealogyapp.person.repostitory.PersonRepository;
 import com.ada.genealogyapp.tree.service.TreeService;
 import lombok.extern.slf4j.Slf4j;
@@ -30,7 +29,7 @@ public class PersonEventsViewService {
         this.personService = personService;
     }
 
-    public Page<PersonEventsResponse> getPersonalEvents(UUID treeId, UUID personId, Pageable pageable) {
+    public Page<PersonEventResponse> getPersonalEvents(UUID treeId, UUID personId, Pageable pageable) {
         treeService.ensureTreeExists(treeId);
         personService.ensurePersonExists(personId);
         return personRepository.findPersonalEvents(personId, pageable);

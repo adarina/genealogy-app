@@ -1,5 +1,6 @@
 package com.ada.genealogyapp.event.dto;
 
+import com.ada.genealogyapp.event.type.EventType;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -13,11 +14,18 @@ import java.util.UUID;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class EventCitationsResponse {
+public class EventPageResponse {
 
     private UUID id;
 
-    private String page;
+    private String description;
 
     private LocalDate date;
+
+    private String place;
+
+    private EventType type;
+
+    private String participantNames;
+
 }

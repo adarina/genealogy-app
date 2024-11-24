@@ -1,7 +1,7 @@
 package com.ada.genealogyapp.family.controller;
 
 import com.ada.genealogyapp.family.service.FamilyChildManagementService;
-import com.ada.genealogyapp.person.dto.PersonRequest;
+import com.ada.genealogyapp.family.dto.FamilyChildRequest;
 import com.ada.genealogyapp.person.service.PersonManagementService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,9 +22,9 @@ public class FamilyChildManagementController {
     }
 
     @PutMapping
-    public ResponseEntity<?> updateChildInFamily(@PathVariable UUID treeId, @PathVariable UUID familyId, @PathVariable UUID childId, @RequestBody PersonRequest personRequest) {
-        personManagementService.updatePerson(treeId, childId, personRequest);
-        familyChildManagementService.updateChildInFamily(treeId, familyId, childId, personRequest);
+    public ResponseEntity<?> updateChildInFamily(@PathVariable UUID treeId, @PathVariable UUID familyId, @PathVariable UUID childId, @RequestBody FamilyChildRequest familyChildRequest) {
+        personManagementService.updatePerson(treeId, childId, familyChildRequest);
+        familyChildManagementService.updateChildInFamily(treeId, familyId, childId, familyChildRequest);
         return ResponseEntity.ok().build();
     }
 
@@ -35,8 +35,8 @@ public class FamilyChildManagementController {
     }
 
     @PostMapping
-    public ResponseEntity<?> addChildToFamily(@PathVariable UUID treeId, @PathVariable UUID familyId, @PathVariable UUID childId) {
-        familyChildManagementService.addChildToFamily(treeId, familyId, childId);
+    public ResponseEntity<?> addChildToFamily(@PathVariable UUID treeId, @PathVariable UUID familyId, @PathVariable UUID childId, @RequestBody FamilyChildRequest personRequest) {
+        familyChildManagementService.addChildToFamily(treeId, familyId, childId, personRequest);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 }

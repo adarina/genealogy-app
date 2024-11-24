@@ -1,7 +1,7 @@
 package com.ada.genealogyapp.citation.service;
 
-import com.ada.genealogyapp.citation.dto.CitationFilesResponse;
 import com.ada.genealogyapp.citation.repository.CitationRepository;
+import com.ada.genealogyapp.file.dto.FileResponse;
 import com.ada.genealogyapp.tree.service.TreeService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -25,7 +25,7 @@ public class CitationFilesViewService {
     }
 
 
-    public Page<CitationFilesResponse> getCitationFiles(UUID treeId, UUID citationId, Pageable pageable) {
+    public Page<FileResponse> getCitationFiles(UUID treeId, UUID citationId, Pageable pageable) {
         treeService.ensureTreeExists(treeId);
         citationService.ensureCitationExists(citationId);
         return citationRepository.findCitationFiles(citationId, pageable);

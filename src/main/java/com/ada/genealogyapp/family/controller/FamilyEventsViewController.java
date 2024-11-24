@@ -2,7 +2,6 @@ package com.ada.genealogyapp.family.controller;
 
 
 import com.ada.genealogyapp.family.dto.FamilyEventResponse;
-import com.ada.genealogyapp.family.dto.FamilyEventsResponse;
 import com.ada.genealogyapp.family.service.FamilyEventsViewService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -26,8 +25,8 @@ public class FamilyEventsViewController {
     }
 
     @GetMapping
-    public ResponseEntity<Page<FamilyEventsResponse>> getFamilyEvents(@PathVariable UUID treeId, @PathVariable UUID familyId, @PageableDefault Pageable pageable) {
-        Page<FamilyEventsResponse> eventResponses = familyEventsViewService.getFamilyEvents(treeId, familyId, pageable);
+    public ResponseEntity<Page<FamilyEventResponse>> getFamilyEvents(@PathVariable UUID treeId, @PathVariable UUID familyId, @PageableDefault Pageable pageable) {
+        Page<FamilyEventResponse> eventResponses = familyEventsViewService.getFamilyEvents(treeId, familyId, pageable);
         return ResponseEntity.ok(eventResponses);
     }
 

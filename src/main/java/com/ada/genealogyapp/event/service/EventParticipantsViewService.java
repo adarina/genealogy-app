@@ -1,6 +1,6 @@
 package com.ada.genealogyapp.event.service;
 
-import com.ada.genealogyapp.event.dto.EventParticipantsResponse;
+import com.ada.genealogyapp.event.dto.EventParticipantResponse;
 import com.ada.genealogyapp.event.repository.EventRepository;
 import com.ada.genealogyapp.tree.service.TreeService;
 import lombok.extern.slf4j.Slf4j;
@@ -26,7 +26,7 @@ public class EventParticipantsViewService {
         this.eventRepository = eventRepository;
     }
 
-    public Page<EventParticipantsResponse> getEventParticipants(UUID treeId, UUID eventId, Pageable pageable) {
+    public Page<EventParticipantResponse> getEventParticipants(UUID treeId, UUID eventId, Pageable pageable) {
         treeService.ensureTreeExists(treeId);
         eventService.ensureEventExists(eventId);
         return eventRepository.findEventParticipants(eventId, pageable);

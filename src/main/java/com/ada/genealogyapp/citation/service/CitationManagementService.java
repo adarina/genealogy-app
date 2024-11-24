@@ -2,6 +2,7 @@ package com.ada.genealogyapp.citation.service;
 
 
 import com.ada.genealogyapp.citation.dto.CitationRequest;
+import com.ada.genealogyapp.citation.model.Citation;
 import com.ada.genealogyapp.citation.repository.CitationRepository;
 import com.ada.genealogyapp.tree.service.TransactionalInNeo4j;
 import com.ada.genealogyapp.tree.service.TreeService;
@@ -35,5 +36,13 @@ public class CitationManagementService {
 
         citationRepository.updateCitation(citationId, citationRequest.getPage(), citationRequest.getDate());
         log.info("Citation updated successfully: {}", citationId);
+    }
+
+    @TransactionalInNeo4j
+    public void deleteCitation(UUID treeId, UUID citationId) {
+        treeService.ensureTreeExists(treeId);
+        Citation citation = citationService.findCitationById(citationId);
+
+        citationService.deleteCitation(citation);
     }
 }

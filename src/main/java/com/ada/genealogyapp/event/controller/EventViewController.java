@@ -1,7 +1,7 @@
 package com.ada.genealogyapp.event.controller;
 
 
-import com.ada.genealogyapp.event.dto.EventsResponse;
+import com.ada.genealogyapp.event.dto.EventPageResponse;
 import com.ada.genealogyapp.event.dto.EventResponse;
 import com.ada.genealogyapp.event.service.EventViewService;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -24,8 +24,8 @@ public class EventViewController {
     }
 
     @GetMapping
-    public ResponseEntity<Page<EventsResponse>> getEvents(@PathVariable UUID treeId, @RequestParam String filter, @PageableDefault Pageable pageable) throws JsonProcessingException {
-        Page<EventsResponse> eventResponses = eventViewService.getEvents(treeId, filter, pageable);
+    public ResponseEntity<Page<EventPageResponse>> getEvents(@PathVariable UUID treeId, @RequestParam String filter, @PageableDefault Pageable pageable) throws JsonProcessingException {
+        Page<EventPageResponse> eventResponses = eventViewService.getEvents(treeId, filter, pageable);
         return ResponseEntity.ok(eventResponses);
     }
 

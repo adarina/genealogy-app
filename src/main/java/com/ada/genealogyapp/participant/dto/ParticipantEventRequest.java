@@ -1,21 +1,19 @@
-package com.ada.genealogyapp.family.dto;
+package com.ada.genealogyapp.participant.dto;
 
+import com.ada.genealogyapp.event.dto.EventRequest;
 import com.ada.genealogyapp.event.type.EventParticipantRelationshipType;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.UUID;
 
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
 @Setter
-public class FamilyEventRequest {
+public class ParticipantEventRequest extends EventRequest {
 
-    public UUID id;
-
-    public EventParticipantRelationshipType eventParticipantRelationshipType;
+    public EventParticipantRelationshipType relationship;
 
 }

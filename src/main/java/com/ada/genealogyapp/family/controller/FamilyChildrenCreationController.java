@@ -1,8 +1,8 @@
 package com.ada.genealogyapp.family.controller;
 
 
+import com.ada.genealogyapp.family.dto.FamilyChildRequest;
 import com.ada.genealogyapp.family.service.FamilyChildManagementService;
-import com.ada.genealogyapp.person.dto.PersonRequest;
 import com.ada.genealogyapp.person.model.Person;
 import com.ada.genealogyapp.person.service.PersonCreationService;
 import org.springframework.http.HttpStatus;
@@ -25,9 +25,9 @@ public class FamilyChildrenCreationController {
     }
 
     @PostMapping
-    public ResponseEntity<?> createAndAddChildToFamily(@PathVariable UUID treeId, @PathVariable UUID familyId, @RequestBody PersonRequest personRequest) {
-        Person person = personCreationService.createPerson(treeId, personRequest);
-        familyChildManagementService.addChildToFamily(treeId, familyId, person.getId());
+    public ResponseEntity<?> createAndAddChildToFamily(@PathVariable UUID treeId, @PathVariable UUID familyId, @RequestBody FamilyChildRequest familyChildRequest) {
+        Person person = personCreationService.createPerson(treeId, familyChildRequest);
+        familyChildManagementService.addChildToFamily(treeId, familyId, person.getId(), familyChildRequest);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 }

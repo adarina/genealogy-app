@@ -1,6 +1,6 @@
 package com.ada.genealogyapp.family.controller;
 
-import com.ada.genealogyapp.family.dto.FamilyChildrenResponse;
+import com.ada.genealogyapp.family.dto.FamilyChildResponse;
 import com.ada.genealogyapp.family.service.FamilyChildrenViewService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -21,8 +21,8 @@ public class FamilyChildrenViewController {
     }
 
     @GetMapping
-    public ResponseEntity<Page<FamilyChildrenResponse>> getChildren(@PathVariable UUID treeId, @PathVariable UUID familyId, @PageableDefault Pageable pageable) {
-        Page<FamilyChildrenResponse> childResponses = familyChildrenViewService.getChildren(treeId, familyId, pageable);
+    public ResponseEntity<Page<FamilyChildResponse>> getChildren(@PathVariable UUID treeId, @PathVariable UUID familyId, @PageableDefault Pageable pageable) {
+        Page<FamilyChildResponse> childResponses = familyChildrenViewService.getChildren(treeId, familyId, pageable);
         return ResponseEntity.ok(childResponses);
     }
 }

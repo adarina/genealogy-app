@@ -1,6 +1,6 @@
 package com.ada.genealogyapp.family.model;
 
-import com.ada.genealogyapp.person.model.Participant;
+import com.ada.genealogyapp.participant.model.Participant;
 import com.ada.genealogyapp.family.type.StatusType;
 import com.ada.genealogyapp.person.model.Person;
 import com.ada.genealogyapp.tree.model.Tree;

@@ -1,8 +1,8 @@
 package com.ada.genealogyapp.family.controller;
 
-import com.ada.genealogyapp.event.dto.EventRequest;
 import com.ada.genealogyapp.event.model.Event;
 import com.ada.genealogyapp.event.service.EventCreationService;
+import com.ada.genealogyapp.participant.dto.ParticipantEventRequest;
 import com.ada.genealogyapp.family.service.FamilyEventManagementService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,9 +22,9 @@ public class FamilyEventCreationController {
     }
 
     @PostMapping
-    public ResponseEntity<?> createAndAddFamilyToEvent(@PathVariable UUID treeId, @PathVariable UUID familyId, @RequestBody EventRequest eventRequest) {
-        Event event = eventCreationService.createEvent(treeId, eventRequest);
-        familyEventManagementService.addFamilyToEvent(treeId, familyId, event.getId(), eventRequest);
+    public ResponseEntity<?> createAndAddFamilyToEvent(@PathVariable UUID treeId, @PathVariable UUID familyId, @RequestBody ParticipantEventRequest participantEventRequest) {
+        Event event = eventCreationService.createEvent(treeId, participantEventRequest);
+        familyEventManagementService.addFamilyToEvent(treeId, familyId, event.getId(), participantEventRequest);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 }

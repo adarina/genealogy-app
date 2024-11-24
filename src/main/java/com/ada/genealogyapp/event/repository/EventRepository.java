@@ -24,7 +24,8 @@ public interface EventRepository extends Neo4jRepository<Event, UUID> {
                 OPTIONAL MATCH (e)-[:HAS_EVENT_CITATION]->(c:Citation)
                 WITH e, COLLECT({
                     id: c.id,
-                    page: c.page
+                    page: c.page,
+                    date: c.date
                 }) AS citations
                 OPTIONAL MATCH (e)-[r2:HAS_PARTICIPANT]->(p:Participant)
                 WITH e, citations, COLLECT({
@@ -67,7 +68,7 @@ public interface EventRepository extends Neo4jRepository<Event, UUID> {
                     WHERE t.id = $treeId
                     RETURN count(e)
                     """)
-    Page<EventsResponse> findByTreeIdAndFilteredDescriptionParticipantNamesAndType(@Param("treeId") UUID treeId, String description, String participants, String type, Pageable pageable);
+    Page<EventPageResponse> findByTreeIdAndFilteredDescriptionParticipantNamesAndType(@Param("treeId") UUID treeId, String description, String participants, String type, Pageable pageable);
 
     @Query(value = """
             MATCH (c:Citation)<-[r1:HAS_EVENT_CITATION]-(e1:Event)
@@ -84,9 +85,8 @@ public interface EventRepository extends Neo4jRepository<Event, UUID> {
                         MATCH (c:Citation)-[r1:HAS_EVENT_CITATION]->(e1:Event)
                         WHERE e1.id = $eventId
                         RETURN count(c)
-                    """
-    )
-    Page<EventCitationsResponse> findEventCitations(UUID eventId, Pageable pageable);
+                    """)
+    Page<EventCitationResponse> findEventCitations(UUID eventId, Pageable pageable);
 
     @Query(value = """
             MATCH (e:Event {id: $eventId})
@@ -110,20 +110,20 @@ public interface EventRepository extends Neo4jRepository<Event, UUID> {
     void updateEvent(UUID eventId, EventType type, LocalDate date, String place, String description);
 
     @Query(value = """
-            MATCH (p:Participant)<-[r1:HAS_PARTICIPANT]-(e1:Event)
-            WHERE e1.id = $eventId
-            WITH p
+            MATCH (p:Participant)<-[r:HAS_PARTICIPANT]-(e:Event)
+            WHERE e.id = $eventId
+            WITH p, r
             RETURN p.id AS id,
-                   p.name AS name
+                   p.name AS name,
+                   r.relationship AS relationship
             :#{orderBy(#pageable)}
             SKIP $skip
             LIMIT $limit
             """,
             countQuery = """
-                        MATCH (p:Participant)-[r1:HAS_PARTICIPANT]->(e1:Event)
-                        WHERE e1.id = $eventId
+                        MATCH (p:Participant)-[r1:HAS_PARTICIPANT]->(e:Event)
+                        WHERE e.id = $eventId
                         RETURN count(p)
-                    """
-    )
-    Page<EventParticipantsResponse> findEventParticipants(UUID eventId, Pageable pageable);
+                    """)
+    Page<EventParticipantResponse> findEventParticipants(UUID eventId, Pageable pageable);
 }

@@ -1,7 +1,7 @@
 package com.ada.genealogyapp.family.controller;
 
-import com.ada.genealogyapp.event.dto.EventRequest;
 import com.ada.genealogyapp.event.service.EventManagementService;
+import com.ada.genealogyapp.participant.dto.ParticipantEventRequest;
 import com.ada.genealogyapp.family.service.FamilyEventManagementService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,15 +22,15 @@ public class FamilyEventManagementController {
     }
 
     @PutMapping
-    public ResponseEntity<?> updateEventInFamily(@PathVariable UUID treeId, @PathVariable UUID familyId, @PathVariable UUID eventId, @RequestBody EventRequest eventRequest) {
-        eventManagementService.updateEvent(treeId, eventId, eventRequest);
-        familyEventManagementService.updateEventInFamily(treeId, familyId, eventId, eventRequest);
+    public ResponseEntity<?> updateEventInFamily(@PathVariable UUID treeId, @PathVariable UUID familyId, @PathVariable UUID eventId, @RequestBody ParticipantEventRequest participantEventRequest) {
+        eventManagementService.updateEvent(treeId, eventId, participantEventRequest);
+        familyEventManagementService.updateEventInFamily(treeId, familyId, eventId, participantEventRequest);
         return ResponseEntity.ok().build();
     }
 
     @PostMapping
-    public ResponseEntity<?> addFamilyToEvent(@PathVariable UUID treeId, @PathVariable UUID familyId, @PathVariable UUID eventId, @RequestBody EventRequest eventRequest) {
-        familyEventManagementService.addFamilyToEvent(treeId, familyId, eventId, eventRequest);
+    public ResponseEntity<?> addFamilyToEvent(@PathVariable UUID treeId, @PathVariable UUID familyId, @PathVariable UUID eventId, @RequestBody ParticipantEventRequest participantEventRequest) {
+        familyEventManagementService.addFamilyToEvent(treeId, familyId, eventId, participantEventRequest);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 

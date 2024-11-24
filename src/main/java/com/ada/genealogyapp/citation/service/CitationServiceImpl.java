@@ -35,4 +35,10 @@ public class CitationServiceImpl implements CitationService {
         Citation savedCitation = citationRepository.save(citation);
         log.info("Citation saved successfully: {}", savedCitation);
     }
+
+    @TransactionalInNeo4j
+    public void deleteCitation(Citation citation) {
+        citationRepository.delete(citation);
+        log.info("Citation deleted successfully: {}", citation.getId());
+    }
 }

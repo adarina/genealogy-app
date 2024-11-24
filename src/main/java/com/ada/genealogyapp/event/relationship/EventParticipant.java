@@ -1,7 +1,7 @@
 package com.ada.genealogyapp.event.relationship;
 
 import com.ada.genealogyapp.event.type.EventParticipantRelationshipType;
-import com.ada.genealogyapp.person.model.Participant;
+import com.ada.genealogyapp.participant.model.Participant;
 import lombok.*;
 
 import org.springframework.data.neo4j.core.schema.*;

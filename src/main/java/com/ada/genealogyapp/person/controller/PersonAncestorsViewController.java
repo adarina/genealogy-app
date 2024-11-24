@@ -1,6 +1,6 @@
 package com.ada.genealogyapp.person.controller;
 
-import com.ada.genealogyapp.person.dto.PersonAncestorsResponse;
+import com.ada.genealogyapp.person.dto.PersonAncestorResponse;
 import com.ada.genealogyapp.person.service.PersonAncestorsViewService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -18,8 +18,8 @@ public class PersonAncestorsViewController {
     }
 
     @GetMapping
-    public ResponseEntity<PersonAncestorsResponse> getPersonAncestors(@PathVariable UUID treeId, @PathVariable UUID personId) {
-        PersonAncestorsResponse ancestorsResponse = personAncestorsViewService.getPersonAncestors(treeId, personId);
+    public ResponseEntity<PersonAncestorResponse> getPersonAncestors(@PathVariable UUID treeId, @PathVariable UUID personId) {
+        PersonAncestorResponse ancestorsResponse = personAncestorsViewService.getPersonAncestors(treeId, personId);
         return ResponseEntity.ok(ancestorsResponse);
     }
 }

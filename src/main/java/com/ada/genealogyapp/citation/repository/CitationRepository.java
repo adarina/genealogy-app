@@ -1,10 +1,8 @@
 package com.ada.genealogyapp.citation.repository;
 
-import com.ada.genealogyapp.citation.dto.CitationFilesResponse;
-import com.ada.genealogyapp.citation.dto.CitationResponse;
-import com.ada.genealogyapp.citation.dto.CitationsResponse;
+import com.ada.genealogyapp.citation.dto.CitationSourceResponse;
 import com.ada.genealogyapp.citation.model.Citation;
-import com.ada.genealogyapp.event.dto.EventCitationsResponse;
+import com.ada.genealogyapp.file.dto.FileResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.neo4j.repository.Neo4jRepository;
@@ -45,7 +43,7 @@ public interface CitationRepository extends Neo4jRepository<Citation, UUID> {
                     WHERE t.id = $treeId
                     RETURN count(c)
                     """)
-    Page<CitationsResponse> findByTreeIdAndFilteredPage(@Param("treeId") UUID treeId, String page, Pageable pageable);
+    Page<CitationSourceResponse> findByTreeIdAndFilteredPage(@Param("treeId") UUID treeId, String page, Pageable pageable);
 
     @Query("""
                 MATCH (c:Citation {id: $citationId})
@@ -60,7 +58,7 @@ public interface CitationRepository extends Neo4jRepository<Citation, UUID> {
                        s.name AS name,
                        s.id AS sourceId
             """)
-    Optional<CitationResponse> findByTreeIdAndCitationId(@Param("treeId") UUID treeId, @Param("citationId") UUID citationId);
+    Optional<CitationSourceResponse> findByTreeIdAndCitationId(@Param("treeId") UUID treeId, @Param("citationId") UUID citationId);
 
     @Query(value = """
             MATCH (f:File)<-[:HAS_CITATION_FILE]-(c:Citation)
@@ -80,6 +78,6 @@ public interface CitationRepository extends Neo4jRepository<Citation, UUID> {
                         RETURN count(f)
                     """
     )
-    Page<CitationFilesResponse> findCitationFiles(UUID citationId, Pageable pageable);
+    Page<FileResponse> findCitationFiles(UUID citationId, Pageable pageable);
 
 }

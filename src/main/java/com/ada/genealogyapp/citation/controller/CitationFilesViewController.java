@@ -1,7 +1,7 @@
 package com.ada.genealogyapp.citation.controller;
 
-import com.ada.genealogyapp.citation.dto.CitationFilesResponse;
 import com.ada.genealogyapp.citation.service.CitationFilesViewService;
+import com.ada.genealogyapp.file.dto.FileResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -25,8 +25,8 @@ public class CitationFilesViewController {
 
 
     @GetMapping
-    public ResponseEntity<Page<CitationFilesResponse>> getCitationFiles(@PathVariable UUID treeId, @PathVariable UUID citationId, @PageableDefault Pageable pageable) {
-        Page<CitationFilesResponse> fileResponses = citationFilesViewService.getCitationFiles(treeId, citationId, pageable);
+    public ResponseEntity<Page<FileResponse>> getCitationFiles(@PathVariable UUID treeId, @PathVariable UUID citationId, @PageableDefault Pageable pageable) {
+        Page<FileResponse> fileResponses = citationFilesViewService.getCitationFiles(treeId, citationId, pageable);
         return ResponseEntity.ok(fileResponses);
     }
 }

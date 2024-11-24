@@ -1,10 +1,9 @@
 package com.ada.genealogyapp.family.service;
 
-import com.ada.genealogyapp.event.dto.EventRequest;
 import com.ada.genealogyapp.event.model.Event;
 import com.ada.genealogyapp.event.service.EventService;
-import com.ada.genealogyapp.event.type.EventParticipantRelationshipType;
 import com.ada.genealogyapp.exceptions.NodeAlreadyInNodeException;
+import com.ada.genealogyapp.participant.dto.ParticipantEventRequest;
 import com.ada.genealogyapp.family.model.Family;
 import com.ada.genealogyapp.person.service.RelationshipManager;
 import com.ada.genealogyapp.tree.service.TransactionalInNeo4j;
@@ -31,12 +30,12 @@ public class FamilyEventManagementService {
 
     //TODO validation
     @TransactionalInNeo4j
-    public void updateEventInFamily(UUID treeId, UUID familyId, UUID eventId, EventRequest eventRequest) {
+    public void updateEventInFamily(UUID treeId, UUID familyId, UUID eventId, ParticipantEventRequest participantEventRequest) {
         treeService.ensureTreeExists(treeId);
         Family family = familyService.findFamilyById(familyId);
         Event event = eventService.findEventById(eventId);
 
-        relationshipManager.updateEventParticipantRelationship(event, family, eventRequest.getRelationship());
+        relationshipManager.updateEventParticipantRelationship(event, family, participantEventRequest.getRelationship());
         log.info("Event {} relationship updated in family {}", eventId, familyId);
     }
 
@@ -51,7 +50,7 @@ public class FamilyEventManagementService {
     }
 
     @TransactionalInNeo4j
-    public void addFamilyToEvent(UUID treeId, UUID familyId, UUID eventId, EventRequest eventRequest) {
+    public void addFamilyToEvent(UUID treeId, UUID familyId, UUID eventId, ParticipantEventRequest participantEventRequest) {
         treeService.ensureTreeExists(treeId);
         Family family = familyService.findFamilyById(familyId);
         Event event = eventService.findEventById(eventId);
@@ -60,7 +59,7 @@ public class FamilyEventManagementService {
             throw new NodeAlreadyInNodeException("Family " + familyId + " is already a participant of the event " + eventId);
         }
 
-        relationshipManager.addEventParticipantRelationship(event, family, eventRequest.getRelationship());
+        relationshipManager.addEventParticipantRelationship(event, family, participantEventRequest.getRelationship());
         log.info("Family {} added successfully to the event {}", familyId, eventId);
     }
 }

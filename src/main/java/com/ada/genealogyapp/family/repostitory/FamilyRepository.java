@@ -1,10 +1,8 @@
 package com.ada.genealogyapp.family.repostitory;
 
-import com.ada.genealogyapp.family.dto.FamilyResponse;
-import com.ada.genealogyapp.family.dto.FamilyChildrenResponse;
-import com.ada.genealogyapp.family.dto.FamilyEventResponse;
-import com.ada.genealogyapp.family.dto.FamilyEventsResponse;
+import com.ada.genealogyapp.family.dto.*;
 import com.ada.genealogyapp.family.model.Family;
+import com.ada.genealogyapp.family.type.StatusType;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.neo4j.repository.Neo4jRepository;
@@ -60,7 +58,8 @@ public interface FamilyRepository extends Neo4jRepository<Family, UUID> {
                 OPTIONAL MATCH (e)-[:HAS_EVENT_CITATION]->(c:Citation)
                 WITH e, relationship, participants, COLLECT({
                     id: c.id,
-                    page: c.page
+                    page: c.page,
+                    date: d.date
                 }) AS citations
                 RETURN e.id AS id,
                        e.type AS type,
@@ -80,27 +79,31 @@ public interface FamilyRepository extends Neo4jRepository<Family, UUID> {
             OPTIONAL MATCH (e)-[r2:HAS_PARTICIPANT]->(p2:Participant)
             OPTIONAL MATCH (e)-[:HAS_EVENT_CITATION]->(c:Citation)
             RETURN e.id AS id,
-                    e.type AS type,
-                    e.date AS date,
-                    e.place AS place,
-                    e.description AS description,
-                    relationship,
-                    COLLECT({
-                        name: COALESCE(p2.name, p1.name)
-                    }) AS participants,
-                    COLLECT({
-                        id: COALESCE(c.id, '')
-                    }) AS citations
-                    :#{orderBy(#pageable)}
-                    SKIP $skip
-                    LIMIT $limit
-                    """,
+                   e.type AS type,
+                   e.date AS date,
+                   e.place AS place,
+                   e.description AS description,
+                   relationship,
+                   COLLECT({
+                       name: COALESCE(p2.name, p1.name),
+                       id: COALESCE(p2.id, p1.id),
+                       relationship: COALESCE(r2.relationship, relationship)
+                   }) AS participants,
+                   COLLECT({
+                       id: c.id,
+                       page: c.page,
+                       date: c.date
+                   }) AS citations
+            ORDER BY e.date
+            SKIP $skip
+            LIMIT $limit
+            """,
             countQuery = """
                         MATCH (e:Event)-[r1:HAS_PARTICIPANT]->(p1:Participant)
                         WHERE p1.id = $familyId
                         RETURN count(e)
                     """)
-    Page<FamilyEventsResponse> findFamilyEvents(@Param("familyId") UUID familyId, Pageable pageable);
+    Page<FamilyEventResponse> findFamilyEvents(@Param("familyId") UUID familyId, Pageable pageable);
 
     @Query(value = """
             MATCH (f:Family)-[:HAS_CHILD]->(child:Person)
@@ -132,7 +135,7 @@ public interface FamilyRepository extends Neo4jRepository<Family, UUID> {
                         WHERE f.id = $familyId
                         RETURN count(child)
                     """)
-    Page<FamilyChildrenResponse> findChildren(@Param("familyId") UUID familyId, Pageable pageable);
+    Page<FamilyChildResponse> findChildren(@Param("familyId") UUID familyId, Pageable pageable);
 
     @Query("""
                 MATCH (f:Family {id: $familyId})
@@ -152,5 +155,13 @@ public interface FamilyRepository extends Neo4jRepository<Family, UUID> {
                        mother.birthdate AS motherBirthdate
             """)
     Optional<FamilyResponse> findByTreeIdAndFamilyId(@Param("treeId") UUID treeId, @Param("familyId") UUID familyId);
+
+
+    @Query("""
+                MATCH (f:Family {id: $familyId})
+                SET f.status = COALESCE($status, f.status)
+                RETURN f
+            """)
+    void updateFamily(UUID familyId, StatusType status);
 
 }

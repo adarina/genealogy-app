@@ -1,9 +1,8 @@
 package com.ada.genealogyapp.person.service;
 
-import com.ada.genealogyapp.event.dto.EventRequest;
 import com.ada.genealogyapp.event.service.EventService;
-import com.ada.genealogyapp.event.type.EventParticipantRelationshipType;
 import com.ada.genealogyapp.exceptions.NodeAlreadyInNodeException;
+import com.ada.genealogyapp.participant.dto.ParticipantEventRequest;
 import com.ada.genealogyapp.person.model.Person;
 import com.ada.genealogyapp.tree.service.TransactionalInNeo4j;
 import com.ada.genealogyapp.event.model.Event;
@@ -30,12 +29,12 @@ public class PersonEventManagementService {
 
     //TODO validation
     @TransactionalInNeo4j
-    public void updateEventInPerson(UUID treeId, UUID personId, UUID eventId, EventRequest eventRequest) {
+    public void updateEventInPerson(UUID treeId, UUID personId, UUID eventId, ParticipantEventRequest participantEventRequest) {
         treeService.ensureTreeExists(treeId);
         Person person = personService.findPersonById(personId);
         Event event = eventService.findEventById(eventId);
 
-        relationshipManager.updateEventParticipantRelationship(event, person, eventRequest.getRelationship());
+        relationshipManager.updateEventParticipantRelationship(event, person, participantEventRequest.getRelationship());
         log.info("Event {} relationship updated in person {}", eventId, personId);
     }
 
@@ -50,7 +49,7 @@ public class PersonEventManagementService {
     }
 
     @TransactionalInNeo4j
-    public void addPersonToEvent(UUID treeId, UUID personId, UUID eventId, EventRequest eventRequest) {
+    public void addPersonToEvent(UUID treeId, UUID personId, UUID eventId, ParticipantEventRequest participantEventRequest) {
         treeService.ensureTreeExists(treeId);
         Person person = personService.findPersonById(personId);
         Event event = eventService.findEventById(eventId);
@@ -59,7 +58,7 @@ public class PersonEventManagementService {
             throw new NodeAlreadyInNodeException("Person " + personId + " is already a participant of the event " + eventId);
         }
 
-        relationshipManager.addEventParticipantRelationship(event, person, eventRequest.getRelationship());
+        relationshipManager.addEventParticipantRelationship(event, person, participantEventRequest.getRelationship());
         log.info("Person {} added successfully to the event {}", personId, eventId);
     }
 }

@@ -3,7 +3,6 @@ package com.ada.genealogyapp.family.service;
 
 import com.ada.genealogyapp.exceptions.NodeNotFoundException;
 import com.ada.genealogyapp.family.dto.FamilyEventResponse;
-import com.ada.genealogyapp.family.dto.FamilyEventsResponse;
 import com.ada.genealogyapp.family.repostitory.FamilyRepository;
 import com.ada.genealogyapp.tree.service.TreeService;
 import lombok.RequiredArgsConstructor;
@@ -25,7 +24,7 @@ public class FamilyEventsViewService {
 
     private final FamilyRepository familyRepository;
 
-    public Page<FamilyEventsResponse> getFamilyEvents(UUID treeId, UUID familyId, Pageable pageable) {
+    public Page<FamilyEventResponse> getFamilyEvents(UUID treeId, UUID familyId, Pageable pageable) {
         treeService.ensureTreeExists(treeId);
         familyService.ensureFamilyExists(familyId);
         return familyRepository.findFamilyEvents(familyId, pageable);

@@ -7,6 +7,10 @@ import java.util.UUID;
 public interface FamilyService {
 
     void saveFamily(Family family);
+
     Family findFamilyById(UUID familyId);
+
     void ensureFamilyExists(UUID familyId);
+
+    void deleteFamily(Family family);
 }

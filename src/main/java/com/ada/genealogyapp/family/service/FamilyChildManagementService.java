@@ -2,8 +2,8 @@ package com.ada.genealogyapp.family.service;
 
 
 import com.ada.genealogyapp.exceptions.NodeAlreadyInNodeException;
+import com.ada.genealogyapp.family.dto.FamilyChildRequest;
 import com.ada.genealogyapp.family.model.Family;
-import com.ada.genealogyapp.person.dto.PersonRequest;
 import com.ada.genealogyapp.person.model.Person;
 import com.ada.genealogyapp.person.service.PersonService;
 import com.ada.genealogyapp.person.service.RelationshipManager;
@@ -30,7 +30,7 @@ public class FamilyChildManagementService {
     private final RelationshipManager relationshipManager;
 
     @TransactionalInNeo4j
-    public void addChildToFamily(UUID treeId, UUID familyId, UUID childId) {
+    public void addChildToFamily(UUID treeId, UUID familyId, UUID childId, FamilyChildRequest familyChildRequest) {
         treeService.ensureTreeExists(treeId);
         Family family = familyService.findFamilyById(familyId);
         Person child = personService.findPersonById(childId);
@@ -42,18 +42,18 @@ public class FamilyChildManagementService {
         family.addChild(child);
         familyService.saveFamily(family);
 
-        relationshipManager.addDefaultParentChildRelationships(family, child);
+        relationshipManager.addParentChildRelationships(family, child, familyChildRequest.getFatherRelationship(), familyChildRequest.getMotherRelationship());
         log.info("Child {} added successfully to the family {}", childId, familyId);
     }
 
     //TODO validation
     @TransactionalInNeo4j
-    public void updateChildInFamily(UUID treeId, UUID familyId, UUID childId, PersonRequest personRequest) {
+    public void updateChildInFamily(UUID treeId, UUID familyId, UUID childId, FamilyChildRequest familyChildRequest) {
         treeService.ensureTreeExists(treeId);
         Family family = familyService.findFamilyById(familyId);
         Person child = personService.findPersonById(childId);
 
-        relationshipManager.updateParentChildRelationships(family, child, personRequest);
+        relationshipManager.updateParentChildRelationships(family, child, familyChildRequest);
         log.info("Child {} relationships updated in family {}", childId, familyId);
     }
 

@@ -2,7 +2,7 @@ package com.ada.genealogyapp.event.service;
 
 
 import com.ada.genealogyapp.event.dto.EventFilterRequest;
-import com.ada.genealogyapp.event.dto.EventsResponse;
+import com.ada.genealogyapp.event.dto.EventPageResponse;
 import com.ada.genealogyapp.event.dto.EventResponse;
 import com.ada.genealogyapp.event.repository.EventRepository;
 import com.ada.genealogyapp.exceptions.NodeNotFoundException;
@@ -34,7 +34,7 @@ public class EventViewService {
     }
 
 
-    public Page<EventsResponse> getEvents(UUID treeId, String filter, Pageable pageable) throws JsonProcessingException {
+    public Page<EventPageResponse> getEvents(UUID treeId, String filter, Pageable pageable) throws JsonProcessingException {
         treeService.ensureTreeExists(treeId);
         EventFilterRequest filterRequest = objectMapper.readValue(filter, EventFilterRequest.class);
         return eventRepository.findByTreeIdAndFilteredDescriptionParticipantNamesAndType(

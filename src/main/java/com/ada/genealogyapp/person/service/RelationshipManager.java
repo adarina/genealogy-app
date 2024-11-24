@@ -6,9 +6,9 @@ import com.ada.genealogyapp.event.relationship.EventCitation;
 import com.ada.genealogyapp.event.relationship.EventParticipant;
 import com.ada.genealogyapp.event.service.EventService;
 import com.ada.genealogyapp.event.type.EventParticipantRelationshipType;
+import com.ada.genealogyapp.family.dto.FamilyChildRequest;
 import com.ada.genealogyapp.family.model.Family;
-import com.ada.genealogyapp.person.dto.PersonRequest;
-import com.ada.genealogyapp.person.model.Participant;
+import com.ada.genealogyapp.participant.model.Participant;
 import com.ada.genealogyapp.person.model.Person;
 import com.ada.genealogyapp.person.relationship.PersonRelationship;
 import com.ada.genealogyapp.person.type.PersonRelationshipType;
@@ -24,14 +24,14 @@ public class RelationshipManager {
     private final PersonService personService;
     private final EventService eventService;
 
-    public void addDefaultParentChildRelationships(Family family, Person child) {
-        addParentChildRelationship(family.getFather(), child, PersonRelationshipType.BIOLOGICAL);
-        addParentChildRelationship(family.getMother(), child, PersonRelationshipType.BIOLOGICAL);
+    public void addParentChildRelationships(Family family, Person child, PersonRelationshipType fatherRelationship, PersonRelationshipType motherRelationship) {
+        addParentChildRelationship(family.getFather(), child, fatherRelationship);
+        addParentChildRelationship(family.getMother(), child, motherRelationship);
     }
 
-    public void updateParentChildRelationships(Family family, Person child, PersonRequest personRequest) {
-        updateParentChildRelationship(family.getFather(), child, personRequest.getFatherRelationship());
-        updateParentChildRelationship(family.getMother(), child, personRequest.getMotherRelationship());
+    public void updateParentChildRelationships(Family family, Person child, FamilyChildRequest familyChildRequest) {
+        updateParentChildRelationship(family.getFather(), child, familyChildRequest.getFatherRelationship());
+        updateParentChildRelationship(family.getMother(), child, familyChildRequest.getMotherRelationship());
     }
 
     public void removeParentChildRelationships(Family family, Person child) {

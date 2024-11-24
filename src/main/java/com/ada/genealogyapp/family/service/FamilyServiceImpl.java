@@ -36,4 +36,10 @@ public class FamilyServiceImpl implements FamilyService{
             throw new NodeNotFoundException("Family not found with ID: " + familyId);
         }
     }
+
+    @TransactionalInNeo4j
+    public void deleteFamily(Family family) {
+        familyRepository.delete(family);
+        log.info("Family deleted successfully: {}", family.getId());
+    }
 }

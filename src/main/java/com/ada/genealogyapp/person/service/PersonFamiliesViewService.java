@@ -1,7 +1,7 @@
 package com.ada.genealogyapp.person.service;
 
 
-import com.ada.genealogyapp.person.dto.PersonFamiliesResponse;
+import com.ada.genealogyapp.person.dto.PersonFamilyResponse;
 import com.ada.genealogyapp.person.repostitory.PersonRepository;
 import com.ada.genealogyapp.tree.service.TreeService;
 import lombok.extern.slf4j.Slf4j;
@@ -29,7 +29,7 @@ public class PersonFamiliesViewService {
     }
 
 
-    public Page<PersonFamiliesResponse> getPersonalFamilies(UUID treeId, UUID personId, Pageable pageable) {
+    public Page<PersonFamilyResponse> getPersonalFamilies(UUID treeId, UUID personId, Pageable pageable) {
         treeService.ensureTreeExists(treeId);
         personService.ensurePersonExists(personId);
         return personRepository.findPersonalFamilies(personId, pageable);

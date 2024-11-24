@@ -2,8 +2,7 @@ package com.ada.genealogyapp.citation.service;
 
 
 import com.ada.genealogyapp.citation.dto.CitationFilterRequest;
-import com.ada.genealogyapp.citation.dto.CitationResponse;
-import com.ada.genealogyapp.citation.dto.CitationsResponse;
+import com.ada.genealogyapp.citation.dto.CitationSourceResponse;
 import com.ada.genealogyapp.citation.repository.CitationRepository;
 import com.ada.genealogyapp.exceptions.NodeNotFoundException;
 import com.ada.genealogyapp.tree.service.TreeService;
@@ -34,7 +33,7 @@ public class CitationViewService {
     }
 
 
-    public Page<CitationsResponse> getCitations(UUID treeId, String filter, Pageable pageable) throws JsonProcessingException {
+    public Page<CitationSourceResponse> getCitations(UUID treeId, String filter, Pageable pageable) throws JsonProcessingException {
         treeService.ensureTreeExists(treeId);
         CitationFilterRequest filterRequest = objectMapper.readValue(filter, CitationFilterRequest.class);
         return citationRepository.findByTreeIdAndFilteredPage(
@@ -44,7 +43,7 @@ public class CitationViewService {
         );
     }
 
-    public CitationResponse getCitation(UUID treeId, UUID citationId) {
+    public CitationSourceResponse getCitation(UUID treeId, UUID citationId) {
         treeService.ensureTreeExists(treeId);
         citationService.ensureCitationExists(citationId);
         return citationRepository.findByTreeIdAndCitationId(treeId, citationId)

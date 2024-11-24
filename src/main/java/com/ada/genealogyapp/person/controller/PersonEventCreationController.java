@@ -1,8 +1,8 @@
 package com.ada.genealogyapp.person.controller;
 
-import com.ada.genealogyapp.event.dto.EventRequest;
 import com.ada.genealogyapp.event.model.Event;
 import com.ada.genealogyapp.event.service.EventCreationService;
+import com.ada.genealogyapp.participant.dto.ParticipantEventRequest;
 import com.ada.genealogyapp.person.service.PersonEventManagementService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,9 +23,9 @@ public class PersonEventCreationController {
     }
 
     @PostMapping
-    public ResponseEntity<?> createAndAddPersonToNewEvent(@PathVariable UUID treeId, @PathVariable UUID personId, @RequestBody EventRequest eventRequest) {
-        Event event = eventCreationService.createEvent(treeId, eventRequest);
-        personEventManagementService.addPersonToEvent(treeId, personId, event.getId(), eventRequest);
+    public ResponseEntity<?> createAndAddPersonToNewEvent(@PathVariable UUID treeId, @PathVariable UUID personId, @RequestBody ParticipantEventRequest participantEventRequest) {
+        Event event = eventCreationService.createEvent(treeId, participantEventRequest);
+        personEventManagementService.addPersonToEvent(treeId, personId, event.getId(), participantEventRequest);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 }

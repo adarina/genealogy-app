@@ -1,7 +1,6 @@
 package com.ada.genealogyapp.person.dto;
 
 import com.ada.genealogyapp.person.type.GenderType;
-import com.ada.genealogyapp.person.type.PersonRelationshipType;
 import lombok.*;
 
 import java.time.LocalDate;
@@ -10,7 +9,7 @@ import java.time.LocalDate;
 @Setter
 @Builder
 @NoArgsConstructor
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
+@AllArgsConstructor
 @ToString
 @EqualsAndHashCode
 public class PersonRequest {
@@ -22,9 +21,5 @@ public class PersonRequest {
     private LocalDate birthdate;
 
     private GenderType gender;
-
-    private PersonRelationshipType motherRelationship;
-
-    private PersonRelationshipType fatherRelationship;
 
 }

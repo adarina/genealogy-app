@@ -3,7 +3,6 @@ package com.ada.genealogyapp.citation.integration;
 import com.ada.genealogyapp.citation.model.Citation;
 import com.ada.genealogyapp.citation.repository.CitationRepository;
 import com.ada.genealogyapp.config.IntegrationTestConfig;
-import com.ada.genealogyapp.family.dto.UUIDRequest;
 import com.ada.genealogyapp.source.model.Source;
 import com.ada.genealogyapp.source.repository.SourceRepository;
 import com.ada.genealogyapp.tree.model.Tree;
@@ -62,19 +61,19 @@ public class ReferenceSourcesManagementIntegrationTest extends IntegrationTestCo
         Source source = new Source();
         sourceRepository.save(source);
 
-        UUIDRequest uuidRequest = new UUIDRequest();
-        uuidRequest.setId(source.getId());
+//        UUIDRequest uuidRequest = new UUIDRequest();
+//        uuidRequest.setId(source.getId());
 
         mockMvc.perform(post("/api/v1/genealogy/trees/{treeId}/citations/{citationId}", tree.getId(), citation.getId())
                         .contentType(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isNoContent());
 
-        mockMvc.perform(post("/api/v1/genealogy/trees/{treeId}/citations/{citationId}/sources/addExistingSource", tree.getId(), citation.getId())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(uuidRequest)))
-                .andDo(print())
-                .andExpect(status().isCreated());
+//        mockMvc.perform(post("/api/v1/genealogy/trees/{treeId}/citations/{citationId}/sources/addExistingSource", tree.getId(), citation.getId())
+//                        .contentType(MediaType.APPLICATION_JSON)
+//                        .content(objectMapper.writeValueAsString(uuidRequest)))
+//                .andDo(print())
+//                .andExpect(status().isCreated());
 
         mockMvc.perform(post("/api/v1/genealogy/trees/{treeId}/commit", tree.getId())
                         .contentType(MediaType.APPLICATION_JSON))

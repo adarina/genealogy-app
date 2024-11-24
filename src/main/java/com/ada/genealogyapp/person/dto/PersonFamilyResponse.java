@@ -11,7 +11,7 @@ import java.util.UUID;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class PersonFamiliesResponse {
+public class PersonFamilyResponse {
 
 
     private UUID id;
@@ -28,14 +28,14 @@ public class PersonFamiliesResponse {
 
     private LocalDate motherBirthdate;
 
-    private LinkedHashSet<PersonFamiliesChildResponse> children;
+    private LinkedHashSet<PersonFamilyChildResponse> children;
 
 
     @Getter
     @Setter
     @NoArgsConstructor
     @AllArgsConstructor
-    public static class PersonFamiliesChildResponse {
+    public static class PersonFamilyChildResponse {
 
         private UUID childId;
 

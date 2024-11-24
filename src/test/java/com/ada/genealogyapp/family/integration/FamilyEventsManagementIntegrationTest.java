@@ -7,7 +7,7 @@ import com.ada.genealogyapp.event.model.Event;
 import com.ada.genealogyapp.event.type.EventParticipantRelationshipType;
 import com.ada.genealogyapp.event.type.EventType;
 import com.ada.genealogyapp.event.repository.EventRepository;
-import com.ada.genealogyapp.family.dto.FamilyEventRequest;
+import com.ada.genealogyapp.participant.dto.ParticipantEventRequest;
 import com.ada.genealogyapp.family.model.Family;
 import com.ada.genealogyapp.family.repostitory.FamilyRepository;
 import com.ada.genealogyapp.tree.model.Tree;
@@ -88,13 +88,13 @@ class FamilyEventsManagementIntegrationTest extends IntegrationTestConfig {
         Event event = new Event();
         eventRepository.save(event);
 
-        FamilyEventRequest familyEventRequest = new FamilyEventRequest();
-        familyEventRequest.setId(event.getId());
-        familyEventRequest.setEventParticipantRelationshipType(EventParticipantRelationshipType.FAMILY);
+        ParticipantEventRequest participantEventRequest = new ParticipantEventRequest();
+        participantEventRequest.setId(event.getId());
+        participantEventRequest.setEventParticipantRelationshipType(EventParticipantRelationshipType.FAMILY);
 
         mockMvc.perform(post("/api/v1/genealogy/trees/{treeId}/families/{familyId}/events/addExistingEvent", tree.getId(), family.getId())
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(familyEventRequest)))
+                        .content(objectMapper.writeValueAsString(participantEventRequest)))
                 .andDo(print())
                 .andExpect(status().isCreated());
 
