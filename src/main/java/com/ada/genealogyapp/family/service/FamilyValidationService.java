@@ -28,6 +28,6 @@ public class FamilyValidationService {
             throw new ValidationException("Family validation failed: " + result.getErrors());
         }
 
-        log.info("Family validation succeeded for event: {}", family.getId());
+        log.info("Family validation succeeded for family: {}", family.getId());
     }
 }

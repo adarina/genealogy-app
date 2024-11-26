@@ -1,17 +1,22 @@
 package com.ada.genealogyapp.person.integration;
 
+import com.ada.genealogyapp.citation.repository.CitationRepository;
 import com.ada.genealogyapp.config.IntegrationTestConfig;
 import com.ada.genealogyapp.event.repository.EventRepository;
 import com.ada.genealogyapp.family.model.Family;
 import com.ada.genealogyapp.family.type.StatusType;
+import com.ada.genealogyapp.file.repository.FileRepository;
 import com.ada.genealogyapp.person.relationship.PersonRelationship;
 import com.ada.genealogyapp.family.repostitory.FamilyRepository;
 import com.ada.genealogyapp.person.model.Person;
 import com.ada.genealogyapp.person.repostitory.PersonRepository;
 import com.ada.genealogyapp.person.type.GenderType;
 import com.ada.genealogyapp.person.type.PersonRelationshipType;
+import com.ada.genealogyapp.source.repository.SourceRepository;
 import com.ada.genealogyapp.tree.model.Tree;
 import com.ada.genealogyapp.tree.repository.TreeRepository;
+import com.ada.genealogyapp.userneo4j.model.UserNeo4j;
+import com.ada.genealogyapp.userneo4j.repository.UserNeo4jRepository;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -41,14 +46,29 @@ class PersonAncestorsViewIntegrationTest extends IntegrationTestConfig {
     @Autowired
     EventRepository eventRepository;
 
+    @Autowired
+    SourceRepository sourceRepository;
+
+    @Autowired
+    CitationRepository citationRepository;
+
+    @Autowired
+    FileRepository fileRepository;
+
+    @Autowired
+    UserNeo4jRepository userNeo4jRepository;
+
     @BeforeEach
     void setUp() {
 
+        userNeo4jRepository.deleteAll();
         treeRepository.deleteAll();
         personRepository.deleteAll();
         familyRepository.deleteAll();
         eventRepository.deleteAll();
-
+        sourceRepository.deleteAll();
+        citationRepository.deleteAll();
+        fileRepository.deleteAll();
     }
 
     @AfterEach
@@ -62,7 +82,14 @@ class PersonAncestorsViewIntegrationTest extends IntegrationTestConfig {
     @Test
     void shouldGetPersonAncestorsSuccessfully() throws Exception {
 
+//        UserNeo4j user = new UserNeo4j();
+//        user.setId(1L);
+
+//        userNeo4jRepository.save(user);
+
         Tree tree = new Tree();
+        tree.setName("Tree");
+//        tree.setUserNeo4j(user);
         treeRepository.save(tree);
 
         Person child = new Person("Amalia Smith", "Amalia", "Smith", LocalDate.of(2000, 12, 18), GenderType.FEMALE, tree);

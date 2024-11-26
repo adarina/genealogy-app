@@ -19,12 +19,12 @@ public class TreeServiceImpl implements TreeService {
         this.treeRepository = treeRepository;
     }
 
-    public Optional<Tree> findTreeByNameAndUserId(String name, Long userId) {
-        Optional<Tree> tree = treeRepository.findByNameAndUserId(name, userId);
+    public Optional<Tree> findTreeByName(String name) {
+        Optional<Tree> tree = treeRepository.findByName(name);
         if (tree.isPresent()) {
             log.info("Tree found: {}", tree.get());
         } else {
-            log.error("No tree found with userId: {}", userId);
+            log.error("No tree found with userId");
         }
         return tree;
     }

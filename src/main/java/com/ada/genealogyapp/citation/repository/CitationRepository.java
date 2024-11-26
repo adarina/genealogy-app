@@ -15,13 +15,6 @@ import java.util.UUID;
 
 public interface CitationRepository extends Neo4jRepository<Citation, UUID> {
 
-    @Query("""
-                MATCH (c:Citation {id: $citationId})
-                SET c.page = COALESCE($page, c.page),
-                    c.date = COALESCE($date, c.date)
-                RETURN c
-            """)
-    void updateCitation(UUID citationId, String page, LocalDate date);
 
     @Query(value = """
             MATCH (t:Tree)-[:HAS_CITATION]->(c:Citation)

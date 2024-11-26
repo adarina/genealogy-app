@@ -2,10 +2,11 @@ package com.ada.genealogyapp.family.service;
 
 
 import com.ada.genealogyapp.exceptions.NodeNotFoundException;
-import com.ada.genealogyapp.family.dto.FamilyEventResponse;
 import com.ada.genealogyapp.family.repostitory.FamilyRepository;
+import com.ada.genealogyapp.participant.dto.ParticipantEventResponse;
+import com.ada.genealogyapp.participant.repository.ParticipantRepository;
+import com.ada.genealogyapp.person.repostitory.PersonRepository;
 import com.ada.genealogyapp.tree.service.TreeService;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -15,7 +16,6 @@ import java.util.UUID;
 
 @Service
 @Slf4j
-@RequiredArgsConstructor
 public class FamilyEventsViewService {
 
     private final TreeService treeService;
@@ -24,16 +24,28 @@ public class FamilyEventsViewService {
 
     private final FamilyRepository familyRepository;
 
-    public Page<FamilyEventResponse> getFamilyEvents(UUID treeId, UUID familyId, Pageable pageable) {
-        treeService.ensureTreeExists(treeId);
-        familyService.ensureFamilyExists(familyId);
-        return familyRepository.findFamilyEvents(familyId, pageable);
+    private final PersonRepository personRepository;
+
+    private final ParticipantRepository participantRepository;
+
+    public FamilyEventsViewService(TreeService treeService, FamilyService familyService, FamilyRepository familyRepository, PersonRepository personRepository, ParticipantRepository participantRepository) {
+        this.treeService = treeService;
+        this.familyService = familyService;
+        this.familyRepository = familyRepository;
+        this.personRepository = personRepository;
+        this.participantRepository = participantRepository;
     }
 
-    public FamilyEventResponse getFamilyEvent(UUID treeId, UUID familyId, UUID eventId) {
+    public Page<ParticipantEventResponse> getFamilyEvents(UUID treeId, UUID familyId, Pageable pageable) {
         treeService.ensureTreeExists(treeId);
         familyService.ensureFamilyExists(familyId);
-        return familyRepository.findFamilyEvent(eventId, familyId)
+        return participantRepository.findParticipantEvents(familyId, pageable);
+    }
+
+    public ParticipantEventResponse getFamilyEvent(UUID treeId, UUID familyId, UUID eventId) {
+        treeService.ensureTreeExists(treeId);
+        familyService.ensureFamilyExists(familyId);
+        return participantRepository.findParticipantEvent(eventId, familyId)
                 .orElseThrow(() -> new NodeNotFoundException("Event " + eventId.toString() + " not found for tree " + treeId.toString() + " and family " + familyId.toString()));
 
     }

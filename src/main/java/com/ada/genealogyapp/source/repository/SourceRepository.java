@@ -44,10 +44,4 @@ public interface SourceRepository extends Neo4jRepository<Source, UUID> {
             """)
     Optional<SourceResponse> findByTreeIdAndSourceId(@Param("treeId") UUID treeId, @Param("sourceId") UUID sourceId);
 
-    @Query("""
-                MATCH (s:Source {id: $sourceId})
-                SET s.name = COALESCE($name, s.name)
-                RETURN s
-            """)
-    void updateSource(UUID sourceId, String name);
 }

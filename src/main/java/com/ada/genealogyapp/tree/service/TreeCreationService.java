@@ -29,7 +29,7 @@ public class TreeCreationService {
                 .userId(treeRequest.getUserId())
                 .build();
 
-        Optional<Tree> existingTree = treeService.findTreeByNameAndUserId(tree.getName(), tree.getUserId());
+        Optional<Tree> existingTree = treeService.findTreeByName(tree.getName());
 
         if (existingTree.isPresent()) {
             throw new NodeAlreadyExistsException("Tree with name " + tree.getName() + " already exists");

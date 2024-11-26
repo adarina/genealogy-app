@@ -20,13 +20,15 @@ public class CitationCreationService {
 
     private final CitationService citationService;
 
-    public CitationCreationService(TreeService treeService, CitationService citationService) {
+    private final CitationValidationService citationValidationService;
+
+    public CitationCreationService(TreeService treeService, CitationService citationService, CitationValidationService citationValidationService) {
         this.treeService = treeService;
         this.citationService = citationService;
+        this.citationValidationService = citationValidationService;
     }
 
 
-    //TODO validation
     @TransactionalInNeo4j
     public Citation createCitation(UUID treeId, CitationRequest citationRequest) {
         Tree tree = treeService.findTreeById(treeId);
@@ -35,6 +37,8 @@ public class CitationCreationService {
                 .page(citationRequest.getPage())
                 .date(citationRequest.getDate())
                 .build();
+
+        citationValidationService.validateCitation(citation);
 
         citationService.saveCitation(citation);
         return citation;

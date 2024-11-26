@@ -1,10 +1,7 @@
 package com.ada.genealogyapp.person.service;
 
 import com.ada.genealogyapp.event.service.EventService;
-import com.ada.genealogyapp.exceptions.NodeAlreadyInNodeException;
-import com.ada.genealogyapp.participant.dto.ParticipantEventRequest;
 import com.ada.genealogyapp.person.model.Person;
-import com.ada.genealogyapp.relationship.RelationshipManager;
 import com.ada.genealogyapp.tree.service.TransactionalInNeo4j;
 import com.ada.genealogyapp.event.model.Event;
 import com.ada.genealogyapp.tree.service.TreeService;
@@ -26,18 +23,6 @@ public class PersonEventManagementService {
 
     private final PersonService personService;
 
-    private final RelationshipManager relationshipManager;
-
-    //TODO validation
-    @TransactionalInNeo4j
-    public void updateEventInPerson(UUID treeId, UUID personId, UUID eventId, ParticipantEventRequest participantEventRequest) {
-        treeService.ensureTreeExists(treeId);
-        Person person = personService.findPersonById(personId);
-        Event event = eventService.findEventById(eventId);
-
-        relationshipManager.updateEventParticipantRelationship(event, person, participantEventRequest.getRelationship());
-        log.info("Event {} relationship updated in person {}", eventId, personId);
-    }
 
     @TransactionalInNeo4j
     public void removeEventFromPerson(UUID treeId, UUID personId, UUID eventId) {
@@ -45,22 +30,9 @@ public class PersonEventManagementService {
         Person person = personService.findPersonById(personId);
         Event event = eventService.findEventById(eventId);
 
-        relationshipManager.removeEventParticipantRelationship(event, person);
+        event.getParticipants().removeIf(rel -> rel.getParticipant().equals(person));
+        eventService.saveEvent(event);
         log.info("Event {} removed from person {}", eventId, personId);
-    }
-
-    @TransactionalInNeo4j
-    public void addPersonToEvent(UUID treeId, UUID personId, UUID eventId, ParticipantEventRequest participantEventRequest) {
-        treeService.ensureTreeExists(treeId);
-        Person person = personService.findPersonById(personId);
-        Event event = eventService.findEventById(eventId);
-
-        if (event.isParticipantAlreadyInEvent(personId)) {
-            throw new NodeAlreadyInNodeException("Person " + personId + " is already a participant of the event " + eventId);
-        }
-
-        relationshipManager.addEventParticipantRelationship(event, person, participantEventRequest.getRelationship());
-        log.info("Person {} added successfully to the event {}", personId, eventId);
     }
 }
 

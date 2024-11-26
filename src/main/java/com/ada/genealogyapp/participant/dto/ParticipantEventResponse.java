@@ -1,4 +1,4 @@
-package com.ada.genealogyapp.person.dto;
+package com.ada.genealogyapp.participant.dto;
 
 import com.ada.genealogyapp.event.dto.EventCitationResponse;
 import com.ada.genealogyapp.event.dto.EventParticipantResponse;
@@ -18,7 +18,7 @@ import java.util.UUID;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class PersonEventResponse {
+public class ParticipantEventResponse {
 
     private UUID id;
 

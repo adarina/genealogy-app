@@ -20,13 +20,7 @@ import static java.util.Objects.nonNull;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@EqualsAndHashCode(onlyExplicitlyIncluded = true)
-public class Family implements Participant {
-
-    @Id
-    @GeneratedValue
-    @EqualsAndHashCode.Include
-    private UUID id;
+public class Family extends Participant {
 
     private String name;
 

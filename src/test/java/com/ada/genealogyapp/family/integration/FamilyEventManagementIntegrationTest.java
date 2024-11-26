@@ -9,6 +9,7 @@ import com.ada.genealogyapp.event.type.EventType;
 import com.ada.genealogyapp.family.model.Family;
 import com.ada.genealogyapp.family.repostitory.FamilyRepository;
 import com.ada.genealogyapp.participant.dto.ParticipantEventRequest;
+import com.ada.genealogyapp.person.model.Person;
 import com.ada.genealogyapp.tree.model.Tree;
 import com.ada.genealogyapp.tree.repository.TreeRepository;
 import org.junit.jupiter.api.AfterEach;
@@ -102,8 +103,12 @@ class FamilyEventManagementIntegrationTest extends IntegrationTestConfig {
         Tree tree = new Tree();
         treeRepository.save(tree);
 
+        Person person = new Person();
+        person.setTree(tree);
+
         Family family = new Family();
         family.setTree(tree);
+        family.setMother(person);
         familyRepository.save(family);
 
         Event event = new Event();
@@ -122,7 +127,7 @@ class FamilyEventManagementIntegrationTest extends IntegrationTestConfig {
                 .andDo(print())
                 .andExpect(status().isCreated());
 
-        //TODO hahaha jak nie ma jak jest :/
-        //assertTrue(event.isParticipantAlreadyInEvent(family.getId()));
+        //TODO hahaha jak nie ma jak jest :/ dobra nie ma :/
+        assertTrue(event.isParticipantAlreadyInEvent(family.getId()));
     }
 }

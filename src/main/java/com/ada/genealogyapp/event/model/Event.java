@@ -5,8 +5,8 @@ import com.ada.genealogyapp.event.relationship.EventParticipant;
 import com.ada.genealogyapp.event.type.EventType;
 import com.ada.genealogyapp.tree.model.Tree;
 import lombok.*;
-import org.springframework.data.annotation.Id;
 import org.springframework.data.neo4j.core.schema.GeneratedValue;
+import org.springframework.data.neo4j.core.schema.Id;
 import org.springframework.data.neo4j.core.schema.Node;
 import org.springframework.data.neo4j.core.schema.Relationship;
 
@@ -22,12 +22,10 @@ import java.util.UUID;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class Event {
 
     @Id
     @GeneratedValue
-    @EqualsAndHashCode.Include
     private UUID id;
 
     private EventType type;

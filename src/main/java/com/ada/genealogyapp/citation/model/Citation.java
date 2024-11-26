@@ -23,13 +23,11 @@ import static java.util.Objects.nonNull;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 
 public class Citation {
 
     @Id
     @GeneratedValue
-    @EqualsAndHashCode.Include
     private UUID id;
 
     private String page;

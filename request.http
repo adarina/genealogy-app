@@ -5,7 +5,7 @@ Content-Type: application/json
   "firstname": "John",
   "lastname": "Smith",
   "phone": "123456789",
-  "username": "admin@admin.lol5",
+  "username": "admin@admin.lol6",
   "password": "admin1234",
   "role": "ROLE_ADMIN"
 }
@@ -15,7 +15,7 @@ POST http://localhost:8080/api/v1/genealogy/login
 Content-Type: application/json
 
 {
-  "username": "admin@admin.lol5",
+  "username": "admin@admin.lol6",
   "password": "admin1234"
 }
 ###
@@ -74,7 +74,7 @@ Content-Type: application/json
   "firstname": "John",
   "lastname": "Smith",
   "phone": "123456789",
-  "username": "user@user.com",
+  "username": "userNeo4j@userNeo4j.com",
   "password": "user1234",
   "role": "ROLE_USER"
 }
@@ -84,7 +84,7 @@ POST http://localhost:8080/api/v1/genealogy/login
 Content-Type: application/json
 
 {
-  "username": "user@user.com",
+  "username": "userNeo4j@userNeo4j.com",
   "password": "user1234"
 }
 ###

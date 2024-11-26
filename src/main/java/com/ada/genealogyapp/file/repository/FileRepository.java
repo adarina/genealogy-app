@@ -29,13 +29,6 @@ public interface FileRepository extends Neo4jRepository<File, UUID> {
             """)
     Optional<FileResponse> findByTreeIdAndFileId(@Param("treeId") UUID treeId, @Param("fileId") UUID fileId, String baseUrl);
 
-    @Query("""
-                MATCH (f:File {id: $fileId})
-                SET f.name = COALESCE($name, f.name)
-                RETURN f
-            """)
-    void updateFile(UUID fileId, String name);
-
     @Query(value = """
             MATCH (t:Tree)-[:HAS_FILE]->(f:File)
             WHERE t.id = $treeId

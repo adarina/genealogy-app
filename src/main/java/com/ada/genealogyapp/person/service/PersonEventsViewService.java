@@ -1,7 +1,8 @@
 package com.ada.genealogyapp.person.service;
 
 import com.ada.genealogyapp.exceptions.NodeNotFoundException;
-import com.ada.genealogyapp.person.dto.PersonEventResponse;
+import com.ada.genealogyapp.participant.dto.ParticipantEventResponse;
+import com.ada.genealogyapp.participant.repository.ParticipantRepository;
 import com.ada.genealogyapp.person.repostitory.PersonRepository;
 import com.ada.genealogyapp.tree.service.TreeService;
 import lombok.extern.slf4j.Slf4j;
@@ -23,22 +24,25 @@ public class PersonEventsViewService {
 
     private final PersonService personService;
 
-    public PersonEventsViewService(PersonRepository personRepository, TreeService treeService, PersonService personService) {
+    private final ParticipantRepository participantRepository;
+
+    public PersonEventsViewService(PersonRepository personRepository, TreeService treeService, PersonService personService, ParticipantRepository participantRepository) {
         this.personRepository = personRepository;
         this.treeService = treeService;
         this.personService = personService;
+        this.participantRepository = participantRepository;
     }
 
-    public Page<PersonEventResponse> getPersonalEvents(UUID treeId, UUID personId, Pageable pageable) {
+    public Page<ParticipantEventResponse> getPersonalEvents(UUID treeId, UUID personId, Pageable pageable) {
         treeService.ensureTreeExists(treeId);
         personService.ensurePersonExists(personId);
-        return personRepository.findPersonalEvents(personId, pageable);
+        return participantRepository.findParticipantEvents(personId, pageable);
     }
 
-    public PersonEventResponse getPersonalEvent(UUID treeId, UUID personId, UUID eventId) {
+    public ParticipantEventResponse getPersonalEvent(UUID treeId, UUID personId, UUID eventId) {
         treeService.ensureTreeExists(treeId);
         personService.ensurePersonExists(personId);
-        return personRepository.findPersonalEvent(eventId, personId)
+        return participantRepository.findParticipantEvent(eventId, personId)
                 .orElseThrow(() -> new NodeNotFoundException("Event " + eventId.toString() + " not found for tree " + treeId.toString() + " and person " + personId.toString()));
     }
 }

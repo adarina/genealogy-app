@@ -20,7 +20,7 @@ public class PersonCreationController {
     }
 
     @PostMapping
-    public ResponseEntity<?> createPerson(@PathVariable UUID treeId, @RequestBody PersonRequest personRequest) {
+    public ResponseEntity<?> createPerson(@PathVariable UUID treeId, @RequestBody PersonRequest personRequest, @RequestHeader(value = "X-User-Id") String userId) {
         personCreationService.createPerson(treeId, personRequest);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }

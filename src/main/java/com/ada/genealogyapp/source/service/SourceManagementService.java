@@ -2,6 +2,7 @@ package com.ada.genealogyapp.source.service;
 
 
 import com.ada.genealogyapp.source.dto.SourceRequest;
+import com.ada.genealogyapp.source.model.Source;
 import com.ada.genealogyapp.source.repository.SourceRepository;
 import com.ada.genealogyapp.tree.service.TransactionalInNeo4j;
 import com.ada.genealogyapp.tree.service.TreeService;
@@ -31,9 +32,10 @@ public class SourceManagementService {
     @TransactionalInNeo4j
     public void updateSource(UUID treeId, UUID sourceId, SourceRequest sourceRequest) {
         treeService.ensureTreeExists(treeId);
-        sourceService.ensureSourceExists(sourceId);
+        Source source = sourceService.findSourceById(sourceId);
 
-        sourceRepository.updateSource(sourceId, sourceRequest.getName());
-        log.info("Source updated successfully: {}", sourceId);
+        source.setName(sourceRequest.getName());
+
+        sourceService.saveSource(source);
     }
 }

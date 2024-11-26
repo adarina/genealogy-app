@@ -79,23 +79,6 @@ public class RelationshipManager {
         }
     }
 
-    public void updateEventParticipantRelationship(Event event, Participant participant, EventParticipantRelationshipType type) {
-        if (nonNull(event)) {
-            removeEventParticipantRelationship(event, participant);
-            addEventParticipantRelationship(event, participant, type);
-        }
-    }
-
-    public void addEventParticipantRelationship(Event event, Participant participant, EventParticipantRelationshipType relationshipType) {
-        if (nonNull(event)) {
-            EventParticipant relationship = EventParticipant.builder()
-                    .participant(participant)
-                    .relationship(relationshipType)
-                    .build();
-            event.getParticipants().add(relationship);
-            eventService.saveEvent(event);
-        }
-    }
 
     public void addEventCitationRelationship(Event event, Citation citation) {
         if (nonNull(event)) {

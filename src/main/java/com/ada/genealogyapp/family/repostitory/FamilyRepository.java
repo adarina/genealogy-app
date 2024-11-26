@@ -2,13 +2,13 @@ package com.ada.genealogyapp.family.repostitory;
 
 import com.ada.genealogyapp.family.dto.*;
 import com.ada.genealogyapp.family.model.Family;
-import com.ada.genealogyapp.family.type.StatusType;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.neo4j.repository.Neo4jRepository;
 import org.springframework.data.neo4j.repository.query.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -43,67 +43,6 @@ public interface FamilyRepository extends Neo4jRepository<Family, UUID> {
                     RETURN count(f)
                     """)
     Page<FamilyResponse> findByTreeIdAndFilteredParentNamesAndStatus(@Param("treeId") UUID treeId, String motherName, String fatherName, String status, Pageable pageable);
-
-    @Query("""
-                MATCH (e:Event {id: $eventId})
-                MATCH (p1:Participant {id: $familyId})
-                MERGE (e)-[r1:HAS_PARTICIPANT]->(p1)
-                WITH e, p1, r1.relationship AS relationship
-                OPTIONAL MATCH (e)-[r2:HAS_PARTICIPANT]->(p2:Participant)
-                WITH e, relationship, COLLECT({
-                    id: COALESCE(p2.id, p1.id),
-                    name: COALESCE(p2.name, p1.name),
-                    relationship: COALESCE(r2.relationship, relationship)
-                    }) AS participants
-                OPTIONAL MATCH (e)-[:HAS_EVENT_CITATION]->(c:Citation)
-                WITH e, relationship, participants, COLLECT({
-                    id: c.id,
-                    page: c.page,
-                    date: c.date
-                }) AS citations
-                RETURN e.id AS id,
-                       e.type AS type,
-                       e.date AS date,
-                       e.place AS place,
-                       e.description AS description,
-                       relationship,
-                       participants,
-                       citations
-            """)
-    Optional<FamilyEventResponse> findFamilyEvent(@Param("eventId") UUID eventId, @Param("familyId") UUID familyId);
-
-    @Query(value = """
-            MATCH (e:Event)-[r1:HAS_PARTICIPANT]->(p1:Participant)
-            WHERE p1.id = $familyId
-            WITH e, p1, r1.relationship AS relationship
-            OPTIONAL MATCH (e)-[r2:HAS_PARTICIPANT]->(p2:Participant)
-            OPTIONAL MATCH (e)-[:HAS_EVENT_CITATION]->(c:Citation)
-            RETURN e.id AS id,
-                   e.type AS type,
-                   e.date AS date,
-                   e.place AS place,
-                   e.description AS description,
-                   relationship,
-                   COLLECT({
-                       name: COALESCE(p2.name, p1.name),
-                       id: COALESCE(p2.id, p1.id),
-                       relationship: COALESCE(r2.relationship, relationship)
-                   }) AS participants,
-                   COLLECT({
-                       id: c.id,
-                       page: c.page,
-                       date: c.date
-                   }) AS citations
-            ORDER BY e.date
-            SKIP $skip
-            LIMIT $limit
-            """,
-            countQuery = """
-                        MATCH (e:Event)-[r1:HAS_PARTICIPANT]->(p1:Participant)
-                        WHERE p1.id = $familyId
-                        RETURN count(e)
-                    """)
-    Page<FamilyEventResponse> findFamilyEvents(@Param("familyId") UUID familyId, Pageable pageable);
 
     @Query(value = """
             MATCH (f:Family)-[:HAS_CHILD]->(child:Person)
@@ -156,12 +95,6 @@ public interface FamilyRepository extends Neo4jRepository<Family, UUID> {
             """)
     Optional<FamilyResponse> findByTreeIdAndFamilyId(@Param("treeId") UUID treeId, @Param("familyId") UUID familyId);
 
-
-    @Query("""
-                MATCH (f:Family {id: $familyId})
-                SET f.status = COALESCE($status, f.status)
-                RETURN f
-            """)
-    void updateFamily(UUID familyId, StatusType status);
+    List<Family> findByFatherIdOrMotherId(UUID fatherId, UUID motherId);
 
 }

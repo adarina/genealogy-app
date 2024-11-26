@@ -5,8 +5,6 @@ import com.ada.genealogyapp.person.relationship.PersonRelationship;
 import com.ada.genealogyapp.person.type.GenderType;
 import com.ada.genealogyapp.tree.model.Tree;
 import lombok.*;
-import org.springframework.data.annotation.Id;
-import org.springframework.data.neo4j.core.schema.GeneratedValue;
 import org.springframework.data.neo4j.core.schema.Node;
 import org.springframework.data.neo4j.core.schema.Relationship;
 
@@ -14,7 +12,6 @@ import java.time.LocalDate;
 
 import java.util.HashSet;
 import java.util.Set;
-import java.util.UUID;
 
 @Node
 @Getter
@@ -22,13 +19,7 @@ import java.util.UUID;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@EqualsAndHashCode(onlyExplicitlyIncluded = true)
-public class Person implements Participant {
-
-    @Id
-    @GeneratedValue
-    @EqualsAndHashCode.Include
-    private UUID id;
+public class Person extends Participant {
 
     private String name;
 

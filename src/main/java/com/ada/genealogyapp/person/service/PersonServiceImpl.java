@@ -1,6 +1,7 @@
 package com.ada.genealogyapp.person.service;
 
 import com.ada.genealogyapp.exceptions.NodeNotFoundException;
+import com.ada.genealogyapp.person.dto.PersonResponse;
 import com.ada.genealogyapp.person.model.Person;
 import com.ada.genealogyapp.person.repostitory.PersonRepository;
 import com.ada.genealogyapp.tree.service.TransactionalInNeo4j;
@@ -19,9 +20,22 @@ public class PersonServiceImpl implements PersonService{
         this.personRepository = personRepository;
     }
 
-    public Person findPersonById(UUID childId) {
-        return personRepository.findById(childId)
-                .orElseThrow(() -> new NodeNotFoundException("Person not found with ID: " + childId));
+    public Person findPersonById(UUID personId) {
+        return personRepository.findById(personId)
+                .orElseThrow(() -> new NodeNotFoundException("Person not found with ID: " + personId));
+    }
+
+    public PersonResponse findPersonResponseById(UUID personId) {
+        Person person = personRepository.findById(personId)
+                .orElseThrow(() -> new NodeNotFoundException("Person not found with ID: " + personId));
+        return PersonResponse.builder()
+                .id(person.getId())
+                .firstname(person.getFirstname())
+                .lastname(person.getLastname())
+                .name(person.getName())
+                .birthdate(person.getBirthdate())
+                .gender(person.getGender())
+                .build();
     }
 
     @TransactionalInNeo4j
@@ -38,7 +52,7 @@ public class PersonServiceImpl implements PersonService{
 
     public void ensurePersonExists(UUID personId) {
         if (!personRepository.existsById(personId)) {
-            throw new NodeNotFoundException("Family not found with ID: " + personId);
+            throw new NodeNotFoundException("Person not found with ID: " + personId);
         }
     }
 }

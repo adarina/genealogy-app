@@ -1,8 +1,8 @@
 package com.ada.genealogyapp.family.controller;
 
 
-import com.ada.genealogyapp.family.dto.FamilyEventResponse;
 import com.ada.genealogyapp.family.service.FamilyEventsViewService;
+import com.ada.genealogyapp.participant.dto.ParticipantEventResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -25,14 +25,14 @@ public class FamilyEventsViewController {
     }
 
     @GetMapping
-    public ResponseEntity<Page<FamilyEventResponse>> getFamilyEvents(@PathVariable UUID treeId, @PathVariable UUID familyId, @PageableDefault Pageable pageable) {
-        Page<FamilyEventResponse> eventResponses = familyEventsViewService.getFamilyEvents(treeId, familyId, pageable);
+    public ResponseEntity<Page<ParticipantEventResponse>> getFamilyEvents(@PathVariable UUID treeId, @PathVariable UUID familyId, @PageableDefault Pageable pageable) {
+        Page<ParticipantEventResponse> eventResponses = familyEventsViewService.getFamilyEvents(treeId, familyId, pageable);
         return ResponseEntity.ok(eventResponses);
     }
 
     @GetMapping("/{eventId}")
-    public ResponseEntity<FamilyEventResponse> getFamilyEvent(@PathVariable UUID treeId, @PathVariable UUID familyId, @PathVariable UUID eventId) {
-        FamilyEventResponse eventResponse = familyEventsViewService.getFamilyEvent(treeId, familyId, eventId);
+    public ResponseEntity<ParticipantEventResponse> getFamilyEvent(@PathVariable UUID treeId, @PathVariable UUID familyId, @PathVariable UUID eventId) {
+        ParticipantEventResponse eventResponse = familyEventsViewService.getFamilyEvent(treeId, familyId, eventId);
         return ResponseEntity.ok(eventResponse);
     }
 }

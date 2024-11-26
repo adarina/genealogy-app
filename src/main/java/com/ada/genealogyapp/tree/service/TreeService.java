@@ -6,7 +6,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface TreeService {
-    Optional<Tree> findTreeByNameAndUserId(String name, Long userId);
+    Optional<Tree> findTreeByName(String name);
     void saveTree(Tree tree);
     void ensureTreeExists(UUID treeId);
     Tree findTreeById(UUID treeId);

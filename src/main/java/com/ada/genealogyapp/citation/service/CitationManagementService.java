@@ -22,20 +22,26 @@ public class CitationManagementService {
 
     private final CitationRepository citationRepository;
 
-    public CitationManagementService(TreeService treeService, CitationService citationService, CitationRepository citationRepository) {
+    private final CitationValidationService citationValidationService;
+
+    public CitationManagementService(TreeService treeService, CitationService citationService, CitationRepository citationRepository, CitationValidationService citationValidationService) {
         this.treeService = treeService;
         this.citationService = citationService;
         this.citationRepository = citationRepository;
+        this.citationValidationService = citationValidationService;
     }
 
-    //TODO validation
     @TransactionalInNeo4j
     public void updateCitation(UUID treeId, UUID citationId, CitationRequest citationRequest) {
         treeService.ensureTreeExists(treeId);
-        citationService.ensureCitationExists(citationId);
+        Citation citation = citationService.findCitationById(citationId);
 
-        citationRepository.updateCitation(citationId, citationRequest.getPage(), citationRequest.getDate());
-        log.info("Citation updated successfully: {}", citationId);
+        citation.setPage(citationRequest.getPage());
+        citation.setDate(citationRequest.getDate());
+
+        citationValidationService.validateCitation(citation);
+
+        citationService.saveCitation(citation);
     }
 
     @TransactionalInNeo4j

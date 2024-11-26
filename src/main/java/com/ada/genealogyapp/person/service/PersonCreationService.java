@@ -21,7 +21,9 @@ public class PersonCreationService {
 
     private final PersonService personService;
 
-    //TODO validation
+    private final PersonValidationService personValidationService;
+
+
     @TransactionalInNeo4j
     public Person createPerson(UUID treeId, PersonRequest personRequest) {
         Tree tree = treeService.findTreeById(treeId);
@@ -35,7 +37,10 @@ public class PersonCreationService {
                 .gender(personRequest.getGender())
                 .build();
 
+        personValidationService.validatePerson(person);
         personService.savePerson(person);
+        log.info("Person created: {}", person);
+
         return person;
     }
 }

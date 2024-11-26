@@ -2,7 +2,6 @@ package com.ada.genealogyapp.family.service;
 
 import com.ada.genealogyapp.family.dto.FamilyRequest;
 import com.ada.genealogyapp.family.model.Family;
-import com.ada.genealogyapp.family.repostitory.FamilyRepository;
 import com.ada.genealogyapp.tree.service.TransactionalInNeo4j;
 import com.ada.genealogyapp.tree.service.TreeService;
 import lombok.extern.slf4j.Slf4j;
@@ -18,22 +17,25 @@ public class FamilyManagementService {
 
     private final FamilyService familyService;
 
-    private final FamilyRepository familyRepository;
+    private final FamilyValidationService familyValidationService;
 
-    public FamilyManagementService(TreeService treeService, FamilyService familyService, FamilyRepository familyRepository) {
+    public FamilyManagementService(TreeService treeService, FamilyService familyService, FamilyValidationService familyValidationService) {
         this.treeService = treeService;
         this.familyService = familyService;
-        this.familyRepository = familyRepository;
+        this.familyValidationService = familyValidationService;
     }
 
-    //TODO validation
+
     @TransactionalInNeo4j
     public void updateFamily(UUID treeId, UUID familyId, FamilyRequest familyRequest) {
         treeService.ensureTreeExists(treeId);
-        familyService.ensureFamilyExists(familyId);
+        Family family = familyService.findFamilyById(familyId);
 
-        familyRepository.updateFamily(familyId, familyRequest.getStatus());
-        log.info("Family updated successfully: {}", familyId);
+        family.setStatus(familyRequest.getStatus());
+
+        familyValidationService.validateFamily(family);
+
+        familyService.saveFamily(family);
     }
 
     @TransactionalInNeo4j

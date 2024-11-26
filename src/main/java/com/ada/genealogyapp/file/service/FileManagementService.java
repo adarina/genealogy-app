@@ -1,6 +1,7 @@
 package com.ada.genealogyapp.file.service;
 
 import com.ada.genealogyapp.file.dto.FileRequest;
+import com.ada.genealogyapp.file.model.File;
 import com.ada.genealogyapp.file.repository.FileRepository;
 import com.ada.genealogyapp.tree.service.TransactionalInNeo4j;
 import com.ada.genealogyapp.tree.service.TreeService;
@@ -30,9 +31,9 @@ public class FileManagementService {
     @TransactionalInNeo4j
     public void updateFile(UUID treeId, UUID fileId, FileRequest fileRequest) {
         treeService.ensureTreeExists(treeId);
-        fileService.ensureFileExists(fileId);
+        File file = fileService.findFileById(fileId);
 
-        fileRepository.updateFile(fileId, fileRequest.getName());
+        fileService.saveFile(file);
         log.info("File updated successfully: {}", fileId);
     }
 }

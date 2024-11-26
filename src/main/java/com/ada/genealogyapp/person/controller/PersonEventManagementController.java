@@ -25,8 +25,7 @@ public class PersonEventManagementController {
 
     @PutMapping
     public ResponseEntity<?> updateEventInPerson(@PathVariable UUID treeId, @PathVariable UUID personId, @PathVariable UUID eventId, @RequestBody ParticipantEventRequest participantEventRequest) {
-        eventManagementService.updateEvent(treeId, eventId, participantEventRequest);
-        personEventManagementService.updateEventInPerson(treeId, personId, eventId, participantEventRequest);
+        eventManagementService.updateEvent(treeId, eventId, participantEventRequest, personId);
         return ResponseEntity.ok().build();
     }
 
@@ -38,7 +37,7 @@ public class PersonEventManagementController {
 
     @PostMapping
     public ResponseEntity<?> addPersonToEvent(@PathVariable UUID treeId, @PathVariable UUID personId, @PathVariable UUID eventId, @RequestBody ParticipantEventRequest participantEventRequest) {
-        personEventManagementService.addPersonToEvent(treeId, personId, eventId, participantEventRequest);
+        eventManagementService.updateEvent(treeId, eventId, participantEventRequest, personId);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 }

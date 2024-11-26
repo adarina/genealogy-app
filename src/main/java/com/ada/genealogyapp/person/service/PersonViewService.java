@@ -1,7 +1,5 @@
 package com.ada.genealogyapp.person.service;
 
-
-import com.ada.genealogyapp.exceptions.NodeNotFoundException;
 import com.ada.genealogyapp.person.dto.PersonFilterRequest;
 import com.ada.genealogyapp.person.dto.PersonResponse;
 import com.ada.genealogyapp.person.repostitory.PersonRepository;
@@ -51,8 +49,6 @@ public class PersonViewService {
 
     public PersonResponse getPerson(UUID treeId, UUID personId) {
         treeService.ensureTreeExists(treeId);
-        personService.ensurePersonExists(personId);
-        return personRepository.findByTreeIdAndPersonId(treeId, personId)
-                .orElseThrow(() -> new NodeNotFoundException("Person " + personId.toString() + " not found for tree " + treeId.toString()));
+        return personService.findPersonResponseById(personId);
     }
 }

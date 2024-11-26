@@ -7,7 +7,7 @@ import java.util.UUID;
 public interface SourceService {
 
 
-   Source findSourceById(UUID sourceId);
+    Source findSourceById(UUID sourceId);
 
     void ensureSourceExists(UUID sourceId);
 

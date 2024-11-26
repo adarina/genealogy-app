@@ -1,10 +1,14 @@
 package com.ada.genealogyapp.event.service;
 
-import com.ada.genealogyapp.event.repository.EventRepository;
+import com.ada.genealogyapp.event.relationship.EventParticipant;
+import com.ada.genealogyapp.participant.dto.ParticipantEventRequest;
+import com.ada.genealogyapp.participant.model.Participant;
+import com.ada.genealogyapp.participant.service.ParticipantService;
 import com.ada.genealogyapp.tree.service.TransactionalInNeo4j;
 import com.ada.genealogyapp.event.dto.EventRequest;
 import com.ada.genealogyapp.event.model.Event;
 import com.ada.genealogyapp.tree.service.TreeService;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -21,12 +25,12 @@ public class EventManagementService {
 
     private final EventService eventService;
 
-    private final EventRepository eventRepository;
-
     private final EventValidationService eventValidationService;
 
+    private final ParticipantService participantService;
+
     @TransactionalInNeo4j
-    public void updateEvent(UUID treeId, UUID eventId, EventRequest eventRequest) {
+    public void updateEvent(UUID treeId, UUID eventId, @NonNull EventRequest eventRequest) {
         treeService.ensureTreeExists(treeId);
         Event event = eventService.findEventById(eventId);
 
@@ -36,8 +40,34 @@ public class EventManagementService {
         event.setType(eventRequest.getType());
 
         eventValidationService.validateEvent(event);
-
         eventService.saveEvent(event);
+        log.info("Event updated: {}", event);
+    }
+
+    @TransactionalInNeo4j
+    public void updateEvent(UUID treeId, UUID eventId, @NonNull ParticipantEventRequest eventRequest, UUID participantId) {
+        treeService.ensureTreeExists(treeId);
+        Participant participant = participantService.findParticipantById(participantId);
+        Event event = eventService.findEventById(eventId);
+
+        event.getParticipants().stream()
+                .filter(rel -> rel.getParticipant().getId().equals(participantId))
+                .findFirst().ifPresent(existingRel -> event.getParticipants().remove(existingRel));
+
+        EventParticipant relationship = EventParticipant.builder()
+                .participant(participant)
+                .relationship(eventRequest.getRelationship())
+                .build();
+
+        event.setDescription(eventRequest.getDescription());
+        event.setPlace(eventRequest.getPlace());
+        event.setDate(eventRequest.getDate());
+        event.setType(eventRequest.getType());
+        event.getParticipants().add(relationship);
+
+        eventValidationService.validateEvent(event);
+        eventService.saveEvent(event);
+        log.info("Event with participant {} updated: {}", participantId, event);
     }
 
     @TransactionalInNeo4j

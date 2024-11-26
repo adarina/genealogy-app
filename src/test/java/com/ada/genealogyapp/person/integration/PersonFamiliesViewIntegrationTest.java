@@ -47,11 +47,11 @@ class PersonFamiliesViewIntegrationTest extends IntegrationTestConfig {
     @BeforeEach
     void setUp() {
 
-        treeRepository.deleteAll();
-        personRepository.deleteAll();
-        eventRepository.deleteAll();
-        citationRepository.deleteAll();
-        familyRepository.deleteAll();
+//        treeRepository.deleteAll();
+//        personRepository.deleteAll();
+//        eventRepository.deleteAll();
+//        citationRepository.deleteAll();
+//        familyRepository.deleteAll();
     }
 
     @AfterEach

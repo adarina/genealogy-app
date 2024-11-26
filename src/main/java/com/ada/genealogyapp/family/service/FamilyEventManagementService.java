@@ -2,10 +2,7 @@ package com.ada.genealogyapp.family.service;
 
 import com.ada.genealogyapp.event.model.Event;
 import com.ada.genealogyapp.event.service.EventService;
-import com.ada.genealogyapp.exceptions.NodeAlreadyInNodeException;
-import com.ada.genealogyapp.participant.dto.ParticipantEventRequest;
 import com.ada.genealogyapp.family.model.Family;
-import com.ada.genealogyapp.relationship.RelationshipManager;
 import com.ada.genealogyapp.tree.service.TransactionalInNeo4j;
 import com.ada.genealogyapp.tree.service.TreeService;
 import lombok.RequiredArgsConstructor;
@@ -26,18 +23,6 @@ public class FamilyEventManagementService {
 
     private final FamilyService familyService;
 
-    private final RelationshipManager relationshipManager;
-
-    //TODO validation
-    @TransactionalInNeo4j
-    public void updateEventInFamily(UUID treeId, UUID familyId, UUID eventId, ParticipantEventRequest participantEventRequest) {
-        treeService.ensureTreeExists(treeId);
-        Family family = familyService.findFamilyById(familyId);
-        Event event = eventService.findEventById(eventId);
-
-        relationshipManager.updateEventParticipantRelationship(event, family, participantEventRequest.getRelationship());
-        log.info("Event {} relationship updated in family {}", eventId, familyId);
-    }
 
     @TransactionalInNeo4j
     public void removeFamilyFromEvent(UUID treeId, UUID familyId, UUID eventId) {
@@ -45,21 +30,8 @@ public class FamilyEventManagementService {
         Family family = familyService.findFamilyById(familyId);
         Event event = eventService.findEventById(eventId);
 
-        relationshipManager.removeEventParticipantRelationship(event, family);
+        event.getParticipants().removeIf(rel -> rel.getParticipant().equals(family));
+        eventService.saveEvent(event);
         log.info("Family {} removed from event {}", familyId, eventId);
-    }
-
-    @TransactionalInNeo4j
-    public void addFamilyToEvent(UUID treeId, UUID familyId, UUID eventId, ParticipantEventRequest participantEventRequest) {
-        treeService.ensureTreeExists(treeId);
-        Family family = familyService.findFamilyById(familyId);
-        Event event = eventService.findEventById(eventId);
-
-        if (event.isParticipantAlreadyInEvent(familyId)) {
-            throw new NodeAlreadyInNodeException("Family " + familyId + " is already a participant of the event " + eventId);
-        }
-
-        relationshipManager.addEventParticipantRelationship(event, family, participantEventRequest.getRelationship());
-        log.info("Family {} added successfully to the event {}", familyId, eventId);
     }
 }
