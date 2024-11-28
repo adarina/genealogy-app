@@ -5,8 +5,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.UUID;
-
 @Getter
 @Setter
 @AllArgsConstructor
@@ -15,5 +13,5 @@ public class CitationSourceResponse extends CitationResponse {
 
     private String name;
 
-    private UUID sourceId;
+    private String sourceId;
 }

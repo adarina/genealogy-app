@@ -7,8 +7,6 @@ import com.ada.genealogyapp.tree.service.TransactionalInNeo4j;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.util.UUID;
-
 @Slf4j
 @Service
 public class SourceServiceImpl implements SourceService {
@@ -19,12 +17,12 @@ public class SourceServiceImpl implements SourceService {
         this.sourceRepository = sourceRepository;
     }
 
-    public Source findSourceById(UUID sourceId) {
+    public Source findSourceById(String sourceId) {
         return sourceRepository.findById(sourceId)
                 .orElseThrow(() -> new NodeNotFoundException("Source not found with ID: " + sourceId));
     }
 
-    public void ensureSourceExists(UUID sourceId) {
+    public void ensureSourceExists(String sourceId) {
         if (!sourceRepository.existsById(sourceId)) {
             throw new NodeNotFoundException("Source not found with ID: " + sourceId);
         }

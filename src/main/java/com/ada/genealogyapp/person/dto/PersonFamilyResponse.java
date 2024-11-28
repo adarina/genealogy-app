@@ -4,7 +4,6 @@ import lombok.*;
 
 import java.time.LocalDate;
 import java.util.LinkedHashSet;
-import java.util.UUID;
 
 
 @Getter
@@ -14,17 +13,17 @@ import java.util.UUID;
 public class PersonFamilyResponse {
 
 
-    private UUID id;
+    private String id;
 
     private String fatherName;
 
-    private UUID fatherId;
+    private String fatherId;
 
     private LocalDate fatherBirthdate;
 
     private String motherName;
 
-    private UUID motherId;
+    private String motherId;
 
     private LocalDate motherBirthdate;
 
@@ -37,7 +36,7 @@ public class PersonFamilyResponse {
     @AllArgsConstructor
     public static class PersonFamilyChildResponse {
 
-        private UUID childId;
+        private String childId;
 
         private String childName;
 

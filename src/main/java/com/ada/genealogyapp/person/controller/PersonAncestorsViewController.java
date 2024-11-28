@@ -5,8 +5,6 @@ import com.ada.genealogyapp.person.service.PersonAncestorsViewService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.UUID;
-
 @RestController
 @RequestMapping("api/v1/genealogy/trees/{treeId}/persons/{personId}/ancestors")
 public class PersonAncestorsViewController {
@@ -18,7 +16,7 @@ public class PersonAncestorsViewController {
     }
 
     @GetMapping
-    public ResponseEntity<PersonAncestorResponse> getPersonAncestors(@PathVariable UUID treeId, @PathVariable UUID personId) {
+    public ResponseEntity<PersonAncestorResponse> getPersonAncestors(@PathVariable String treeId, @PathVariable String personId) {
         PersonAncestorResponse ancestorsResponse = personAncestorsViewService.getPersonAncestors(treeId, personId);
         return ResponseEntity.ok(ancestorsResponse);
     }

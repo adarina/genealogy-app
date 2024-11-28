@@ -25,7 +25,7 @@ public class PersonAncestorsViewService {
         this.treeService = treeService;
     }
 
-    public PersonAncestorResponse getPersonAncestors(UUID treeId, UUID personId) {
+    public PersonAncestorResponse getPersonAncestors(String treeId, String personId) {
         treeService.ensureTreeExists(treeId);
         Person person = personService.findPersonById(personId);
 

@@ -2,13 +2,11 @@ package com.ada.genealogyapp.file.service;
 
 import com.ada.genealogyapp.file.model.File;
 
-import java.util.UUID;
-
 public interface FileService {
 
-    File findFileById(UUID fileId);
+    File findFileById(String fileId);
 
-    void ensureFileExists(UUID fileId);
+    void ensureFileExists(String fileId);
 
     void saveFile(File file);
 }

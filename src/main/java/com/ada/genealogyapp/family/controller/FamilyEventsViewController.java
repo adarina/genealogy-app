@@ -25,13 +25,13 @@ public class FamilyEventsViewController {
     }
 
     @GetMapping
-    public ResponseEntity<Page<ParticipantEventResponse>> getFamilyEvents(@PathVariable UUID treeId, @PathVariable UUID familyId, @PageableDefault Pageable pageable) {
+    public ResponseEntity<Page<ParticipantEventResponse>> getFamilyEvents(@PathVariable String treeId, @PathVariable String familyId, @PageableDefault Pageable pageable) {
         Page<ParticipantEventResponse> eventResponses = familyEventsViewService.getFamilyEvents(treeId, familyId, pageable);
         return ResponseEntity.ok(eventResponses);
     }
 
     @GetMapping("/{eventId}")
-    public ResponseEntity<ParticipantEventResponse> getFamilyEvent(@PathVariable UUID treeId, @PathVariable UUID familyId, @PathVariable UUID eventId) {
+    public ResponseEntity<ParticipantEventResponse> getFamilyEvent(@PathVariable String treeId, @PathVariable String familyId, @PathVariable UUID eventId) {
         ParticipantEventResponse eventResponse = familyEventsViewService.getFamilyEvent(treeId, familyId, eventId);
         return ResponseEntity.ok(eventResponse);
     }

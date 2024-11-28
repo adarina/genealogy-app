@@ -12,8 +12,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.UUID;
-
 @RestController
 @RequestMapping("api/v1/genealogy/trees/{treeId}/events/{eventId}/citations")
 public class EventCitationsViewController {
@@ -25,13 +23,13 @@ public class EventCitationsViewController {
     }
 
     @GetMapping
-    public ResponseEntity<Page<EventCitationResponse>> getEventCitations(@PathVariable UUID treeId, @PathVariable UUID eventId, @PageableDefault Pageable pageable) {
+    public ResponseEntity<Page<EventCitationResponse>> getEventCitations(@PathVariable String treeId, @PathVariable String eventId, @PageableDefault Pageable pageable) {
         Page<EventCitationResponse> citationResponses = eventCitationsViewService.getEventCitations(treeId, eventId, pageable);
         return ResponseEntity.ok(citationResponses);
     }
 
     @GetMapping("/{citationId}")
-    public ResponseEntity<EventCitationResponse> getEventCitation(@PathVariable UUID treeId, @PathVariable UUID eventId, @PathVariable UUID citationId) {
+    public ResponseEntity<EventCitationResponse> getEventCitation(@PathVariable String treeId, @PathVariable String eventId, @PathVariable String citationId) {
         EventCitationResponse citationResponse = eventCitationsViewService.getEventCitation(treeId, eventId, citationId);
         return ResponseEntity.ok(citationResponse);
     }

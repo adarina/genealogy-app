@@ -11,10 +11,9 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
-import java.util.UUID;
 
 @Repository
-public interface SourceRepository extends Neo4jRepository<Source, UUID> {
+public interface SourceRepository extends Neo4jRepository<Source, String> {
 
     @Query(value = """
             MATCH (t:Tree)-[:HAS_SOURCE]->(s:Source)
@@ -32,7 +31,7 @@ public interface SourceRepository extends Neo4jRepository<Source, UUID> {
                     WHERE t.id = $treeId
                     RETURN count(s)
                     """)
-    Page<SourcesResponse> findByTreeIdAndFilteredName(@Param("treeId") UUID treeId, String name, Pageable pageable);
+    Page<SourcesResponse> findByTreeIdAndFilteredName(@Param("treeId") String treeId, String name, Pageable pageable);
 
     @Query("""
                 MATCH (s:Source {id: $sourceId})
@@ -42,6 +41,6 @@ public interface SourceRepository extends Neo4jRepository<Source, UUID> {
                 RETURN s.id AS id,
                        s.name AS name
             """)
-    Optional<SourceResponse> findByTreeIdAndSourceId(@Param("treeId") UUID treeId, @Param("sourceId") UUID sourceId);
+    Optional<SourceResponse> findByTreeIdAndSourceId(@Param("treeId") String treeId, @Param("sourceId") String sourceId);
 
 }

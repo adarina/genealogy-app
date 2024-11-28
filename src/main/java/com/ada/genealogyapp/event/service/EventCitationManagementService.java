@@ -11,8 +11,6 @@ import com.ada.genealogyapp.tree.service.TreeService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.util.UUID;
-
 @Slf4j
 @Service
 public class EventCitationManagementService {
@@ -34,7 +32,7 @@ public class EventCitationManagementService {
     }
 
     @TransactionalInNeo4j
-    public void removeCitationFromEvent(UUID treeId, UUID eventId, UUID citationId) {
+    public void removeCitationFromEvent(String treeId, String eventId, String citationId) {
         treeService.ensureTreeExists(treeId);
         Event event = eventService.findEventById(eventId);
         Citation citation = citationService.findCitationById(citationId);
@@ -44,7 +42,7 @@ public class EventCitationManagementService {
     }
 
     @TransactionalInNeo4j
-    public void addCitationToEvent(UUID treeId, UUID eventId, UUID citationId) {
+    public void addCitationToEvent(String treeId, String eventId, String citationId) {
         treeService.ensureTreeExists(treeId);
         Event event = eventService.findEventById(eventId);
         Citation citation = citationService.findCitationById(citationId);

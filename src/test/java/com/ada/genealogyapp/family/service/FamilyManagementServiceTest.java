@@ -36,16 +36,16 @@ class FamilyManagementServiceTest {
     FamilyManagementService familyManagementService;
 
 
-    UUID treeId;
-    UUID familyId;
+    String treeId;
+    String familyId;
     Family family;
     FamilyRequest familyRequest;
 
     @BeforeEach
     void setUp() {
 
-        treeId = UUID.randomUUID();
-        familyId = UUID.randomUUID();
+        treeId = String.valueOf(UUID.randomUUID());
+        familyId = String.valueOf(UUID.randomUUID());
         family = new Family();
         familyRequest = new FamilyRequest(StatusType.MARRIED);
     }

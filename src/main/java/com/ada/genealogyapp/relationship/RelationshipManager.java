@@ -3,12 +3,9 @@ package com.ada.genealogyapp.relationship;
 import com.ada.genealogyapp.citation.model.Citation;
 import com.ada.genealogyapp.event.model.Event;
 import com.ada.genealogyapp.event.relationship.EventCitation;
-import com.ada.genealogyapp.event.relationship.EventParticipant;
 import com.ada.genealogyapp.event.service.EventService;
-import com.ada.genealogyapp.event.type.EventParticipantRelationshipType;
 import com.ada.genealogyapp.family.dto.FamilyChildRequest;
 import com.ada.genealogyapp.family.model.Family;
-import com.ada.genealogyapp.participant.model.Participant;
 import com.ada.genealogyapp.person.model.Person;
 import com.ada.genealogyapp.person.relationship.PersonRelationship;
 import com.ada.genealogyapp.person.service.PersonService;
@@ -25,21 +22,6 @@ public class RelationshipManager {
     private final PersonService personService;
     private final EventService eventService;
 
-    public void addParentChildRelationships(Family family, Person child, PersonRelationshipType fatherRelationship, PersonRelationshipType motherRelationship) {
-        addParentChildRelationship(family.getFather(), child, fatherRelationship);
-        addParentChildRelationship(family.getMother(), child, motherRelationship);
-    }
-
-    public void updateParentChildRelationships(Family family, Person child, FamilyChildRequest familyChildRequest) {
-        updateParentChildRelationship(family.getFather(), child, familyChildRequest.getFatherRelationship());
-        updateParentChildRelationship(family.getMother(), child, familyChildRequest.getMotherRelationship());
-    }
-
-    public void removeParentChildRelationships(Family family, Person child) {
-        removeParentChildRelationship(family.getFather(), child);
-        removeParentChildRelationship(family.getMother(), child);
-    }
-
     public void addParentChildRelationship(Person parent, Person child, PersonRelationshipType relationshipType) {
         if (nonNull(parent)) {
             PersonRelationship relationship = PersonRelationship.builder()
@@ -51,26 +33,38 @@ public class RelationshipManager {
         }
     }
 
-    private void updateParentChildRelationship(Person parent, Person child, PersonRelationshipType type) {
+    public void removeParentChildRelationships(Family family, Person child) {
+        removeParentChildRelationship(family.getFather(), child);
+        removeParentChildRelationship(family.getMother(), child);
+    }
+
+    public void updateParentChildRelationships(Family family, Person child, FamilyChildRequest familyChildRequest) {
+        updateParentChildRelationship(family.getFather(), child, familyChildRequest.getFatherRelationship());
+        updateParentChildRelationship(family.getMother(), child, familyChildRequest.getMotherRelationship());
+    }
+
+    private void updateParentChildRelationship(Person parent, Person child, PersonRelationshipType relationship) {
         if (nonNull(parent)) {
-            removeParentChildRelationship(parent, child);
-            addParentChildRelationship(parent, child, type);
+            parent.getRelationships().removeIf(rel -> rel.getChild().getId().equals(child.getId()));
+            if (nonNull(relationship)) {
+                PersonRelationship personRelationship = PersonRelationship.builder()
+                        .child(child)
+                        .relationship(relationship)
+                        .build();
+                parent.getRelationships().add(personRelationship);
+            }
+            personService.savePerson(parent);
         }
     }
 
     public void removeParentChildRelationship(Person parent, Person child) {
         if (nonNull(parent)) {
-            parent.getRelationships().removeIf(rel -> rel.getChild().equals(child));
+            parent.getRelationships().removeIf(rel -> rel.getChild().getId().equals(child.getId()));
             personService.savePerson(parent);
         }
     }
 
-    public void removeEventParticipantRelationship(Event event, Participant participant) {
-        if (nonNull(event)) {
-            event.getParticipants().removeIf(rel -> rel.getParticipant().equals(participant));
-            eventService.saveEvent(event);
-        }
-    }
+
 
     public void removeEventCitationRelationship(Event event, Citation citation) {
         if (nonNull(event)) {

@@ -25,13 +25,13 @@ class EventServiceImplTest {
     @InjectMocks
     EventServiceImpl eventService;
 
-    UUID eventId;
+    String eventId;
     Event event;
 
     @BeforeEach
     void setUp() {
 
-        eventId = UUID.randomUUID();
+        eventId = String.valueOf(UUID.randomUUID());
         event = new Event();
         event.setId(eventId);
     }

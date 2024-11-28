@@ -34,7 +34,7 @@ public class EventViewService {
     }
 
 
-    public Page<EventPageResponse> getEvents(UUID treeId, String filter, Pageable pageable) throws JsonProcessingException {
+    public Page<EventPageResponse> getEvents(String treeId, String filter, Pageable pageable) throws JsonProcessingException {
         treeService.ensureTreeExists(treeId);
         EventFilterRequest filterRequest = objectMapper.readValue(filter, EventFilterRequest.class);
         return eventRepository.findByTreeIdAndFilteredDescriptionParticipantNamesAndType(
@@ -46,7 +46,7 @@ public class EventViewService {
         );
     }
 
-    public EventResponse getEvent(UUID treeId, UUID eventId) {
+    public EventResponse getEvent(String treeId, String eventId) {
         treeService.ensureTreeExists(treeId);
         eventService.ensureEventExists(eventId);
         return eventRepository.findByTreeIdAndEventId(treeId, eventId)

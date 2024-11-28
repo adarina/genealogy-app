@@ -15,7 +15,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
-import java.util.UUID;
 
 @Slf4j
 @Service
@@ -33,7 +32,7 @@ public class SourceViewService {
         this.sourceRepository = sourceRepository;
     }
 
-    public Page<SourcesResponse> getSources(UUID treeId, String filter, Pageable pageable) throws JsonProcessingException {
+    public Page<SourcesResponse> getSources(String treeId, String filter, Pageable pageable) throws JsonProcessingException {
         treeService.ensureTreeExists(treeId);
         SourceFilterRequest filterRequest = objectMapper.readValue(filter, SourceFilterRequest.class);
         return sourceRepository.findByTreeIdAndFilteredName(
@@ -43,7 +42,7 @@ public class SourceViewService {
         );
     }
 
-    public SourceResponse getSource(UUID treeId, UUID sourceId) {
+    public SourceResponse getSource(String treeId, String sourceId) {
         treeService.ensureTreeExists(treeId);
         sourceService.ensureSourceExists(sourceId);
         return sourceRepository.findByTreeIdAndSourceId(treeId, sourceId)

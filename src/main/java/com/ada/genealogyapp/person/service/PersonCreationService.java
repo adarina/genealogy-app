@@ -9,8 +9,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.util.UUID;
-
 
 @Slf4j
 @Service
@@ -25,7 +23,7 @@ public class PersonCreationService {
 
 
     @TransactionalInNeo4j
-    public Person createPerson(UUID treeId, PersonRequest personRequest) {
+    public Person createPerson(String treeId, PersonRequest personRequest) {
         Tree tree = treeService.findTreeById(treeId);
 
         Person person = Person.builder()

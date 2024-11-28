@@ -9,8 +9,6 @@ import com.ada.genealogyapp.tree.service.TreeService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.util.UUID;
-
 @Slf4j
 @Service
 public class CitationFileManagementService {
@@ -30,7 +28,7 @@ public class CitationFileManagementService {
 
 
     @TransactionalInNeo4j
-    public void addFileToCitation(UUID treeId, UUID citationId, UUID fileId) {
+    public void addFileToCitation(String treeId, String citationId, String fileId) {
         treeService.ensureTreeExists(treeId);
         Citation citation = citationService.findCitationById(citationId);
         File file = fileSearchService.findFileById(fileId);
@@ -45,7 +43,7 @@ public class CitationFileManagementService {
     }
 
     @TransactionalInNeo4j
-    public void removeFileFromCitation(UUID treeId, UUID citationId, UUID fileId) {
+    public void removeFileFromCitation(String treeId, String citationId, String fileId) {
         treeService.ensureTreeExists(treeId);
         Citation citation = citationService.findCitationById(citationId);
         File file = fileSearchService.findFileById(fileId);

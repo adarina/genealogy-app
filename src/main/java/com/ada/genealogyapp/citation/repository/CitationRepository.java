@@ -9,11 +9,9 @@ import org.springframework.data.neo4j.repository.Neo4jRepository;
 import org.springframework.data.neo4j.repository.query.Query;
 import org.springframework.data.repository.query.Param;
 
-import java.time.LocalDate;
 import java.util.Optional;
-import java.util.UUID;
 
-public interface CitationRepository extends Neo4jRepository<Citation, UUID> {
+public interface CitationRepository extends Neo4jRepository<Citation, String> {
 
 
     @Query(value = """
@@ -36,7 +34,7 @@ public interface CitationRepository extends Neo4jRepository<Citation, UUID> {
                     WHERE t.id = $treeId
                     RETURN count(c)
                     """)
-    Page<CitationSourceResponse> findByTreeIdAndFilteredPage(@Param("treeId") UUID treeId, String page, Pageable pageable);
+    Page<CitationSourceResponse> findByTreeIdAndFilteredPage(@Param("treeId") String treeId, String page, Pageable pageable);
 
     @Query("""
                 MATCH (c:Citation {id: $citationId})
@@ -51,7 +49,7 @@ public interface CitationRepository extends Neo4jRepository<Citation, UUID> {
                        s.name AS name,
                        s.id AS sourceId
             """)
-    Optional<CitationSourceResponse> findByTreeIdAndCitationId(@Param("treeId") UUID treeId, @Param("citationId") UUID citationId);
+    Optional<CitationSourceResponse> findByTreeIdAndCitationId(@Param("treeId") String treeId, @Param("citationId") String citationId);
 
     @Query(value = """
             MATCH (f:File)<-[:HAS_CITATION_FILE]-(c:Citation)
@@ -71,6 +69,6 @@ public interface CitationRepository extends Neo4jRepository<Citation, UUID> {
                         RETURN count(f)
                     """
     )
-    Page<FileResponse> findCitationFiles(UUID citationId, Pageable pageable);
+    Page<FileResponse> findCitationFiles(String citationId, Pageable pageable);
 
 }

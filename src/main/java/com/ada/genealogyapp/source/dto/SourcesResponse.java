@@ -5,8 +5,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.UUID;
-
 
 @Getter
 @Setter
@@ -14,7 +12,7 @@ import java.util.UUID;
 @NoArgsConstructor
 public class SourcesResponse {
 
-    private UUID id;
+    private String id;
 
     private String name;
 }

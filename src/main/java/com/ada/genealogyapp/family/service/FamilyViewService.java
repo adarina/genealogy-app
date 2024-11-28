@@ -31,7 +31,7 @@ public class FamilyViewService {
         this.familyService = familyService;
     }
 
-    public Page<FamilyResponse> getFamilies(UUID treeId, String filter, Pageable pageable) throws JsonProcessingException {
+    public Page<FamilyResponse> getFamilies(String treeId, String filter, Pageable pageable) throws JsonProcessingException {
         treeService.ensureTreeExists(treeId);
         FamilyFilterRequest filterRequest = objectMapper.readValue(filter, FamilyFilterRequest.class);
 
@@ -44,7 +44,7 @@ public class FamilyViewService {
         );
     }
 
-    public FamilyResponse getFamily(UUID treeId, UUID familyId) {
+    public FamilyResponse getFamily(String treeId, String familyId) {
         treeService.ensureTreeExists(treeId);
         familyService.ensureFamilyExists(familyId);
 

@@ -9,8 +9,6 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.UUID;
-
 @RestController
 @RequestMapping("api/v1/genealogy/trees/{treeId}/files")
 public class FileViewController {
@@ -23,14 +21,14 @@ public class FileViewController {
     }
 
     @GetMapping
-    public ResponseEntity<Page<FileResponse>> getFiles(@PathVariable UUID treeId, @RequestParam String filter, @PageableDefault Pageable pageable) throws JsonProcessingException {
+    public ResponseEntity<Page<FileResponse>> getFiles(@PathVariable String treeId, @RequestParam String filter, @PageableDefault Pageable pageable) throws JsonProcessingException {
         Page<FileResponse> fileResponses = fileViewService.getFiles(treeId, filter, pageable);
         return ResponseEntity.ok(fileResponses);
     }
 
 
     @GetMapping("/{fileId}")
-    public ResponseEntity<FileResponse> getFile(@PathVariable UUID treeId, @PathVariable UUID fileId) {
+    public ResponseEntity<FileResponse> getFile(@PathVariable String treeId, @PathVariable String fileId) {
         FileResponse fileResponse = fileViewService.getFile(treeId, fileId);
         return ResponseEntity.ok(fileResponse);
     }

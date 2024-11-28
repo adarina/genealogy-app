@@ -6,8 +6,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.UUID;
-
 @RestController
 @RequestMapping("api/v1/genealogy/trees/{treeId}/persons")
 public class PersonCreationController {
@@ -20,7 +18,7 @@ public class PersonCreationController {
     }
 
     @PostMapping
-    public ResponseEntity<?> createPerson(@PathVariable UUID treeId, @RequestBody PersonRequest personRequest, @RequestHeader(value = "X-User-Id") String userId) {
+    public ResponseEntity<?> createPerson(@PathVariable String treeId, @RequestBody PersonRequest personRequest, @RequestHeader(value = "X-User-Id") String userId) {
         personCreationService.createPerson(treeId, personRequest);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }

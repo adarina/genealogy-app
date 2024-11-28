@@ -10,8 +10,6 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.UUID;
-
 @RestController
 @RequestMapping("api/v1/genealogy/trees/{treeId}/citations")
 public class CitationViewController {
@@ -23,13 +21,13 @@ public class CitationViewController {
     }
 
     @GetMapping
-    public ResponseEntity<Page<CitationSourceResponse>> getCitations(@PathVariable UUID treeId, @RequestParam String filter, @PageableDefault Pageable pageable) throws JsonProcessingException {
+    public ResponseEntity<Page<CitationSourceResponse>> getCitations(@PathVariable String treeId, @RequestParam String filter, @PageableDefault Pageable pageable) throws JsonProcessingException {
         Page<CitationSourceResponse> citationResponses = citationViewService.getCitations(treeId, filter, pageable);
         return ResponseEntity.ok(citationResponses);
     }
 
     @GetMapping("/{citationId}")
-    public ResponseEntity<CitationSourceResponse> getCitation(@PathVariable UUID treeId, @PathVariable UUID citationId) {
+    public ResponseEntity<CitationSourceResponse> getCitation(@PathVariable String treeId, @PathVariable String citationId) {
         CitationSourceResponse citationResponse = citationViewService.getCitation(treeId, citationId);
         return ResponseEntity.ok(citationResponse);
     }

@@ -7,8 +7,6 @@ import com.ada.genealogyapp.tree.service.TransactionalInNeo4j;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.util.UUID;
-
 @Service
 @Slf4j
 public class FileServiceImpl implements FileService {
@@ -19,12 +17,12 @@ public class FileServiceImpl implements FileService {
         this.fileRepository = fileRepository;
     }
 
-    public File findFileById(UUID fileId) {
+    public File findFileById(String fileId) {
         return fileRepository.findById(fileId)
                 .orElseThrow(() -> new NodeNotFoundException("File not found with ID: " + fileId));
     }
 
-    public void ensureFileExists(UUID fileId) {
+    public void ensureFileExists(String fileId) {
         if (!fileRepository.existsById(fileId)) {
             throw new NodeNotFoundException("File not found with ID: " + fileId);
         }

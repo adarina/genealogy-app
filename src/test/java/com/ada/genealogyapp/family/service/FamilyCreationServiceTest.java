@@ -39,13 +39,13 @@ class FamilyCreationServiceTest {
 
 
     Tree tree;
-    UUID treeId;
+    String treeId;
     FamilyRequest familyRequest;
 
     @BeforeEach
     void setUp() {
 
-        treeId = UUID.randomUUID();
+        treeId = String.valueOf(UUID.randomUUID());
         tree = new Tree();
         familyRequest = new FamilyRequest(StatusType.MARRIED);
     }

@@ -4,7 +4,6 @@ import com.ada.genealogyapp.person.type.GenderType;
 import lombok.*;
 
 import java.time.LocalDate;
-import java.util.UUID;
 
 @Getter
 @Setter
@@ -13,7 +12,7 @@ import java.util.UUID;
 @AllArgsConstructor
 public class PersonResponse {
 
-    private UUID id;
+    private String id;
 
     private String firstname;
 

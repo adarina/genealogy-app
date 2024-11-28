@@ -7,7 +7,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDate;
-import java.util.UUID;
 
 @Getter
 @Setter
@@ -15,7 +14,7 @@ import java.util.UUID;
 @NoArgsConstructor
 public class FamilyResponse {
 
-    private UUID id;
+    private String id;
 
     private StatusType status;
 
@@ -27,7 +26,7 @@ public class FamilyResponse {
 
     private LocalDate motherBirthdate;
 
-    private UUID motherId;
+    private String motherId;
 
-    private UUID fatherId;
+    private String fatherId;
 }

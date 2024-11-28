@@ -9,11 +9,11 @@ import org.springframework.data.neo4j.core.schema.GeneratedValue;
 import org.springframework.data.neo4j.core.schema.Id;
 import org.springframework.data.neo4j.core.schema.Node;
 import org.springframework.data.neo4j.core.schema.Relationship;
+import org.springframework.data.neo4j.core.support.UUIDStringGenerator;
 
 import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.UUID;
 
 @Node
 @ToString
@@ -25,8 +25,8 @@ import java.util.UUID;
 public class Event {
 
     @Id
-    @GeneratedValue
-    private UUID id;
+    @GeneratedValue(UUIDStringGenerator.class)
+    private String id;
 
     private EventType type;
 
@@ -46,12 +46,12 @@ public class Event {
     @Relationship(type = "HAS_EVENT", direction = Relationship.Direction.INCOMING)
     private Tree tree;
 
-    public boolean isParticipantAlreadyInEvent(UUID participantId) {
+    public boolean isParticipantAlreadyInEvent(String participantId) {
         return participants.stream()
                 .anyMatch(ep -> ep.getParticipant().getId().equals(participantId));
     }
 
-    public boolean isCitationAlreadyInEvent(UUID citationId) {
+    public boolean isCitationAlreadyInEvent(String citationId) {
         return citations.stream()
                 .anyMatch(ec -> ec.getCitation().getId().equals(citationId));
     }

@@ -36,13 +36,13 @@ public class FamilyEventsViewService {
         this.participantRepository = participantRepository;
     }
 
-    public Page<ParticipantEventResponse> getFamilyEvents(UUID treeId, UUID familyId, Pageable pageable) {
+    public Page<ParticipantEventResponse> getFamilyEvents(String treeId, String familyId, Pageable pageable) {
         treeService.ensureTreeExists(treeId);
         familyService.ensureFamilyExists(familyId);
         return participantRepository.findParticipantEvents(familyId, pageable);
     }
 
-    public ParticipantEventResponse getFamilyEvent(UUID treeId, UUID familyId, UUID eventId) {
+    public ParticipantEventResponse getFamilyEvent(String treeId, String familyId, UUID eventId) {
         treeService.ensureTreeExists(treeId);
         familyService.ensureFamilyExists(familyId);
         return participantRepository.findParticipantEvent(eventId, familyId)

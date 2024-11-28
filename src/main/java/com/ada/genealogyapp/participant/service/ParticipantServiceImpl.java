@@ -6,8 +6,6 @@ import com.ada.genealogyapp.participant.repository.ParticipantRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.util.UUID;
-
 
 @Service
 @Slf4j
@@ -19,8 +17,14 @@ public class ParticipantServiceImpl implements ParticipantService{
         this.participantRepository = participantRepository;
     }
 
-    public Participant findParticipantById(UUID participantId) {
+    public Participant findParticipantById(String participantId) {
         return participantRepository.findById(participantId)
                 .orElseThrow(() -> new NodeNotFoundException("Participant not found with ID: " + participantId));
+    }
+
+    public void ensureParticipantExists(String participantId) {
+        if (!participantRepository.existsById(participantId)) {
+            throw new NodeNotFoundException("Participant not found with ID: " + participantId);
+        }
     }
 }

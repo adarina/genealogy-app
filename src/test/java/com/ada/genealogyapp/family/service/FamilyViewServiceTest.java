@@ -45,16 +45,16 @@ class FamilyViewServiceTest {
     @InjectMocks
     FamilyViewService familyViewService;
 
-    UUID treeId;
-    UUID familyId;
+    String treeId;
+    String familyId;
     Pageable pageable;
     String filter;
 
     @BeforeEach
     void setUp() {
 
-        treeId = UUID.randomUUID();
-        familyId = UUID.randomUUID();
+        treeId = String.valueOf(UUID.randomUUID());
+        familyId = String.valueOf(UUID.randomUUID());
         filter = "{\"motherName\":\"Elizabeth Black\",\"fatherName\":\"John Smith\",\"status\":\"MARRIED\"}";
         pageable = PageRequest.of(0, 10);
     }
@@ -98,7 +98,7 @@ class FamilyViewServiceTest {
     @Test
     void getFamily_shouldReturnFamilyWhenExists() {
 
-        UUID fatherId = UUID.randomUUID();
+        String fatherId = String.valueOf(UUID.randomUUID());
 
         FamilyResponse expectedResponse = new FamilyResponse();
         expectedResponse.setId(familyId);

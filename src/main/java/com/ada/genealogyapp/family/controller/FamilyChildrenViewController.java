@@ -8,8 +8,6 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.UUID;
-
 @RestController
 @RequestMapping("api/v1/genealogy/trees/{treeId}/families/{familyId}/children")
 public class FamilyChildrenViewController {
@@ -21,7 +19,7 @@ public class FamilyChildrenViewController {
     }
 
     @GetMapping
-    public ResponseEntity<Page<FamilyChildResponse>> getChildren(@PathVariable UUID treeId, @PathVariable UUID familyId, @PageableDefault Pageable pageable) {
+    public ResponseEntity<Page<FamilyChildResponse>> getChildren(@PathVariable String treeId, @PathVariable String familyId, @PageableDefault Pageable pageable) {
         Page<FamilyChildResponse> childResponses = familyChildrenViewService.getChildren(treeId, familyId, pageable);
         return ResponseEntity.ok(childResponses);
     }

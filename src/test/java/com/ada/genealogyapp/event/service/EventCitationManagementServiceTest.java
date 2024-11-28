@@ -39,17 +39,17 @@ class EventCitationManagementServiceTest {
     @InjectMocks
     EventCitationManagementService eventCitationManagementService;
 
-    UUID treeId;
-    UUID eventId;
-    UUID citationId;
+    String treeId;
+    String eventId;
+    String citationId;
     Event event;
     Citation citation;
 
     @BeforeEach
     void setUp() {
-        treeId = UUID.randomUUID();
-        eventId = UUID.randomUUID();
-        citationId = UUID.randomUUID();
+        treeId = String.valueOf(UUID.randomUUID());
+        eventId = String.valueOf(UUID.randomUUID());
+        citationId = String.valueOf(UUID.randomUUID());
 
         event = new Event();
         event.setId(eventId);

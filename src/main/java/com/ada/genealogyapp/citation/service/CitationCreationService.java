@@ -9,8 +9,6 @@ import com.ada.genealogyapp.tree.service.TreeService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.util.UUID;
-
 @Service
 @Slf4j
 public class CitationCreationService {
@@ -30,7 +28,7 @@ public class CitationCreationService {
 
 
     @TransactionalInNeo4j
-    public Citation createCitation(UUID treeId, CitationRequest citationRequest) {
+    public Citation createCitation(String treeId, CitationRequest citationRequest) {
         Tree tree = treeService.findTreeById(treeId);
         Citation citation = Citation.builder()
                 .tree(tree)

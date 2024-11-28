@@ -8,8 +8,6 @@ import com.ada.genealogyapp.tree.service.TreeService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.util.UUID;
-
 @Service
 @Slf4j
 public class FileManagementService {
@@ -29,7 +27,7 @@ public class FileManagementService {
 
     //TODO validation
     @TransactionalInNeo4j
-    public void updateFile(UUID treeId, UUID fileId, FileRequest fileRequest) {
+    public void updateFile(String treeId, String fileId, FileRequest fileRequest) {
         treeService.ensureTreeExists(treeId);
         File file = fileService.findFileById(fileId);
 

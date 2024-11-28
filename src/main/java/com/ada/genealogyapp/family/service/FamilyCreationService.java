@@ -9,8 +9,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.util.UUID;
-
 
 @Service
 @Slf4j
@@ -24,7 +22,7 @@ public class FamilyCreationService {
     private final FamilyValidationService familyValidationService;
 
     @TransactionalInNeo4j
-    public Family createFamily(UUID treeId, FamilyRequest familyRequest) {
+    public Family createFamily(String treeId, FamilyRequest familyRequest) {
         Tree tree = treeService.findTreeById(treeId);
 
         Family family = Family.builder()

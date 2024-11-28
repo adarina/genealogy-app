@@ -10,12 +10,12 @@ import org.springframework.data.neo4j.repository.query.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.Set;
-import java.util.UUID;
 
 
-public interface PersonRepository extends Neo4jRepository<Person, UUID> {
+public interface PersonRepository extends Neo4jRepository<Person, String> {
     @Query("MATCH (p:Person)-[:PARENT_OF]->(c:Person) WHERE c.id = $childId RETURN p")
-    Set<Person> findParentsOf(UUID childId);
+    Set<Person> findParentsOf(String childId);
+
 
     @Query(value = """
             MATCH (t:Tree)-[:HAS_PERSON]->(p:Person)
@@ -37,7 +37,7 @@ public interface PersonRepository extends Neo4jRepository<Person, UUID> {
                         WHERE t.id = $treeId
                         RETURN count(p)
                     """)
-    Page<PersonResponse> findByTreeIdAndFilteredFirstnameLastnameAndGender(@Param("treeId") UUID treeId, String firstname, String lastname, String gender, Pageable pageable);
+    Page<PersonResponse> findByTreeIdAndFilteredFirstnameLastnameAndGender(@Param("treeId") String treeId, String firstname, String lastname, String gender, Pageable pageable);
 
 
     @Query(value = """
@@ -73,7 +73,7 @@ public interface PersonRepository extends Neo4jRepository<Person, UUID> {
                             OR (f)-[:HAS_CHILD]->(:Person {id: $personId})
                          RETURN count(f)
                     """)
-    Page<PersonFamilyResponse> findPersonalFamilies(@Param("personId") UUID personId, Pageable pageable);
+    Page<PersonFamilyResponse> findPersonalFamilies(@Param("personId") String personId, Pageable pageable);
 
 }
 

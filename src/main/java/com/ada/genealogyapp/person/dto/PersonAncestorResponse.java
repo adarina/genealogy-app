@@ -11,7 +11,7 @@ import java.util.*;
 @NoArgsConstructor
 public class PersonAncestorResponse {
 
-    private UUID id;
+    private String id;
 
     private String name;
 

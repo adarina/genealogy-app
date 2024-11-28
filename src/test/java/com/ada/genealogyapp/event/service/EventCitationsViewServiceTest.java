@@ -39,18 +39,18 @@ class EventCitationsViewServiceTest {
     @InjectMocks
     EventCitationsViewService eventCitationsViewService;
 
-    UUID treeId;
-    UUID eventId;
-    UUID citationId;
+    String treeId;
+    String eventId;
+    String citationId;
     Page<EventCitationResponse> mockedPage;
     Pageable pageable;
 
     @BeforeEach
     void setUp() {
 
-        treeId = UUID.randomUUID();
-        eventId = UUID.randomUUID();
-        citationId = UUID.randomUUID();
+        treeId = String.valueOf(UUID.randomUUID());
+        eventId = String.valueOf(UUID.randomUUID());
+        citationId = String.valueOf(UUID.randomUUID());
         pageable = PageRequest.of(0, 10);
         mockedPage = new PageImpl<>(Collections.emptyList(), pageable, 0);
     }

@@ -9,8 +9,6 @@ import com.ada.genealogyapp.tree.service.TreeService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.util.UUID;
-
 @Service
 @Slf4j
 public class SourceManagementService {
@@ -30,7 +28,7 @@ public class SourceManagementService {
 
     //TODO validation
     @TransactionalInNeo4j
-    public void updateSource(UUID treeId, UUID sourceId, SourceRequest sourceRequest) {
+    public void updateSource(String treeId, String sourceId, SourceRequest sourceRequest) {
         treeService.ensureTreeExists(treeId);
         Source source = sourceService.findSourceById(sourceId);
 

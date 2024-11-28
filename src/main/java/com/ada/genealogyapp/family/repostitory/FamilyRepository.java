@@ -10,9 +10,9 @@ import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
-public interface FamilyRepository extends Neo4jRepository<Family, UUID> {
+
+public interface FamilyRepository extends Neo4jRepository<Family, String> {
 
 
     @Query(value = """
@@ -42,7 +42,7 @@ public interface FamilyRepository extends Neo4jRepository<Family, UUID> {
                     WHERE t.id = $treeId
                     RETURN count(f)
                     """)
-    Page<FamilyResponse> findByTreeIdAndFilteredParentNamesAndStatus(@Param("treeId") UUID treeId, String motherName, String fatherName, String status, Pageable pageable);
+    Page<FamilyResponse> findByTreeIdAndFilteredParentNamesAndStatus(@Param("treeId") String treeId, String motherName, String fatherName, String status, Pageable pageable);
 
     @Query(value = """
             MATCH (f:Family)-[:HAS_CHILD]->(child:Person)
@@ -74,7 +74,7 @@ public interface FamilyRepository extends Neo4jRepository<Family, UUID> {
                         WHERE f.id = $familyId
                         RETURN count(child)
                     """)
-    Page<FamilyChildResponse> findChildren(@Param("familyId") UUID familyId, Pageable pageable);
+    Page<FamilyChildResponse> findChildren(@Param("familyId") String familyId, Pageable pageable);
 
     @Query("""
                 MATCH (f:Family {id: $familyId})
@@ -93,8 +93,8 @@ public interface FamilyRepository extends Neo4jRepository<Family, UUID> {
                        father.birthdate AS fatherBirthdate,
                        mother.birthdate AS motherBirthdate
             """)
-    Optional<FamilyResponse> findByTreeIdAndFamilyId(@Param("treeId") UUID treeId, @Param("familyId") UUID familyId);
+    Optional<FamilyResponse> findByTreeIdAndFamilyId(@Param("treeId") String treeId, @Param("familyId") String familyId);
 
-    List<Family> findByFatherIdOrMotherId(UUID fatherId, UUID motherId);
+    List<Family> findByFatherIdOrMotherId(String fatherId, String motherId);
 
 }

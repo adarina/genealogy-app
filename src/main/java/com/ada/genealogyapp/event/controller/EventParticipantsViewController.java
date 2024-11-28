@@ -11,8 +11,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.UUID;
-
 
 @RestController
 @RequestMapping("api/v1/genealogy/trees/{treeId}/events/{eventId}/participants")
@@ -25,7 +23,7 @@ public class EventParticipantsViewController {
     }
 
     @GetMapping
-    public ResponseEntity<Page<EventParticipantResponse>> getEventParticipants(@PathVariable UUID treeId, @PathVariable UUID eventId, @PageableDefault Pageable pageable) {
+    public ResponseEntity<Page<EventParticipantResponse>> getEventParticipants(@PathVariable String treeId, @PathVariable String eventId, @PageableDefault Pageable pageable) {
         Page<EventParticipantResponse> participantResponses = eventParticipantsViewService.getEventParticipants(treeId, eventId, pageable);
         return ResponseEntity.ok(participantResponses);
     }

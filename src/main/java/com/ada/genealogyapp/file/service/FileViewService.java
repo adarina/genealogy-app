@@ -14,7 +14,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
-import java.util.UUID;
 
 
 @Service
@@ -39,7 +38,7 @@ public class FileViewService {
         this.fileService = fileService;
     }
 
-    public Page<FileResponse> getFiles(UUID treeId, String filter, Pageable pageable) throws JsonProcessingException {
+    public Page<FileResponse> getFiles(String treeId, String filter, Pageable pageable) throws JsonProcessingException {
         treeService.ensureTreeExists(treeId);
         FileFilterRequest filterRequest = objectMapper.readValue(filter, FileFilterRequest.class);
 
@@ -52,7 +51,7 @@ public class FileViewService {
         );
     }
 
-    public FileResponse getFile(UUID treeId, UUID fileId) {
+    public FileResponse getFile(String treeId, String fileId) {
         treeService.ensureTreeExists(treeId);
         fileService.ensureFileExists(fileId);
         return fileRepository.findByTreeIdAndFileId(treeId, fileId, baseUrl)

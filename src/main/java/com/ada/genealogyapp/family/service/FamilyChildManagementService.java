@@ -13,8 +13,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.util.UUID;
-
 
 @Service
 @Slf4j
@@ -30,7 +28,7 @@ public class FamilyChildManagementService {
     private final RelationshipManager relationshipManager;
 
     @TransactionalInNeo4j
-    public void addChildToFamily(UUID treeId, UUID familyId, UUID childId, FamilyChildRequest familyChildRequest) {
+    public void addChildToFamily(String treeId, String familyId, String childId, FamilyChildRequest familyChildRequest) {
         treeService.ensureTreeExists(treeId);
         Family family = familyService.findFamilyById(familyId);
         Person child = personService.findPersonById(childId);
@@ -42,31 +40,63 @@ public class FamilyChildManagementService {
         family.addChild(child);
         familyService.saveFamily(family);
 
-        relationshipManager.addParentChildRelationships(family, child, familyChildRequest.getFatherRelationship(), familyChildRequest.getMotherRelationship());
+        relationshipManager.updateParentChildRelationships(family, child, familyChildRequest);
+
         log.info("Child {} added successfully to the family {}", childId, familyId);
     }
 
-    //TODO validation
     @TransactionalInNeo4j
-    public void updateChildInFamily(UUID treeId, UUID familyId, UUID childId, FamilyChildRequest familyChildRequest) {
+    public void updateChildInFamily(String treeId, String familyId, String childId, FamilyChildRequest familyChildRequest) {
         treeService.ensureTreeExists(treeId);
         Family family = familyService.findFamilyById(familyId);
         Person child = personService.findPersonById(childId);
 
         relationshipManager.updateParentChildRelationships(family, child, familyChildRequest);
+
         log.info("Child {} relationships updated in family {}", childId, familyId);
     }
 
     @TransactionalInNeo4j
-    public void removeChildFromFamily(UUID treeId, UUID familyId, UUID childId) {
+    public void removeChildFromFamily(String treeId, String familyId, String childId) {
         treeService.ensureTreeExists(treeId);
         Family family = familyService.findFamilyById(familyId);
         Person child = personService.findPersonById(childId);
 
-        family.removeChild(child);
-        relationshipManager.removeParentChildRelationships(family, child);
+        family.getChildren().remove(child);
         familyService.saveFamily(family);
+
+        relationshipManager.removeParentChildRelationships(family, child);
 
         log.info("Child {} removed from family {}", childId, familyId);
     }
+
+//    private void updateParentChildRelationships(Family family, Person child, FamilyChildRequest familyChildRequest) {
+//        updateParentChildRelationship(family.getFather(), child, familyChildRequest.getFatherRelationship());
+//        updateParentChildRelationship(family.getMother(), child, familyChildRequest.getMotherRelationship());
+//    }
+//
+//    private void updateParentChildRelationship(Person parent, Person child, PersonRelationshipType relationship) {
+//        if (nonNull(parent)) {
+//            parent.getRelationships().removeIf(rel -> rel.getChild().getId().equals(child.getId()));
+//            if (relationship != null) {
+//                PersonRelationship personRelationship = PersonRelationship.builder()
+//                        .child(child)
+//                        .relationship(relationship)
+//                        .build();
+//                parent.getRelationships().add(personRelationship);
+//            }
+//            personService.savePerson(parent);
+//        }
+//    }
+
+//    private void removeParentChildRelationships(Family family, Person child) {
+//        if (nonNull(family.getFather())) {
+//            family.getFather().getRelationships().removeIf(rel -> rel.getChild().getId().equals(child.getId()));
+//            personService.savePerson(family.getFather());
+//        }
+//        if (nonNull(family.getMother())) {
+//            family.getMother().getRelationships().removeIf(rel -> rel.getChild().getId().equals(child.getId()));
+//            personService.savePerson(family.getMother());
+//        }
+//    }
 }

@@ -5,7 +5,6 @@ import lombok.*;
 
 import java.time.LocalDate;
 import java.util.LinkedHashSet;
-import java.util.UUID;
 
 @Getter
 @Setter
@@ -13,7 +12,7 @@ import java.util.UUID;
 @NoArgsConstructor
 public class EventResponse {
 
-    private UUID id;
+    private String id;
 
     private EventType type;
 

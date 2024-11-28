@@ -7,8 +7,7 @@ import org.springframework.data.neo4j.core.schema.GeneratedValue;
 import org.springframework.data.neo4j.core.schema.Id;
 import org.springframework.data.neo4j.core.schema.Node;
 import org.springframework.data.neo4j.core.schema.Relationship;
-
-import java.util.UUID;
+import org.springframework.data.neo4j.core.support.UUIDStringGenerator;
 
 @Node
 @Getter
@@ -16,14 +15,11 @@ import java.util.UUID;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@EqualsAndHashCode(onlyExplicitlyIncluded = true)
-
 public class File {
 
     @Id
-    @GeneratedValue
-    @EqualsAndHashCode.Include
-    private UUID id;
+    @GeneratedValue(UUIDStringGenerator.class)
+    private String id;
 
     private String name;
 

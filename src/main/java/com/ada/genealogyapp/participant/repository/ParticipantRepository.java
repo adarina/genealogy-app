@@ -13,7 +13,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Repository
-public interface ParticipantRepository extends Neo4jRepository<Participant, UUID> {
+public interface ParticipantRepository extends Neo4jRepository<Participant, String> {
 
     @Query(value = """
             MATCH (e:Event)-[r1:HAS_PARTICIPANT]->(p1:Participant)
@@ -46,7 +46,7 @@ public interface ParticipantRepository extends Neo4jRepository<Participant, UUID
                         WHERE p1.id = $personId
                         RETURN count(e)
                     """)
-    Page<ParticipantEventResponse> findParticipantEvents(@Param("participantId") UUID participantId, Pageable pageable);
+    Page<ParticipantEventResponse> findParticipantEvents(@Param("participantId") String participantId, Pageable pageable);
 
     @Query("""
                 MATCH (e:Event {id: $eventId})
@@ -74,5 +74,5 @@ public interface ParticipantRepository extends Neo4jRepository<Participant, UUID
                        participants,
                        citations
             """)
-    Optional<ParticipantEventResponse> findParticipantEvent(@Param("eventId") UUID eventId, @Param("participantId") UUID participantId);
+    Optional<ParticipantEventResponse> findParticipantEvent(@Param("eventId") UUID eventId, @Param("participantId") String participantId);
 }

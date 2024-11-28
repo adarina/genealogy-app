@@ -29,7 +29,7 @@ public class PersonManagementService {
 
 
     @TransactionalInNeo4j
-    public void updatePerson(UUID treeId, UUID personId, @NonNull PersonRequest personRequest) {
+    public void updatePerson(String treeId, String personId, @NonNull PersonRequest personRequest) {
         treeService.ensureTreeExists(treeId);
         Person person = personService.findPersonById(personId);
 
@@ -49,7 +49,7 @@ public class PersonManagementService {
     }
 
     @TransactionalInNeo4j
-    public void deletePerson(UUID treeId, UUID personId) {
+    public void deletePerson(String treeId, String personId) {
         treeService.ensureTreeExists(treeId);
         Person person = personService.findPersonById(personId);
 

@@ -6,8 +6,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.UUID;
-
 @RestController
 @RequestMapping("api/v1/genealogy/trees/{treeId}/families")
 public class FamilyCreationController {
@@ -19,7 +17,7 @@ public class FamilyCreationController {
     }
 
     @PostMapping
-    public ResponseEntity<?> createFamily(@PathVariable UUID treeId, @RequestBody FamilyRequest familyRequest) {
+    public ResponseEntity<?> createFamily(@PathVariable String treeId, @RequestBody FamilyRequest familyRequest) {
         familyCreationService.createFamily(treeId, familyRequest);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }

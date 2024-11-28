@@ -8,8 +8,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.UUID;
-
 @Slf4j
 @Service
 public class CitationFilesViewService {
@@ -25,7 +23,7 @@ public class CitationFilesViewService {
     }
 
 
-    public Page<FileResponse> getCitationFiles(UUID treeId, UUID citationId, Pageable pageable) {
+    public Page<FileResponse> getCitationFiles(String treeId, String citationId, Pageable pageable) {
         treeService.ensureTreeExists(treeId);
         citationService.ensureCitationExists(citationId);
         return citationRepository.findCitationFiles(citationId, pageable);

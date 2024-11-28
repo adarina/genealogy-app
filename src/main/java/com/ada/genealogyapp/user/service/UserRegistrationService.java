@@ -2,7 +2,7 @@ package com.ada.genealogyapp.user.service;
 
 import com.ada.genealogyapp.user.dto.*;
 import com.ada.genealogyapp.user.model.User;
-import com.ada.genealogyapp.userneo4j.service.UserNeo4jCreationService;
+//import com.ada.genealogyapp.userneo4j.service.UserNeo4jCreationService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -19,15 +19,15 @@ public class UserRegistrationService {
 
     private final PasswordEncoder passwordEncoder;
 
-    private final UserNeo4jCreationService userNeo4jCreationService;
-
-    public UserRegistrationService(UserManagementService userService, UserSearchService userSearchService, UserValidationService userValidationService, PasswordEncoder passwordEncoder, UserNeo4jCreationService userNeo4jCreationService) {
+    public UserRegistrationService(UserManagementService userService, UserSearchService userSearchService, UserValidationService userValidationService, PasswordEncoder passwordEncoder) {
         this.userService = userService;
         this.userSearchService = userSearchService;
         this.userValidationService = userValidationService;
         this.passwordEncoder = passwordEncoder;
-        this.userNeo4jCreationService = userNeo4jCreationService;
     }
+
+//    private final UserNeo4jCreationService userNeo4jCreationService;
+
 
     @Transactional
     public void registerUser(UserRequest request) {
@@ -40,7 +40,7 @@ public class UserRegistrationService {
         user.setPassword(hashedPassword);
         userService.saveUser(user);
 
-        userNeo4jCreationService.createUserNeo4j(user.getId());
+//        userNeo4jCreationService.createUserNeo4j(user.getId());
 
         log.info("User registered successfully: {}", user.getUsername());
 

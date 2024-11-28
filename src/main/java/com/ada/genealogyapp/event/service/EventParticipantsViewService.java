@@ -8,8 +8,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.UUID;
-
 @Service
 @Slf4j
 public class EventParticipantsViewService {
@@ -26,7 +24,7 @@ public class EventParticipantsViewService {
         this.eventRepository = eventRepository;
     }
 
-    public Page<EventParticipantResponse> getEventParticipants(UUID treeId, UUID eventId, Pageable pageable) {
+    public Page<EventParticipantResponse> getEventParticipants(String treeId, String eventId, Pageable pageable) {
         treeService.ensureTreeExists(treeId);
         eventService.ensureEventExists(eventId);
         return eventRepository.findEventParticipants(treeId, eventId, pageable);

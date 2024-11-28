@@ -8,8 +8,6 @@ import com.ada.genealogyapp.tree.service.TransactionalInNeo4j;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.util.UUID;
-
 @Slf4j
 @Service
 public class PersonServiceImpl implements PersonService{
@@ -20,12 +18,12 @@ public class PersonServiceImpl implements PersonService{
         this.personRepository = personRepository;
     }
 
-    public Person findPersonById(UUID personId) {
+    public Person findPersonById(String personId) {
         return personRepository.findById(personId)
                 .orElseThrow(() -> new NodeNotFoundException("Person not found with ID: " + personId));
     }
 
-    public PersonResponse findPersonResponseById(UUID personId) {
+    public PersonResponse findPersonResponseById(String personId) {
         Person person = personRepository.findById(personId)
                 .orElseThrow(() -> new NodeNotFoundException("Person not found with ID: " + personId));
         return PersonResponse.builder()
@@ -50,7 +48,7 @@ public class PersonServiceImpl implements PersonService{
         log.info("Person deleted successfully: {}", person.getId());
     }
 
-    public void ensurePersonExists(UUID personId) {
+    public void ensurePersonExists(String personId) {
         if (!personRepository.existsById(personId)) {
             throw new NodeNotFoundException("Person not found with ID: " + personId);
         }

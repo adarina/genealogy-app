@@ -11,8 +11,6 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.UUID;
-
 @RestController
 @RequestMapping("api/v1/genealogy/trees/{treeId}/events")
 public class EventViewController {
@@ -24,13 +22,13 @@ public class EventViewController {
     }
 
     @GetMapping
-    public ResponseEntity<Page<EventPageResponse>> getEvents(@PathVariable UUID treeId, @RequestParam String filter, @PageableDefault Pageable pageable) throws JsonProcessingException {
+    public ResponseEntity<Page<EventPageResponse>> getEvents(@PathVariable String treeId, @RequestParam String filter, @PageableDefault Pageable pageable) throws JsonProcessingException {
         Page<EventPageResponse> eventResponses = eventViewService.getEvents(treeId, filter, pageable);
         return ResponseEntity.ok(eventResponses);
     }
 
     @GetMapping("/{eventId}")
-    public ResponseEntity<EventResponse> getEvent(@PathVariable UUID treeId, @PathVariable UUID eventId) {
+    public ResponseEntity<EventResponse> getEvent(@PathVariable String treeId, @PathVariable String eventId) {
         EventResponse eventResponse = eventViewService.getEvent(treeId, eventId);
         return ResponseEntity.ok(eventResponse);
     }

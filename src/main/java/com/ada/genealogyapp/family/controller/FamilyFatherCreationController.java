@@ -8,8 +8,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.UUID;
-
 @RestController
 @RequestMapping("api/v1/genealogy/trees/{treeId}/families/{familyId}/father")
 public class FamilyFatherCreationController {
@@ -24,7 +22,7 @@ public class FamilyFatherCreationController {
     }
 
     @PostMapping
-    public ResponseEntity<?> createAndAddFatherToFamily(@PathVariable UUID treeId, @PathVariable UUID familyId, @RequestBody PersonRequest personRequest) {
+    public ResponseEntity<?> createAndAddFatherToFamily(@PathVariable String treeId, @PathVariable String familyId, @RequestBody PersonRequest personRequest) {
         Person father = personCreationService.createPerson(treeId, personRequest);
         familyFatherManagementService.addFatherToFamily(treeId, familyId, father.getId());
         return ResponseEntity.status(HttpStatus.CREATED).build();

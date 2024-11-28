@@ -11,7 +11,6 @@ import lombok.Setter;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.UUID;
 
 
 @Getter
@@ -20,7 +19,7 @@ import java.util.UUID;
 @NoArgsConstructor
 public class ParticipantEventResponse {
 
-    private UUID id;
+    private String id;
 
     private EventType type;
 

@@ -7,7 +7,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
-import java.util.UUID;
 
 @Service
 @Slf4j
@@ -34,13 +33,13 @@ public class TreeServiceImpl implements TreeService {
         log.info("Tree saved successfully: {}", savedTree);
     }
 
-    public void ensureTreeExists(UUID treeId) {
+    public void ensureTreeExists(String treeId) {
         if (!treeRepository.existsById(treeId)) {
             throw new NodeNotFoundException("Tree not found with ID: " + treeId);
         }
     }
 
-    public Tree findTreeById(UUID treeId) {
+    public Tree findTreeById(String treeId) {
         return treeRepository.findById(treeId)
                 .orElseThrow(() -> new NodeNotFoundException("Tree not found with ID: " + treeId));
     }

@@ -27,13 +27,13 @@ class FamilyServiceImplTest {
     @InjectMocks
     FamilyServiceImpl familyService;
 
-    UUID familyId;
+    String familyId;
     Family family;
 
     @BeforeEach
     void setUp() {
 
-        familyId = UUID.randomUUID();
+        familyId = String.valueOf(UUID.randomUUID());
         family = new Family();
         family.setId(familyId);
     }

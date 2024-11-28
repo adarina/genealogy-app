@@ -7,8 +7,6 @@ import com.ada.genealogyapp.tree.service.TransactionalInNeo4j;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.util.UUID;
-
 @Service
 @Slf4j
 public class EventServiceImpl implements EventService {
@@ -19,12 +17,12 @@ public class EventServiceImpl implements EventService {
         this.eventRepository = eventRepository;
     }
 
-    public Event findEventById(UUID eventId) {
+    public Event findEventById(String eventId) {
         return eventRepository.findById(eventId)
                 .orElseThrow(() -> new NodeNotFoundException("Event not found with ID: " + eventId));
     }
 
-    public void ensureEventExists(UUID eventId) {
+    public void ensureEventExists(String eventId) {
         if (!eventRepository.existsById(eventId)) {
             throw new NodeNotFoundException("Event not found with ID: " + eventId);
         }

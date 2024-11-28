@@ -8,11 +8,11 @@ import org.springframework.data.neo4j.core.schema.GeneratedValue;
 import org.springframework.data.neo4j.core.schema.Id;
 import org.springframework.data.neo4j.core.schema.Node;
 import org.springframework.data.neo4j.core.schema.Relationship;
+import org.springframework.data.neo4j.core.support.UUIDStringGenerator;
 
 import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.UUID;
 
 import static java.util.Objects.nonNull;
 
@@ -23,12 +23,11 @@ import static java.util.Objects.nonNull;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-
 public class Citation {
 
     @Id
-    @GeneratedValue
-    private UUID id;
+    @GeneratedValue(UUIDStringGenerator.class)
+    private String id;
 
     private String page;
 

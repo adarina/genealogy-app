@@ -6,8 +6,6 @@ import com.ada.genealogyapp.file.repository.FileRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.util.UUID;
-
 @Service
 @Slf4j
 public class FileSearchService {
@@ -18,7 +16,7 @@ public class FileSearchService {
         this.fileRepository = fileRepository;
     }
 
-    public File findFileById(UUID fileId) {
+    public File findFileById(String fileId) {
         return fileRepository.findById(fileId)
                 .orElseThrow(() -> new NodeNotFoundException("File not found with ID: " + fileId));
     }

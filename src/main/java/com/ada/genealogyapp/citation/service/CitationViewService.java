@@ -14,7 +14,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
-import java.util.UUID;
 
 @Service
 @Slf4j
@@ -33,7 +32,7 @@ public class CitationViewService {
     }
 
 
-    public Page<CitationSourceResponse> getCitations(UUID treeId, String filter, Pageable pageable) throws JsonProcessingException {
+    public Page<CitationSourceResponse> getCitations(String treeId, String filter, Pageable pageable) throws JsonProcessingException {
         treeService.ensureTreeExists(treeId);
         CitationFilterRequest filterRequest = objectMapper.readValue(filter, CitationFilterRequest.class);
         return citationRepository.findByTreeIdAndFilteredPage(
@@ -43,7 +42,7 @@ public class CitationViewService {
         );
     }
 
-    public CitationSourceResponse getCitation(UUID treeId, UUID citationId) {
+    public CitationSourceResponse getCitation(String treeId, String citationId) {
         treeService.ensureTreeExists(treeId);
         citationService.ensureCitationExists(citationId);
         return citationRepository.findByTreeIdAndCitationId(treeId, citationId)

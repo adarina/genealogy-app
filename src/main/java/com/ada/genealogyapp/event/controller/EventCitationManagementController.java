@@ -6,8 +6,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.UUID;
-
 @RestController
 @RequestMapping("api/v1/genealogy/trees/{treeId}/events/{eventId}/citations/{citationId}")
 public class EventCitationManagementController {
@@ -20,13 +18,13 @@ public class EventCitationManagementController {
     }
 
     @DeleteMapping()
-    public ResponseEntity<?> removeCitationFromEvent(@PathVariable UUID treeId, @PathVariable UUID eventId, @PathVariable UUID citationId) {
+    public ResponseEntity<?> removeCitationFromEvent(@PathVariable String treeId, @PathVariable String eventId, @PathVariable String citationId) {
         eventCitationManagementService.removeCitationFromEvent(treeId, eventId, citationId);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
     @PostMapping
-    public ResponseEntity<?> addCitationToEvent(@PathVariable UUID treeId, @PathVariable UUID eventId, @PathVariable UUID citationId) {
+    public ResponseEntity<?> addCitationToEvent(@PathVariable String treeId, @PathVariable String eventId, @PathVariable String citationId) {
         eventCitationManagementService.addCitationToEvent(treeId, eventId, citationId);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }

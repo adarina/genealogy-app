@@ -7,7 +7,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDate;
-import java.util.UUID;
 
 
 @Getter
@@ -16,7 +15,7 @@ import java.util.UUID;
 @NoArgsConstructor
 public class EventPageResponse {
 
-    private UUID id;
+    private String id;
 
     private String description;
 

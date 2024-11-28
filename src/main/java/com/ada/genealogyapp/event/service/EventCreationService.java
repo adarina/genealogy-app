@@ -15,7 +15,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.Set;
-import java.util.UUID;
 
 
 @Slf4j
@@ -39,7 +38,7 @@ public class EventCreationService {
     }
 
     @TransactionalInNeo4j
-    public void createEvent(UUID treeId, @NonNull EventRequest eventRequest) {
+    public Event createEvent(String treeId, @NonNull EventRequest eventRequest) {
         Tree tree = treeService.findTreeById(treeId);
 
         Event event = Event.builder()
@@ -53,10 +52,11 @@ public class EventCreationService {
         eventValidationService.validateEvent(event);
         eventService.saveEvent(event);
         log.info("Event created: {}", event);
+        return event;
     }
 
     @TransactionalInNeo4j
-    public void createEvent(UUID treeId, @NonNull ParticipantEventRequest eventRequest, UUID participantId) {
+    public void createEvent(String treeId, @NonNull ParticipantEventRequest eventRequest, String participantId) {
         Tree tree = treeService.findTreeById(treeId);
         Participant participant = participantService.findParticipantById(participantId);
 

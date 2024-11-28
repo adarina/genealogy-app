@@ -47,16 +47,16 @@ class EventViewServiceTest {
     @InjectMocks
     EventViewService eventViewService;
 
-    UUID treeId;
-    UUID eventId;
+    String treeId;
+    String eventId;
     Pageable pageable;
     String filter;
 
     @BeforeEach
     void setUp() {
 
-        treeId = UUID.randomUUID();
-        eventId = UUID.randomUUID();
+        treeId = String.valueOf(UUID.randomUUID());
+        eventId = String.valueOf(UUID.randomUUID());
         filter = "{\"description\":\"Baptism of John Smith\",\"participants\":\"John Smith\",\"type\":\"MARRIAGE\"}";
         pageable = PageRequest.of(0, 10);
     }
@@ -100,8 +100,8 @@ class EventViewServiceTest {
     @Test
     void getEvent_shouldReturnEventWhenExists() {
 
-        UUID participantId = UUID.randomUUID();
-        UUID citationId = UUID.randomUUID();
+        String participantId = String.valueOf(UUID.randomUUID());
+        String citationId = String.valueOf(UUID.randomUUID());
 
         EventResponse expectedResponse = new EventResponse();
         expectedResponse.setId(eventId);

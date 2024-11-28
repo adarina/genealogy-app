@@ -36,16 +36,16 @@ class EventManagementServiceTest {
     EventManagementService eventManagementService;
 
 
-    UUID treeId;
-    UUID eventId;
+    String treeId;
+    String eventId;
     Event event;
     EventRequest eventRequest;
 
     @BeforeEach
     void setUp() {
 
-        treeId = UUID.randomUUID();
-        eventId = UUID.randomUUID();
+        treeId = String.valueOf(UUID.randomUUID());
+        eventId = String.valueOf(UUID.randomUUID());
         event = new Event();
         eventRequest = new EventRequest(EventType.MARRIAGE, LocalDate.parse("2024-11-24"), "place", "description");
     }

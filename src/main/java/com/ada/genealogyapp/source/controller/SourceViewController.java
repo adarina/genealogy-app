@@ -10,8 +10,6 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.UUID;
-
 @RestController
 @RequestMapping("api/v1/genealogy/trees/{treeId}/sources")
 public class SourceViewController {
@@ -24,13 +22,13 @@ public class SourceViewController {
 
 
     @GetMapping
-    public ResponseEntity<Page<SourcesResponse>> getSources(@PathVariable UUID treeId, @RequestParam String filter, @PageableDefault Pageable pageable) throws JsonProcessingException {
+    public ResponseEntity<Page<SourcesResponse>> getSources(@PathVariable String treeId, @RequestParam String filter, @PageableDefault Pageable pageable) throws JsonProcessingException {
         Page<SourcesResponse> sourceResponses = sourceViewService.getSources(treeId, filter, pageable);
         return ResponseEntity.ok(sourceResponses);
     }
 
     @GetMapping("/{sourceId}")
-    public ResponseEntity<SourceResponse> getSource(@PathVariable UUID treeId, @PathVariable UUID sourceId) {
+    public ResponseEntity<SourceResponse> getSource(@PathVariable String treeId, @PathVariable String sourceId) {
         SourceResponse sourceResponse = sourceViewService.getSource(treeId, sourceId);
         return ResponseEntity.ok(sourceResponse);
     }

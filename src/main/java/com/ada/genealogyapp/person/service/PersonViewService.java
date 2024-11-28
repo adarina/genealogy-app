@@ -35,7 +35,7 @@ public class PersonViewService {
         this.personService = personService;
     }
 
-    public Page<PersonResponse> getPersons(UUID treeId, String filter, Pageable pageable) throws JsonProcessingException {
+    public Page<PersonResponse> getPersons(String treeId, String filter, Pageable pageable) throws JsonProcessingException {
         PersonFilterRequest filterRequest = objectMapper.readValue(filter, PersonFilterRequest.class);
         treeService.ensureTreeExists(treeId);
         return personRepository.findByTreeIdAndFilteredFirstnameLastnameAndGender(
@@ -47,7 +47,7 @@ public class PersonViewService {
         );
     }
 
-    public PersonResponse getPerson(UUID treeId, UUID personId) {
+    public PersonResponse getPerson(String treeId, String personId) {
         treeService.ensureTreeExists(treeId);
         return personService.findPersonResponseById(personId);
     }

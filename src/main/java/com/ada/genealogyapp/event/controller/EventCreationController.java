@@ -7,8 +7,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.UUID;
-
 @RestController
 @RequestMapping("api/v1/genealogy/trees/{treeId}/events")
 public class EventCreationController {
@@ -20,7 +18,7 @@ public class EventCreationController {
     }
 
     @PostMapping
-    public ResponseEntity<?> createEvent(@PathVariable UUID treeId, @RequestBody EventRequest eventRequest) {
+    public ResponseEntity<?> createEvent(@PathVariable String treeId, @RequestBody EventRequest eventRequest) {
         eventCreationService.createEvent(treeId, eventRequest);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }

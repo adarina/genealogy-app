@@ -9,7 +9,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.UUID;
 
 import static java.util.Objects.nonNull;
 
@@ -30,12 +29,12 @@ public class FamilyServiceImpl implements FamilyService{
         log.info("Family saved successfully: {}", savedFamily);
     }
 
-    public Family findFamilyById(UUID familyId) {
+    public Family findFamilyById(String familyId) {
         return familyRepository.findById(familyId)
                 .orElseThrow(() -> new NodeNotFoundException("Family not found with ID: " + familyId));
     }
 
-    public void ensureFamilyExists(UUID familyId) {
+    public void ensureFamilyExists(String familyId) {
         if (!familyRepository.existsById(familyId)) {
             throw new NodeNotFoundException("Family not found with ID: " + familyId);
         }

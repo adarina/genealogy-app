@@ -39,13 +39,13 @@ class EventCreationServiceTest {
 
 
     Tree tree;
-    UUID treeId;
+    String treeId;
     EventRequest eventRequest;
 
     @BeforeEach
     void setUp() {
 
-        treeId = UUID.randomUUID();
+        treeId = String.valueOf(UUID.randomUUID());
         tree = new Tree();
         eventRequest = new EventRequest(EventType.MARRIAGE, LocalDate.parse("2024-11-24"), "place", "description");
     }

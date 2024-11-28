@@ -37,16 +37,16 @@ class EventParticipantsViewServiceTest {
     @InjectMocks
     EventParticipantsViewService eventParticipantsViewService;
 
-    UUID treeId;
-    UUID eventId;
+    String treeId;
+    String eventId;
     Page<EventParticipantResponse> mockedPage;
     Pageable pageable;
 
     @BeforeEach
     void setUp() {
 
-        treeId = UUID.randomUUID();
-        eventId = UUID.randomUUID();
+        treeId = String.valueOf(UUID.randomUUID());
+        eventId = String.valueOf(UUID.randomUUID());
         pageable = PageRequest.of(0, 10);
         mockedPage = new PageImpl<>(Collections.emptyList(), pageable, 0);
     }

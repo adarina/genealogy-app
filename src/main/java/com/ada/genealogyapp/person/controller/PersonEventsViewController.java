@@ -21,13 +21,13 @@ public class PersonEventsViewController {
     }
 
     @GetMapping
-    public ResponseEntity<Page<ParticipantEventResponse>> getPersonalEvents(@PathVariable UUID treeId, @PathVariable UUID personId, @PageableDefault Pageable pageable) {
+    public ResponseEntity<Page<ParticipantEventResponse>> getPersonalEvents(@PathVariable String treeId, @PathVariable String personId, @PageableDefault Pageable pageable) {
         Page<ParticipantEventResponse> eventResponses = personEventsViewService.getPersonalEvents(treeId, personId, pageable);
         return ResponseEntity.ok(eventResponses);
     }
 
     @GetMapping("/{eventId}")
-    public ResponseEntity<ParticipantEventResponse> getPersonalEvent(@PathVariable UUID treeId, @PathVariable UUID personId, @PathVariable UUID eventId) {
+    public ResponseEntity<ParticipantEventResponse> getPersonalEvent(@PathVariable String treeId, @PathVariable String personId, @PathVariable UUID eventId) {
         ParticipantEventResponse eventResponse = personEventsViewService.getPersonalEvent(treeId, personId, eventId);
         return ResponseEntity.ok(eventResponse);
     }

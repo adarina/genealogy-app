@@ -10,8 +10,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.UUID;
-
 @Slf4j
 @Service
 public class EventCitationsViewService {
@@ -27,13 +25,13 @@ public class EventCitationsViewService {
         this.eventService = eventService;
     }
 
-    public Page<EventCitationResponse> getEventCitations(UUID treeId, UUID eventId, Pageable pageable) {
+    public Page<EventCitationResponse> getEventCitations(String treeId, String eventId, Pageable pageable) {
         treeService.ensureTreeExists(treeId);
         eventService.ensureEventExists(eventId);
         return eventRepository.findEventCitations(treeId, eventId, pageable);
     }
 
-    public EventCitationResponse getEventCitation(UUID treeId, UUID eventId, UUID citationId) {
+    public EventCitationResponse getEventCitation(String treeId, String eventId, String citationId) {
         treeService.ensureTreeExists(treeId);
         eventService.ensureEventExists(eventId);
         return eventRepository.findEventCitation(treeId, eventId, citationId)

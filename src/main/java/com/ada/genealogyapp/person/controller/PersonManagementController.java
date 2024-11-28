@@ -6,8 +6,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.UUID;
-
 @RestController
 @RequestMapping("api/v1/genealogy/trees/{treeId}/persons/{personId}")
 public class PersonManagementController {
@@ -20,13 +18,13 @@ public class PersonManagementController {
 
 
     @PutMapping
-    public ResponseEntity<?> updatePerson(@PathVariable UUID treeId, @PathVariable UUID personId, @RequestBody PersonRequest personRequest) {
+    public ResponseEntity<?> updatePerson(@PathVariable String treeId, @PathVariable String personId, @RequestBody PersonRequest personRequest) {
         personManagementService.updatePerson(treeId, personId, personRequest);
         return ResponseEntity.ok().build();
     }
 
     @DeleteMapping()
-    public ResponseEntity<?> deletePerson(@PathVariable UUID treeId, @PathVariable UUID personId) {
+    public ResponseEntity<?> deletePerson(@PathVariable String treeId, @PathVariable String personId) {
         personManagementService.deletePerson(treeId, personId);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }

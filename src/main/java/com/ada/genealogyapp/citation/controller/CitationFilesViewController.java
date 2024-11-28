@@ -11,8 +11,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.UUID;
-
 @RestController
 @RequestMapping("api/v1/genealogy/trees/{treeId}/citations/{citationId}/files")
 public class CitationFilesViewController {
@@ -25,7 +23,7 @@ public class CitationFilesViewController {
 
 
     @GetMapping
-    public ResponseEntity<Page<FileResponse>> getCitationFiles(@PathVariable UUID treeId, @PathVariable UUID citationId, @PageableDefault Pageable pageable) {
+    public ResponseEntity<Page<FileResponse>> getCitationFiles(@PathVariable String treeId, @PathVariable String citationId, @PageableDefault Pageable pageable) {
         Page<FileResponse> fileResponses = citationFilesViewService.getCitationFiles(treeId, citationId, pageable);
         return ResponseEntity.ok(fileResponses);
     }

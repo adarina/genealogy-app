@@ -9,9 +9,8 @@ import org.springframework.data.neo4j.repository.query.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.Optional;
-import java.util.UUID;
 
-public interface EventRepository extends Neo4jRepository<Event, UUID> {
+public interface EventRepository extends Neo4jRepository<Event, String> {
 
 
     @Query("""
@@ -39,7 +38,7 @@ public interface EventRepository extends Neo4jRepository<Event, UUID> {
                        citations,
                        participants
             """)
-    Optional<EventResponse> findByTreeIdAndEventId(@Param("treeId") UUID treeId, @Param("eventId") UUID eventId);
+    Optional<EventResponse> findByTreeIdAndEventId(@Param("treeId") String treeId, @Param("eventId") String eventId);
 
 
     @Query(value = """
@@ -66,7 +65,7 @@ public interface EventRepository extends Neo4jRepository<Event, UUID> {
                     WHERE t.id = $treeId
                     RETURN count(e)
                     """)
-    Page<EventPageResponse> findByTreeIdAndFilteredDescriptionParticipantNamesAndType(@Param("treeId") UUID treeId, String description, String participants, String type, Pageable pageable);
+    Page<EventPageResponse> findByTreeIdAndFilteredDescriptionParticipantNamesAndType(@Param("treeId") String treeId, String description, String participants, String type, Pageable pageable);
 
     @Query(value = """
             MATCH (t:Tree)-[:HAS_EVENT]->(e:Event)-[:HAS_EVENT_CITATION]->(c:Citation)
@@ -84,7 +83,7 @@ public interface EventRepository extends Neo4jRepository<Event, UUID> {
                         WHERE t.id = $treeId AND e.id = $eventId
                         RETURN count(c)
                     """)
-    Page<EventCitationResponse> findEventCitations(UUID treeId, UUID eventId, Pageable pageable);
+    Page<EventCitationResponse> findEventCitations(String treeId, String eventId, Pageable pageable);
 
     @Query(value = """
             MATCH (t:Tree)-[:HAS_EVENT]->(e:Event)-[:HAS_EVENT_CITATION]->(c:Citation)
@@ -93,7 +92,7 @@ public interface EventRepository extends Neo4jRepository<Event, UUID> {
                    c.page AS page,
                    c.date AS date
             """)
-    Optional<EventCitationResponse> findEventCitation(UUID treeId, UUID eventId, UUID citationId);
+    Optional<EventCitationResponse> findEventCitation(String treeId, String eventId, String citationId);
 
 
     @Query(value = """
@@ -112,5 +111,5 @@ public interface EventRepository extends Neo4jRepository<Event, UUID> {
                         WHERE t.id = $treeId AND e.id = $eventId
                         RETURN count(p)
                     """)
-    Page<EventParticipantResponse> findEventParticipants(UUID treeId, UUID eventId, Pageable pageable);
+    Page<EventParticipantResponse> findEventParticipants(String treeId, String eventId, Pageable pageable);
 }

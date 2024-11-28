@@ -11,9 +11,8 @@ import org.springframework.data.neo4j.repository.query.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.Optional;
-import java.util.UUID;
 
-public interface FileRepository extends Neo4jRepository<File, UUID> {
+public interface FileRepository extends Neo4jRepository<File, String> {
 
 
     @Query("""
@@ -27,7 +26,7 @@ public interface FileRepository extends Neo4jRepository<File, UUID> {
                        $baseUrl + f.filename AS path,
                        f.name AS name
             """)
-    Optional<FileResponse> findByTreeIdAndFileId(@Param("treeId") UUID treeId, @Param("fileId") UUID fileId, String baseUrl);
+    Optional<FileResponse> findByTreeIdAndFileId(@Param("treeId") String treeId, @Param("fileId") String fileId, String baseUrl);
 
     @Query(value = """
             MATCH (t:Tree)-[:HAS_FILE]->(f:File)
@@ -49,5 +48,5 @@ public interface FileRepository extends Neo4jRepository<File, UUID> {
                     WHERE t.id = $treeId
                     RETURN count(f)
                     """)
-    Page<FileResponse> findByTreeIdAndFilteredNameAndType(@Param("treeId") UUID treeId, String name, String type, @Param("baseUrl") String baseUrl, Pageable pageable);
+    Page<FileResponse> findByTreeIdAndFilteredNameAndType(@Param("treeId") String treeId, String name, String type, @Param("baseUrl") String baseUrl, Pageable pageable);
 }

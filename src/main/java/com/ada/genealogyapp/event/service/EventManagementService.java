@@ -13,8 +13,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.util.UUID;
-
 
 @Service
 @Slf4j
@@ -30,7 +28,7 @@ public class EventManagementService {
     private final ParticipantService participantService;
 
     @TransactionalInNeo4j
-    public void updateEvent(UUID treeId, UUID eventId, @NonNull EventRequest eventRequest) {
+    public void updateEvent(String treeId, String eventId, @NonNull EventRequest eventRequest) {
         treeService.ensureTreeExists(treeId);
         Event event = eventService.findEventById(eventId);
 
@@ -45,7 +43,7 @@ public class EventManagementService {
     }
 
     @TransactionalInNeo4j
-    public void updateEvent(UUID treeId, UUID eventId, @NonNull ParticipantEventRequest eventRequest, UUID participantId) {
+    public void updateEvent(String treeId, String eventId, @NonNull ParticipantEventRequest eventRequest, String participantId) {
         treeService.ensureTreeExists(treeId);
         Participant participant = participantService.findParticipantById(participantId);
         Event event = eventService.findEventById(eventId);
@@ -71,7 +69,21 @@ public class EventManagementService {
     }
 
     @TransactionalInNeo4j
-    public void deleteEvent(UUID treeId, UUID eventId) {
+    public void removeParticipantFromEvent(String treeId, String participantId, String eventId) {
+        treeService.ensureTreeExists(treeId);
+        participantService.ensureParticipantExists(participantId);
+        Event event = eventService.findEventById(eventId);
+
+        event.getParticipants().stream()
+                .filter(rel -> rel.getParticipant().getId().equals(participantId))
+                .findFirst().ifPresent(existingRel -> event.getParticipants().remove(existingRel));
+
+        eventService.saveEvent(event);
+        log.info("Event {} removed from participant {}", eventId, participantId);
+    }
+
+    @TransactionalInNeo4j
+    public void deleteEvent(String treeId, String eventId) {
         treeService.ensureTreeExists(treeId);
         Event event = eventService.findEventById(eventId);
 

@@ -9,8 +9,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.UUID;
-
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -22,7 +20,7 @@ public class FamilyChildrenViewService {
 
     private final FamilyService familyService;
 
-    public Page<FamilyChildResponse> getChildren(UUID treeId, UUID familyId, Pageable pageable) {
+    public Page<FamilyChildResponse> getChildren(String treeId, String familyId, Pageable pageable) {
         treeService.ensureTreeExists(treeId);
         familyService.ensureFamilyExists(familyId);
         return familyRepository.findChildren(familyId, pageable);

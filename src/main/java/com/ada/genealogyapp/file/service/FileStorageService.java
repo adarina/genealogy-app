@@ -18,7 +18,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.Objects;
-import java.util.UUID;
 
 @Service
 @Slf4j
@@ -36,7 +35,7 @@ public class FileStorageService {
     }
 
     @TransactionalInNeo4j
-    public File storeFile(UUID treeId, MultipartFile multipartFile) {
+    public File storeFile(String treeId, MultipartFile multipartFile) {
         Tree tree = treeService.findTreeById(treeId);
 
         if (this.storage.trim().isEmpty()) {

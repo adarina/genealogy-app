@@ -7,8 +7,6 @@ import com.ada.genealogyapp.tree.service.TreeService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.util.UUID;
-
 @Slf4j
 @Service
 public class FamilyManagementService {
@@ -27,7 +25,7 @@ public class FamilyManagementService {
 
 
     @TransactionalInNeo4j
-    public void updateFamily(UUID treeId, UUID familyId, FamilyRequest familyRequest) {
+    public void updateFamily(String treeId, String familyId, FamilyRequest familyRequest) {
         treeService.ensureTreeExists(treeId);
         Family family = familyService.findFamilyById(familyId);
 
@@ -39,7 +37,7 @@ public class FamilyManagementService {
     }
 
     @TransactionalInNeo4j
-    public void deleteFamily(UUID treeId, UUID familyId) {
+    public void deleteFamily(String treeId, String familyId) {
         treeService.ensureTreeExists(treeId);
         Family family = familyService.findFamilyById(familyId);
 

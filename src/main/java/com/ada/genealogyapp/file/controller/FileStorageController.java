@@ -7,8 +7,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.UUID;
-
 @RestController
 @RequestMapping("api/v1/genealogy/trees/{treeId}/files")
 public class FileStorageController {
@@ -20,7 +18,7 @@ public class FileStorageController {
     }
 
     @PostMapping
-    public ResponseEntity<?> storeFile(@PathVariable UUID treeId, @RequestParam MultipartFile file) {
+    public ResponseEntity<?> storeFile(@PathVariable String treeId, @RequestParam MultipartFile file) {
         fileStorageService.storeFile(treeId, file);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }

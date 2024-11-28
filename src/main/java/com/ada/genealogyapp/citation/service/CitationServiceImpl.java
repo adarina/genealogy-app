@@ -7,8 +7,6 @@ import com.ada.genealogyapp.tree.service.TransactionalInNeo4j;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.util.UUID;
-
 @Service
 @Slf4j
 public class CitationServiceImpl implements CitationService {
@@ -19,12 +17,12 @@ public class CitationServiceImpl implements CitationService {
         this.citationRepository = citationRepository;
     }
 
-    public Citation findCitationById(UUID citationId) {
+    public Citation findCitationById(String citationId) {
         return citationRepository.findById(citationId)
                 .orElseThrow(() -> new NodeNotFoundException("Citation not found with ID: " + citationId));
     }
 
-    public void ensureCitationExists(UUID citationId) {
+    public void ensureCitationExists(String citationId) {
         if (!citationRepository.existsById(citationId)) {
             throw new NodeNotFoundException("Citation not found with ID: " + citationId);
         }

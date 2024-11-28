@@ -8,8 +8,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.UUID;
-
 
 @RestController
 @RequestMapping("api/v1/genealogy/trees/{treeId}/citations/{citationId}/source")
@@ -25,7 +23,7 @@ public class CitationSourceCreationController {
     }
 
     @PostMapping
-    public ResponseEntity<?> createAndAddSourceToCitation(@PathVariable UUID treeId, @PathVariable UUID citationId, @RequestBody SourceRequest sourceRequest) {
+    public ResponseEntity<?> createAndAddSourceToCitation(@PathVariable String treeId, @PathVariable String citationId, @RequestBody SourceRequest sourceRequest) {
         Source source = sourceCreationService.createSource(treeId, sourceRequest);
         citationSourceManagementService.addSourceToCitation(treeId, citationId, source.getId());
         return ResponseEntity.status(HttpStatus.CREATED).build();

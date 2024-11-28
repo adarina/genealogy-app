@@ -11,8 +11,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.util.UUID;
-
 import static java.util.Objects.nonNull;
 
 @Service
@@ -28,7 +26,7 @@ public class CitationSourceManagementService {
     private final CitationService citationService;
 
     @TransactionalInNeo4j
-    public void addSourceToCitation(UUID treeId, UUID citationId, UUID sourceId) {
+    public void addSourceToCitation(String treeId, String citationId, String sourceId) {
         treeService.ensureTreeExists(treeId);
         Citation citation = citationService.findCitationById(citationId);
         Source source = sourceService.findSourceById(sourceId);
@@ -46,7 +44,7 @@ public class CitationSourceManagementService {
     }
 
     @TransactionalInNeo4j
-    public void removeSourceFromCitation(UUID treeId, UUID citationId, UUID sourceId) {
+    public void removeSourceFromCitation(String treeId, String citationId, String sourceId) {
         treeService.ensureTreeExists(treeId);
         Citation citation = citationService.findCitationById(citationId);
         sourceService.ensureSourceExists(sourceId);

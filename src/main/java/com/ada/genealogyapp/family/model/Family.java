@@ -5,8 +5,6 @@ import com.ada.genealogyapp.family.type.StatusType;
 import com.ada.genealogyapp.person.model.Person;
 import com.ada.genealogyapp.tree.model.Tree;
 import lombok.*;
-import org.springframework.data.neo4j.core.schema.GeneratedValue;
-import org.springframework.data.neo4j.core.schema.Id;
 import org.springframework.data.neo4j.core.schema.Node;
 import org.springframework.data.neo4j.core.schema.Relationship;
 
@@ -39,7 +37,7 @@ public class Family extends Participant {
     private Tree tree;
 
     public boolean hasChild(Person child) {
-        return children.contains(child);
+        return this.children.contains(child);
     }
 
     public boolean hasMother(Person mother) {
@@ -51,7 +49,7 @@ public class Family extends Participant {
     }
 
     public void addChild(Person child) {
-        children.add(child);
+        this.children.add(child);
     }
 
     public void addMother(Person mother) {
@@ -63,7 +61,7 @@ public class Family extends Participant {
     }
 
     public void removeChild(Person child) {
-        children.remove(child);
+        this.children.remove(child);
     }
 
     public void removeFather() {
