@@ -22,7 +22,7 @@ public class FamilyMotherManagementController {
     }
 
     @PostMapping
-    public ResponseEntity<?> addMotherToFamily(@PathVariable String treeId, @PathVariable String familyId, @PathVariable String motherId) {
+    public ResponseEntity<String> addMotherToFamily(@PathVariable String treeId, @PathVariable String familyId, @PathVariable String motherId) {
         familyMotherManagementService.addMotherToFamily(treeId, familyId, motherId);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }

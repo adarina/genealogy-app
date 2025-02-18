@@ -154,6 +154,21 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-hateoas</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.folg</groupId>
+            <artifactId>gedcom-parser</artifactId>
+            <version>1.0.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.folg</groupId>
+            <artifactId>gedcom-parser</artifactId>
+            <version>1.15.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>org.neo4j.procedure</groupId>
+            <artifactId>apoc</artifactId>
+            <version>4.4.0.35</version>
+        </dependency>
 
 
 

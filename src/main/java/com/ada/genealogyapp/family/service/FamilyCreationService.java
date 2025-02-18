@@ -1,5 +1,6 @@
 package com.ada.genealogyapp.family.service;
 
+import com.ada.genealogyapp.family.type.StatusType;
 import com.ada.genealogyapp.tree.service.TransactionalInNeo4j;
 import com.ada.genealogyapp.family.dto.FamilyRequest;
 import com.ada.genealogyapp.family.model.Family;
@@ -32,9 +33,22 @@ public class FamilyCreationService {
                 .build();
 
         familyValidationService.validateFamily(family);
-
         familyService.saveFamily(family);
-        log.info("Family created successfully: {}", family);
+        return family;
+    }
+
+    @TransactionalInNeo4j
+    public Family createFamily(Tree tree, StatusType status) {
+
+        Family family = Family.builder()
+                .tree(tree)
+                .status(status)
+                .name("null & null")
+                .build();
+
+        familyValidationService.validateFamily(family);
+        familyService.saveFamily(family);
+
         return family;
     }
 }

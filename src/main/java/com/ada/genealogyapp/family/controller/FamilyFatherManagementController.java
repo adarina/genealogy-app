@@ -16,7 +16,7 @@ public class FamilyFatherManagementController {
     }
 
     @DeleteMapping
-    public ResponseEntity<?> removePersonFromFamily(@PathVariable String treeId, @PathVariable String familyId, @PathVariable String fatherId) {
+    public ResponseEntity<?> removeFatherFromFamily(@PathVariable String treeId, @PathVariable String familyId, @PathVariable String fatherId) {
         familyFatherManagementService.removeFatherFromFamily(treeId, familyId, fatherId);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }

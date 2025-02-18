@@ -1,11 +1,15 @@
 package com.ada.genealogyapp.source.service;
 
 import com.ada.genealogyapp.exceptions.NodeNotFoundException;
+import com.ada.genealogyapp.query.QueryResultProcessor;
 import com.ada.genealogyapp.source.model.Source;
 import com.ada.genealogyapp.source.repository.SourceRepository;
 import com.ada.genealogyapp.tree.service.TransactionalInNeo4j;
+import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+
+import java.util.Map;
 
 @Slf4j
 @Service
@@ -13,13 +17,11 @@ public class SourceServiceImpl implements SourceService {
 
     private final SourceRepository sourceRepository;
 
-    public SourceServiceImpl(SourceRepository sourceRepository) {
-        this.sourceRepository = sourceRepository;
-    }
+    private final QueryResultProcessor queryResultProcessor;
 
-    public Source findSourceById(String sourceId) {
-        return sourceRepository.findById(sourceId)
-                .orElseThrow(() -> new NodeNotFoundException("Source not found with ID: " + sourceId));
+    public SourceServiceImpl(SourceRepository sourceRepository, QueryResultProcessor queryResultProcessor) {
+        this.sourceRepository = sourceRepository;
+        this.queryResultProcessor = queryResultProcessor;
     }
 
     public void ensureSourceExists(String sourceId) {
@@ -29,8 +31,14 @@ public class SourceServiceImpl implements SourceService {
     }
 
     @TransactionalInNeo4j
-    public void saveSource(Source source) {
-        Source savedSource = sourceRepository.save(source);
-        log.info("Source saved successfully: {}", savedSource);
+    public void saveSource(String treeId, @NonNull Source source) {
+        String result = sourceRepository.save(treeId, source.getId(), source.getName());
+        queryResultProcessor.process(result, Map.of("treeId", treeId, "sourceId", source.getId()));
+    }
+
+    @TransactionalInNeo4j
+    public void updateSource(String treeId, String sourceId, Source source) {
+        String result = sourceRepository.update(treeId, sourceId, source.getName());
+        queryResultProcessor.process(result, Map.of("sourceId", sourceId));
     }
 }

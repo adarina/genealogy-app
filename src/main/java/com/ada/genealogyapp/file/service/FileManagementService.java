@@ -25,13 +25,9 @@ public class FileManagementService {
     }
 
 
-    //TODO validation
+
     @TransactionalInNeo4j
     public void updateFile(String treeId, String fileId, FileRequest fileRequest) {
-        treeService.ensureTreeExists(treeId);
-        File file = fileService.findFileById(fileId);
-
-        fileService.saveFile(file);
-        log.info("File updated successfully: {}", fileId);
+        //TODO
     }
 }

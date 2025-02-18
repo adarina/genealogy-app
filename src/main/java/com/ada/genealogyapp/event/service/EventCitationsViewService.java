@@ -35,6 +35,6 @@ public class EventCitationsViewService {
         treeService.ensureTreeExists(treeId);
         eventService.ensureEventExists(eventId);
         return eventRepository.findEventCitation(treeId, eventId, citationId)
-                .orElseThrow(() -> new NodeNotFoundException("Citation " + citationId.toString() + " not found for tree " + treeId.toString() + " and event " + eventId.toString()));
+                .orElseThrow(() -> new NodeNotFoundException("Citation " + citationId + " not found for tree " + treeId + " and event " + eventId));
     }
 }

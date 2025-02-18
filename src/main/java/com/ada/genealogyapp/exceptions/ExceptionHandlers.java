@@ -1,5 +1,6 @@
 package com.ada.genealogyapp.exceptions;
 
+import org.neo4j.driver.exceptions.Neo4jException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MissingServletRequestParameterException;
@@ -143,6 +144,13 @@ public class ExceptionHandlers {
                         .message(ex.getMessage()).build());
     }
 
+    @ExceptionHandler(Neo4jException.class)
+    public ResponseEntity<ExceptionResponse> handleNeo4jException(Neo4jException ex) {
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(ExceptionResponse.builder()
+                        .errorTime(LocalDateTime.now().format(formatter))
+                        .message("A database error occurred: " + ex.getMessage()).build());
+    }
 }
 
 

@@ -1,6 +1,5 @@
 package com.ada.genealogyapp.tree.controller;
 
-
 import com.ada.genealogyapp.tree.dto.TreeResponse;
 import com.ada.genealogyapp.tree.service.TreeViewService;
 import org.springframework.http.ResponseEntity;
@@ -16,6 +15,7 @@ public class TreeViewController {
 
     private final TreeViewService treeViewService;
 
+
     public TreeViewController(TreeViewService treeViewService) {
         this.treeViewService = treeViewService;
     }
@@ -26,4 +26,3 @@ public class TreeViewController {
         return ResponseEntity.ok(treeResponses);
     }
 }
-

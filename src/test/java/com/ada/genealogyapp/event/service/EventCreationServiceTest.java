@@ -55,7 +55,7 @@ class EventCreationServiceTest {
 
         when(treeService.findTreeById(treeId)).thenReturn(tree);
 
-        Event event = eventCreationService.createEvent(treeId, eventRequest);
+        Event event = eventCreationService.createEventWithParticipant(treeId, eventRequest);
 
         assertEquals("description", event.getDescription());
         assertEquals("place", event.getPlace());
@@ -73,7 +73,7 @@ class EventCreationServiceTest {
                 .when(treeService).findTreeById(treeId);
 
         NodeNotFoundException exception = assertThrows(NodeNotFoundException.class, () ->
-                eventCreationService.createEvent(treeId, eventRequest)
+                eventCreationService.createEventWithParticipant(treeId, eventRequest)
         );
 
         assertEquals("Tree not found", exception.getMessage());
@@ -90,7 +90,7 @@ class EventCreationServiceTest {
                 .when(eventValidationService).validateEvent(any(Event.class));
 
         ValidationException exception = assertThrows(ValidationException.class, () ->
-                eventCreationService.createEvent(treeId, eventRequest)
+                eventCreationService.createEventWithParticipant(treeId, eventRequest)
         );
 
         assertEquals("Event validation failed", exception.getMessage());

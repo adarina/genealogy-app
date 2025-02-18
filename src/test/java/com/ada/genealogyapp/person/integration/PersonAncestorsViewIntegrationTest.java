@@ -24,7 +24,9 @@ import org.springframework.http.MediaType;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -68,6 +70,8 @@ class PersonAncestorsViewIntegrationTest extends IntegrationTestConfig {
         sourceRepository.deleteAll();
         citationRepository.deleteAll();
         fileRepository.deleteAll();
+
+
     }
 
     @AfterEach
@@ -76,84 +80,125 @@ class PersonAncestorsViewIntegrationTest extends IntegrationTestConfig {
 //        treeRepository.deleteAll();
 //        personRepository.deleteAll();
 //        familyRepository.deleteAll();
+
+//        treeRepository.deleteAll();
+//        personRepository.deleteAll();
+//        familyRepository.deleteAll();
+//        eventRepository.deleteAll();
+//        sourceRepository.deleteAll();
+//        citationRepository.deleteAll();
+//        fileRepository.deleteAll();
     }
-
-    @Test
-    void shouldGetPersonAncestorsSuccessfully() throws Exception {
-
-//        UserNeo4j user = new UserNeo4j();
-//        user.setId(1L);
-
-//        userNeo4jRepository.save(user);
-
-        Tree tree = new Tree();
-        tree.setName("Tree");
+//    Tree tree = new Tree(1L, "Tree", new HashSet<>(), new HashSet<>(), new HashSet<>(), new HashSet<>(), new HashSet<>(), new HashSet<>());
 //        tree.setUserNeo4j(user);
-        treeRepository.save(tree);
+//        treeRepository.save(tree);
 
-//        Person child = new Person("Amalia Smith", "Amalia", "Smith", LocalDate.of(2000, 12, 18), GenderType.FEMALE, tree);
-//        personRepository.save(child);
+
+//    @Test
+//    void shouldGetPersonAncestorsSuccessfully() throws Exception {
 //
-//        Person mother = new Person("Elizabeth Black", "Elizabeth", "Black", LocalDate.of(1975, 7, 8), GenderType.FEMALE, tree);
+////        UserNeo4j user = new UserNeo4j();
+////        user.setId(1L);
+//
+////        userNeo4jRepository.save(user);
+////
+////        Tree tree = new Tree();
+////        tree.setName("Tree");
+//////        tree.setUserNeo4j(user);
+////        treeRepository.save(tree);
+//        Tree tree = new Tree(1L, "Tree", new HashSet<>(), new HashSet<>(), new HashSet<>(), new HashSet<>(), new HashSet<>(), new HashSet<>());
+//        treeRepository.save(tree);
+////
+////        Family family = new Family("John Smith & Elizabeth Black", StatusType.MARRIED, null, null, null, tree);
+////        familyRepository.save(family);
+//
+//        Person child = new Person("Amalia Smith", "Amalia", "Smith", LocalDate.of(2000, 12, 18), GenderType.FEMALE, new HashSet<>() ,tree);
+//        personRepository.save(child);
+//       Person mother = new Person("Elizabeth Black", "Elizabeth", "Black", LocalDate.of(1975, 7, 8), GenderType.FEMALE, new HashSet<>(), tree);
 //        personRepository.save(mother);
 //
-//        Person father = new Person("John Smith", "John", "Smith", LocalDate.of(1975, 1, 12), GenderType.MALE, tree);
+//        Person father = new Person("John Smith", "John", "Smith", LocalDate.of(1975, 1, 12), GenderType.MALE, new HashSet<>(), tree);
 //        personRepository.save(father);
-//
-//        Person grandmother = new Person("Anne White", "Anne", "White", LocalDate.of(1950, 5, 1), GenderType.FEMALE, tree);
-//        personRepository.save(grandmother);
-//
-//        Person grandfather = new Person("Adalbert Black", "Adalbert", "Black", LocalDate.of(1945, 1, 30), GenderType.MALE, tree);
-//        personRepository.save(grandfather);
-//
-//        Person greatGrandmother = new Person("Clara Green", "Clara", "Green", LocalDate.of(1920, 4, 15), GenderType.FEMALE, tree);
-//        personRepository.save(greatGrandmother);
-//
-//        Person greatGrandfather = new Person("Frank White", "Frank", "White", LocalDate.of(1918, 6, 25), GenderType.MALE, tree);
-//        personRepository.save(greatGrandfather);
-//
-//        Person greatGrandmotherFather = new Person("Lucy Johnson", "Lucy", "Johnson", LocalDate.of(1922, 3, 10), GenderType.FEMALE, tree);
-//        personRepository.save(greatGrandmotherFather);
-//
-//        Person greatGrandfatherFather = new Person("George Smith", "George", "Smith", LocalDate.of(1920, 2, 20), GenderType.MALE, tree);
-//        personRepository.save(greatGrandfatherFather);
-//
-//        Family family = new Family();
-//        family.setFather(father);
-//        family.setMother(mother);
-//        family.setTree(tree);
-//        family.setName("Elizabeth");
-//        family.setStatus(StatusType.MARRIED);
-//        List<Person> children = new ArrayList<>();
-//        children.add(child);
-//        family.setChildren(children);
-//        familyRepository.save(family);
-//
-//        Family secondFamily = new Family();
-//        secondFamily.setFather(grandfather);
-//        secondFamily.setMother(grandmother);
-//        secondFamily.setTree(tree);
-//        secondFamily.setName("Adalbert");
-//        secondFamily.setStatus(StatusType.UNKNOWN);
-//        List<Person> secondChildren = new ArrayList<>();
-//        secondChildren.add(mother);
-//        secondFamily.setChildren(secondChildren);
+//        Family secondFamily = new Family("John Smith & Elizabeth Black", StatusType.UNKNOWN, father, mother, List.of(child), tree);
 //        familyRepository.save(secondFamily);
+//
+//
+////        treeRepository.save(tree);
+////
+//
+//
+//        tree.setPersons(Set.of(child, mother, father));
+//        tree.setFamilies(Set.of(secondFamily));
+//        treeRepository.save(tree);
+////
+////        Person grandmother = new Person("Anne White", "Anne", "White", LocalDate.of(1950, 5, 1), GenderType.FEMALE, new HashSet<>(), tree);
+////        personRepository.save(grandmother);
+////
+////        Person grandfather = new Person("Adalbert Black", "Adalbert", "Black", LocalDate.of(1945, 1, 30), GenderType.MALE, new HashSet<>(), tree);
+////        personRepository.save(grandfather);
+////
+////        Person greatGrandmother = new Person("Clara Green", "Clara", "Green", LocalDate.of(1920, 4, 15), GenderType.FEMALE, new HashSet<>(), tree);
+////        personRepository.save(greatGrandmother);
+////
+////        Person greatGrandfather = new Person("Frank White", "Frank", "White", LocalDate.of(1918, 6, 25), GenderType.MALE, new HashSet<>(), tree);
+////        personRepository.save(greatGrandfather);
+////
+////        Person greatGrandmotherFather = new Person("Lucy Johnson", "Lucy", "Johnson", LocalDate.of(1922, 3, 10), GenderType.FEMALE, new HashSet<>(), tree);
+////        personRepository.save(greatGrandmotherFather);
+////
+////        Person greatGrandfatherFather = new Person("George Smith", "George", "Smith", LocalDate.of(1920, 2, 20), GenderType.MALE, new HashSet<>(), tree);
+////        personRepository.save(greatGrandfatherFather);
+//
+////        List<Person> children = new ArrayList<>();
+////        children.add(child);
+////        Family family = new Family("John Smith & Elizabeth Black", StatusType.MARRIED, father, mother, List.of(child), tree);
+////        Family family = new Family("John Smith & Elizabeth Black", StatusType.MARRIED, null, null, null, tree);
+////        familyRepository.save(family);
+//
+////        family.setFather(father);
+////        family.setMother(mother);
+////        family.setName("Elizabeth");
+////        family.setStatus(StatusType.MARRIED);
+////        List<Person> children = new ArrayList<>();
+////        children.add(child);
+////        family.setChildren(children);
+////
+////
+////        family.setTree(tree);
+////
+////        Family secondFamily = new Family();
+////        secondFamily.setFather(grandfather);
+////        secondFamily.setMother(grandmother);
+////        secondFamily.setTree(tree);
+////        secondFamily.setName("Adalbert");
+////        secondFamily.setStatus(StatusType.UNKNOWN);
+////        List<Person> secondChildren = new ArrayList<>();
+////        secondChildren.add(mother);
+////        secondFamily.setChildren(secondChildren);
+////        familyRepository.save(secondFamily);
+////
+////        secondFamily.setTree(tree);
+////        familyRepository.save(secondFamily);
 //
 //        createPersonRelationship(child, father);
 //        createPersonRelationship(child, mother);
-//        createPersonRelationship(mother, grandmother);
-//        createPersonRelationship(mother, grandfather);
+////        createPersonRelationship(mother, grandmother);
+////        createPersonRelationship(mother, grandfather);
+////
+////        createPersonRelationship(grandmother, greatGrandmother);
+////        createPersonRelationship(grandmother, greatGrandfather);
+////        createPersonRelationship(father, greatGrandmotherFather);
+////        createPersonRelationship(father, greatGrandfatherFather);
 //
-//        createPersonRelationship(grandmother, greatGrandmother);
-//        createPersonRelationship(grandmother, greatGrandfather);
-//        createPersonRelationship(father, greatGrandmotherFather);
-//        createPersonRelationship(father, greatGrandfatherFather);
-//
-//        mockMvc.perform(get("/api/v1/genealogy/trees/{treeId}/persons/{personId}/ancestors", tree.getId(), child.getId())
-//                        .contentType(MediaType.APPLICATION_JSON))
-//                .andDo(print())
-//                .andExpect(status().isOk());
+////        mockMvc.perform(get("/api/v1/genealogy/trees/{treeId}/persons/{personId}/ancestors", tree.getId(), child.getId())
+////                        .contentType(MediaType.APPLICATION_JSON))
+////                .andDo(print())
+////                .andExpect(status().isOk());
+//    }
+
+    @Test
+    void lol() {
+
     }
 
      void createPersonRelationship(Person child, Person parent) {

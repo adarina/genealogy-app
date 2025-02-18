@@ -45,7 +45,7 @@ class FileViewIntegrationTest extends IntegrationTestConfig {
 //
 //        File file = new File();
 //        file.setPath("/sth");
-//        file.setFileTree(tree);
+//        file.setTree(tree);
 //
 //        fileRepository.save(file);
 //

@@ -19,13 +19,13 @@ public class PersonFamilyResponse {
 
     private String fatherId;
 
-    private LocalDate fatherBirthdate;
+    private String fatherBirthdate;
 
     private String motherName;
 
     private String motherId;
 
-    private LocalDate motherBirthdate;
+    private String motherBirthdate;
 
     private LinkedHashSet<PersonFamilyChildResponse> children;
 
@@ -40,6 +40,6 @@ public class PersonFamilyResponse {
 
         private String childName;
 
-        private LocalDate childBirthdate;
+        private String childBirthdate;
     }
 }

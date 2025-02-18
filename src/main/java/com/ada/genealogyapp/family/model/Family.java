@@ -1,5 +1,6 @@
 package com.ada.genealogyapp.family.model;
 
+import com.ada.genealogyapp.event.model.Event;
 import com.ada.genealogyapp.participant.model.Participant;
 import com.ada.genealogyapp.family.type.StatusType;
 import com.ada.genealogyapp.person.model.Person;
@@ -16,7 +17,7 @@ import static java.util.Objects.nonNull;
 @Getter
 @Setter
 @Builder
-@AllArgsConstructor
+//@AllArgsConstructor
 @NoArgsConstructor
 public class Family extends Participant {
 
@@ -33,42 +34,18 @@ public class Family extends Participant {
     @Relationship(type = "HAS_CHILD", direction = Relationship.Direction.OUTGOING)
     private List<Person> children = new ArrayList<>();
 
+//    @Relationship(type = "HAS_PARTICIPANT", direction = Relationship.Direction.INCOMING)
+//    private Set<Event> events = new HashSet<>();
+
     @Relationship(type = "HAS_FAMILY", direction = Relationship.Direction.INCOMING)
     private Tree tree;
 
-    public boolean hasChild(Person child) {
-        return this.children.contains(child);
-    }
-
-    public boolean hasMother(Person mother) {
-        return nonNull(this.mother) && this.mother.equals(mother);
-    }
-
-    public boolean hasFather(Person father) {
-        return nonNull(this.father) && this.father.equals(father);
-    }
-
-    public void addChild(Person child) {
-        this.children.add(child);
-    }
-
-    public void addMother(Person mother) {
-        this.mother = mother;
-    }
-
-    public void addFather(Person father) {
+    public Family(String name, StatusType status, Person father, Person mother, List<Person> children, Tree tree) {
+        this.name = name;
+        this.status = status;
         this.father = father;
-    }
-
-    public void removeChild(Person child) {
-        this.children.remove(child);
-    }
-
-    public void removeFather() {
-        this.father = null;
-    }
-
-    public void removeMother() {
-        this.mother = null;
+        this.mother = mother;
+        this.children = children;
+        this.tree = tree;
     }
 }

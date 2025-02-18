@@ -31,7 +31,7 @@ public class Citation {
 
     private String page;
 
-    private LocalDate date;
+    private String date;
 
     @Relationship(type = "HAS_CITATION", direction = Relationship.Direction.INCOMING)
     private Tree tree;

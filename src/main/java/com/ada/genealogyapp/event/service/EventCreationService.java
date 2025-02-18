@@ -1,48 +1,38 @@
 package com.ada.genealogyapp.event.service;
 
 
-import com.ada.genealogyapp.event.relationship.EventParticipant;
+import com.ada.genealogyapp.event.type.EventParticipantRelationshipType;
+import com.ada.genealogyapp.event.type.EventType;
 import com.ada.genealogyapp.participant.dto.ParticipantEventRequest;
 import com.ada.genealogyapp.participant.model.Participant;
-import com.ada.genealogyapp.participant.service.ParticipantService;
 import com.ada.genealogyapp.tree.service.TransactionalInNeo4j;
 import com.ada.genealogyapp.event.dto.EventRequest;
 import com.ada.genealogyapp.event.model.Event;
 import com.ada.genealogyapp.tree.model.Tree;
-import com.ada.genealogyapp.tree.service.TreeService;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.util.Set;
+import java.util.UUID;
 
 
 @Slf4j
 @Service
 public class EventCreationService {
 
-
-    private final TreeService treeService;
-
     private final EventService eventService;
-
-    private final ParticipantService participantService;
 
     private final EventValidationService eventValidationService;
 
-    public EventCreationService(TreeService treeService, EventService eventService, ParticipantService participantService, EventValidationService eventValidationService) {
-        this.treeService = treeService;
+    public EventCreationService(EventService eventService, EventValidationService eventValidationService) {
         this.eventService = eventService;
-        this.participantService = participantService;
         this.eventValidationService = eventValidationService;
     }
 
     @TransactionalInNeo4j
-    public Event createEvent(String treeId, @NonNull EventRequest eventRequest) {
-        Tree tree = treeService.findTreeById(treeId);
-
+    public void createEvent(String treeId, @NonNull EventRequest eventRequest) {
         Event event = Event.builder()
-                .tree(tree)
+                .id(UUID.randomUUID().toString())
                 .type(eventRequest.getType())
                 .place(eventRequest.getPlace())
                 .description(eventRequest.getDescription())
@@ -50,32 +40,52 @@ public class EventCreationService {
                 .build();
 
         eventValidationService.validateEvent(event);
-        eventService.saveEvent(event);
-        log.info("Event created: {}", event);
+        eventService.saveEvent(treeId, event);
+    }
+
+    @TransactionalInNeo4j
+    public void createEventWithParticipant(String treeId, @NonNull ParticipantEventRequest eventRequest, String participantId) {
+        Event event = Event.builder()
+                .id(UUID.randomUUID().toString())
+                .type(eventRequest.getType())
+                .place(eventRequest.getPlace())
+                .description(eventRequest.getDescription())
+                .date(eventRequest.getDate())
+                .build();
+
+        eventValidationService.validateEvent(event);
+        eventService.saveEventWithParticipant(treeId, event, participantId, eventRequest.getRelationship().name());
+    }
+
+    @TransactionalInNeo4j
+    public Event createEventWithParticipant(Tree tree, EventType type, String place, String description, String date, Participant participant, EventParticipantRelationshipType relationshipType) {
+        Event event = Event.builder()
+                .id(UUID.randomUUID().toString())
+                .type(type)
+                .place(place)
+                .description(description)
+                .date(date)
+                .build();
+
+        eventValidationService.validateEvent(event);
+        eventService.saveEventWithParticipant(tree.getId(), event, participant.getId(), relationshipType.name());
+
         return event;
     }
 
     @TransactionalInNeo4j
-    public void createEvent(String treeId, @NonNull ParticipantEventRequest eventRequest, String participantId) {
-        Tree tree = treeService.findTreeById(treeId);
-        Participant participant = participantService.findParticipantById(participantId);
-
-        EventParticipant relationship = EventParticipant.builder()
-                .participant(participant)
-                .relationship(eventRequest.getRelationship())
-                .build();
-
+    public Event createEvent(Tree tree, EventType type, String place, String description, String date) {
         Event event = Event.builder()
-                .tree(tree)
-                .type(eventRequest.getType())
-                .place(eventRequest.getPlace())
-                .description(eventRequest.getDescription())
-                .date(eventRequest.getDate())
-                .participants(Set.of(relationship))
+                .id(UUID.randomUUID().toString())
+                .type(type)
+                .place(place)
+                .description(description)
+                .date(date)
                 .build();
 
         eventValidationService.validateEvent(event);
-        eventService.saveEvent(event);
-        log.info("Event with participant {} created: {}", participantId, event);
+        eventService.saveEvent(tree.getId(), event);
+
+        return event;
     }
 }

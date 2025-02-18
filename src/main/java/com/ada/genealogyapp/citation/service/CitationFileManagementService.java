@@ -27,31 +27,26 @@ public class CitationFileManagementService {
     }
 
 
+    // TODO file nie jest fileid tylko plik
     @TransactionalInNeo4j
     public void addFileToCitation(String treeId, String citationId, String fileId) {
-        treeService.ensureTreeExists(treeId);
-        Citation citation = citationService.findCitationById(citationId);
-        File file = fileSearchService.findFileById(fileId);
+//        treeService.ensureTreeExists(treeId);
+//        Citation citation = citationService.findCitationById(citationId);
+//        File file = fileSearchService.findFileById(fileId);
+//
+//        if (citation.hasFile(file)) {
+//            throw new NodeAlreadyInNodeException("File " + fileId + " is already part of the citation " + citationId);
+//        }
+//        citation.addFile(file);
+//        citationService.saveCitation(citation);
 
-        if (citation.hasFile(file)) {
-            throw new NodeAlreadyInNodeException("File " + fileId + " is already part of the citation " + citationId);
-        }
-        citation.addFile(file);
-        citationService.saveCitation(citation);
-
-        log.info("File {} added successfully to the citation {}", fileId, citationId);
+//        log.info("File {} added successfully to the citation {}", fileId, citationId);
+        citationService.addFileToCitation(treeId, citationId, fileId);
     }
 
     @TransactionalInNeo4j
     public void removeFileFromCitation(String treeId, String citationId, String fileId) {
-        treeService.ensureTreeExists(treeId);
-        Citation citation = citationService.findCitationById(citationId);
-        File file = fileSearchService.findFileById(fileId);
-
-        citation.removeFile(file);
-        citationService.saveCitation(citation);
-
-        log.info("File {} removed from citation {}", fileId, citationId);
+        citationService.removeFileFromCitation(treeId, citationId, fileId);
     }
 }
 

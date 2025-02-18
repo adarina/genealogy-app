@@ -19,7 +19,7 @@ public class TreeSearchService {
     }
 
     public List<Tree> getTreesOrThrowNodeNotFoundException() {
-        List<Tree> trees = treeRepository.findAll();
+        List<Tree> trees = treeRepository.findAllTrees();
         if (!trees.isEmpty()) {
             log.info("Trees found for userId: {}", trees);
         } else {

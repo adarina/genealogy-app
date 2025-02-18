@@ -30,6 +30,6 @@ public class File {
     private String path;
 
     @Relationship(type = "HAS_FILE", direction = Relationship.Direction.INCOMING)
-    private Tree fileTree;
+    private Tree tree;
 
 }

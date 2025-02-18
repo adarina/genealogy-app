@@ -1,5 +1,6 @@
 package com.ada.genealogyapp.person.service;
 
+import com.ada.genealogyapp.person.type.GenderType;
 import com.ada.genealogyapp.tree.service.TransactionalInNeo4j;
 import com.ada.genealogyapp.person.dto.PersonRequest;
 import com.ada.genealogyapp.person.model.Person;
@@ -21,7 +22,6 @@ public class PersonCreationService {
 
     private final PersonValidationService personValidationService;
 
-
     @TransactionalInNeo4j
     public Person createPerson(String treeId, PersonRequest personRequest) {
         Tree tree = treeService.findTreeById(treeId);
@@ -30,14 +30,27 @@ public class PersonCreationService {
                 .tree(tree)
                 .firstname(personRequest.getFirstname())
                 .lastname(personRequest.getLastname())
-                .name(personRequest.getFirstname() + " " + personRequest.getLastname())
-                .birthdate(personRequest.getBirthdate())
                 .gender(personRequest.getGender())
                 .build();
 
         personValidationService.validatePerson(person);
         personService.savePerson(person);
-        log.info("Person created: {}", person);
+
+        return person;
+    }
+
+    @TransactionalInNeo4j
+    public Person createPerson(Tree tree, String firstname, String lastname, GenderType gender) {
+
+        Person person = Person.builder()
+                .tree(tree)
+                .firstname(firstname)
+                .lastname(lastname)
+                .gender(gender)
+                .build();
+
+        personValidationService.validatePerson(person);
+        personService.savePerson(person);
 
         return person;
     }

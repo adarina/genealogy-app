@@ -30,7 +30,7 @@ public class Event {
 
     private EventType type;
 
-    private LocalDate date;
+    private String date;
 
     private String place;
 

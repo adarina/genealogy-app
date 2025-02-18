@@ -7,12 +7,18 @@ public enum EventType {
 
     BIRTH,
 
-    BAPTISM,
+    CHRISTENING,
 
     MARRIAGE,
 
     DIVORCE,
 
-    DEATH
+    DEATH,
+
+    MARRIAGE_BANN,
+
+    BURIAL,
+
+    ERROR
 
 }

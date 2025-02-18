@@ -3,10 +3,10 @@ package com.ada.genealogyapp.participant.model;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
-import org.springframework.data.neo4j.core.schema.GeneratedValue;
 import org.springframework.data.neo4j.core.schema.Id;
 import org.springframework.data.neo4j.core.schema.Node;
-import org.springframework.data.neo4j.core.support.UUIDStringGenerator;
+
+import java.util.UUID;
 
 @Node
 @Getter
@@ -15,7 +15,9 @@ import org.springframework.data.neo4j.core.support.UUIDStringGenerator;
 public abstract class Participant {
 
     @Id
-    @GeneratedValue(UUIDStringGenerator.class)
     private String id;
 
+    public Participant() {
+        this.id = UUID.randomUUID().toString();
+    }
 }

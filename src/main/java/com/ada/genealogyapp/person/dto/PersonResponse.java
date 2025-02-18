@@ -3,8 +3,6 @@ package com.ada.genealogyapp.person.dto;
 import com.ada.genealogyapp.person.type.GenderType;
 import lombok.*;
 
-import java.time.LocalDate;
-
 @Getter
 @Setter
 @Builder
@@ -20,7 +18,9 @@ public class PersonResponse {
 
     private String name;
 
-    private LocalDate birthdate;
+    private String birthdate;
+
+    private String deathdate;
 
     private GenderType gender;
 

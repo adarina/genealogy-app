@@ -16,6 +16,32 @@ public interface FileRepository extends Neo4jRepository<File, String> {
 
 
     @Query("""
+            CALL {
+                OPTIONAL MATCH (tree:Tree {id: $treeId})
+                RETURN count(tree) > 0 AS treeExist, tree
+            }
+                        
+            CALL apoc.do.case(
+                [
+                    treeExist, '
+                        MERGE (tree)-[:HAS_FILE]->(file:File {id: fileId})
+                        SET file.name = name,
+                            file.type = type,
+                            file.path = path,
+                            file.filename = filename
+                            
+                        RETURN "FILE_CREATED" AS message
+                    '
+                ],
+                'RETURN "TREE_NOT_EXIST" AS message',
+                {tree: tree, fileId: $fileId, name: $name, type: $type, path: $path, filename: $filename}
+            ) YIELD value
+            RETURN value.message
+            LIMIT 1
+            """)
+    String save(String treeId, String fileId, String name, String type, String path, String filename);
+
+    @Query("""
                 MATCH (f:File {id: $fileId})
                 MATCH (t:Tree {id: $treeId})
                 MERGE (t)-[:HAS_FILE]->(f)

@@ -2,11 +2,12 @@ package com.ada.genealogyapp.source.dto;
 
 
 import lombok.*;
+import lombok.experimental.SuperBuilder;
 
 
 @Getter
 @Setter
-@Builder
+@SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @ToString

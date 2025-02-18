@@ -53,7 +53,6 @@ public class FileViewService {
 
     public FileResponse getFile(String treeId, String fileId) {
         treeService.ensureTreeExists(treeId);
-        fileService.ensureFileExists(fileId);
         return fileRepository.findByTreeIdAndFileId(treeId, fileId, baseUrl)
                 .orElseThrow(() -> new NodeNotFoundException("File " + fileId.toString() + " not found for tree " + treeId.toString()));
     }

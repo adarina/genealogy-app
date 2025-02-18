@@ -18,6 +18,6 @@ public class CitationResponse {
 
     private String page;
 
-    private LocalDate date;
+    private String date;
 
 }

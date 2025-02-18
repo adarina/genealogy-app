@@ -8,11 +8,396 @@ import org.springframework.data.neo4j.repository.Neo4jRepository;
 import org.springframework.data.neo4j.repository.query.Query;
 import org.springframework.data.repository.query.Param;
 
-import java.util.List;
 import java.util.Optional;
 
 
 public interface FamilyRepository extends Neo4jRepository<Family, String> {
+
+    @Query("""
+            CALL {
+                OPTIONAL MATCH (tree:Tree {id: $treeId})
+                RETURN count(tree) > 0 AS treeExist, tree
+            }
+                        
+            CALL apoc.do.case(
+                [
+                    treeExist, '
+                        MERGE (tree)-[:HAS_FAMILY]->(family:Family {id: familyId})
+                        SET family.status = status,
+                            family:Participant
+                            
+                        RETURN "FAMILY_CREATED" AS message
+                    '
+                ],
+                'RETURN "TREE_NOT_EXIST" AS message',
+                {tree: tree, familyId: $familyId, status: $status}
+            ) YIELD value
+            RETURN value.message
+            LIMIT 1
+            """)
+    String save(String treeId, String familyId, String status);
+
+    @Query("""
+            CALL {
+                OPTIONAL MATCH (tree:Tree {id: $treeId})
+                WITH count(tree) > 0 AS treeExist, tree
+                
+                OPTIONAL MATCH (tree)-[:HAS_FAMILY]->(family:Family {id: $familyId})
+                RETURN treeExist, tree, count(family) > 0 AS familyExist, family
+            }
+                        
+            CALL apoc.do.case(
+                [
+                    treeExist AND familyExist, '
+                        OPTIONAL MATCH (family)-[childRel:HAS_CHILD]->(child:Person)
+                        OPTIONAL MATCH (family)-[:HAS_FATHER]->(:Person)-[fatherRel:PARENT_OF]->(child)
+                        OPTIONAL MATCH (family)-[:HAS_MOTHER]->(:Person)-[motherRel:PARENT_OF]->(child)
+                        DELETE fatherRel, motherRel
+                        WITH family
+                        OPTIONAL MATCH (family)-[rel]-()
+                        DELETE rel, family
+                        RETURN "FAMILY_DELETED" AS message
+                    ',
+                    treeExist, 'RETURN "FAMILY_NOT_EXIST" AS message'
+                ],
+                'RETURN "TREE_NOT_EXIST" AS message',
+                {tree: tree, family: family}
+            ) YIELD value
+            RETURN value.message
+            LIMIT 1
+            """)
+    String delete(String treeId, String familyId);
+
+    @Query("""
+            CALL {
+                OPTIONAL MATCH (tree:Tree {id: $treeId})
+                WITH count(tree) > 0 AS treeExist, tree
+                
+                OPTIONAL MATCH (tree)-[:HAS_FAMILY]->(family:Family {id: $familyId})
+                RETURN treeExist, count(family) > 0 AS familyExist, family
+            }
+                        
+            CALL apoc.do.case(
+                [
+                    treeExist AND familyExist, '
+                        SET family.status = status
+                        RETURN "FAMILY_UPDATED" AS message
+                    ',
+                    treeExist, 'RETURN "FAMILY_NOT_EXIST" AS message'
+                ],
+                'RETURN "TREE_NOT_EXIST" AS message',
+                {family: family, status: $status}
+            ) YIELD value
+            RETURN value.message
+            LIMIT 1
+            """)
+    String update(String treeId, String familyId, String status);
+
+    @Query("""
+            CALL {
+                OPTIONAL MATCH (tree:Tree {id: $treeId})
+                WITH count(tree) > 0 AS treeExist, tree
+                
+                OPTIONAL MATCH (tree)-[:HAS_FAMILY]->(family:Family {id: $familyId})
+                RETURN treeExist, tree, count(family) > 0 AS familyExist, family
+            }
+                        
+            CALL apoc.do.case(
+                [
+                    treeExist AND familyExist, '
+                        RETURN "FAMILY_FOUND" AS message, family
+                    ',
+                    treeExist, 'RETURN "FAMILY_NOT_EXIST" AS message'
+                ],
+                'RETURN "TREE_NOT_EXIST" AS message',
+                {family: family}
+            ) YIELD value
+            RETURN value.message AS message, value.family AS family
+            """)
+    FamilyFindResponse findByTreeIdAndId(String treeId, String familyId);
+
+    @Query("""
+            CALL {
+                OPTIONAL MATCH (tree:Tree {id: $treeId})
+                WITH count(tree) > 0 AS treeExist, tree
+                
+                OPTIONAL MATCH (tree)-[:HAS_FAMILY]->(family:Family {id: $familyId})
+                WITH treeExist, tree, count(family) > 0 AS familyExist, family
+                
+                OPTIONAL MATCH (tree)-[:HAS_PERSON]->(person:Person {id: $personId})
+                RETURN treeExist, tree, familyExist, family, count(person) > 0 AS personExist, person
+            }
+                        
+            CALL apoc.do.case(
+                [
+                    treeExist AND familyExist AND personExist, '
+                        OPTIONAL MATCH (family)-[oldFatherRel:HAS_FATHER]->(:Person)
+                        DELETE oldFatherRel
+
+                        WITH family, person
+                        OPTIONAL MATCH (family)-[:HAS_CHILD]->(child:Person)
+                        OPTIONAL MATCH (family)-[:HAS_FATHER]->(:Person)-[oldParentRel:PARENT_OF]->(child)
+                        DELETE oldParentRel
+
+                        WITH family, person, collect(child) AS children
+                        FOREACH (c IN children |
+                            MERGE (person)-[:PARENT_OF {relationship: "BIOLOGICAL"}]->(c)
+                        )
+                        MERGE (family)-[:HAS_FATHER]->(person)
+                        
+                        WITH family, person
+                        OPTIONAL MATCH (family)-[:HAS_MOTHER]->(mother:Person)
+                        SET family.name = COALESCE(person.name, "null") + " & " + COALESCE(mother.name, "null")
+
+                        RETURN "FATHER_ADDED_TO_FAMILY" AS message
+                    ',
+                    treeExist AND familyExist, 'RETURN "PERSON_NOT_EXIST" AS message',
+                    treeExist, 'RETURN "FAMILY_NOT_EXIST" AS message'
+                ],
+                'RETURN "TREE_NOT_EXIST" AS message',
+                {family: family, person: person}
+            ) YIELD value
+            RETURN value.message
+            LIMIT 1
+            """)
+    String addFather(String treeId, String familyId, String personId);
+
+    @Query("""
+            CALL {
+                OPTIONAL MATCH (tree:Tree {id: $treeId})
+                WITH count(tree) > 0 AS treeExist, tree
+                
+                OPTIONAL MATCH (tree)-[:HAS_FAMILY]->(family:Family {id: $familyId})
+                WITH treeExist, tree, count(family) > 0 AS familyExist, family
+                
+                OPTIONAL MATCH (tree)-[:HAS_PERSON]->(person:Person {id: $personId})
+                RETURN treeExist, tree, familyExist, family, count(person) > 0 AS personExist, person
+            }
+                        
+            CALL apoc.do.case(
+                [
+                    treeExist AND familyExist AND personExist, '
+                        OPTIONAL MATCH (family)-[oldMotherRel:HAS_MOTHER]->(:Person)
+                        DELETE oldMotherRel
+
+                        WITH family, person
+                        OPTIONAL MATCH (family)-[:HAS_CHILD]->(child:Person)
+                        OPTIONAL MATCH (family)-[:HAS_MOTHER]->(:Person)-[oldParentRel:PARENT_OF]->(child)
+                        DELETE oldParentRel
+
+                        WITH family, person, collect(child) AS children
+                        FOREACH (c IN children |
+                            MERGE (person)-[:PARENT_OF {relationship: "BIOLOGICAL"}]->(c)
+                        )
+                        MERGE (family)-[:HAS_MOTHER]->(person)
+                        
+                        WITH family, person
+                        OPTIONAL MATCH (family)-[:HAS_FATHER]->(father:Person)
+                        SET family.name = COALESCE(father.name, "null") + " & " + COALESCE(person.name, "null")
+
+                        RETURN "MOTHER_ADDED_TO_FAMILY" AS message
+                    ',
+                    treeExist AND familyExist, 'RETURN "PERSON_NOT_EXIST" AS message',
+                    treeExist, 'RETURN "FAMILY_NOT_EXIST" AS message'
+                ],
+                'RETURN "TREE_NOT_EXIST" AS message',
+                {family: family, person: person}
+            ) YIELD value
+            RETURN value.message
+            LIMIT 1
+            """)
+    String addMother(String treeId, String familyId, String personId);
+
+    @Query("""
+            CALL {
+                OPTIONAL MATCH (tree:Tree {id: $treeId})
+                WITH count(tree) > 0 AS treeExist, tree
+                
+                OPTIONAL MATCH (tree)-[:HAS_FAMILY]->(family:Family {id: $familyId})
+                WITH treeExist, tree, count(family) > 0 AS familyExist, family
+                
+                OPTIONAL MATCH (tree)-[:HAS_PERSON]->(person:Person {id: $personId})
+                RETURN treeExist, tree, familyExist, family, count(person) > 0 AS personExist, person
+            }
+                        
+            CALL apoc.do.case(
+                [
+                    treeExist AND familyExist AND personExist, '
+                        WHERE NOT (family)-[:HAS_CHILD]->(person)
+                        CREATE (family)-[:HAS_CHILD]->(person)
+                        
+                        WITH family, person, fatherRelationshipType, motherRelationshipType
+                        OPTIONAL MATCH (family)-[:HAS_FATHER]->(father:Person)
+                        OPTIONAL MATCH (family)-[:HAS_MOTHER]->(mother:Person)
+                        FOREACH (fth IN CASE WHEN father IS NOT NULL THEN [father] ELSE [] END |
+                            MERGE (fth)-[:PARENT_OF {relationship: fatherRelationshipType}]->(person)
+                        )
+                        FOREACH (mth IN CASE WHEN mother IS NOT NULL THEN [mother] ELSE [] END |
+                            MERGE (mth)-[:PARENT_OF {relationship: motherRelationshipType}]->(person)
+                        )
+                        RETURN "CHILD_ADDED_TO_FAMILY" AS message
+                    ',
+                    treeExist AND familyExist, 'RETURN "PERSON_NOT_EXIST" AS message',
+                    treeExist, 'RETURN "FAMILY_NOT_EXIST" AS message'
+                ],
+                'RETURN "TREE_NOT_EXIST" AS message',
+                {family: family, person: person, fatherRelationshipType: $fatherRelationshipType, motherRelationshipType: $motherRelationshipType}
+            ) YIELD value
+            RETURN value.message
+            LIMIT 1
+            """)
+    String addChild(String treeId, String familyId, String personId, String fatherRelationshipType, String motherRelationshipType);
+
+    @Query("""
+            CALL {
+                OPTIONAL MATCH (tree:Tree {id: $treeId})
+                WITH count(tree) > 0 AS treeExist, tree
+                
+                OPTIONAL MATCH (tree)-[:HAS_FAMILY]->(family:Family {id: $familyId})
+                WITH treeExist, tree, count(family) > 0 AS familyExist, family
+                
+                OPTIONAL MATCH (family)-[fatherRel:HAS_FATHER]->(father:Person {id: $fatherId})
+                RETURN treeExist, tree, familyExist, family, count(father) > 0 AS fatherExist, father, fatherRel
+            }
+                        
+            CALL apoc.do.case(
+                [
+                    treeExist AND familyExist AND fatherExist, '
+                        DELETE fatherRel
+                        WITH family, father
+                        OPTIONAL MATCH (family)-[:HAS_CHILD]->(child:Person)
+                        OPTIONAL MATCH (father)-[rel:PARENT_OF]->(child)
+                        WITH family, father, child, rel
+                        DELETE rel
+                        WITH family
+                        OPTIONAL MATCH (family)-[:HAS_MOTHER]->(mother:Person)
+                        SET family.name = "null & " + COALESCE(mother.name, "null")
+                        RETURN "FATHER_REMOVED_FROM_FAMILY" AS message
+                    ',
+                    treeExist AND familyExist, 'RETURN "FATHER_NOT_EXIST" AS message',
+                    treeExist, 'RETURN "FAMILY_NOT_EXIST" AS message'
+                ],
+                'RETURN "TREE_NOT_EXIST" AS message',
+                {family: family, father: father, fatherRel: fatherRel}
+            ) YIELD value
+            RETURN value.message
+            LIMIT 1
+            """)
+    String removeFather(String treeId, String familyId, String fatherId);
+
+    @Query("""
+            CALL {
+                OPTIONAL MATCH (tree:Tree {id: $treeId})
+                WITH count(tree) > 0 AS treeExist, tree
+                
+                OPTIONAL MATCH (tree)-[:HAS_FAMILY]->(family:Family {id: $familyId})
+                WITH treeExist, tree, count(family) > 0 AS familyExist, family
+                
+                OPTIONAL MATCH (family)-[motherRel:HAS_MOTHER]->(mother:Person {id: $motherId})
+                RETURN treeExist, tree, familyExist, family, count(mother) > 0 AS motherExist, mother, motherRel
+            }
+                        
+            CALL apoc.do.case(
+                [
+                    treeExist AND familyExist AND motherExist, '
+                        DELETE motherRel
+                        WITH family, mother
+                        OPTIONAL MATCH (family)-[:HAS_CHILD]->(child:Person)
+                        OPTIONAL MATCH (mother)-[rel:PARENT_OF]->(child)
+                        WITH family, mother, child, rel
+                        DELETE rel
+                        WITH family
+                        OPTIONAL MATCH (family)-[:HAS_FATHER]->(father:Person)
+                        SET family.name = COALESCE(father.name, "null") + "& null"
+                        RETURN "MOTHER_REMOVED_FROM_FAMILY" AS message
+                    ',
+                    treeExist AND familyExist, 'RETURN "MOTHER_NOT_EXIST" AS message',
+                    treeExist, 'RETURN "FAMILY_NOT_EXIST" AS message'
+                ],
+                'RETURN "TREE_NOT_EXIST" AS message',
+                {family: family, mother: mother, motherRel: motherRel}
+            ) YIELD value
+            RETURN value.message
+            LIMIT 1
+            """)
+    String removeMother(String treeId, String familyId, String fatherId);
+
+    @Query("""
+            CALL {
+                OPTIONAL MATCH (tree:Tree {id: $treeId})
+                WITH count(tree) > 0 AS treeExist, tree
+                
+                OPTIONAL MATCH (tree)-[:HAS_FAMILY]->(family:Family {id: $familyId})
+                WITH treeExist, tree, count(family) > 0 AS familyExist, family
+                
+                OPTIONAL MATCH (family)-[childRel:HAS_CHILD]->(child:Person {id: $childId})
+                RETURN treeExist, tree, familyExist, family, count(child) > 0 AS childExist, child, childRel
+            }
+                        
+            CALL apoc.do.case(
+                [
+                    treeExist AND familyExist AND childExist, '
+                        DELETE childRel
+                        WITH family, child
+                        OPTIONAL MATCH (family)-[:HAS_MOTHER]->(mother:Person)
+                        OPTIONAL MATCH (family)-[:HAS_FATHER]->(father:Person)
+                        OPTIONAL MATCH (mother)-[motherRel:PARENT_OF]->(child)
+                        OPTIONAL MATCH (father)-[fatherRel:PARENT_OF]->(child)
+                        WITH fatherRel, motherRel
+                        DELETE fatherRel, motherRel
+                        RETURN "CHILD_REMOVED_FROM_FAMILY" AS message
+                    ',
+                    treeExist AND familyExist, 'RETURN "CHILD_NOT_EXIST" AS message',
+                    treeExist, 'RETURN "FAMILY_NOT_EXIST" AS message'
+                ],
+                'RETURN "TREE_NOT_EXIST" AS message',
+                {family: family, child: child, childRel: childRel}
+            ) YIELD value
+            RETURN value.message
+            LIMIT 1
+            """)
+    String removeChild(String treeId, String familyId, String childId);
+
+    @Query("""
+            CALL {
+                OPTIONAL MATCH (tree:Tree {id: $treeId})
+                WITH count(tree) > 0 AS treeExist, tree
+                
+                OPTIONAL MATCH (tree)-[:HAS_FAMILY]->(family:Family {id: $familyId})
+                WITH treeExist, tree, count(family) > 0 AS familyExist, family
+                
+                OPTIONAL MATCH (family)-[:HAS_CHILD]->(child:Person {id: $childId})
+                RETURN treeExist, tree, familyExist, family, count(child) > 0 AS childExist, child
+            }
+                        
+            CALL apoc.do.case(
+                [
+                    treeExist AND familyExist AND childExist, '
+                        WITH family, child, fatherRelationshipType, motherRelationshipType
+                        OPTIONAL MATCH (family)-[:HAS_MOTHER]->(mother:Person)
+                        OPTIONAL MATCH (family)-[:HAS_FATHER]->(father:Person)
+                        OPTIONAL MATCH (mother)-[motherRel:PARENT_OF]->(child)
+                        OPTIONAL MATCH (father)-[fatherRel:PARENT_OF]->(child)
+                        DELETE fatherRel, motherRel
+                        WITH mother, father, child, fatherRelationshipType, motherRelationshipType
+                        FOREACH (ignore IN CASE WHEN mother IS NOT NULL AND motherRelationshipType IS NOT NULL THEN [1] ELSE [] END |
+                            CREATE (mother)-[:PARENT_OF {relationship: motherRelationshipType}]->(child)
+                        )
+                        FOREACH (ignore IN CASE WHEN father IS NOT NULL AND fatherRelationshipType IS NOT NULL THEN [1] ELSE [] END |
+                            CREATE (father)-[:PARENT_OF {relationship: fatherRelationshipType}]->(child)
+                        )
+                        RETURN "CHILD_UPDATED_IN_FAMILY" AS message
+                    ',
+                    treeExist AND familyExist, 'RETURN "CHILD_NOT_EXIST" AS message',
+                    treeExist, 'RETURN "FAMILY_NOT_EXIST" AS message'
+                ],
+                'RETURN "TREE_NOT_EXIST" AS message',
+                {family: family, child: child, fatherRelationshipType: $fatherRelationshipType, motherRelationshipType: $motherRelationshipType}
+            ) YIELD value
+            RETURN value.message
+            LIMIT 1
+            """)
+    String updateChild(String treeId, String familyId, String childId, String fatherRelationshipType, String motherRelationshipType);
 
 
     @Query(value = """
@@ -94,7 +479,4 @@ public interface FamilyRepository extends Neo4jRepository<Family, String> {
                        mother.birthdate AS motherBirthdate
             """)
     Optional<FamilyResponse> findByTreeIdAndFamilyId(@Param("treeId") String treeId, @Param("familyId") String familyId);
-
-    List<Family> findByFatherIdOrMotherId(String fatherId, String motherId);
-
 }

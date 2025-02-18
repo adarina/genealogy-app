@@ -1,12 +1,13 @@
 package com.ada.genealogyapp.citation.dto;
 
 import lombok.*;
+import lombok.experimental.SuperBuilder;
 
 import java.time.LocalDate;
 
 @Getter
 @Setter
-@Builder
+@SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
@@ -15,5 +16,5 @@ public class CitationRequest {
 
     public String page;
 
-    public LocalDate date;
+    public String date;
 }

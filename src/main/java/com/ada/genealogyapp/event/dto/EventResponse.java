@@ -18,7 +18,7 @@ public class EventResponse {
 
     private String description;
 
-    private LocalDate date;
+    private String date;
 
     private String place;
 

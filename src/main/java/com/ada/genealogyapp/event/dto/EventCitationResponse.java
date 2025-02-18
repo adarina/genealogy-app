@@ -17,5 +17,5 @@ public class EventCitationResponse {
 
     private String page;
 
-    private LocalDate date;
+    private String date;
 }

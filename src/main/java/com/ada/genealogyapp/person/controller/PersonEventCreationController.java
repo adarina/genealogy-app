@@ -18,7 +18,7 @@ public class PersonEventCreationController {
 
     @PostMapping
     public ResponseEntity<?> createAndAddPersonToNewEvent(@PathVariable String treeId, @PathVariable String personId, @RequestBody ParticipantEventRequest participantEventRequest) {
-        eventCreationService.createEvent(treeId, participantEventRequest, personId);
+        eventCreationService.createEventWithParticipant(treeId, participantEventRequest, personId);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 }

@@ -1,6 +1,5 @@
 package com.ada.genealogyapp.tree.model;
 
-//import com.ada.genealogyapp.userneo4j.model.UserNeo4j;
 import com.ada.genealogyapp.citation.model.Citation;
 import com.ada.genealogyapp.event.model.Event;
 import com.ada.genealogyapp.family.model.Family;
@@ -26,7 +25,6 @@ import java.util.Set;
 @NoArgsConstructor
 public class Tree {
 
-
     @Id
     @GeneratedValue(UUIDStringGenerator.class)
     private String id;
@@ -35,26 +33,34 @@ public class Tree {
 
     private String name;
 
-//    @Relationship(type = "HAS_TREE", direction = Relationship.Direction.INCOMING)
-//    private UserNeo4j userNeo4j;
-
     @Relationship(type = "HAS_FAMILY", direction = Relationship.Direction.OUTGOING)
     private Set<Family> families = new HashSet<>();
 
+    @Relationship(type = "HAS_PERSON", direction = Relationship.Direction.OUTGOING)
+    private Set<Person> persons = new HashSet<>();
 
-@Relationship(type = "HAS_PERSON", direction = Relationship.Direction.OUTGOING)
-private Set<Person> persons = new HashSet<>();
     @Relationship(type = "HAS_EVENT", direction = Relationship.Direction.OUTGOING)
     private Set<Event> events = new HashSet<>();
 
     @Relationship(type = "HAS_CITATION", direction = Relationship.Direction.OUTGOING)
-    private Set<Citation> citation = new HashSet<>();
+    private Set<Citation> citations = new HashSet<>();
 
     @Relationship(type = "HAS_SOURCE", direction = Relationship.Direction.OUTGOING)
-    private Set<Source> source = new HashSet<>();
+    private Set<Source> sources = new HashSet<>();
 
     @Relationship(type = "HAS_FILE", direction = Relationship.Direction.OUTGOING)
-    private Set<File> file = new HashSet<>();
+    private Set<File> files = new HashSet<>();
+
+    public Tree(Long userId, String name, Set<Family> families, Set<Person> persons, Set<Event> events, Set<Citation> citations, Set<Source> sources, Set<File> files) {
+        this.userId = userId;
+        this.name = name;
+        this.families = families;
+        this.persons = persons;
+        this.events = events;
+        this.citations = citations;
+        this.sources = sources;
+        this.files = files;
+    }
 }
 
 

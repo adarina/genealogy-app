@@ -14,6 +14,8 @@ import lombok.*;
 @EqualsAndHashCode
 public class TreeRequest {
 
+    private String id;
+
     private String name;
 
     private Long userId;

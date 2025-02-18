@@ -8,7 +8,6 @@ import lombok.*;
 import org.springframework.data.neo4j.core.schema.Node;
 import org.springframework.data.neo4j.core.schema.Relationship;
 
-import java.time.LocalDate;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -17,7 +16,7 @@ import java.util.Set;
 @Getter
 @Setter
 @Builder
-@AllArgsConstructor
+//@AllArgsConstructor
 @NoArgsConstructor
 public class Person extends Participant {
 
@@ -27,22 +26,23 @@ public class Person extends Participant {
 
     private String lastname;
 
-    private LocalDate birthdate;
-
     private GenderType gender;
 
     @Relationship(type = "PARENT_OF", direction = Relationship.Direction.OUTGOING)
     private Set<PersonRelationship> relationships = new HashSet<>();
 
+//    @Relationship(type = "HAS_PARTICIPANT", direction = Relationship.Direction.INCOMING)
+//    private Set<Event> events = new HashSet<>();
+
     @Relationship(type = "HAS_PERSON", direction = Relationship.Direction.INCOMING)
     private Tree tree;
 
-    public Person(String name, String firstname, String lastname, LocalDate birthDate, GenderType genderType, Tree tree) {
+    public Person(String name, String firstname, String lastname, GenderType gender, Set<PersonRelationship> relationships, Tree tree) {
         this.name = name;
         this.firstname = firstname;
         this.lastname = lastname;
-        this.birthdate = birthDate;
-        this.gender = genderType;
+        this.gender = gender;
+        this.relationships = relationships;
         this.tree = tree;
     }
 }

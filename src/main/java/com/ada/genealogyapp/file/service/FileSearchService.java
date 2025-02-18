@@ -16,8 +16,4 @@ public class FileSearchService {
         this.fileRepository = fileRepository;
     }
 
-    public File findFileById(String fileId) {
-        return fileRepository.findById(fileId)
-                .orElseThrow(() -> new NodeNotFoundException("File not found with ID: " + fileId));
-    }
 }

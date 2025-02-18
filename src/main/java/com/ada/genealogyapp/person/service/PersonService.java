@@ -11,8 +11,16 @@ public interface PersonService {
 
     void ensurePersonExists(String personId);
 
-    void deletePerson(Person person);
+    void deletePerson(String treeId, String personId);
 
-    PersonResponse findPersonResponseById(String personId);
+    PersonResponse findPersonResponseByTreeIdAndId(String treeId, String personId);
+
+    void addParentChildRelationship(String treeId, String personId, String childId, String relationshipType);
+
+    void updatePerson(String treeId, String personId, Person person);
+
+    Person findPersonByTreeIdAndPersonId(String treeId, String personId);
+
+
 
 }

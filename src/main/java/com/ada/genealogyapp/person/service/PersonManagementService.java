@@ -30,29 +30,18 @@ public class PersonManagementService {
 
     @TransactionalInNeo4j
     public void updatePerson(String treeId, String personId, @NonNull PersonRequest personRequest) {
-        treeService.ensureTreeExists(treeId);
-        Person person = personService.findPersonById(personId);
 
-        person.setFirstname(personRequest.getFirstname());
-        person.setLastname(personRequest.getLastname());
-        person.setName(personRequest.getFirstname() + " " + personRequest.getLastname());
-        person.setBirthdate(personRequest.getBirthdate());
-        person.setGender(personRequest.getGender());
-
+        Person person = Person.builder()
+                .firstname(personRequest.getFirstname())
+                .lastname(personRequest.getLastname())
+                .gender(personRequest.getGender())
+                .build();
         personValidationService.validatePerson(person);
-
-        personService.savePerson(person);
-
-        List<Family> families = familyService.findFamiliesByPerson(person);
-        familyService.updateFamiliesNames(families, person);
-        log.info("Person updated: {}", person);
+        personService.updatePerson(treeId, personId, person);
     }
 
     @TransactionalInNeo4j
     public void deletePerson(String treeId, String personId) {
-        treeService.ensureTreeExists(treeId);
-        Person person = personService.findPersonById(personId);
-
-        personService.deletePerson(person);
+        personService.deletePerson(treeId, personId);
     }
 }

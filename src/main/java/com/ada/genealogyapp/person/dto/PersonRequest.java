@@ -2,12 +2,12 @@ package com.ada.genealogyapp.person.dto;
 
 import com.ada.genealogyapp.person.type.GenderType;
 import lombok.*;
+import lombok.experimental.SuperBuilder;
 
-import java.time.LocalDate;
 
 @Getter
 @Setter
-@Builder
+@SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
@@ -17,8 +17,6 @@ public class PersonRequest {
     private String firstname;
 
     private String lastname;
-
-    private LocalDate birthdate;
 
     private GenderType gender;
 

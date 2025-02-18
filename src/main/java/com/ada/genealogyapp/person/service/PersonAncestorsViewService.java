@@ -26,8 +26,7 @@ public class PersonAncestorsViewService {
     }
 
     public PersonAncestorResponse getPersonAncestors(String treeId, String personId) {
-        treeService.ensureTreeExists(treeId);
-        Person person = personService.findPersonById(personId);
+        Person person = personService.findPersonByTreeIdAndPersonId(treeId, personId);
 
         Map<Person, Set<Person>> ancestorsMap = buildAncestryMap(person);
         return mapToResponse(person, ancestorsMap);
@@ -50,11 +49,11 @@ public class PersonAncestorsViewService {
                 .map(parent -> mapToResponse(parent, ancestryMap))
                 .toList();
 
+        // TODO birth and death dates
         return PersonAncestorResponse.builder()
                 .id(person.getId())
                 .name(person.getFirstname() + " " + person.getLastname())
                 .gender(person.getGender().toString())
-                .birthdate(person.getBirthdate() != null ? person.getBirthdate().toString() : "unknown")
                 .ancestors(ancestors)
                 .build();
     }

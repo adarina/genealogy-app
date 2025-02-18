@@ -21,6 +21,7 @@ public class TreeViewService {
         this.treeSearchService = treeSearchService;
     }
 
+    //TODO za wolne
     public List<TreeResponse> getTrees() {
         List<Tree> trees = treeSearchService.getTreesOrThrowNodeNotFoundException();
         List<TreeResponse> treeResponses = new ArrayList<>();

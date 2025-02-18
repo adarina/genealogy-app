@@ -18,6 +18,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.Objects;
+import java.util.UUID;
 
 @Service
 @Slf4j
@@ -26,18 +27,19 @@ public class FileStorageService {
     private final TreeService treeService;
     private final FileRepository fileRepository;
 
+    private final  FileService fileService;
+
     @Value("${file.storage}")
     private String storage;
 
-    public FileStorageService(TreeService treeService, FileRepository fileRepository) {
+    public FileStorageService(TreeService treeService, FileRepository fileRepository, FileService fileService) {
         this.treeService = treeService;
         this.fileRepository = fileRepository;
+        this.fileService = fileService;
     }
 
     @TransactionalInNeo4j
     public File storeFile(String treeId, MultipartFile multipartFile) {
-        Tree tree = treeService.findTreeById(treeId);
-
         if (this.storage.trim().isEmpty()) {
             throw new StorageException("File upload location can not be empty");
         }
@@ -59,16 +61,14 @@ public class FileStorageService {
         }
 
         File file = File.builder()
+                .id(UUID.randomUUID().toString())
                 .name(multipartFile.getOriginalFilename())
                 .type(multipartFile.getContentType())
                 .path(destinationFile.toString())
                 .filename(multipartFile.getOriginalFilename())
-                .fileTree(tree)
                 .build();
 
-        fileRepository.save(file);
-        log.info("File storage successfully: {}", file.getName());
-
+        fileService.saveFile(treeId, file);
         return file;
     }
 }

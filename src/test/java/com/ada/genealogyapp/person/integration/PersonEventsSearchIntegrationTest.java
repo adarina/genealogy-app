@@ -86,7 +86,7 @@
 //        citation.setTree(tree);
 //        citationRepository.save(citation);
 //
-//        Event event = new Event(EventType.BAPTISM, LocalDate.of(1975, 7, 18), "New York", "Birth event", tree);
+//        Event event = new Event(EventType.CHRISTENING, LocalDate.of(1975, 7, 18), "New York", "Birth event", tree);
 //
 ////        CitationLol status = new CitationLol(myCitation, EventRelationshipType.FAMILY);
 ////        event.setCitations(Set.of(status));

@@ -15,6 +15,55 @@ import java.util.Optional;
 @Repository
 public interface SourceRepository extends Neo4jRepository<Source, String> {
 
+    @Query("""
+            CALL {
+                OPTIONAL MATCH (tree:Tree {id: $treeId})
+                RETURN count(tree) > 0 AS treeExist, tree
+            }
+                        
+            CALL apoc.do.case(
+                [
+                    treeExist, '
+                        MERGE (tree)-[:HAS_SOURCE]->(source:Source {id: sourceId})
+                        SET source.name = name
+                            
+                        RETURN "SOURCE_CREATED" AS message
+                    '
+                ],
+                'RETURN "TREE_NOT_EXIST" AS message',
+                {tree: tree, sourceId: $sourceId, name: $name}
+            ) YIELD value
+            RETURN value.message
+            LIMIT 1
+            """)
+    String save(String treeId, String sourceId, String name);
+
+    @Query("""
+            CALL {
+                OPTIONAL MATCH (tree:Tree {id: $treeId})
+                WITH count(tree) > 0 AS treeExist, tree
+                
+                OPTIONAL MATCH (tree)-[:HAS_SOURCE]->(source:Source {id: $sourceId})
+                RETURN treeExist, tree, count(source) > 0 AS sourceExist, source
+            }
+                        
+            CALL apoc.do.case(
+                [
+                    treeExist AND sourceExist, '
+                        SET source.name = $name
+                            
+                        RETURN "SOURCE_UPDATED" AS message
+                    ',
+                    treeExist, 'RETURN "SOURCE_NOT_EXIST" AS message'
+                ],
+                'RETURN "TREE_NOT_EXIST" AS message',
+                {source: source, name: $name}
+            ) YIELD value
+            RETURN value.message
+            LIMIT 1
+            """)
+    String update(String treeId, String sourceId, String name);
+
     @Query(value = """
             MATCH (t:Tree)-[:HAS_SOURCE]->(s:Source)
             WHERE t.id = $treeId

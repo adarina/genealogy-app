@@ -19,13 +19,13 @@ public class FamilyEventManagementController {
 
     @PutMapping
     public ResponseEntity<?> updateEventInFamily(@PathVariable String treeId, @PathVariable String familyId, @PathVariable String eventId, @RequestBody ParticipantEventRequest participantEventRequest) {
-        eventManagementService.updateEvent(treeId, eventId, participantEventRequest, familyId);
+        eventManagementService.updateEventWithParticipant(treeId, eventId, participantEventRequest, familyId);
         return ResponseEntity.ok().build();
     }
 
     @PostMapping
     public ResponseEntity<?> addFamilyToEvent(@PathVariable String treeId, @PathVariable String familyId, @PathVariable String eventId, @RequestBody ParticipantEventRequest participantEventRequest) {
-        eventManagementService.updateEvent(treeId, eventId, participantEventRequest, familyId);
+        eventManagementService.updateEventWithParticipant(treeId, eventId, participantEventRequest, familyId);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 

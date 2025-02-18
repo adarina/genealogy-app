@@ -63,6 +63,7 @@ public class SecurityConfig {
                                 .requestMatchers("/upload-dir/**").permitAll()
                                 .requestMatchers("/api/v1/genealogy/register").permitAll()
                                 .requestMatchers("/api/v1/genealogy/trees/**").permitAll()
+                                .requestMatchers("/api/v1/genealogy/types/**").permitAll()
                                 .requestMatchers("/api/v1/genealogy/all/**").hasRole("ADMIN")
                                 .requestMatchers("/api/v1/genealogy/delete").hasRole("ADMIN")
                                 .anyRequest().authenticated())
