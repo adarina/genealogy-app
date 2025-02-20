@@ -18,14 +18,14 @@ public class PersonManagementController {
 
 
     @PutMapping
-    public ResponseEntity<?> updatePerson(@PathVariable String treeId, @PathVariable String personId, @RequestBody PersonRequest personRequest) {
-        personManagementService.updatePerson(treeId, personId, personRequest);
+    public ResponseEntity<?> updatePerson(@PathVariable String treeId, @PathVariable String personId, @RequestBody PersonRequest personRequest, @RequestHeader(value = "X-User-Id") String userId) {
+        personManagementService.updatePerson(userId, treeId, personId, personRequest);
         return ResponseEntity.ok().build();
     }
 
     @DeleteMapping()
-    public ResponseEntity<?> deletePerson(@PathVariable String treeId, @PathVariable String personId) {
-        personManagementService.deletePerson(treeId, personId);
+    public ResponseEntity<?> deletePerson(@PathVariable String treeId, @PathVariable String personId, @RequestHeader(value = "X-User-Id") String userId) {
+        personManagementService.deletePerson(userId, treeId, personId);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 }

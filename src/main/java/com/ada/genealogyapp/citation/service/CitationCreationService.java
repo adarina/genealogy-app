@@ -28,7 +28,7 @@ public class CitationCreationService {
 
 
     @TransactionalInNeo4j
-    public Citation createCitation(String treeId, @NonNull CitationRequest citationRequest) {
+    public Citation createCitation(String userId, String treeId, @NonNull CitationRequest citationRequest) {
         Citation citation = Citation.builder()
                 .id(UUID.randomUUID().toString())
                 .page(citationRequest.getPage())
@@ -36,12 +36,12 @@ public class CitationCreationService {
                 .build();
 
         citationValidationService.validateCitation(citation);
-        citationService.saveCitation(treeId, citation);
+        citationService.saveCitation(userId, treeId, citation);
         return citation;
     }
 
     @TransactionalInNeo4j
-    public Citation createCitationWithSourceAndEvent(Tree tree, String page, String date, String sourceId, String eventId) {
+    public Citation createCitationWithSourceAndEvent(String userId, Tree tree, String page, String date, String sourceId, String eventId) {
         Citation citation = Citation.builder()
                 .id(UUID.randomUUID().toString())
                 .tree(tree)
@@ -50,12 +50,12 @@ public class CitationCreationService {
                 .build();
 
         citationValidationService.validateCitation(citation);
-        citationService.saveCitationWithSourceAndEvent(citation, sourceId, eventId);
+        citationService.saveCitationWithSourceAndEvent(userId, citation, sourceId, eventId);
         return citation;
     }
 
     @TransactionalInNeo4j
-    public Citation createCitationWithSourceAndFiles(Tree tree, String page, String date, String sourceId, List<String> filesIds) {
+    public Citation createCitationWithSourceAndFiles(String userId, Tree tree, String page, String date, String sourceId, List<String> filesIds) {
         Citation citation = Citation.builder()
                 .id(UUID.randomUUID().toString())
                 .tree(tree)
@@ -64,7 +64,7 @@ public class CitationCreationService {
                 .build();
 
         citationValidationService.validateCitation(citation);
-        citationService.saveCitationWithSourceAndFiles(citation, sourceId, filesIds);
+        citationService.saveCitationWithSourceAndFiles(userId, citation, sourceId, filesIds);
         return citation;
     }
 }

@@ -17,14 +17,14 @@ public class CitationSourceManagementController {
     }
 
     @DeleteMapping
-    public ResponseEntity<?> removeSourceFromCitation(@PathVariable String treeId, @PathVariable String citationId, @PathVariable String sourceId) {
-        citationSourceManagementService.removeSourceFromCitation(treeId, citationId, sourceId);
+    public ResponseEntity<?> removeSourceFromCitation(@PathVariable String treeId, @PathVariable String citationId, @PathVariable String sourceId, @RequestHeader(value = "X-User-Id") String userId) {
+        citationSourceManagementService.removeSourceFromCitation(userId, treeId, citationId, sourceId);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
     @PostMapping
-    public ResponseEntity<?> addSourceToCitation(@PathVariable String treeId, @PathVariable String citationId, @PathVariable String sourceId) {
-        citationSourceManagementService.addSourceToCitation(treeId, citationId, sourceId);
+    public ResponseEntity<?> addSourceToCitation(@PathVariable String treeId, @PathVariable String citationId, @PathVariable String sourceId, @RequestHeader(value = "X-User-Id") String userId) {
+        citationSourceManagementService.addSourceToCitation(userId, treeId, citationId, sourceId);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 }

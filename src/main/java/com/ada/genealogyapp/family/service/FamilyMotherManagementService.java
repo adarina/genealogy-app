@@ -17,12 +17,12 @@ public class FamilyMotherManagementService {
     }
 
     @TransactionalInNeo4j
-    public void addMotherToFamily(String treeId, String familyId, String personId) {
-        familyService.addMotherToFamily(treeId, familyId, personId);
+    public void addMotherToFamily(String userId, String treeId, String familyId, String personId) {
+        familyService.addMotherToFamily(userId, treeId, familyId, personId);
     }
 
     @TransactionalInNeo4j
-    public void removeMotherFromFamily(String treeId, String familyId, String motherId) {
-        familyService.removeMotherFromFamily(treeId, familyId, motherId);
+    public void removeMotherFromFamily(String userId, String treeId, String familyId, String motherId) {
+        familyService.removeMotherFromFamily(userId, treeId, familyId, motherId);
     }
 }

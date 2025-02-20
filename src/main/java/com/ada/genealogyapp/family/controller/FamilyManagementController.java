@@ -17,14 +17,14 @@ public class FamilyManagementController {
     }
 
     @PutMapping
-    public ResponseEntity<?> updateFamily(@PathVariable String treeId, @PathVariable String familyId, @RequestBody FamilyRequest familyRequest) {
-        familyManagementService.updateFamily(treeId, familyId, familyRequest);
+    public ResponseEntity<?> updateFamily(@PathVariable String treeId, @PathVariable String familyId, @RequestBody FamilyRequest familyRequest, @RequestHeader(value = "X-User-Id") String userId) {
+        familyManagementService.updateFamily(userId, treeId, familyId, familyRequest);
         return ResponseEntity.ok().build();
     }
 
     @DeleteMapping
-    public ResponseEntity<?> deleteFamily(@PathVariable String treeId, @PathVariable String familyId) {
-        familyManagementService.deleteFamily(treeId, familyId);
+    public ResponseEntity<?> deleteFamily(@PathVariable String treeId, @PathVariable String familyId, @RequestHeader(value = "X-User-Id") String userId) {
+        familyManagementService.deleteFamily(userId, treeId, familyId);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 }

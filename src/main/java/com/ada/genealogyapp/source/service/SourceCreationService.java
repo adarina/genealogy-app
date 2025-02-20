@@ -22,26 +22,26 @@ public class SourceCreationService {
 
 
     @TransactionalInNeo4j
-    public Source createSource(String treeId, SourceRequest sourceRequest) {
+    public Source createSource(String userId, String treeId, SourceRequest sourceRequest) {
         Source source = Source.builder()
                 .id(UUID.randomUUID().toString())
                 .name(sourceRequest.getName())
                 .build();
 
         //TODO validation
-        sourceService.saveSource(treeId, source);
+        sourceService.saveSource(userId, treeId, source);
         return source;
     }
 
     @TransactionalInNeo4j
-    public Source createSource(Tree tree, String name) {
+    public Source createSource(String userId, Tree tree, String name) {
         Source source = Source.builder()
                 .id(UUID.randomUUID().toString())
                 .name(name)
                 .build();
 
         //TODO validation
-        sourceService.saveSource(tree.getId(), source);
+        sourceService.saveSource(userId, tree.getId(), source);
         return source;
     }
 }

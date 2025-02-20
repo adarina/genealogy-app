@@ -4,6 +4,7 @@ import com.ada.genealogyapp.citation.model.Citation;
 import com.ada.genealogyapp.event.model.Event;
 import com.ada.genealogyapp.family.model.Family;
 import com.ada.genealogyapp.file.model.File;
+import com.ada.genealogyapp.graphuser.model.GraphUser;
 import com.ada.genealogyapp.person.model.Person;
 import com.ada.genealogyapp.source.model.Source;
 import lombok.*;
@@ -29,7 +30,7 @@ public class Tree {
     @GeneratedValue(UUIDStringGenerator.class)
     private String id;
 
-    private Long userId;
+//    private Long userId;
 
     private String name;
 
@@ -51,8 +52,11 @@ public class Tree {
     @Relationship(type = "HAS_FILE", direction = Relationship.Direction.OUTGOING)
     private Set<File> files = new HashSet<>();
 
-    public Tree(Long userId, String name, Set<Family> families, Set<Person> persons, Set<Event> events, Set<Citation> citations, Set<Source> sources, Set<File> files) {
-        this.userId = userId;
+    @Relationship(type = "HAS_TREE", direction = Relationship.Direction.INCOMING)
+    private GraphUser graphUser;
+
+    public Tree(String name, Set<Family> families, Set<Person> persons, Set<Event> events, Set<Citation> citations, Set<Source> sources, Set<File> files) {
+//        this.userId = userId;
         this.name = name;
         this.families = families;
         this.persons = persons;

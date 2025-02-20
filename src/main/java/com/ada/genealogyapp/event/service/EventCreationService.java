@@ -30,7 +30,7 @@ public class EventCreationService {
     }
 
     @TransactionalInNeo4j
-    public void createEvent(String treeId, @NonNull EventRequest eventRequest) {
+    public void createEvent(String userId, String treeId, @NonNull EventRequest eventRequest) {
         Event event = Event.builder()
                 .id(UUID.randomUUID().toString())
                 .type(eventRequest.getType())
@@ -40,11 +40,11 @@ public class EventCreationService {
                 .build();
 
         eventValidationService.validateEvent(event);
-        eventService.saveEvent(treeId, event);
+        eventService.saveEvent(userId, treeId, event);
     }
 
     @TransactionalInNeo4j
-    public void createEventWithParticipant(String treeId, @NonNull ParticipantEventRequest eventRequest, String participantId) {
+    public void createEventWithParticipant(String userId, String treeId, @NonNull ParticipantEventRequest eventRequest, String participantId) {
         Event event = Event.builder()
                 .id(UUID.randomUUID().toString())
                 .type(eventRequest.getType())
@@ -54,11 +54,11 @@ public class EventCreationService {
                 .build();
 
         eventValidationService.validateEvent(event);
-        eventService.saveEventWithParticipant(treeId, event, participantId, eventRequest.getRelationship().name());
+        eventService.saveEventWithParticipant(userId, treeId, event, participantId, eventRequest.getRelationship().name());
     }
 
     @TransactionalInNeo4j
-    public Event createEventWithParticipant(Tree tree, EventType type, String place, String description, String date, Participant participant, EventParticipantRelationshipType relationshipType) {
+    public Event createEventWithParticipant(String userId, Tree tree, EventType type, String place, String description, String date, Participant participant, EventParticipantRelationshipType relationshipType) {
         Event event = Event.builder()
                 .id(UUID.randomUUID().toString())
                 .type(type)
@@ -68,13 +68,13 @@ public class EventCreationService {
                 .build();
 
         eventValidationService.validateEvent(event);
-        eventService.saveEventWithParticipant(tree.getId(), event, participant.getId(), relationshipType.name());
+        eventService.saveEventWithParticipant(userId, tree.getId(), event, participant.getId(), relationshipType.name());
 
         return event;
     }
 
     @TransactionalInNeo4j
-    public Event createEvent(Tree tree, EventType type, String place, String description, String date) {
+    public Event createEvent(String userId, Tree tree, EventType type, String place, String description, String date) {
         Event event = Event.builder()
                 .id(UUID.randomUUID().toString())
                 .type(type)
@@ -84,7 +84,7 @@ public class EventCreationService {
                 .build();
 
         eventValidationService.validateEvent(event);
-        eventService.saveEvent(tree.getId(), event);
+        eventService.saveEvent(userId, tree.getId(), event);
 
         return event;
     }

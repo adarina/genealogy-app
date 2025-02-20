@@ -25,31 +25,26 @@ public class PersonServiceImpl implements PersonService {
         this.queryResultProcessor = queryResultProcessor;
     }
 
-    public Person findPersonById(String personId) {
-        return personRepository.findById(personId)
-                .orElseThrow(() -> new NodeNotFoundException("Person not found with ID: " + personId));
-    }
-
     public PersonResponse findPersonResponseByTreeIdAndId(String treeId, String personId) {
         return personRepository.findByTreeIdAndId(treeId, personId)
                 .orElseThrow(() -> new NodeNotFoundException("Person not found with ID: " + personId));
     }
 
     @TransactionalInNeo4j
-    public void savePerson(Person person) {
-        String result = personRepository.save(person.getTree().getId(), person.getId(), person.getFirstname(), person.getLastname(), person.getGender().name());
-        queryResultProcessor.process(result, Map.of("treeId", person.getTree().getId(), "personId", person.getId()));
+    public void savePerson(String userId, String treeId, Person person) {
+        String result = personRepository.save(userId, treeId, person.getId(), person.getFirstname(), person.getLastname(), person.getGender().name());
+        queryResultProcessor.process(result, Map.of("treeId", treeId, "personId", person.getId()));
     }
 
     @TransactionalInNeo4j
-    public void updatePerson(String treeId, String personId, Person person) {
-        String result = personRepository.update(treeId, personId, person.getFirstname(), person.getLastname(), person.getGender().name());
+    public void updatePerson(String userId, String treeId, String personId, Person person) {
+        String result = personRepository.update(userId, treeId, personId, person.getFirstname(), person.getLastname(), person.getGender().name());
         queryResultProcessor.process(result, Map.of("personId", person.getId()));
     }
 
     @TransactionalInNeo4j
-    public void deletePerson(String treeId, String personId) {
-        String result = personRepository.delete(treeId, personId);
+    public void deletePerson(String userId, String treeId, String personId) {
+        String result = personRepository.delete(userId, treeId, personId);
         queryResultProcessor.process(result, Map.of("personId", personId));
     }
 

@@ -14,12 +14,12 @@ public class FamilyFatherManagementService {
     private final FamilyService familyService;
 
     @TransactionalInNeo4j
-    public void addFatherToFamily(String treeId, String familyId, String fatherId) {
-        familyService.addFatherToFamily(treeId, familyId, fatherId);
+    public void addFatherToFamily(String userId, String treeId, String familyId, String fatherId) {
+        familyService.addFatherToFamily(userId, treeId, familyId, fatherId);
     }
 
     @TransactionalInNeo4j
-    public void removeFatherFromFamily(String treeId, String familyId, String fatherId) {
-        familyService.removeFatherFromFamily(treeId, familyId, fatherId);
+    public void removeFatherFromFamily(String userId, String treeId, String familyId, String fatherId) {
+        familyService.removeFatherFromFamily(userId, treeId, familyId, fatherId);
     }
 }

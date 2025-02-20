@@ -34,15 +34,9 @@ public class FileServiceImpl implements FileService {
         }
     }
 
-//    @TransactionalInNeo4j
-//    public void saveFile(File file) {
-//        File savedFile = fileRepository.save(file);
-//        log.info("File saved successfully: {}", savedFile);
-//    }
-
     @TransactionalInNeo4j
-    public void saveFile(String treeId, @NonNull File file) {
-        String result = fileRepository.save(treeId, file.getId(), file.getName(), file.getType(), file.getPath(), file.getFilename());
+    public void saveFile(String userId, String treeId, @NonNull File file) {
+        String result = fileRepository.save(userId, treeId, file.getId(), file.getName(), file.getType(), file.getPath(), file.getFilename());
         queryResultProcessor.process(result, Map.of("treeId", treeId, "fileId", file.getId()));
     }
 }

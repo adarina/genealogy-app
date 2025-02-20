@@ -17,13 +17,13 @@ public interface FileRepository extends Neo4jRepository<File, String> {
 
     @Query("""
             CALL {
-                OPTIONAL MATCH (tree:Tree {id: $treeId})
-                RETURN count(tree) > 0 AS treeExist, tree
+                OPTIONAL MATCH (user:GraphUser {id: $userId})-[:HAS_TREE]->(tree:Tree {id: $treeId})
+                RETURN count(user) > 0 AS userExist, count(tree) > 0 AS treeExist, tree
             }
                         
             CALL apoc.do.case(
                 [
-                    treeExist, '
+                    userExist AND treeExist, '
                         MERGE (tree)-[:HAS_FILE]->(file:File {id: fileId})
                         SET file.name = name,
                             file.type = type,
@@ -31,15 +31,16 @@ public interface FileRepository extends Neo4jRepository<File, String> {
                             file.filename = filename
                             
                         RETURN "FILE_CREATED" AS message
-                    '
+                    ',
+                    userExist, 'RETURN "TREE_NOT_EXIST" AS message'
                 ],
-                'RETURN "TREE_NOT_EXIST" AS message',
+                'RETURN "USER_NOT_EXIST" AS message',
                 {tree: tree, fileId: $fileId, name: $name, type: $type, path: $path, filename: $filename}
             ) YIELD value
             RETURN value.message
             LIMIT 1
             """)
-    String save(String treeId, String fileId, String name, String type, String path, String filename);
+    String save(String userId, String treeId, String fileId, String name, String type, String path, String filename);
 
     @Query("""
                 MATCH (f:File {id: $fileId})

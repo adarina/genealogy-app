@@ -18,8 +18,8 @@ public class EventCreationController {
     }
 
     @PostMapping
-    public ResponseEntity<?> createEvent(@PathVariable String treeId, @RequestBody EventRequest eventRequest) {
-        eventCreationService.createEvent(treeId, eventRequest);
+    public ResponseEntity<?> createEvent(@PathVariable String treeId, @RequestBody EventRequest eventRequest, @RequestHeader(value = "X-User-Id") String userId) {
+        eventCreationService.createEvent(userId, treeId, eventRequest);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 }

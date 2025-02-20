@@ -31,14 +31,14 @@ public class SourceServiceImpl implements SourceService {
     }
 
     @TransactionalInNeo4j
-    public void saveSource(String treeId, @NonNull Source source) {
-        String result = sourceRepository.save(treeId, source.getId(), source.getName());
+    public void saveSource(String userId, String treeId, @NonNull Source source) {
+        String result = sourceRepository.save(userId, treeId, source.getId(), source.getName());
         queryResultProcessor.process(result, Map.of("treeId", treeId, "sourceId", source.getId()));
     }
 
     @TransactionalInNeo4j
-    public void updateSource(String treeId, String sourceId, Source source) {
-        String result = sourceRepository.update(treeId, sourceId, source.getName());
+    public void updateSource(String userId, String treeId, String sourceId, Source source) {
+        String result = sourceRepository.update(userId, treeId, sourceId, source.getName());
         queryResultProcessor.process(result, Map.of("sourceId", sourceId));
     }
 }

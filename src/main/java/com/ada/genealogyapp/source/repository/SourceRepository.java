@@ -16,35 +16,36 @@ import java.util.Optional;
 public interface SourceRepository extends Neo4jRepository<Source, String> {
 
     @Query("""
-            CALL {
-                OPTIONAL MATCH (tree:Tree {id: $treeId})
-                RETURN count(tree) > 0 AS treeExist, tree
+             CALL {
+                OPTIONAL MATCH (user:GraphUser {id: $userId})-[:HAS_TREE]->(tree:Tree {id: $treeId})
+                RETURN count(tree) > 0 AS treeExist, count(user) > 0 AS userExist, tree
             }
                         
             CALL apoc.do.case(
                 [
-                    treeExist, '
+                    userExist AND treeExist, '
                         MERGE (tree)-[:HAS_SOURCE]->(source:Source {id: sourceId})
                         SET source.name = name
                             
                         RETURN "SOURCE_CREATED" AS message
-                    '
+                    ',
+                     userExist, 'RETURN "TREE_NOT_EXIST" AS message'
                 ],
-                'RETURN "TREE_NOT_EXIST" AS message',
+                'RETURN "USER_NOT_EXIST" AS message',
                 {tree: tree, sourceId: $sourceId, name: $name}
             ) YIELD value
             RETURN value.message
             LIMIT 1
             """)
-    String save(String treeId, String sourceId, String name);
+    String save(String userId, String treeId, String sourceId, String name);
 
     @Query("""
             CALL {
-                OPTIONAL MATCH (tree:Tree {id: $treeId})
-                WITH count(tree) > 0 AS treeExist, tree
+                OPTIONAL MATCH (user:GraphUser {id: $userId})-[:HAS_TREE]->(tree:Tree {id: $treeId})
+                WITH count(tree) > 0 AS treeExist, count(user) > 0 AS userExist, tree
                 
                 OPTIONAL MATCH (tree)-[:HAS_SOURCE]->(source:Source {id: $sourceId})
-                RETURN treeExist, tree, count(source) > 0 AS sourceExist, source
+                RETURN userExist, treeExist, tree, count(source) > 0 AS sourceExist, source
             }
                         
             CALL apoc.do.case(
@@ -54,15 +55,16 @@ public interface SourceRepository extends Neo4jRepository<Source, String> {
                             
                         RETURN "SOURCE_UPDATED" AS message
                     ',
-                    treeExist, 'RETURN "SOURCE_NOT_EXIST" AS message'
+                    userExist AND treeExist, 'RETURN "SOURCE_NOT_EXIST" AS message',
+                    userExist, 'RETURN "TREE_NOT_EXIST" AS message'
                 ],
-                'RETURN "TREE_NOT_EXIST" AS message',
+                'RETURN "USER_NOT_EXIST" AS message',
                 {source: source, name: $name}
             ) YIELD value
             RETURN value.message
             LIMIT 1
             """)
-    String update(String treeId, String sourceId, String name);
+    String update(String userId, String treeId, String sourceId, String name);
 
     @Query(value = """
             MATCH (t:Tree)-[:HAS_SOURCE]->(s:Source)

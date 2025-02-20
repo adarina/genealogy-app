@@ -18,8 +18,8 @@ public class FileStorageController {
     }
 
     @PostMapping
-    public ResponseEntity<?> storeFile(@PathVariable String treeId, @RequestParam MultipartFile file) {
-        fileStorageService.storeFile(treeId, file);
+    public ResponseEntity<?> storeFile(@PathVariable String treeId, @RequestParam MultipartFile file, @RequestHeader(value = "X-User-Id") String userId) {
+        fileStorageService.storeFile(userId, treeId, file);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 }

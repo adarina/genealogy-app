@@ -16,17 +16,17 @@ public class FamilyChildManagementService {
     private final FamilyService familyService;
 
     @TransactionalInNeo4j
-    public void addChildToFamily(String treeId, String familyId, String childId, FamilyChildRequest familyChildRequest) {
-        familyService.addChildToFamily(treeId, familyId, childId, familyChildRequest.getFatherRelationship().name(), familyChildRequest.getMotherRelationship().name());
+    public void addChildToFamily(String userId, String treeId, String familyId, String childId, FamilyChildRequest familyChildRequest) {
+        familyService.addChildToFamily(userId, treeId, familyId, childId, familyChildRequest.getFatherRelationship().name(), familyChildRequest.getMotherRelationship().name());
     }
 
     @TransactionalInNeo4j
-    public void updateChildInFamily(String treeId, String familyId, String childId, FamilyChildRequest familyChildRequest) {
-        familyService.updateChildInFamily(treeId, familyId, childId, familyChildRequest);
+    public void updateChildInFamily(String userId, String treeId, String familyId, String childId, FamilyChildRequest familyChildRequest) {
+        familyService.updateChildInFamily(userId, treeId, familyId, childId, familyChildRequest);
     }
 
     @TransactionalInNeo4j
-    public void removeChildFromFamily(String treeId, String familyId, String childId) {
-        familyService.removeChildFromFamily(treeId, familyId, childId);
+    public void removeChildFromFamily(String userId, String treeId, String familyId, String childId) {
+        familyService.removeChildFromFamily(userId, treeId, familyId, childId);
     }
 }

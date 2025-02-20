@@ -13,12 +13,12 @@ public class CitationSourceManagementService {
     private final CitationService citationService;
 
     @TransactionalInNeo4j
-    public void addSourceToCitation(String treeId, String citationId, String sourceId) {
-        citationService.addSourceToCitation(treeId, citationId, sourceId);
+    public void addSourceToCitation(String userId, String treeId, String citationId, String sourceId) {
+        citationService.addSourceToCitation(userId, treeId, citationId, sourceId);
     }
 
     @TransactionalInNeo4j
-    public void removeSourceFromCitation(String treeId, String citationId, String sourceId) {
-        citationService.removeSourceFromCitation(treeId, citationId, sourceId);
+    public void removeSourceFromCitation(String userId, String treeId, String citationId, String sourceId) {
+        citationService.removeSourceFromCitation(userId, treeId, citationId, sourceId);
     }
 }

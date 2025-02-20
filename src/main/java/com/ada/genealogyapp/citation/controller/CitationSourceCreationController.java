@@ -23,9 +23,9 @@ public class CitationSourceCreationController {
     }
 
     @PostMapping
-    public ResponseEntity<?> createAndAddSourceToCitation(@PathVariable String treeId, @PathVariable String citationId, @RequestBody SourceRequest sourceRequest) {
-        Source source = sourceCreationService.createSource(treeId, sourceRequest);
-        citationSourceManagementService.addSourceToCitation(treeId, citationId, source.getId());
+    public ResponseEntity<?> createAndAddSourceToCitation(@PathVariable String treeId, @PathVariable String citationId, @RequestBody SourceRequest sourceRequest, @RequestHeader(value = "X-User-Id") String userId) {
+        Source source = sourceCreationService.createSource(userId, treeId, sourceRequest);
+        citationSourceManagementService.addSourceToCitation(userId, treeId, citationId, source.getId());
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 }

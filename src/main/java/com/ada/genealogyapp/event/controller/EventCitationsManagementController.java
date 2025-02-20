@@ -22,9 +22,9 @@ public class EventCitationsManagementController {
     }
 
     @PostMapping
-    public ResponseEntity<?> createAndAddCitationToEvent(@PathVariable String treeId, @PathVariable String eventId, @RequestBody CitationRequest citationRequest) {
-        Citation citation = citationCreationService.createCitation(treeId, citationRequest);
-        eventCitationsManagementService.addCitationToEvent(treeId, eventId, citation.getId());
+    public ResponseEntity<?> createAndAddCitationToEvent(@PathVariable String treeId, @PathVariable String eventId, @RequestBody CitationRequest citationRequest, @RequestHeader(value = "X-User-Id") String userId) {
+        Citation citation = citationCreationService.createCitation(userId, treeId, citationRequest);
+        eventCitationsManagementService.addCitationToEvent(userId, treeId, eventId, citation.getId());
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 }

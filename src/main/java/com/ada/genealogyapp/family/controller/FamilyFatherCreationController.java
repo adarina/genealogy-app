@@ -22,9 +22,9 @@ public class FamilyFatherCreationController {
     }
 
     @PostMapping
-    public ResponseEntity<?> createAndAddFatherToFamily(@PathVariable String treeId, @PathVariable String familyId, @RequestBody PersonRequest personRequest) {
-        Person father = personCreationService.createPerson(treeId, personRequest);
-        familyFatherManagementService.addFatherToFamily(treeId, familyId, father.getId());
+    public ResponseEntity<?> createAndAddFatherToFamily(@PathVariable String treeId, @PathVariable String familyId, @RequestBody PersonRequest personRequest, @RequestHeader(value = "X-User-Id") String userId) {
+        Person father = personCreationService.createPerson(userId, treeId, personRequest);
+        familyFatherManagementService.addFatherToFamily(userId, treeId, familyId, father.getId());
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 }

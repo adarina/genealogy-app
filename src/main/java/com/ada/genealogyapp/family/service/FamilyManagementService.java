@@ -21,17 +21,17 @@ public class FamilyManagementService {
 
 
     @TransactionalInNeo4j
-    public void updateFamily(String treeId, String familyId, FamilyRequest familyRequest) {
+    public void updateFamily(String userId, String treeId, String familyId, FamilyRequest familyRequest) {
         Family family = Family.builder()
                 .status(familyRequest.getStatus())
                 .build();
 
         familyValidationService.validateFamily(family);
-        familyService.updateFamily(treeId, familyId, family);
+        familyService.updateFamily(userId, treeId, familyId, family);
     }
 
     @TransactionalInNeo4j
-    public void deleteFamily(String treeId, String familyId) {
-        familyService.deleteFamily(treeId, familyId);
+    public void deleteFamily(String userId, String treeId, String familyId) {
+        familyService.deleteFamily(userId, treeId, familyId);
     }
 }

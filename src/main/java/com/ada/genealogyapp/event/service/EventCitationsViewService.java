@@ -26,14 +26,10 @@ public class EventCitationsViewService {
     }
 
     public Page<EventCitationResponse> getEventCitations(String treeId, String eventId, Pageable pageable) {
-        treeService.ensureTreeExists(treeId);
-        eventService.ensureEventExists(eventId);
         return eventRepository.findEventCitations(treeId, eventId, pageable);
     }
 
     public EventCitationResponse getEventCitation(String treeId, String eventId, String citationId) {
-        treeService.ensureTreeExists(treeId);
-        eventService.ensureEventExists(eventId);
         return eventRepository.findEventCitation(treeId, eventId, citationId)
                 .orElseThrow(() -> new NodeNotFoundException("Citation " + citationId + " not found for tree " + treeId + " and event " + eventId));
     }

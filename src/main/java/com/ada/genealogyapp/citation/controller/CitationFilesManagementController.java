@@ -22,9 +22,9 @@ public class CitationFilesManagementController {
 
 
     @PostMapping
-    public ResponseEntity<?> createAndAddFileToCitation(@PathVariable String treeId, @PathVariable String citationId, @RequestParam MultipartFile multipartFile) {
-        File file = fileStorageService.storeFile(treeId, multipartFile);
-        citationFileManagementService.addFileToCitation(treeId, citationId, file.getId());
+    public ResponseEntity<?> createAndAddFileToCitation(@PathVariable String treeId, @PathVariable String citationId, @RequestParam MultipartFile multipartFile, @RequestHeader(value = "X-User-Id") String userId) {
+        File file = fileStorageService.storeFile(userId, treeId, multipartFile);
+        citationFileManagementService.addFileToCitation(userId, treeId, citationId, file.getId());
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 }

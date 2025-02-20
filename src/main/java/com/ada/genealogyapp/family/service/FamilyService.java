@@ -5,29 +5,29 @@ import com.ada.genealogyapp.family.model.Family;
 
 public interface FamilyService {
 
-    void saveFamily(Family family);
+    void saveFamily(String userId, String treeId, Family family);
 
-    void updateFamily(String treeId, String familyId, Family family);
+    void updateFamily(String userId, String treeId, String familyId, Family family);
 
     Family findFamilyById(String familyId);
 
     void ensureFamilyExists(String familyId);
 
-    void deleteFamily(String treeId, String familyId);
+    void deleteFamily(String userId, String treeId, String familyId);
 
-    Family findFamilyByTreeIdAndId(String treeId, String familyId);
+//    Family findFamilyByTreeIdAndId(String userId, String treeId, String familyId);
 
-    void addFatherToFamily(String treeId, String familyId, String fatherId);
+    void addFatherToFamily(String userId, String treeId, String familyId, String fatherId);
 
-    void addMotherToFamily(String treeId, String familyId, String motherId);
+    void addMotherToFamily(String userId, String treeId, String familyId, String motherId);
 
-    void addChildToFamily(String treeId, String familyId, String childId, String fatherRelationshipType, String motherRelationshipType);
+    void addChildToFamily(String userId, String treeId, String familyId, String childId, String fatherRelationshipType, String motherRelationshipType);
 
-    void removeFatherFromFamily(String treeId, String familyId, String fatherId);
+    void removeFatherFromFamily(String userId, String treeId, String familyId, String fatherId);
 
-    void removeMotherFromFamily(String treeId, String familyId, String motherId);
+    void removeMotherFromFamily(String userId, String treeId, String familyId, String motherId);
 
-    void removeChildFromFamily(String treeId, String familyId, String childId);
+    void removeChildFromFamily(String userId, String treeId, String familyId, String childId);
 
-    void updateChildInFamily(String treeId, String familyId, String childId, FamilyChildRequest familyChildRequest);
+    void updateChildInFamily(String userId, String treeId, String familyId, String childId, FamilyChildRequest familyChildRequest);
 }

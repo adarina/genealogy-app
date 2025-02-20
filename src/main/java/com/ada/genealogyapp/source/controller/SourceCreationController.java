@@ -18,8 +18,8 @@ public class SourceCreationController {
 
 
     @PostMapping
-    public ResponseEntity<?> createSource(@PathVariable String treeId, @RequestBody SourceRequest sourceRequest) {
-        sourceCreationService.createSource(treeId, sourceRequest);
+    public ResponseEntity<?> createSource(@PathVariable String treeId, @RequestBody SourceRequest sourceRequest, @RequestHeader(value = "X-User-Id") String userId) {
+        sourceCreationService.createSource(userId, treeId, sourceRequest);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 }

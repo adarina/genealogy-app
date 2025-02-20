@@ -40,56 +40,56 @@ public class EventServiceImpl implements EventService {
     }
 
     @TransactionalInNeo4j
-    public void saveEvent(String treeId, Event event) {
-        String result = eventRepository.save(treeId, event.getId(), event.getDescription(), event.getPlace(), event.getType().name(), event.getDate());
+    public void saveEvent(String userId, String treeId, Event event) {
+        String result = eventRepository.save(userId, treeId, event.getId(), event.getDescription(), event.getPlace(), event.getType().name(), event.getDate());
         queryResultProcessor.process(result, Map.of("treeId", treeId, "eventId", event.getId()));
     }
 
     @TransactionalInNeo4j
-    public void deleteEvent(String treeId, String eventId) {
-        String result = eventRepository.delete(treeId, eventId);
+    public void deleteEvent(String userId, String treeId, String eventId) {
+        String result = eventRepository.delete(userId, treeId, eventId);
         queryResultProcessor.process(result, Map.of("eventId", eventId));
     }
 
     @TransactionalInNeo4j
-    public void updateEvent(String treeId, String eventId, Event event) {
-        String result = eventRepository.update(treeId, eventId, event.getDescription(), event.getPlace(), event.getDate(), event.getType().name());
+    public void updateEvent(String userId, String treeId, String eventId, Event event) {
+        String result = eventRepository.update(userId, treeId, eventId, event.getDescription(), event.getPlace(), event.getDate(), event.getType().name());
         queryResultProcessor.process(result, Map.of("eventId", eventId));
     }
 
     @TransactionalInNeo4j
-    public void updateEventWithParticipant(String treeId, String eventId, Event event, String participantId, String relationshipType) {
-        String result = eventRepository.update(treeId, eventId, event.getDescription(), event.getPlace(), event.getDate(), event.getType().name(), participantId, relationshipType);
+    public void updateEventWithParticipant(String userId, String treeId, String eventId, Event event, String participantId, String relationshipType) {
+        String result = eventRepository.update(userId, treeId, eventId, event.getDescription(), event.getPlace(), event.getDate(), event.getType().name(), participantId, relationshipType);
         queryResultProcessor.process(result, Map.of("participantId", participantId, "eventId", eventId));
     }
 
     @TransactionalInNeo4j
-    public void saveEventWithParticipant(String treeId, @NonNull Event event, String participantId, String relationshipType) {
-        String result = eventRepository.save(treeId, event.getId(), event.getDescription(), event.getPlace(), event.getType().name(), event.getDate(), participantId, relationshipType);
+    public void saveEventWithParticipant(String userId, String treeId, @NonNull Event event, String participantId, String relationshipType) {
+        String result = eventRepository.save(userId, treeId, event.getId(), event.getDescription(), event.getPlace(), event.getType().name(), event.getDate(), participantId, relationshipType);
         queryResultProcessor.process(result, Map.of("treeId", treeId, "participantId", participantId, "eventId", event.getId()));
     }
 
     @TransactionalInNeo4j
-    public void addParticipantToEvent(String treeId, String eventId, String participantId, String relationshipType) {
-        String result = eventRepository.addParticipant(treeId, eventId, participantId, relationshipType);
+    public void addParticipantToEvent(String userId, String treeId, String eventId, String participantId, String relationshipType) {
+        String result = eventRepository.addParticipant(userId, treeId, eventId, participantId, relationshipType);
         queryResultProcessor.process(result, Map.of("eventId", eventId, "participantId", participantId));
     }
 
     @TransactionalInNeo4j
-    public void addCitationToEvent(String treeId, String eventId, String citationId) {
-        String result = eventRepository.addCitation(treeId, eventId, citationId);
+    public void addCitationToEvent(String userId, String treeId, String eventId, String citationId) {
+        String result = eventRepository.addCitation(userId, treeId, eventId, citationId);
         queryResultProcessor.process(result, Map.of("eventId", eventId, "citationId", citationId));
     }
 
     @TransactionalInNeo4j
-    public void removeParticipantFromEvent(String treeId, String eventId, String participantId) {
-        String result = eventRepository.removeParticipant(treeId, eventId, participantId);
+    public void removeParticipantFromEvent(String userId, String treeId, String eventId, String participantId) {
+        String result = eventRepository.removeParticipant(userId, treeId, eventId, participantId);
         queryResultProcessor.process(result, Map.of("eventId", eventId, "participantId", participantId));
     }
 
     @TransactionalInNeo4j
-    public void removeCitationFromEvent(String treeId, String eventId, String citationId) {
-        String result = eventRepository.removeCitation(treeId, eventId, citationId);
+    public void removeCitationFromEvent(String userId, String treeId, String eventId, String citationId) {
+        String result = eventRepository.removeCitation(userId, treeId, eventId, citationId);
         queryResultProcessor.process(result, Map.of("eventId", eventId, "citationId", citationId));
     }
 }

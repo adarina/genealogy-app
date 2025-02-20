@@ -19,8 +19,8 @@ public class CitationCreationController {
 
 
     @PostMapping
-    public ResponseEntity<?> createCitation(@PathVariable String treeId, @RequestBody CitationRequest citationRequest) {
-        citationCreationService.createCitation(treeId, citationRequest);
+    public ResponseEntity<?> createCitation(@PathVariable String treeId, @RequestBody CitationRequest citationRequest, @RequestHeader(value = "X-User-Id") String userId) {
+        citationCreationService.createCitation(userId, treeId, citationRequest);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 }

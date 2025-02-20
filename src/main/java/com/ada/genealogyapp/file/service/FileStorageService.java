@@ -39,7 +39,7 @@ public class FileStorageService {
     }
 
     @TransactionalInNeo4j
-    public File storeFile(String treeId, MultipartFile multipartFile) {
+    public File storeFile(String userId, String treeId, MultipartFile multipartFile) {
         if (this.storage.trim().isEmpty()) {
             throw new StorageException("File upload location can not be empty");
         }
@@ -68,7 +68,7 @@ public class FileStorageService {
                 .filename(multipartFile.getOriginalFilename())
                 .build();
 
-        fileService.saveFile(treeId, file);
+        fileService.saveFile(userId, treeId, file);
         return file;
     }
 }

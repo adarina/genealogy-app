@@ -17,14 +17,14 @@ public class CitationFileManagementController {
     }
 
     @PostMapping
-    public ResponseEntity<?> addFileToCitation(@PathVariable String treeId, @PathVariable String citationId, @PathVariable String fileId) {
-        citationFileManagementService.addFileToCitation(treeId, citationId, fileId);
+    public ResponseEntity<?> addFileToCitation(@PathVariable String treeId, @PathVariable String citationId, @PathVariable String fileId, @RequestHeader(value = "X-User-Id") String userId) {
+        citationFileManagementService.addFileToCitation(userId, treeId, citationId, fileId);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
     @DeleteMapping
-    public ResponseEntity<?> removeFileFromCitation(@PathVariable String treeId, @PathVariable String citationId, @PathVariable String fileId) {
-        citationFileManagementService.removeFileFromCitation(treeId, citationId, fileId);
+    public ResponseEntity<?> removeFileFromCitation(@PathVariable String treeId, @PathVariable String citationId, @PathVariable String fileId, @RequestHeader(value = "X-User-Id") String userId) {
+        citationFileManagementService.removeFileFromCitation(userId, treeId, citationId, fileId);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 }

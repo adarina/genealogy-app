@@ -29,7 +29,7 @@ public class PersonManagementService {
 
 
     @TransactionalInNeo4j
-    public void updatePerson(String treeId, String personId, @NonNull PersonRequest personRequest) {
+    public void updatePerson(String userId, String treeId, String personId, @NonNull PersonRequest personRequest) {
 
         Person person = Person.builder()
                 .firstname(personRequest.getFirstname())
@@ -37,11 +37,11 @@ public class PersonManagementService {
                 .gender(personRequest.getGender())
                 .build();
         personValidationService.validatePerson(person);
-        personService.updatePerson(treeId, personId, person);
+        personService.updatePerson(userId, treeId, personId, person);
     }
 
     @TransactionalInNeo4j
-    public void deletePerson(String treeId, String personId) {
-        personService.deletePerson(treeId, personId);
+    public void deletePerson(String userId, String treeId, String personId) {
+        personService.deletePerson(userId, treeId, personId);
     }
 }

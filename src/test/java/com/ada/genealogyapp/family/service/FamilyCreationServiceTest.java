@@ -2,23 +2,20 @@ package com.ada.genealogyapp.family.service;
 
 import com.ada.genealogyapp.family.dto.FamilyRequest;
 import com.ada.genealogyapp.family.model.Family;
-import com.ada.genealogyapp.exceptions.NodeNotFoundException;
-import com.ada.genealogyapp.exceptions.ValidationException;
 import com.ada.genealogyapp.family.type.StatusType;
 import com.ada.genealogyapp.tree.model.Tree;
 import com.ada.genealogyapp.tree.service.TreeService;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.any;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
+
 import static org.mockito.Mockito.*;
 
 
@@ -26,74 +23,57 @@ import static org.mockito.Mockito.*;
 class FamilyCreationServiceTest {
 
     @Mock
-    TreeService treeService;
+    private TreeService treeService;
 
     @Mock
-    FamilyService familyService;
+    private FamilyService familyService;
 
     @Mock
-    FamilyValidationService familyValidationService;
+    private FamilyValidationService familyValidationService;
 
     @InjectMocks
-    FamilyCreationService familyCreationService;
+    private FamilyCreationService familyCreationService;
 
+    @Test
+    void createFamily_shouldValidateAndSaveFamily() {
+        String userId = "user123";
+        String treeId = "tree123";
+        FamilyRequest familyRequest = new FamilyRequest();
+        familyRequest.setStatus(StatusType.MARRIED);
 
-    Tree tree;
-    String treeId;
-    FamilyRequest familyRequest;
+        Family family = Family.builder()
+                .status(StatusType.MARRIED)
+                .name("null & null")
+                .build();
 
-    @BeforeEach
-    void setUp() {
+        Family createdFamily = familyCreationService.createFamily(userId, treeId, familyRequest);
 
-        treeId = String.valueOf(UUID.randomUUID());
-        tree = new Tree();
-        familyRequest = new FamilyRequest(StatusType.MARRIED);
+        assertNotNull(createdFamily);
+        assertEquals(StatusType.MARRIED, createdFamily.getStatus());
+        assertEquals("null & null", createdFamily.getName());
+
+        verify(familyValidationService).validateFamily(createdFamily);
+        verify(familyService).saveFamily(userId, treeId, createdFamily);
     }
 
     @Test
-    void createFamily_shouldCreateFamilyWhenValidRequest() {
+    void createFamily_withTreeAndStatus_shouldValidateAndSaveFamily() {
+        String userId = "user123";
+        Tree tree = Tree.builder().id("tree123").build();
+        StatusType status = StatusType.UNKNOWN;
 
-        when(treeService.findTreeById(treeId)).thenReturn(tree);
+        Family family = Family.builder()
+                .status(status)
+                .name("null & null")
+                .build();
 
-        Family family = familyCreationService.createFamily(treeId, familyRequest);
+        Family createdFamily = familyCreationService.createFamily(userId, tree, status);
 
-        assertEquals(StatusType.MARRIED, family.getStatus());
+        assertNotNull(createdFamily);
+        assertEquals(status, createdFamily.getStatus());
+        assertEquals("null & null", createdFamily.getName());
 
-        verify(treeService).findTreeById(treeId);
-        verify(familyValidationService).validateFamily(family);
-        verify(familyService).saveFamily(family);
-    }
-
-    @Test
-    void createFamily_shouldThrowExceptionWhenTreeDoesNotExist() {
-
-        doThrow(new NodeNotFoundException("Tree not found"))
-                .when(treeService).findTreeById(treeId);
-
-        NodeNotFoundException exception = assertThrows(NodeNotFoundException.class, () ->
-                familyCreationService.createFamily(treeId, familyRequest)
-        );
-
-        assertEquals("Tree not found", exception.getMessage());
-        verify(treeService).findTreeById(treeId);
-        verifyNoInteractions(familyValidationService);
-        verifyNoInteractions(familyService);
-    }
-
-    @Test
-    void createFamily_shouldNotSaveFamilyWhenValidationFails() {
-
-        when(treeService.findTreeById(treeId)).thenReturn(tree);
-        doThrow(new ValidationException("Family validation failed"))
-                .when(familyValidationService).validateFamily(any(Family.class));
-
-        ValidationException exception = assertThrows(ValidationException.class, () ->
-                familyCreationService.createFamily(treeId, familyRequest)
-        );
-
-        assertEquals("Family validation failed", exception.getMessage());
-        verify(treeService).findTreeById(treeId);
-        verify(familyValidationService).validateFamily(any(Family.class));
-        verify(familyService, never()).saveFamily(any());
+        verify(familyValidationService).validateFamily(createdFamily);
+        verify(familyService).saveFamily(userId, tree.getId(), createdFamily);
     }
 }

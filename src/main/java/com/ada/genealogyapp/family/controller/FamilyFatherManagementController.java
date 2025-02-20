@@ -16,14 +16,14 @@ public class FamilyFatherManagementController {
     }
 
     @DeleteMapping
-    public ResponseEntity<?> removeFatherFromFamily(@PathVariable String treeId, @PathVariable String familyId, @PathVariable String fatherId) {
-        familyFatherManagementService.removeFatherFromFamily(treeId, familyId, fatherId);
+    public ResponseEntity<?> removeFatherFromFamily(@PathVariable String treeId, @PathVariable String familyId, @PathVariable String fatherId, @RequestHeader(value = "X-User-Id") String userId) {
+        familyFatherManagementService.removeFatherFromFamily(userId, treeId, familyId, fatherId);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
     @PostMapping
-    public ResponseEntity<?> addFatherToFamily(@PathVariable String treeId, @PathVariable String familyId, @PathVariable String fatherId) {
-        familyFatherManagementService.addFatherToFamily(treeId, familyId, fatherId);
+    public ResponseEntity<?> addFatherToFamily(@PathVariable String treeId, @PathVariable String familyId, @PathVariable String fatherId, @RequestHeader(value = "X-User-Id") String userId) {
+        familyFatherManagementService.addFatherToFamily(userId, treeId, familyId, fatherId);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 }

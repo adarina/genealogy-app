@@ -19,14 +19,14 @@ public class EventManagementController {
     }
 
     @PutMapping
-    public ResponseEntity<?> updateEvent(@PathVariable String treeId, @PathVariable String eventId, @RequestBody EventRequest eventRequest) {
-        eventManagementService.updateEvent(treeId, eventId, eventRequest);
+    public ResponseEntity<?> updateEvent(@PathVariable String treeId, @PathVariable String eventId, @RequestBody EventRequest eventRequest, @RequestHeader(value = "X-User-Id") String userId) {
+        eventManagementService.updateEvent(userId ,treeId, eventId, eventRequest);
         return ResponseEntity.ok().build();
     }
 
     @DeleteMapping()
-    public ResponseEntity<?> deleteEvent(@PathVariable String treeId, @PathVariable String eventId) {
-        eventManagementService.deleteEvent(treeId, eventId);
+    public ResponseEntity<?> deleteEvent(@PathVariable String treeId, @PathVariable String eventId, @RequestHeader(value = "X-User-Id") String userId) {
+        eventManagementService.deleteEvent(userId, treeId, eventId);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 }

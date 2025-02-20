@@ -29,7 +29,7 @@ public class CitationFileManagementService {
 
     // TODO file nie jest fileid tylko plik
     @TransactionalInNeo4j
-    public void addFileToCitation(String treeId, String citationId, String fileId) {
+    public void addFileToCitation(String userId, String treeId, String citationId, String fileId) {
 //        treeService.ensureTreeExists(treeId);
 //        Citation citation = citationService.findCitationById(citationId);
 //        File file = fileSearchService.findFileById(fileId);
@@ -41,12 +41,12 @@ public class CitationFileManagementService {
 //        citationService.saveCitation(citation);
 
 //        log.info("File {} added successfully to the citation {}", fileId, citationId);
-        citationService.addFileToCitation(treeId, citationId, fileId);
+        citationService.addFileToCitation(userId, treeId, citationId, fileId);
     }
 
     @TransactionalInNeo4j
-    public void removeFileFromCitation(String treeId, String citationId, String fileId) {
-        citationService.removeFileFromCitation(treeId, citationId, fileId);
+    public void removeFileFromCitation(String userId, String treeId, String citationId, String fileId) {
+        citationService.removeFileFromCitation(userId, treeId, citationId, fileId);
     }
 }
 

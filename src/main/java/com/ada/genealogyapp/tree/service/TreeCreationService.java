@@ -26,7 +26,7 @@ public class TreeCreationService {
 
         Tree tree = Tree.builder()
                 .name(treeRequest.getName())
-                .userId(treeRequest.getUserId())
+//                .userId(treeRequest.getUserId())
                 .build();
 
         Optional<Tree> existingTree = treeService.findTreeByName(tree.getName());

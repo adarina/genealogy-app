@@ -14,13 +14,13 @@ public interface EventRepository extends Neo4jRepository<Event, String> {
 
     @Query("""
             CALL {
-                OPTIONAL MATCH (tree:Tree {id: $treeId})
-                RETURN count(tree) > 0 AS treeExist, tree
+                OPTIONAL MATCH (user:GraphUser {id: $userId})-[:HAS_TREE]->(tree:Tree {id: $treeId})
+                RETURN count(user) > 0 AS userExist, count(tree) > 0 AS treeExist, tree
             }
                         
             CALL apoc.do.case(
                 [
-                    treeExist, '
+                    userExist AND treeExist, '
                         MERGE (tree)-[:HAS_EVENT]->(event:Event {id: eventId})
                         SET event.description = description,
                             event.place = place,
@@ -28,28 +28,29 @@ public interface EventRepository extends Neo4jRepository<Event, String> {
                             event.date = date
                             
                         RETURN "EVENT_CREATED" AS message
-                    '
+                    ',
+                    userExist, 'RETURN "TREE_NOT_EXIST" AS message'
                 ],
-                'RETURN "TREE_NOT_EXIST" AS message',
+                'RETURN "USER_NOT_EXIST" AS message',
                 {tree: tree, eventId: $eventId, description: $description, place: $place, type: $type, date: $date}
             ) YIELD value
             RETURN value.message
             LIMIT 1
             """)
-    String save(String treeId, String eventId, String description, String place, String type, String date);
+    String save(String userId, String treeId, String eventId, String description, String place, String type, String date);
 
     @Query("""
             CALL {
-                OPTIONAL MATCH (tree:Tree {id: $treeId})
-                WITH count(tree) > 0 AS treeExist, tree
+                OPTIONAL MATCH (user:GraphUser {id: $userId})-[:HAS_TREE]->(tree:Tree {id: $treeId})
+                WITH count(user) > 0 AS userExist, count(tree) > 0 AS treeExist, tree
                 
                 OPTIONAL MATCH (tree)-[:HAS_FAMILY|HAS_PERSON]->(participant:Participant {id: $participantId})
-                RETURN treeExist, tree, count(participant) > 0 AS participantExist, participant
+                RETURN userExist, treeExist, tree, count(participant) > 0 AS participantExist, participant
             }
                             
             CALL apoc.do.case(
                 [
-                    treeExist AND participantExist, '
+                    userExist AND treeExist AND participantExist, '
                         MERGE (tree)-[:HAS_EVENT]->(event:Event {id: $eventId})
                         SET event.description = $description,
                             event.place = $place,
@@ -60,56 +61,58 @@ public interface EventRepository extends Neo4jRepository<Event, String> {
                             
                         RETURN "EVENT_CREATED" AS message
                     ',
-                    treeExist, '
+                    userExist AND treeExist, '
                         RETURN "PARTICIPANT_NOT_EXIST" AS message
-                    '
+                    ',
+                    userExist, 'RETURN "TREE_NOT_EXIST" AS message'
                 ],
-                'RETURN "TREE_NOT_EXIST" AS message',
+                'RETURN "USER_NOT_EXIST" AS message',
                 {tree: tree, eventId: $eventId, description: $description, place: $place, type: $type, date: $date, participant: participant, relationshipType: $relationshipType}
             ) YIELD value
             RETURN value.message
             LIMIT 1
             """)
-    String save(String treeId, String eventId, String description, String place, String type, String date, String participantId, String relationshipType);
+    String save(String userId, String treeId, String eventId, String description, String place, String type, String date, String participantId, String relationshipType);
 
     @Query("""
             CALL {
-                OPTIONAL MATCH (tree:Tree {id: $treeId})
-                WITH count(tree) > 0 AS treeExist, tree
+                OPTIONAL MATCH (user:GraphUser {id: $userId})-[:HAS_TREE]->(tree:Tree {id: $treeId})
+                WITH count(user) > 0 AS userExist, count(tree) > 0 AS treeExist, tree
                 
                 OPTIONAL MATCH (tree)-[:HAS_EVENT]->(event:Event {id: $eventId})
-                RETURN treeExist, tree, count(event) > 0 AS eventExist, event
+                RETURN userExist, treeExist, tree, count(event) > 0 AS eventExist, event
             }
                         
             CALL apoc.do.case(
                 [
-                    treeExist AND eventExist, '
+                    userExist AND treeExist AND eventExist, '
                         OPTIONAL MATCH (event)-[rel]-()
                         DELETE rel, event
                         RETURN "EVENT_DELETED" AS message
                     ',
-                    treeExist, 'RETURN "EVENT_NOT_EXIST" AS message'
+                    userExist AND treeExist, 'RETURN "EVENT_NOT_EXIST" AS message',
+                    userExist, 'RETURN "TREE_NOT_EXIST" AS message'
                 ],
-                'RETURN "TREE_NOT_EXIST" AS message',
+                'RETURN "USER_NOT_EXIST" AS message',
                 {tree: tree, event: event}
             ) YIELD value
             RETURN value.message
             LIMIT 1
             """)
-    String delete(String treeId, String eventId);
+    String delete(String userId, String treeId, String eventId);
 
     @Query("""
             CALL {
-                OPTIONAL MATCH (tree:Tree {id: $treeId})
-                WITH count(tree) > 0 AS treeExist, tree
+                OPTIONAL MATCH (user:GraphUser {id: $userId})-[:HAS_TREE]->(tree:Tree {id: $treeId})
+                WITH count(user) > 0 AS userExist, count(tree) > 0 AS treeExist, tree
                 
                 OPTIONAL MATCH (tree)-[:HAS_EVENT]->(event:Event {id: $eventId})
-                RETURN treeExist, tree, count(event) > 0 AS eventExist, event
+                RETURN userExist, treeExist, tree, count(event) > 0 AS eventExist, event
             }
                         
             CALL apoc.do.case(
                 [
-                    treeExist AND eventExist, '
+                    userExist AND treeExist AND eventExist, '
                         SET event.description = $description,
                             event.place = $place,
                             event.date = $date,
@@ -117,31 +120,32 @@ public interface EventRepository extends Neo4jRepository<Event, String> {
                             
                         RETURN "EVENT_UPDATED" AS message
                     ',
-                    treeExist, 'RETURN "EVENT_NOT_EXIST" AS message'
+                    userExist AND treeExist, 'RETURN "EVENT_NOT_EXIST" AS message',
+                    userExist, 'RETURN "TREE_NOT_EXIST" AS message'
                 ],
-                'RETURN "TREE_NOT_EXIST" AS message',
+                'RETURN "USER_NOT_EXIST" AS message',
                 {event: event, description: $description, place: $place, date: $date, type: $type}
             ) YIELD value
             RETURN value.message
             LIMIT 1
             """)
-    String update(String treeId, String eventId, String description, String place, String date, String type);
+    String update(String userId, String treeId, String eventId, String description, String place, String date, String type);
 
     @Query("""
             CALL {
-                OPTIONAL MATCH (tree:Tree {id: $treeId})
-                WITH count(tree) > 0 AS treeExist, tree
+                OPTIONAL MATCH (user:GraphUser {id: $userId})-[:HAS_TREE]->(tree:Tree {id: $treeId})
+                WITH count(user) > 0 AS userExist, count(tree) > 0 AS treeExist, tree
                 
                 OPTIONAL MATCH (tree)-[:HAS_EVENT]->(event:Event {id: $eventId})
-                WITH treeExist, tree, count(event) > 0 AS eventExist, event
+                WITH userExist, treeExist, tree, count(event) > 0 AS eventExist, event
                 
                 OPTIONAL MATCH (tree)-[:HAS_FAMILY|HAS_PERSON]->(participant:Participant {id: $participantId})
-                RETURN treeExist, tree, eventExist, event, count(participant) > 0 AS participantExist, participant
+                RETURN userExist, treeExist, tree, eventExist, event, count(participant) > 0 AS participantExist, participant
             }
                         
             CALL apoc.do.case(
                 [
-                    treeExist AND eventExist AND participantExist, '
+                    userExist AND treeExist AND eventExist AND participantExist, '
                         SET event.description = $description,
                             event.place = $place,
                             event.date = $date,
@@ -153,143 +157,139 @@ public interface EventRepository extends Neo4jRepository<Event, String> {
                    
                         RETURN "EVENT_UPDATED" AS message
                     ',
-                    treeExist AND eventExist, 'RETURN "PARTICIPANT_NOT_EXIST" AS message
-                    ',
-                    treeExist, 'RETURN "EVENT_NOT_EXIST" AS message'
+                    userExist AND treeExist AND eventExist, 'RETURN "PARTICIPANT_NOT_EXIST" AS message',
+                    userExist AND treeExist, 'RETURN "EVENT_NOT_EXIST" AS message',
+                    userExist, 'RETURN "TREE_NOT_EXIST" AS message'
                 ],
-                'RETURN "TREE_NOT_EXIST" AS message',
+                'RETURN "USER_NOT_EXIST" AS message',
                 {event: event, description: $description, place: $place, date: $date, type: $type, participant: participant, relationshipType: $relationshipType}
             ) YIELD value
             RETURN value.message
             LIMIT 1
             """)
-    String update(String treeId, String eventId, String description, String place, String date, String type, String participantId, String relationshipType);
+    String update(String userId, String treeId, String eventId, String description, String place, String date, String type, String participantId, String relationshipType);
 
     @Query("""
             CALL {
-                OPTIONAL MATCH (tree:Tree {id: $treeId})
-                WITH count(tree) > 0 AS treeExist, tree
+                OPTIONAL MATCH (user:GraphUser {id: $userId})-[:HAS_TREE]->(tree:Tree {id: $treeId})
+                WITH count(user) > 0 AS userExist, count(tree) > 0 AS treeExist, tree
                 
                 OPTIONAL MATCH (tree)-[:HAS_EVENT]->(event:Event {id: $eventId})
-                WITH treeExist, tree, count(event) > 0 AS eventExist, event
+                WITH userExist, treeExist, tree, count(event) > 0 AS eventExist, event
                 
                 OPTIONAL MATCH (tree)-[:HAS_FAMILY|HAS_PERSON]->(participant:Participant {id: $participantId})
-                RETURN treeExist, tree, eventExist, event, count(participant) > 0 AS participantExist, participant
+                RETURN userExist, treeExist, tree, eventExist, event, count(participant) > 0 AS participantExist, participant
             }
                             
             CALL apoc.do.case(
                 [
-                    treeExist AND eventExist AND participantExist, '
+                    userExist AND treeExist AND eventExist AND participantExist, '
                         MERGE (event)-[:HAS_PARTICIPANT {relationship: relationshipType}]->(participant)
                             
                         RETURN "PARTICIPANT_ADDED_TO_EVENT" AS message
                     ',
-                    treeExist AND eventExist, '
-                        RETURN "PARTICIPANT_NOT_EXIST" AS message
-                    ',
-                     treeExist AND eventExist, '
-                        RETURN "EVENT_NOT_EXIST" AS message
-                    '
+                    userExist AND treeExist AND eventExist, 'RETURN "PARTICIPANT_NOT_EXIST" AS message',
+                    userExist AND treeExist, 'RETURN "EVENT_NOT_EXIST" AS message',
+                    userExist, 'RETURN "TREE_NOT_EXIST" AS message'
                 ],
-                'RETURN "TREE_NOT_EXIST" AS message',
+                'RETURN "USER_NOT_EXIST" AS message',
                 {event: event, participant: participant, relationshipType: $relationshipType}
             ) YIELD value
             RETURN value.message
             LIMIT 1
             """)
-    String addParticipant(String treeId, String eventId, String participantId, String relationshipType);
+    String addParticipant(String userId, String treeId, String eventId, String participantId, String relationshipType);
 
     @Query("""
             CALL {
-                OPTIONAL MATCH (tree:Tree {id: $treeId})
-                WITH count(tree) > 0 AS treeExist, tree
+                OPTIONAL MATCH (user:GraphUser {id: $userId})-[:HAS_TREE]->(tree:Tree {id: $treeId})
+                WITH count(user) > 0 AS userExist, count(tree) > 0 AS treeExist, tree
                 
                 OPTIONAL MATCH (tree)-[:HAS_EVENT]->(event:Event {id: $eventId})
-                WITH treeExist, tree, count(event) > 0 AS eventExist, event
+                WITH userExist, treeExist, tree, count(event) > 0 AS eventExist, event
                 
                 OPTIONAL MATCH (event)-[participantRel:HAS_PARTICIPANT]->(participant:Participant {id: $participantId})
-                RETURN treeExist, tree, eventExist, event, count(participant) > 0 AS participantExist, participant, participantRel
+                RETURN userExist, treeExist, tree, eventExist, event, count(participant) > 0 AS participantExist, participant, participantRel
             }
                         
             CALL apoc.do.case(
                 [
-                    treeExist AND eventExist AND participantExist, '
+                    userExist AND treeExist AND eventExist AND participantExist, '
                         DELETE participantRel
                         RETURN "PARTICIPANT_REMOVED_FROM_EVENT" AS message
                     ',
-                    treeExist AND eventExist, 'RETURN "PARTICIPANT_NOT_EXIST" AS message',
-                    treeExist, 'RETURN "EVENT_NOT_EXIST" AS message'
+                    userExist AND treeExist AND eventExist, 'RETURN "PARTICIPANT_NOT_EXIST" AS message',
+                    userExist AND treeExist, 'RETURN "EVENT_NOT_EXIST" AS message',
+                    userExist, 'RETURN "TREE_NOT_EXIST" AS message'
                 ],
-                'RETURN "TREE_NOT_EXIST" AS message',
+                'RETURN "USER_NOT_EXIST" AS message',
                 {participantRel: participantRel}
             ) YIELD value
             RETURN value.message
             LIMIT 1
             """)
-    String removeParticipant(String treeId, String eventId, String participantId);
+    String removeParticipant(String userId, String treeId, String eventId, String participantId);
 
     @Query("""
             CALL {
-                OPTIONAL MATCH (tree:Tree {id: $treeId})
-                WITH count(tree) > 0 AS treeExist, tree
+                OPTIONAL MATCH (user:GraphUser {id: $userId})-[:HAS_TREE]->(tree:Tree {id: $treeId})
+                WITH count(user) > 0 AS userExist, count(tree) > 0 AS treeExist, tree
                 
                 OPTIONAL MATCH (tree)-[:HAS_EVENT]->(event:Event {id: $eventId})
-                WITH treeExist, tree, count(event) > 0 AS eventExist, event
+                WITH userExist, treeExist, tree, count(event) > 0 AS eventExist, event
                 
                 OPTIONAL MATCH (event)-[citationRel:HAS_EVENT_CITATION]->(citation:Citation {id: $citationId})
-                RETURN treeExist, tree, eventExist, event, count(citation) > 0 AS citationExist, citation, citationRel
+                RETURN userExist, treeExist, tree, eventExist, event, count(citation) > 0 AS citationExist, citation, citationRel
             }
                         
             CALL apoc.do.case(
                 [
-                    treeExist AND eventExist AND citationExist, '
+                    userExist AND treeExist AND eventExist AND citationExist, '
                         DELETE citationRel
                         RETURN "CITATION_REMOVED_FROM_EVENT" AS message
                     ',
-                    treeExist AND eventExist, 'RETURN "CITATION_NOT_EXIST" AS message',
-                    treeExist, 'RETURN "EVENT_NOT_EXIST" AS message'
+                    userExist AND treeExist AND eventExist, 'RETURN "CITATION_NOT_EXIST" AS message',
+                    userExist AND treeExist, 'RETURN "EVENT_NOT_EXIST" AS message',
+                    userExist, 'RETURN "TREE_NOT_EXIST" AS message'
                 ],
-                'RETURN "TREE_NOT_EXIST" AS message',
+                'RETURN "USER_NOT_EXIST" AS message',
                 {citationRel: citationRel}
             ) YIELD value
             RETURN value.message
             LIMIT 1
             """)
-    String removeCitation(String treeId, String eventId, String citationId);
+    String removeCitation(String userId, String treeId, String eventId, String citationId);
 
     @Query("""
             CALL {
-                OPTIONAL MATCH (tree:Tree {id: $treeId})
-                WITH count(tree) > 0 AS treeExist, tree
+                OPTIONAL MATCH (user:GraphUser {id: $userId})-[:HAS_TREE]->(tree:Tree {id: $treeId})
+                WITH count(user) > 0 AS userExist, count(tree) > 0 AS treeExist, tree
                 
                 OPTIONAL MATCH (tree)-[:HAS_EVENT]->(event:Event {id: $eventId})
-                WITH treeExist, tree, count(event) > 0 AS eventExist, event
+                WITH userExist, treeExist, tree, count(event) > 0 AS eventExist, event
                 
                 OPTIONAL MATCH (tree)-[:HAS_CITATION]->(citation:Citation {id: $citationId})
-                RETURN treeExist, tree, eventExist, event, count(citation) > 0 AS citationExist, citation
+                RETURN userExist, treeExist, tree, eventExist, event, count(citation) > 0 AS citationExist, citation
             }
                             
             CALL apoc.do.case(
                 [
-                    treeExist AND eventExist AND citationExist, '
+                    userExist AND treeExist AND eventExist AND citationExist, '
                         MERGE (event)-[:HAS_EVENT_CITATION]->(citation)
                             
                         RETURN "CITATION_ADDED_TO_EVENT" AS message
                     ',
-                    treeExist AND eventExist, '
-                        RETURN "CITATION_NOT_EXIST" AS message
-                    ',
-                     treeExist AND eventExist, '
-                        RETURN "EVENT_NOT_EXIST" AS message
-                    '
+                    userExist AND treeExist AND eventExist, 'RETURN "CITATION_NOT_EXIST" AS message',
+                    userExist AND treeExist, 'RETURN "EVENT_NOT_EXIST" AS message',
+                    userExist, 'RETURN "TREE_NOT_EXIST" AS message'
                 ],
-                'RETURN "TREE_NOT_EXIST" AS message',
+                'RETURN "USER_NOT_EXIST" AS message',
                 {event: event, citation: citation}
             ) YIELD value
             RETURN value.message
             LIMIT 1
             """)
-    String addCitation(String treeId, String eventId, String citationId);
+    String addCitation(String userId, String treeId, String eventId, String citationId);
 
     @Query("""
                 MATCH (e:Event {id: $eventId})

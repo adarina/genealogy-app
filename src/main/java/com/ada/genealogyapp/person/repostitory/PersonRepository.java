@@ -31,50 +31,52 @@ public interface PersonRepository extends Neo4jRepository<Person, String> {
             """)
     void addParentChildRelationship(@Param("treeId") String treeId, @Param("personId") String personId, @Param("childId") String childId, @Param("relationshipType") String relationshipType);
 
+
     @Query("""
             CALL {
-                OPTIONAL MATCH (tree:Tree {id: $treeId})
-                RETURN count(tree) > 0 AS treeExist, tree
+                OPTIONAL MATCH (user:GraphUser {id: $userId})-[:HAS_TREE]->(tree:Tree {id: $treeId})
+                RETURN count(tree) > 0 AS treeExist, count(user) > 0 AS userExist, tree
             }
-                        
+                            
             CALL apoc.do.case(
                 [
-                    treeExist, '
-                        MERGE (tree)-[:HAS_PERSON]->(person:Person {id: personId})
+                    userExist AND treeExist, '
+                        MERGE (tree)-[:HAS_PERSON]->(person:Person {id: $personId})
                         SET person.firstname = $firstname,
                             person.lastname = $lastname,
                             person.gender = $gender,
-                            person.name = $firstname + " " + $lastname,
+                            person.name = COALESCE($firstname, "") + " " + COALESCE($lastname, ""),
                             person:Participant
                             
                         RETURN "PERSON_CREATED" AS message
-                    '
+                    ',
+                    userExist, 'RETURN "TREE_NOT_EXIST" AS message'
                 ],
-                'RETURN "TREE_NOT_EXIST" AS message',
+                'RETURN "USER_NOT_EXIST" AS message',
                 {tree: tree, personId: $personId, firstname: $firstname, lastname: $lastname, gender: $gender}
             ) YIELD value
             RETURN value.message
             LIMIT 1
             """)
-    String save(String treeId, String personId, String firstname, String lastname, String gender);
+    String save(String userId, String treeId, String personId, String firstname, String lastname, String gender);
 
     @Query("""
             CALL {
-                OPTIONAL MATCH (tree:Tree {id: $treeId})
-                WITH count(tree) > 0 AS treeExist, tree
+                OPTIONAL MATCH (user:GraphUser {id: $userId})-[:HAS_TREE]->(tree:Tree {id: $treeId})
+                WITH count(tree) > 0 AS treeExist, count(user) > 0 AS userExist, tree
                 
                 OPTIONAL MATCH (tree)-[:HAS_PERSON]->(person:Person {id: $personId})
-                RETURN treeExist, tree, count(person) > 0 AS personExist, person
+                RETURN userExist, treeExist, tree, count(person) > 0 AS personExist, person
             }
-                        
+                            
             CALL apoc.do.case(
                 [
-                    treeExist AND personExist, '
+                    userExist AND treeExist AND personExist, '
                         SET person.firstname = $firstname,
                             person.lastname = $lastname,
                             person.gender = $gender,
                             person.name = COALESCE($firstname, "") + " " + COALESCE($lastname, "")
-                            
+                                                    
                         WITH tree, person
                         OPTIONAL MATCH (tree)-[:HAS_FAMILY]->(family:Family)
                         WHERE (family)-[:HAS_FATHER]->(person) OR (family)-[:HAS_MOTHER]->(person)
@@ -87,28 +89,29 @@ public interface PersonRepository extends Neo4jRepository<Person, String> {
                         
                         RETURN "PERSON_UPDATED" AS message
                     ',
-                    treeExist, 'RETURN "PERSON_NOT_EXIST" AS message'
+                    userExist AND treeExist, 'RETURN "PERSON_NOT_EXIST" AS message',
+                    treeExist, 'RETURN "TREE_NOT_EXIST" AS message'
                 ],
-                'RETURN "TREE_NOT_EXIST" AS message',
+                'RETURN "USER_NOT_EXIST" AS message',
                 {tree: tree, person: person, firstname: $firstname, lastname: $lastname, gender: $gender}
             ) YIELD value
             RETURN value.message
             LIMIT 1
             """)
-    String update(String treeId, String personId, String firstname, String lastname, String gender);
+    String update(String userId, String treeId, String personId, String firstname, String lastname, String gender);
 
     @Query("""
             CALL {
-                OPTIONAL MATCH (tree:Tree {id: $treeId})
-                WITH count(tree) > 0 AS treeExist, tree
+                OPTIONAL MATCH (user:GraphUser {id: $userId})-[:HAS_TREE]->(tree:Tree {id: $treeId})
+                WITH count(tree) > 0 AS treeExist, count(user) > 0 AS userExist, tree
                 
                 OPTIONAL MATCH (tree)-[:HAS_PERSON]->(person:Person {id: $personId})
-                RETURN treeExist, tree, count(person) > 0 AS personExist, person
+                RETURN userExist, treeExist, tree, count(person) > 0 AS personExist, person
             }
-                        
+                            
             CALL apoc.do.case(
                 [
-                    treeExist AND personExist, '
+                    userExist AND treeExist AND personExist, '
                         SET person.name = "null"
                         WITH tree, person
                         OPTIONAL MATCH (tree)-[:HAS_FAMILY]->(family:Family)
@@ -124,15 +127,17 @@ public interface PersonRepository extends Neo4jRepository<Person, String> {
                         DELETE rel, person
                         RETURN "PERSON_DELETED" AS message
                     ',
-                    treeExist, 'RETURN "PERSON_NOT_EXIST" AS message'
+                    userExist AND treeExist, 'RETURN "PERSON_NOT_EXIST" AS message',
+                    treeExist, 'RETURN "TREE_NOT_EXIST" AS message'
                 ],
-                'RETURN "TREE_NOT_EXIST" AS message',
+                'RETURN "USER_NOT_EXIST" AS message',
                 {tree: tree, person: person}
             ) YIELD value
             RETURN value.message
             LIMIT 1
             """)
-    String delete(String treeId, String personId);
+    String delete(String userId, String treeId, String personId);
+
 
     @Query("""
             MATCH (t:Tree)-[:HAS_PERSON]->(p:Person)

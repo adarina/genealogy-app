@@ -18,20 +18,20 @@ public class FamilyEventManagementController {
 
 
     @PutMapping
-    public ResponseEntity<?> updateEventInFamily(@PathVariable String treeId, @PathVariable String familyId, @PathVariable String eventId, @RequestBody ParticipantEventRequest participantEventRequest) {
-        eventManagementService.updateEventWithParticipant(treeId, eventId, participantEventRequest, familyId);
+    public ResponseEntity<?> updateEventInFamily(@PathVariable String treeId, @PathVariable String familyId, @PathVariable String eventId, @RequestBody ParticipantEventRequest participantEventRequest, @RequestHeader(value = "X-User-Id") String userId) {
+        eventManagementService.updateEventWithParticipant(userId, treeId, eventId, participantEventRequest, familyId);
         return ResponseEntity.ok().build();
     }
 
     @PostMapping
-    public ResponseEntity<?> addFamilyToEvent(@PathVariable String treeId, @PathVariable String familyId, @PathVariable String eventId, @RequestBody ParticipantEventRequest participantEventRequest) {
-        eventManagementService.updateEventWithParticipant(treeId, eventId, participantEventRequest, familyId);
+    public ResponseEntity<?> addFamilyToEvent(@PathVariable String treeId, @PathVariable String familyId, @PathVariable String eventId, @RequestBody ParticipantEventRequest participantEventRequest, @RequestHeader(value = "X-User-Id") String userId) {
+        eventManagementService.updateEventWithParticipant(userId, treeId, eventId, participantEventRequest, familyId);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
     @DeleteMapping
-    public ResponseEntity<?> removeFamilyFromEvent(@PathVariable String treeId, @PathVariable String familyId, @PathVariable String eventId) {
-        eventManagementService.removeParticipantFromEvent(treeId, familyId, eventId);
+    public ResponseEntity<?> removeFamilyFromEvent(@PathVariable String treeId, @PathVariable String familyId, @PathVariable String eventId, @RequestHeader(value = "X-User-Id") String userId) {
+        eventManagementService.removeParticipantFromEvent(userId, treeId, familyId, eventId);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 }

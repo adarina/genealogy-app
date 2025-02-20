@@ -17,8 +17,8 @@ public class FamilyCreationController {
     }
 
     @PostMapping
-    public ResponseEntity<?> createFamily(@PathVariable String treeId, @RequestBody FamilyRequest familyRequest) {
-        familyCreationService.createFamily(treeId, familyRequest);
+    public ResponseEntity<?> createFamily(@PathVariable String treeId, @RequestBody FamilyRequest familyRequest, @RequestHeader(value = "X-User-Id") String userId) {
+        familyCreationService.createFamily(userId, treeId, familyRequest);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 }

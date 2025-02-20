@@ -17,8 +17,8 @@ public class SourceManagementController {
 
 
     @PutMapping
-    public ResponseEntity<?> updateSource(@PathVariable String treeId, @PathVariable String sourceId, @RequestBody SourceRequest sourceRequest) {
-        sourceManagementService.updateSource(treeId, sourceId, sourceRequest);
+    public ResponseEntity<?> updateSource(@PathVariable String treeId, @PathVariable String sourceId, @RequestBody SourceRequest sourceRequest, @RequestHeader(value = "X-User-Id") String userId) {
+        sourceManagementService.updateSource(userId, treeId, sourceId, sourceRequest);
         return ResponseEntity.ok().build();
     }
 }

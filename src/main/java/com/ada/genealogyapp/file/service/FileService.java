@@ -10,5 +10,5 @@ public interface FileService {
 
     void ensureFileExists(String fileId);
 
-    void saveFile(String treeId, File file);
+    void saveFile(String userID, String treeId, File file);
 }

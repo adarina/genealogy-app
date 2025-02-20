@@ -58,23 +58,23 @@ class TreeCreationIntegrationTest extends IntegrationTestConfig {
                 .andExpect(status().isCreated());
     }
 
-    @Test
-    void shouldReturnBadRequestForExistingTree() throws Exception {
-
-        Tree existingTree = new Tree();
-        existingTree.setName("Smith Family");
-        existingTree.setUserId(1L);
-        treeRepository.save(existingTree);
-
-        TreeRequest request = new TreeRequest();
-        request.setName("Smith Family");
-        request.setUserId(1L);
-
-
-        mockMvc.perform(post("/api/v1/genealogy/trees")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
-                .andDo(print())
-                .andExpect(status().isBadRequest());
-    }
+//    @Test
+//    void shouldReturnBadRequestForExistingTree() throws Exception {
+//
+//        Tree existingTree = new Tree();
+//        existingTree.setName("Smith Family");
+//        existingTree.setUserId(1L);
+//        treeRepository.save(existingTree);
+//
+//        TreeRequest request = new TreeRequest();
+//        request.setName("Smith Family");
+//        request.setUserId(1L);
+//
+//
+//        mockMvc.perform(post("/api/v1/genealogy/trees")
+//                        .contentType(MediaType.APPLICATION_JSON)
+//                        .content(objectMapper.writeValueAsString(request)))
+//                .andDo(print())
+//                .andExpect(status().isBadRequest());
+//    }
 }

@@ -20,7 +20,7 @@ public class EventManagementService {
     private final EventValidationService eventValidationService;
 
     @TransactionalInNeo4j
-    public void updateEvent(String treeId, String eventId, @NonNull EventRequest eventRequest) {
+    public void updateEvent(String userId, String treeId, String eventId, @NonNull EventRequest eventRequest) {
         Event event = Event.builder()
                 .description(eventRequest.getDescription())
                 .place(eventRequest.getPlace())
@@ -29,11 +29,11 @@ public class EventManagementService {
                 .build();
 
         eventValidationService.validateEvent(event);
-        eventService.updateEvent(treeId, eventId, event);
+        eventService.updateEvent(userId, treeId, eventId, event);
     }
 
     @TransactionalInNeo4j
-    public void updateEventWithParticipant(String treeId, String eventId, @NonNull ParticipantEventRequest eventRequest, String participantId) {
+    public void updateEventWithParticipant(String userId, String treeId, String eventId, @NonNull ParticipantEventRequest eventRequest, String participantId) {
         Event event = Event.builder()
                 .description(eventRequest.getDescription())
                 .place(eventRequest.getPlace())
@@ -42,16 +42,16 @@ public class EventManagementService {
                 .build();
 
         eventValidationService.validateEvent(event);
-        eventService.updateEventWithParticipant(treeId, eventId, event, participantId, eventRequest.getRelationship().name());
+        eventService.updateEventWithParticipant(userId, treeId, eventId, event, participantId, eventRequest.getRelationship().name());
     }
 
     @TransactionalInNeo4j
-    public void removeParticipantFromEvent(String treeId, String participantId, String eventId) {
-        eventService.removeParticipantFromEvent(treeId, eventId, participantId);
+    public void removeParticipantFromEvent(String userId, String treeId, String participantId, String eventId) {
+        eventService.removeParticipantFromEvent(userId, treeId, eventId, participantId);
     }
 
     @TransactionalInNeo4j
-    public void deleteEvent(String treeId, String eventId) {
-        eventService.deleteEvent(treeId, eventId);
+    public void deleteEvent(String userId, String treeId, String eventId) {
+        eventService.deleteEvent(userId, treeId, eventId);
     }
 }

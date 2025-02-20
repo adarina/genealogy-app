@@ -18,14 +18,14 @@ public class EventCitationManagementController {
     }
 
     @DeleteMapping()
-    public ResponseEntity<?> removeCitationFromEvent(@PathVariable String treeId, @PathVariable String eventId, @PathVariable String citationId) {
-        eventCitationManagementService.removeCitationFromEvent(treeId, eventId, citationId);
+    public ResponseEntity<?> removeCitationFromEvent(@PathVariable String treeId, @PathVariable String eventId, @PathVariable String citationId, @RequestHeader(value = "X-User-Id") String userId) {
+        eventCitationManagementService.removeCitationFromEvent(userId, treeId, eventId, citationId);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
     @PostMapping
-    public ResponseEntity<?> addCitationToEvent(@PathVariable String treeId, @PathVariable String eventId, @PathVariable String citationId) {
-        eventCitationManagementService.addCitationToEvent(treeId, eventId, citationId);
+    public ResponseEntity<?> addCitationToEvent(@PathVariable String treeId, @PathVariable String eventId, @PathVariable String citationId, @RequestHeader(value = "X-User-Id") String userId) {
+        eventCitationManagementService.addCitationToEvent(userId, treeId, eventId, citationId);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 }

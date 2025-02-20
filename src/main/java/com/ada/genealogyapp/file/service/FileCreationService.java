@@ -17,7 +17,7 @@ public class FileCreationService {
     private final FileService fileService;
 
     @TransactionalInNeo4j
-    public File createFile(Tree tree, String name, String type, String path) {
+    public File createFile(String userId, Tree tree, String name, String type, String path) {
         File file = File.builder()
                 .id(UUID.randomUUID().toString())
                 .filename(name)
@@ -28,7 +28,7 @@ public class FileCreationService {
                 .build();
 
         //TODO validation
-        fileService.saveFile(tree.getId(), file);
+        fileService.saveFile(userId, tree.getId(), file);
         return file;
     }
 }

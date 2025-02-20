@@ -9,23 +9,23 @@ public interface CitationService {
 
     Citation findCitationById(String citationId);
 
-    void saveCitation(String treeId, Citation citation);
-    void updateCitation(String treeId, String citationId, Citation citation);
+    void saveCitation(String userId, String treeId, Citation citation);
+    void updateCitation(String userId, String treeId, String citationId, Citation citation);
 
-    void saveCitationWithSourceAndEvent(Citation citation, String sourceId, String eventId);
+    void saveCitationWithSourceAndEvent(String userId, Citation citation, String sourceId, String eventId);
 
     void ensureCitationExists(String citationId);
 
-    void deleteCitation(String treeId, String citationId);
+    void deleteCitation(String userId, String treeId, String citationId);
 
-    void addFileToCitation(String treeId, String citationId, String fileId);
+    void addFileToCitation(String userId, String treeId, String citationId, String fileId);
 
-    void addSourceToCitation(String treeId, String citationId, String sourceId);
+    void addSourceToCitation(String userId, String treeId, String citationId, String sourceId);
 
-    void saveCitationWithSourceAndFiles(Citation citation, String sourceId, List<String> filesIds);
+    void saveCitationWithSourceAndFiles(String userId, Citation citation, String sourceId, List<String> filesIds);
 
-    void removeFileFromCitation(String treeId, String citationId, String fileId);
+    void removeFileFromCitation(String userId, String treeId, String citationId, String fileId);
 
-    void removeSourceFromCitation(String treeId, String citationId, String sourceId);
+    void removeSourceFromCitation(String userId, String treeId, String citationId, String sourceId);
 
 }

@@ -15,12 +15,12 @@ public class EventCitationManagementService {
 
 
     @TransactionalInNeo4j
-    public void removeCitationFromEvent(String treeId, String eventId, String citationId) {
-        eventService.removeCitationFromEvent(treeId, eventId, citationId);
+    public void removeCitationFromEvent(String userId, String treeId, String eventId, String citationId) {
+        eventService.removeCitationFromEvent(userId, treeId, eventId, citationId);
     }
 
     @TransactionalInNeo4j
-    public void addCitationToEvent(String treeId, String eventId, String citationId) {
-        eventService.addCitationToEvent(treeId, eventId, citationId);
+    public void addCitationToEvent(String userId, String treeId, String eventId, String citationId) {
+        eventService.addCitationToEvent(userId, treeId, eventId, citationId);
     }
 }

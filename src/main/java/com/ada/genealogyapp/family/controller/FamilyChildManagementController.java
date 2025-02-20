@@ -20,21 +20,21 @@ public class FamilyChildManagementController {
     }
 
     @PutMapping
-    public ResponseEntity<?> updateChildInFamily(@PathVariable String treeId, @PathVariable String familyId, @PathVariable String childId, @RequestBody FamilyChildRequest familyChildRequest) {
-        personManagementService.updatePerson(treeId, childId, familyChildRequest);
-        familyChildManagementService.updateChildInFamily(treeId, familyId, childId, familyChildRequest);
+    public ResponseEntity<?> updateChildInFamily(@PathVariable String treeId, @PathVariable String familyId, @PathVariable String childId, @RequestBody FamilyChildRequest familyChildRequest, @RequestHeader(value = "X-User-Id") String userId) {
+        personManagementService.updatePerson(userId, treeId, childId, familyChildRequest);
+        familyChildManagementService.updateChildInFamily(userId, treeId, familyId, childId, familyChildRequest);
         return ResponseEntity.ok().build();
     }
 
     @DeleteMapping
-    public ResponseEntity<?> removeChildFromFamily(@PathVariable String treeId, @PathVariable String familyId, @PathVariable String childId) {
-        familyChildManagementService.removeChildFromFamily(treeId, familyId, childId);
+    public ResponseEntity<?> removeChildFromFamily(@PathVariable String treeId, @PathVariable String familyId, @PathVariable String childId, @RequestHeader(value = "X-User-Id") String userId) {
+        familyChildManagementService.removeChildFromFamily(userId, treeId, familyId, childId);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
     @PostMapping
-    public ResponseEntity<?> addChildToFamily(@PathVariable String treeId, @PathVariable String familyId, @PathVariable String childId, @RequestBody FamilyChildRequest personRequest) {
-        familyChildManagementService.addChildToFamily(treeId, familyId, childId, personRequest);
+    public ResponseEntity<?> addChildToFamily(@PathVariable String treeId, @PathVariable String familyId, @PathVariable String childId, @RequestBody FamilyChildRequest personRequest, @RequestHeader(value = "X-User-Id") String userId) {
+        familyChildManagementService.addChildToFamily(userId, treeId, familyId, childId, personRequest);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 }

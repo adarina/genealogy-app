@@ -19,20 +19,20 @@ public class PersonEventManagementController {
 
 
     @PutMapping
-    public ResponseEntity<?> updateEventInPerson(@PathVariable String treeId, @PathVariable String personId, @PathVariable String eventId, @RequestBody ParticipantEventRequest participantEventRequest) {
-        eventManagementService.updateEventWithParticipant(treeId, eventId, participantEventRequest, personId);
+    public ResponseEntity<?> updateEventInPerson(@PathVariable String treeId, @PathVariable String personId, @PathVariable String eventId, @RequestBody ParticipantEventRequest participantEventRequest, @RequestHeader(value = "X-User-Id") String userId) {
+        eventManagementService.updateEventWithParticipant(userId, treeId, eventId, participantEventRequest, personId);
         return ResponseEntity.ok().build();
     }
 
     @DeleteMapping
-    public ResponseEntity<?> removeEventFromPerson(@PathVariable String treeId, @PathVariable String personId, @PathVariable String eventId) {
-        eventManagementService.removeParticipantFromEvent(treeId, personId, eventId);
+    public ResponseEntity<?> removeEventFromPerson(@PathVariable String treeId, @PathVariable String personId, @PathVariable String eventId, @RequestHeader(value = "X-User-Id") String userId) {
+        eventManagementService.removeParticipantFromEvent(userId,treeId, personId, eventId);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
     @PostMapping
-    public ResponseEntity<?> addPersonToEvent(@PathVariable String treeId, @PathVariable String personId, @PathVariable String eventId, @RequestBody ParticipantEventRequest participantEventRequest) {
-        eventManagementService.updateEventWithParticipant(treeId, eventId, participantEventRequest, personId);
+    public ResponseEntity<?> addPersonToEvent(@PathVariable String treeId, @PathVariable String personId, @PathVariable String eventId, @RequestBody ParticipantEventRequest participantEventRequest, @RequestHeader(value = "X-User-Id") String userId) {
+        eventManagementService.updateEventWithParticipant(userId, treeId, eventId, participantEventRequest, personId);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 }

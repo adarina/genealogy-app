@@ -18,14 +18,14 @@ public class CitationManagementController {
     }
 
     @PutMapping
-    public ResponseEntity<?> updateCitation(@PathVariable String treeId, @PathVariable String citationId, @RequestBody CitationRequest citationRequest) {
-        citationManagementService.updateCitation(treeId, citationId, citationRequest);
+    public ResponseEntity<?> updateCitation(@PathVariable String treeId, @PathVariable String citationId, @RequestBody CitationRequest citationRequest, @RequestHeader(value = "X-User-Id") String userId) {
+        citationManagementService.updateCitation(userId, treeId, citationId, citationRequest);
         return ResponseEntity.ok().build();
     }
 
     @DeleteMapping
-    public ResponseEntity<?> deleteCitation(@PathVariable String treeId, @PathVariable String citationId) {
-        citationManagementService.deleteCitation(treeId, citationId);
+    public ResponseEntity<?> deleteCitation(@PathVariable String treeId, @PathVariable String citationId, @RequestHeader(value = "X-User-Id") String userId) {
+        citationManagementService.deleteCitation(userId, treeId, citationId);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 }

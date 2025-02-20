@@ -23,9 +23,9 @@ public class FamilyChildrenCreationController {
     }
 
     @PostMapping
-    public ResponseEntity<?> createAndAddChildToFamily(@PathVariable String treeId, @PathVariable String familyId, @RequestBody FamilyChildRequest familyChildRequest) {
-        Person person = personCreationService.createPerson(treeId, familyChildRequest);
-        familyChildManagementService.addChildToFamily(treeId, familyId, person.getId(), familyChildRequest);
+    public ResponseEntity<?> createAndAddChildToFamily(@PathVariable String treeId, @PathVariable String familyId, @RequestBody FamilyChildRequest familyChildRequest, @RequestHeader(value = "X-User-Id") String userId) {
+        Person person = personCreationService.createPerson(userId, treeId, familyChildRequest);
+        familyChildManagementService.addChildToFamily(userId, treeId, familyId, person.getId(), familyChildRequest);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 }

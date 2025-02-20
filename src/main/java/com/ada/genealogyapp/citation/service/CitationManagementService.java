@@ -22,18 +22,18 @@ public class CitationManagementService {
     }
 
     @TransactionalInNeo4j
-    public void updateCitation(String treeId, String citationId, CitationRequest citationRequest) {
+    public void updateCitation(String userId, String treeId, String citationId, CitationRequest citationRequest) {
         Citation citation = Citation.builder()
                 .page(citationRequest.getPage())
                 .date(citationRequest.getDate())
                 .build();
 
         citationValidationService.validateCitation(citation);
-        citationService.updateCitation(treeId, citationId, citation);
+        citationService.updateCitation(userId, treeId, citationId, citation);
     }
 
     @TransactionalInNeo4j
-    public void deleteCitation(String treeId, String citationId) {
-        citationService.deleteCitation(treeId, citationId);
+    public void deleteCitation(String userId, String treeId, String citationId) {
+        citationService.deleteCitation(userId, treeId, citationId);
     }
 }

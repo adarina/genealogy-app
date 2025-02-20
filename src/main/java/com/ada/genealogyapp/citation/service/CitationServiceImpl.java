@@ -38,58 +38,58 @@ public class CitationServiceImpl implements CitationService {
     }
 
     @TransactionalInNeo4j
-    public void saveCitation(String treeId, @NonNull Citation citation) {
-        String result = citationRepository.save(treeId, citation.getId(), citation.getPage(), citation.getDate());
+    public void saveCitation(String userId, String treeId, @NonNull Citation citation) {
+        String result = citationRepository.save(userId, treeId, citation.getId(), citation.getPage(), citation.getDate());
         queryResultProcessor.process(result, Map.of("treeId", treeId, "citationId", citation.getId()));
 
     }
 
     @TransactionalInNeo4j
-    public void deleteCitation(String treeId, String citationId) {
-        String result = citationRepository.delete(treeId, citationId);
+    public void deleteCitation(String userId, String treeId, String citationId) {
+        String result = citationRepository.delete(userId, treeId, citationId);
         queryResultProcessor.process(result, Map.of("citationId", citationId));
     }
 
     @TransactionalInNeo4j
-    public void updateCitation(String treeId, String citationId, Citation citation) {
-        String result = citationRepository.update(treeId, citationId, citation.getPage(), citation.getDate());
+    public void updateCitation(String userId, String treeId, String citationId, Citation citation) {
+        String result = citationRepository.update(userId, treeId, citationId, citation.getPage(), citation.getDate());
         queryResultProcessor.process(result, Map.of("citationId", citationId));
     }
 
     @TransactionalInNeo4j
-    public void saveCitationWithSourceAndEvent(Citation citation, String sourceId, String eventId) {
-        String result = citationRepository.save(citation.getTree().getId(), citation.getId(), citation.getPage(), citation.getDate(), sourceId, eventId);
+    public void saveCitationWithSourceAndEvent(String userId, Citation citation, String sourceId, String eventId) {
+        String result = citationRepository.save(userId, citation.getTree().getId(), citation.getId(), citation.getPage(), citation.getDate(), sourceId, eventId);
         queryResultProcessor.process(result, Map.of("treeId", citation.getTree().getId(), "citationId", citation.getId()));
     }
 
     @TransactionalInNeo4j
-    public void saveCitationWithSourceAndFiles(Citation citation, String sourceId, List<String> filesIds) {
-        String result = citationRepository.save(citation.getId(), citation.getPage(), citation.getDate(), citation.getTree().getId(), sourceId, filesIds);
+    public void saveCitationWithSourceAndFiles(String userId, Citation citation, String sourceId, List<String> filesIds) {
+        String result = citationRepository.save(userId, citation.getId(), citation.getPage(), citation.getDate(), citation.getTree().getId(), sourceId, filesIds);
         queryResultProcessor.process(result, Map.of("treeId", citation.getTree().getId(), "citationId", citation.getId()));
 
     }
 
     @TransactionalInNeo4j
-    public void addFileToCitation(String treeId, String citationId, String fileId) {
-        String result = citationRepository.addFile(treeId, citationId, fileId);
+    public void addFileToCitation(String userId, String treeId, String citationId, String fileId) {
+        String result = citationRepository.addFile(userId, treeId, citationId, fileId);
         queryResultProcessor.process(result, Map.of("citationId", citationId, "fileId", fileId));
     }
 
     @TransactionalInNeo4j
-    public void removeFileFromCitation(String treeId, String citationId, String fileId) {
-        String result = citationRepository.removeFile(treeId, citationId, fileId);
+    public void removeFileFromCitation(String userId, String treeId, String citationId, String fileId) {
+        String result = citationRepository.removeFile(userId, treeId, citationId, fileId);
         queryResultProcessor.process(result, Map.of("citationId", citationId, "fileId", fileId));
     }
 
     @TransactionalInNeo4j
-    public void addSourceToCitation(String treeId, String citationId, String sourceId) {
-        String result = citationRepository.addSource(treeId, citationId, sourceId);
+    public void addSourceToCitation(String userId, String treeId, String citationId, String sourceId) {
+        String result = citationRepository.addSource(userId, treeId, citationId, sourceId);
         queryResultProcessor.process(result, Map.of("citationId", citationId, "sourceId", sourceId));
     }
 
     @TransactionalInNeo4j
-    public void removeSourceFromCitation(String treeId, String citationId, String sourceId) {
-        String result = citationRepository.removeSource(treeId, citationId, sourceId);
+    public void removeSourceFromCitation(String userId, String treeId, String citationId, String sourceId) {
+        String result = citationRepository.removeSource(userId, treeId, citationId, sourceId);
         queryResultProcessor.process(result, Map.of("citationId", citationId, "sourceId", sourceId));
     }
 }
