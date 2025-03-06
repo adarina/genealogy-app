@@ -6,4 +6,5 @@ import com.ada.genealogyapp.user.dto.UserLoginResponse;
 public interface AuthService {
 
     UserLoginResponse login(UserLoginRequest request);
+
 }
