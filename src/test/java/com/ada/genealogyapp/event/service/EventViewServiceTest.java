@@ -168,5 +168,3 @@ class EventViewServiceTest {
         verify(eventRepository).findByTreeIdAndEventId(treeId, eventId);
     }
 }
-
-
