@@ -1,4 +1,4 @@
-package com.ada.genealogyapp.family.repostitory;
+package com.ada.genealogyapp.family.repository;
 
 import com.ada.genealogyapp.family.dto.*;
 import com.ada.genealogyapp.family.model.Family;
@@ -7,17 +7,21 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.neo4j.repository.Neo4jRepository;
 import org.springframework.data.neo4j.repository.query.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
 
-
+@Repository
 public interface FamilyRepository extends Neo4jRepository<Family, String> {
 
 
     @Query("""
             CALL {
-                OPTIONAL MATCH (user:GraphUser {id: $userId})-[:HAS_TREE]->(tree:Tree {id: $treeId})
-                RETURN count(user) > 0 AS userExist, count(tree) > 0 AS treeExist, tree
+                OPTIONAL MATCH (user:GraphUser {id: $userId})
+                WITH count(user) > 0 AS userExist
+                
+                OPTIONAL MATCH (user)-[:HAS_TREE]->(tree:Tree {id: $treeId})
+                RETURN userExist, count(tree) > 0 AS treeExist, tree
             }
                         
             CALL apoc.do.case(
@@ -41,8 +45,11 @@ public interface FamilyRepository extends Neo4jRepository<Family, String> {
 
     @Query("""
             CALL {
-                OPTIONAL MATCH (user:GraphUser {id: $userId})-[:HAS_TREE]->(tree:Tree {id: $treeId})
-                WITH count(user) > 0 AS userExist, count(tree) > 0 AS treeExist, tree
+                OPTIONAL MATCH (user:GraphUser {id: $userId})
+                WITH count(user) > 0 AS userExist
+                
+                OPTIONAL MATCH (user)-[:HAS_TREE]->(tree:Tree {id: $treeId})
+                WITH userExist, count(tree) > 0 AS treeExist, tree
                 
                 OPTIONAL MATCH (tree)-[:HAS_FAMILY]->(family:Family {id: $familyId})
                 RETURN userExist, treeExist, tree, count(family) > 0 AS familyExist, family
@@ -73,8 +80,11 @@ public interface FamilyRepository extends Neo4jRepository<Family, String> {
 
     @Query("""
             CALL {
-                OPTIONAL MATCH (user:GraphUser {id: $userId})-[:HAS_TREE]->(tree:Tree {id: $treeId})
-                WITH count(user) > 0 AS userExist, count(tree) > 0 AS treeExist, tree
+                OPTIONAL MATCH (user:GraphUser {id: $userId})
+                WITH count(user) > 0 AS userExist
+                
+                OPTIONAL MATCH (user)-[:HAS_TREE]->(tree:Tree {id: $treeId})
+                WITH userExist, count(tree) > 0 AS treeExist, tree
                 
                 OPTIONAL MATCH (tree)-[:HAS_FAMILY]->(family:Family {id: $familyId})
                 RETURN userExist,treeExist, count(family) > 0 AS familyExist, family
@@ -99,8 +109,11 @@ public interface FamilyRepository extends Neo4jRepository<Family, String> {
 
     @Query("""
             CALL {
-                OPTIONAL MATCH (user:GraphUser {id: $userId})-[:HAS_TREE]->(tree:Tree {id: $treeId})
-                WITH count(user) > 0 AS userExist, count(tree) > 0 AS treeExist, tree
+                OPTIONAL MATCH (user:GraphUser {id: $userId})
+                WITH count(user) > 0 AS userExist
+                
+                OPTIONAL MATCH (user)-[:HAS_TREE]->(tree:Tree {id: $treeId})
+                WITH userExist, count(tree) > 0 AS treeExist, tree
                 
                 OPTIONAL MATCH (tree)-[:HAS_FAMILY]->(family:Family {id: $familyId})
                 RETURN userExist, treeExist, tree, count(family) > 0 AS familyExist, family
@@ -123,8 +136,11 @@ public interface FamilyRepository extends Neo4jRepository<Family, String> {
 
     @Query("""
             CALL {
-                OPTIONAL MATCH (user:GraphUser {id: $userId})-[:HAS_TREE]->(tree:Tree {id: $treeId})
-                WITH count(user) > 0 AS userExist, count(tree) > 0 AS treeExist, tree
+                OPTIONAL MATCH (user:GraphUser {id: $userId})
+                WITH count(user) > 0 AS userExist
+                
+                OPTIONAL MATCH (user)-[:HAS_TREE]->(tree:Tree {id: $treeId})
+                WITH userExist, count(tree) > 0 AS treeExist, tree
                 
                 OPTIONAL MATCH (tree)-[:HAS_FAMILY]->(family:Family {id: $familyId})
                 WITH userExist, treeExist, tree, count(family) > 0 AS familyExist, family
@@ -170,8 +186,11 @@ public interface FamilyRepository extends Neo4jRepository<Family, String> {
 
     @Query("""
             CALL {
-                OPTIONAL MATCH (user:GraphUser {id: $userId})-[:HAS_TREE]->(tree:Tree {id: $treeId})
-                WITH count(user) > 0 AS userExist, count(tree) > 0 AS treeExist, tree
+                OPTIONAL MATCH (user:GraphUser {id: $userId})
+                WITH count(user) > 0 AS userExist
+                
+                OPTIONAL MATCH (user)-[:HAS_TREE]->(tree:Tree {id: $treeId})
+                WITH userExist, count(tree) > 0 AS treeExist, tree
                 
                 OPTIONAL MATCH (tree)-[:HAS_FAMILY]->(family:Family {id: $familyId})
                 WITH userExist, treeExist, tree, count(family) > 0 AS familyExist, family
@@ -217,8 +236,11 @@ public interface FamilyRepository extends Neo4jRepository<Family, String> {
 
     @Query("""
             CALL {
-                OPTIONAL MATCH (user:GraphUser {id: $userId})-[:HAS_TREE]->(tree:Tree {id: $treeId})
-                WITH count(user) > 0 AS userExist, count(tree) > 0 AS treeExist, tree
+                OPTIONAL MATCH (user:GraphUser {id: $userId})
+                WITH count(user) > 0 AS userExist
+                
+                OPTIONAL MATCH (user)-[:HAS_TREE]->(tree:Tree {id: $treeId})
+                WITH userExist, count(tree) > 0 AS treeExist, tree
                 
                 OPTIONAL MATCH (tree)-[:HAS_FAMILY]->(family:Family {id: $familyId})
                 WITH userExist, treeExist, tree, count(family) > 0 AS familyExist, family
@@ -258,8 +280,11 @@ public interface FamilyRepository extends Neo4jRepository<Family, String> {
 
     @Query("""
             CALL {
-                OPTIONAL MATCH (user:GraphUser {id: $userId})-[:HAS_TREE]->(tree:Tree {id: $treeId})
-                WITH count(user) > 0 AS userExist, count(tree) > 0 AS treeExist, tree
+                OPTIONAL MATCH (user:GraphUser {id: $userId})
+                WITH count(user) > 0 AS userExist
+                
+                OPTIONAL MATCH (user)-[:HAS_TREE]->(tree:Tree {id: $treeId})
+                WITH userExist, count(tree) > 0 AS treeExist, tree
                 
                 OPTIONAL MATCH (tree)-[:HAS_FAMILY]->(family:Family {id: $familyId})
                 WITH userExist, treeExist, tree, count(family) > 0 AS familyExist, family
@@ -296,8 +321,11 @@ public interface FamilyRepository extends Neo4jRepository<Family, String> {
 
     @Query("""
             CALL {
-                OPTIONAL MATCH (user:GraphUser {id: $userId})-[:HAS_TREE]->(tree:Tree {id: $treeId})
-                WITH count(user) > 0 AS userExist, count(tree) > 0 AS treeExist, tree
+                OPTIONAL MATCH (user:GraphUser {id: $userId})
+                WITH count(user) > 0 AS userExist
+                
+                OPTIONAL MATCH (user)-[:HAS_TREE]->(tree:Tree {id: $treeId})
+                WITH userExist, count(tree) > 0 AS treeExist, tree
                 
                 OPTIONAL MATCH (tree)-[:HAS_FAMILY]->(family:Family {id: $familyId})
                 WITH userExist, treeExist, tree, count(family) > 0 AS familyExist, family
@@ -334,8 +362,11 @@ public interface FamilyRepository extends Neo4jRepository<Family, String> {
 
     @Query("""
             CALL {
-                OPTIONAL MATCH (user:GraphUser {id: $userId})-[:HAS_TREE]->(tree:Tree {id: $treeId})
-                WITH count(user) > 0 AS userExist, count(tree) > 0 AS treeExist, tree
+                OPTIONAL MATCH (user:GraphUser {id: $userId})
+                WITH count(user) > 0 AS userExist
+                
+                OPTIONAL MATCH (user)-[:HAS_TREE]->(tree:Tree {id: $treeId})
+                WITH userExist, count(tree) > 0 AS treeExist, tree
                 
                 OPTIONAL MATCH (tree)-[:HAS_FAMILY]->(family:Family {id: $familyId})
                 WITH userExist, treeExist, tree, count(family) > 0 AS familyExist, family
@@ -371,8 +402,11 @@ public interface FamilyRepository extends Neo4jRepository<Family, String> {
 
     @Query("""
             CALL {
-                OPTIONAL MATCH (user:GraphUser {id: $userId})-[:HAS_TREE]->(tree:Tree {id: $treeId})
-                WITH count(user) > 0 AS userExist, count(tree) > 0 AS treeExist, tree
+                OPTIONAL MATCH (user:GraphUser {id: $userId})
+                WITH count(user) > 0 AS userExist
+                
+                OPTIONAL MATCH (user)-[:HAS_TREE]->(tree:Tree {id: $treeId})
+                WITH userExist, count(tree) > 0 AS treeExist, tree
                 
                 OPTIONAL MATCH (tree)-[:HAS_FAMILY]->(family:Family {id: $familyId})
                 WITH userExist, treeExist, tree, count(family) > 0 AS familyExist, family

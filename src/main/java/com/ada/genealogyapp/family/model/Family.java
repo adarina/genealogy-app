@@ -1,6 +1,5 @@
 package com.ada.genealogyapp.family.model;
 
-import com.ada.genealogyapp.event.model.Event;
 import com.ada.genealogyapp.participant.model.Participant;
 import com.ada.genealogyapp.family.type.StatusType;
 import com.ada.genealogyapp.person.model.Person;
@@ -11,13 +10,10 @@ import org.springframework.data.neo4j.core.schema.Relationship;
 
 import java.util.*;
 
-import static java.util.Objects.nonNull;
-
 @Node
 @Getter
 @Setter
 @Builder
-//@AllArgsConstructor
 @NoArgsConstructor
 public class Family extends Participant {
 
@@ -34,11 +30,9 @@ public class Family extends Participant {
     @Relationship(type = "HAS_CHILD", direction = Relationship.Direction.OUTGOING)
     private List<Person> children = new ArrayList<>();
 
-//    @Relationship(type = "HAS_PARTICIPANT", direction = Relationship.Direction.INCOMING)
-//    private Set<Event> events = new HashSet<>();
-
     @Relationship(type = "HAS_FAMILY", direction = Relationship.Direction.INCOMING)
     private Tree tree;
+
 
     public Family(String name, StatusType status, Person father, Person mother, List<Person> children, Tree tree) {
         this.name = name;

@@ -4,7 +4,7 @@ import com.ada.genealogyapp.event.model.Event;
 import com.ada.genealogyapp.event.validation.DescriptionEventValidator;
 import com.ada.genealogyapp.event.validation.EventValidator;
 import com.ada.genealogyapp.exceptions.ValidationException;
-import com.ada.genealogyapp.user.validation.*;
+import com.ada.genealogyapp.validation.ValidationResult;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 

@@ -1,5 +1,6 @@
 package com.ada.genealogyapp.user.service;
 
+import com.ada.genealogyapp.graphuser.service.GraphUserCreationService;
 import com.ada.genealogyapp.user.dto.*;
 import com.ada.genealogyapp.user.model.User;
 //import com.ada.genealogyapp.userneo4j.service.UserNeo4jCreationService;
@@ -19,14 +20,15 @@ public class UserRegistrationService {
 
     private final PasswordEncoder passwordEncoder;
 
-    public UserRegistrationService(UserManagementService userService, UserSearchService userSearchService, UserValidationService userValidationService, PasswordEncoder passwordEncoder) {
+    private final GraphUserCreationService graphUserCreationService;
+
+    public UserRegistrationService(UserManagementService userService, UserSearchService userSearchService, UserValidationService userValidationService, PasswordEncoder passwordEncoder, GraphUserCreationService graphUserCreationService) {
         this.userService = userService;
         this.userSearchService = userSearchService;
         this.userValidationService = userValidationService;
         this.passwordEncoder = passwordEncoder;
+        this.graphUserCreationService = graphUserCreationService;
     }
-
-//    private final UserNeo4jCreationService userNeo4jCreationService;
 
 
     @Transactional
@@ -39,8 +41,7 @@ public class UserRegistrationService {
         String hashedPassword = passwordEncoder.encode(request.getPassword());
         user.setPassword(hashedPassword);
         userService.saveUser(user);
-
-//        userNeo4jCreationService.createUserNeo4j(user.getId());
+        graphUserCreationService.createGraphUser();
 
         log.info("User registered successfully: {}", user.getUsername());
 

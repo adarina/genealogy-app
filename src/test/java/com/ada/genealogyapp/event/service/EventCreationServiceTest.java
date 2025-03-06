@@ -1,101 +1,78 @@
-//package com.ada.genealogyapp.event.service;
-//
-//import com.ada.genealogyapp.event.dto.EventRequest;
-//import com.ada.genealogyapp.event.model.Event;
-//import com.ada.genealogyapp.event.type.EventType;
-//import com.ada.genealogyapp.exceptions.NodeNotFoundException;
-//import com.ada.genealogyapp.exceptions.ValidationException;
-//import com.ada.genealogyapp.tree.model.Tree;
-//import com.ada.genealogyapp.tree.service.TreeService;
-//import org.junit.jupiter.api.BeforeEach;
-//import org.junit.jupiter.api.Test;
-//import org.junit.jupiter.api.extension.ExtendWith;
-//import org.mockito.InjectMocks;
-//import org.mockito.Mock;
-//import org.mockito.junit.jupiter.MockitoExtension;
-//
-//import java.time.LocalDate;
-//import java.util.UUID;
-//
-//import static org.junit.jupiter.api.Assertions.assertEquals;
-//import static org.junit.jupiter.api.Assertions.assertThrows;
-//import static org.mockito.Mockito.*;
-//import static org.mockito.Mockito.verify;
-//
-//@ExtendWith(MockitoExtension.class)
-//class EventCreationServiceTest {
-//
-//    @Mock
-//    TreeService treeService;
-//
-//    @Mock
-//    EventService eventService;
-//
-//    @Mock
-//    EventValidationService eventValidationService;
-//
-//    @InjectMocks
-//    EventCreationService eventCreationService;
-//
-//
-//    Tree tree;
-//    String treeId;
-//    EventRequest eventRequest;
-//
-//    @BeforeEach
-//    void setUp() {
-//
-//        treeId = String.valueOf(UUID.randomUUID());
-//        tree = new Tree();
-//        eventRequest = new EventRequest(EventType.MARRIAGE, LocalDate.parse("2024-11-24"), "place", "description");
-//    }
-//
-//    @Test
-//    void createEvent_shouldCreateEventWhenValidRequest() {
-//
-//        when(treeService.findTreeById(treeId)).thenReturn(tree);
-//
-//        Event event = eventCreationService.createEventWithParticipant(treeId, eventRequest);
-//
-//        assertEquals("description", event.getDescription());
-//        assertEquals("place", event.getPlace());
-//        assertEquals(LocalDate.parse("2024-11-24"), event.getDate());
-//        assertEquals(EventType.MARRIAGE, event.getType());
-//        verify(treeService).findTreeById(treeId);
-//        verify(eventValidationService).validateEvent(event);
-//        verify(eventService).saveEvent(event);
-//    }
-//
-//    @Test
-//    void createEvent_shouldThrowExceptionWhenTreeDoesNotExist() {
-//
-//        doThrow(new NodeNotFoundException("Tree not found"))
-//                .when(treeService).findTreeById(treeId);
-//
-//        NodeNotFoundException exception = assertThrows(NodeNotFoundException.class, () ->
-//                eventCreationService.createEventWithParticipant(treeId, eventRequest)
-//        );
-//
-//        assertEquals("Tree not found", exception.getMessage());
-//        verify(treeService).findTreeById(treeId);
-//        verifyNoInteractions(eventValidationService);
-//        verifyNoInteractions(eventService);
-//    }
-//
-//    @Test
-//    void createEvent_shouldNotSaveEventWhenValidationFails() {
-//
-//        when(treeService.findTreeById(treeId)).thenReturn(tree);
-//        doThrow(new ValidationException("Event validation failed"))
-//                .when(eventValidationService).validateEvent(any(Event.class));
-//
-//        ValidationException exception = assertThrows(ValidationException.class, () ->
-//                eventCreationService.createEventWithParticipant(treeId, eventRequest)
-//        );
-//
-//        assertEquals("Event validation failed", exception.getMessage());
-//        verify(treeService).findTreeById(treeId);
-//        verify(eventValidationService).validateEvent(any(Event.class));
-//        verify(eventService, never()).saveEvent(any());
-//    }
-//}
+package com.ada.genealogyapp.event.service;
+
+import com.ada.genealogyapp.event.dto.EventRequest;
+import com.ada.genealogyapp.event.model.Event;
+import com.ada.genealogyapp.event.type.EventType;
+import com.ada.genealogyapp.tree.model.Tree;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
+
+import static org.mockito.Mockito.*;
+
+
+@ExtendWith(MockitoExtension.class)
+class EventCreationServiceTest {
+
+
+    @Mock
+    private EventService eventService;
+
+    @Mock
+    private EventValidationService eventValidationService;
+
+    @InjectMocks
+    private EventCreationService eventCreationService;
+
+    @Test
+    void createEvent_shouldValidateAndSaveEvent() {
+        String userId = "user123";
+        String treeId = "tree123";
+        EventRequest eventRequest = new EventRequest();
+        eventRequest.setDescription("event123");
+        eventRequest.setType(EventType.BIRTH);
+        eventRequest.setDate("1800-09-12");
+        eventRequest.setPlace("place123");
+
+
+        Event createdEvent = eventCreationService.createEvent(userId, treeId, eventRequest);
+
+        assertNotNull(createdEvent);
+        assertEquals(EventType.BIRTH, createdEvent.getType());
+        assertEquals("event123", createdEvent.getDescription());
+        assertEquals("place123", createdEvent.getPlace());
+        assertEquals("1800-09-12", createdEvent.getDate());
+
+        verify(eventValidationService).validateEvent(createdEvent);
+        verify(eventService).saveEvent(userId, treeId, createdEvent);
+    }
+
+    @Test
+    void createFamily_withTreeAndTypeAndPlaceAndDateAndDescription_shouldValidateAndSaveEvent() {
+        String userId = "user123";
+        Tree tree = Tree.builder().id("tree123").build();
+        EventType type = EventType.BIRTH;
+        String description = "event123";
+        String date = "1800-09-12";
+        String place = "place123";
+
+
+        Event createdEvent = eventCreationService.createEvent(userId, tree, type, place, description, date);
+
+        assertNotNull(createdEvent);
+        assertEquals(EventType.BIRTH, createdEvent.getType());
+        assertEquals("event123", createdEvent.getDescription());
+        assertEquals("place123", createdEvent.getPlace());
+        assertEquals("1800-09-12", createdEvent.getDate());
+
+        verify(eventValidationService).validateEvent(createdEvent);
+        verify(eventService).saveEvent(userId, tree.getId(), createdEvent);
+    }
+}

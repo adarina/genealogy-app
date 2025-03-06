@@ -1,4 +1,8 @@
-package com.ada.genealogyapp;
+package com.ada.genealogyapp.validation;
+
+import com.ada.genealogyapp.validation.FieldValidator;
+
+import java.util.EnumSet;
 
 public class ValidatorFactory {
 

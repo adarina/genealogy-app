@@ -12,6 +12,4 @@ import lombok.Setter;
 public class CitationSourceResponse extends CitationResponse {
 
     private String name;
-
-    private String sourceId;
 }

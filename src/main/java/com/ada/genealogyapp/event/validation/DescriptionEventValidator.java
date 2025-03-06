@@ -1,9 +1,9 @@
 package com.ada.genealogyapp.event.validation;
 
-import com.ada.genealogyapp.FieldValidator;
-import com.ada.genealogyapp.ValidatorFactory;
+import com.ada.genealogyapp.validation.FieldValidator;
+import com.ada.genealogyapp.validation.ValidatorFactory;
 import com.ada.genealogyapp.event.model.Event;
-import com.ada.genealogyapp.user.validation.ValidationResult;
+import com.ada.genealogyapp.validation.ValidationResult;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j

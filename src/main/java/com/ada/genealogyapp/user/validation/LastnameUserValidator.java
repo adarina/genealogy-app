@@ -1,25 +1,25 @@
 package com.ada.genealogyapp.user.validation;
 
 import com.ada.genealogyapp.user.model.User;
-import io.micrometer.common.util.StringUtils;
+import com.ada.genealogyapp.validation.FieldValidator;
+import com.ada.genealogyapp.validation.ValidationResult;
+import com.ada.genealogyapp.validation.ValidatorFactory;
 import lombok.extern.slf4j.Slf4j;
-
-import java.util.regex.Pattern;
 
 @Slf4j
 public class LastnameUserValidator extends UserValidator {
 
-    private static final Pattern SURNAME_PATTERN = Pattern.compile("[A-Za-z]+");
+    private static final FieldValidator<String> LASTNAME_VALIDATOR = ValidatorFactory.createStringValidator(
+            "lastname",
+            "[A-Za-z]+",
+            true,
+            1,
+            100
+    );
 
     @Override
     public void check(User user, ValidationResult result) {
-        if (StringUtils.isBlank(user.getLastname())) {
-            log.error("User validation failed: Last name is blank");
-            result.addError("Username is blank");
-        } else if (!SURNAME_PATTERN.matcher(user.getLastname()).matches()) {
-            log.error("User validation failed: Invalid last name format - " + user.getLastname());
-            result.addError("Invalid last name format - " + user.getLastname());
-        }
+        LASTNAME_VALIDATOR.validate(user.getLastname(), result);
         checkNext(user, result);
     }
 }

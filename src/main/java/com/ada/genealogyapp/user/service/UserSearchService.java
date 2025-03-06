@@ -69,6 +69,7 @@ public class UserSearchService {
         return users;
     }
 
+    //TODO paginacja
     public UsersResponse getAllUsers() {
         return UsersResponse.entityToDtoMapper().apply(findAll());
     }

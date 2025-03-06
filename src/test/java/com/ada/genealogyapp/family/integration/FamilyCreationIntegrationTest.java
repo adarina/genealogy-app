@@ -3,7 +3,7 @@ package com.ada.genealogyapp.family.integration;
 import com.ada.genealogyapp.config.IntegrationTestConfig;
 import com.ada.genealogyapp.family.dto.FamilyRequest;
 import com.ada.genealogyapp.family.model.Family;
-import com.ada.genealogyapp.family.repostitory.FamilyRepository;
+import com.ada.genealogyapp.family.repository.FamilyRepository;
 import com.ada.genealogyapp.family.type.StatusType;
 import com.ada.genealogyapp.tree.model.Tree;
 import com.ada.genealogyapp.tree.repository.TreeRepository;

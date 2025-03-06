@@ -1,25 +1,28 @@
 package com.ada.genealogyapp.user.validation;
 
 import com.ada.genealogyapp.user.model.User;
-import io.micrometer.common.util.StringUtils;
+import com.ada.genealogyapp.validation.FieldValidator;
+import com.ada.genealogyapp.validation.ValidationResult;
+import com.ada.genealogyapp.validation.ValidatorFactory;
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.regex.Pattern;
 
 @Slf4j
 public class UsernameUserValidator extends UserValidator {
 
-    private static final Pattern USERNAME_PATTERN = Pattern.compile("^(.+)@(.+)$");
+    private static final FieldValidator<String> USERNAME_VALIDATOR = ValidatorFactory.createStringValidator(
+            "username",
+            "^(.+)@(.+)$",
+            true,
+            0,
+            100
+    );
 
     @Override
     public void check(User user, ValidationResult result) {
-        if (StringUtils.isBlank(user.getUsername())) {
-            log.error("User validation failed: Username is blank");
-            result.addError("Username is blank");
-        } else if (!USERNAME_PATTERN.matcher(user.getUsername()).matches()) {
-            log.error("User validation failed: Invalid username format - " + user.getUsername());
-            result.addError("Invalid username format - " + user.getUsername());
-        }
+        USERNAME_VALIDATOR.validate(user.getUsername(), result);
         checkNext(user, result);
     }
 }
+
+

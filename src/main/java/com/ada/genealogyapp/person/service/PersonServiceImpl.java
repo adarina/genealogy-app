@@ -3,11 +3,10 @@ package com.ada.genealogyapp.person.service;
 import com.ada.genealogyapp.exceptions.NodeNotFoundException;
 import com.ada.genealogyapp.person.dto.PersonResponse;
 import com.ada.genealogyapp.person.model.Person;
-import com.ada.genealogyapp.person.repostitory.PersonRepository;
+import com.ada.genealogyapp.person.repository.PersonRepository;
 import com.ada.genealogyapp.query.QueryResultProcessor;
 import com.ada.genealogyapp.tree.service.TransactionalInNeo4j;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;

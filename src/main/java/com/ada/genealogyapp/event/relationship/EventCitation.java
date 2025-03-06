@@ -6,6 +6,7 @@ import org.springframework.data.neo4j.core.schema.GeneratedValue;
 import org.springframework.data.neo4j.core.schema.Id;
 import org.springframework.data.neo4j.core.schema.RelationshipProperties;
 import org.springframework.data.neo4j.core.schema.TargetNode;
+import org.springframework.data.neo4j.core.support.UUIDStringGenerator;
 
 
 @Getter
@@ -18,7 +19,7 @@ public class EventCitation {
 
     @Id
     @GeneratedValue
-    private Long id;
+    private String id;
 
     @TargetNode
     private Citation citation;

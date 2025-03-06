@@ -9,13 +9,9 @@ public interface FamilyService {
 
     void updateFamily(String userId, String treeId, String familyId, Family family);
 
-    Family findFamilyById(String familyId);
-
     void ensureFamilyExists(String familyId);
 
     void deleteFamily(String userId, String treeId, String familyId);
-
-//    Family findFamilyByTreeIdAndId(String userId, String treeId, String familyId);
 
     void addFatherToFamily(String userId, String treeId, String familyId, String fatherId);
 

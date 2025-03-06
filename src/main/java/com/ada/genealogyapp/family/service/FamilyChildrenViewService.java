@@ -1,7 +1,7 @@
 package com.ada.genealogyapp.family.service;
 
 import com.ada.genealogyapp.family.dto.FamilyChildResponse;
-import com.ada.genealogyapp.family.repostitory.FamilyRepository;
+import com.ada.genealogyapp.family.repository.FamilyRepository;
 import com.ada.genealogyapp.tree.service.TreeService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

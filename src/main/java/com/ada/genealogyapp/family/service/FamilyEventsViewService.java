@@ -2,10 +2,10 @@ package com.ada.genealogyapp.family.service;
 
 
 import com.ada.genealogyapp.exceptions.NodeNotFoundException;
-import com.ada.genealogyapp.family.repostitory.FamilyRepository;
+import com.ada.genealogyapp.family.repository.FamilyRepository;
 import com.ada.genealogyapp.participant.dto.ParticipantEventResponse;
 import com.ada.genealogyapp.participant.repository.ParticipantRepository;
-import com.ada.genealogyapp.person.repostitory.PersonRepository;
+import com.ada.genealogyapp.person.repository.PersonRepository;
 import com.ada.genealogyapp.tree.service.TreeService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;

@@ -1,17 +1,17 @@
 package com.ada.genealogyapp.citation.validation;
 
 import com.ada.genealogyapp.citation.model.Citation;
-import com.ada.genealogyapp.user.validation.ValidationResult;
+import com.ada.genealogyapp.validation.ValidationResult;
 
 import static java.util.Objects.nonNull;
 
 public abstract class CitationValidator {
 
-    private com.ada.genealogyapp.citation.validation.CitationValidator next;
+    private CitationValidator next;
 
-    public static com.ada.genealogyapp.citation.validation.CitationValidator link(com.ada.genealogyapp.citation.validation.CitationValidator first, com.ada.genealogyapp.citation.validation.CitationValidator... chain) {
-        com.ada.genealogyapp.citation.validation.CitationValidator head = first;
-        for (com.ada.genealogyapp.citation.validation.CitationValidator nextInChain : chain) {
+    public static CitationValidator link(CitationValidator first, CitationValidator... chain) {
+        CitationValidator head = first;
+        for (CitationValidator nextInChain : chain) {
             head.next = nextInChain;
             head = nextInChain;
         }

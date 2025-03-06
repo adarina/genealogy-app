@@ -27,9 +27,10 @@ public class UserManagementService {
         if (user.isPresent()) {
             delete(user.get().getUsername());
             log.info("User with Username {} deleted successfully", username);
-        } else {
-            log.warn("User with Username {} not found", username);
+            return;
         }
+        log.warn("User with Username {} not found", username);
+
     }
 
     @Transactional("jpaTransactionManager")

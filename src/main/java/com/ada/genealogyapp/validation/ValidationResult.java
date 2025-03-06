@@ -1,4 +1,4 @@
-package com.ada.genealogyapp.user.validation;
+package com.ada.genealogyapp.validation;
 
 import lombok.Getter;
 

@@ -1,6 +1,7 @@
 package com.ada.genealogyapp.user.validation;
 
 import com.ada.genealogyapp.user.model.User;
+import com.ada.genealogyapp.validation.ValidationResult;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 

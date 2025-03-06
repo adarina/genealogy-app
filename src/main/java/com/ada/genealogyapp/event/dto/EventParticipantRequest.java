@@ -10,7 +10,7 @@ import lombok.*;
 @AllArgsConstructor
 public class EventParticipantRequest {
 
-    private Long id;
+    private String id;
 
     private String participantId;
 

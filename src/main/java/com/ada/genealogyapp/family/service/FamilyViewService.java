@@ -3,7 +3,7 @@ package com.ada.genealogyapp.family.service;
 import com.ada.genealogyapp.exceptions.NodeNotFoundException;
 import com.ada.genealogyapp.family.dto.FamilyResponse;
 import com.ada.genealogyapp.family.dto.FamilyFilterRequest;
-import com.ada.genealogyapp.family.repostitory.FamilyRepository;
+import com.ada.genealogyapp.family.repository.FamilyRepository;
 import com.ada.genealogyapp.tree.service.TreeService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;

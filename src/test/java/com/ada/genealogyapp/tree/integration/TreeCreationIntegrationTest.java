@@ -2,7 +2,6 @@ package com.ada.genealogyapp.tree.integration;
 
 import com.ada.genealogyapp.config.IntegrationTestConfig;
 import com.ada.genealogyapp.tree.dto.TreeRequest;
-import com.ada.genealogyapp.tree.model.Tree;
 import com.ada.genealogyapp.tree.repository.TreeRepository;
 import com.ada.genealogyapp.user.model.User;
 import com.ada.genealogyapp.user.repository.UserRepository;

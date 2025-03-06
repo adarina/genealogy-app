@@ -2,7 +2,7 @@ package com.ada.genealogyapp.person.service;
 
 import com.ada.genealogyapp.person.dto.PersonAncestorResponse;
 import com.ada.genealogyapp.person.model.Person;
-import com.ada.genealogyapp.person.repostitory.PersonRepository;
+import com.ada.genealogyapp.person.repository.PersonRepository;
 import com.ada.genealogyapp.person.type.GenderType;
 import com.ada.genealogyapp.tree.service.TreeService;
 import lombok.extern.slf4j.Slf4j;

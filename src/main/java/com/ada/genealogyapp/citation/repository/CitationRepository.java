@@ -11,13 +11,17 @@ import org.springframework.data.repository.query.Param;
 
 import java.util.*;
 
+
 public interface CitationRepository extends Neo4jRepository<Citation, String> {
 
 
     @Query("""
             CALL {
-                OPTIONAL MATCH (user:GraphUser {id: $userId})-[:HAS_TREE]->(tree:Tree {id: $treeId})
-                RETURN count(user) > 0 AS userExist, count(tree) > 0 AS treeExist, tree
+                OPTIONAL MATCH (user:GraphUser {id: $userId})
+                WITH count(user) > 0 AS userExist
+                
+                OPTIONAL MATCH (user)-[:HAS_TREE]->(tree:Tree {id: $treeId})
+                RETURN userExist, count(tree) > 0 AS treeExist, tree
             }
                         
             CALL apoc.do.case(
@@ -41,8 +45,11 @@ public interface CitationRepository extends Neo4jRepository<Citation, String> {
 
     @Query("""
             CALL {
-                OPTIONAL MATCH (user:GraphUser {id: $userId})-[:HAS_TREE]->(tree:Tree {id: $treeId})
-                RETURN count(user) > 0 AS userExist, count(tree) > 0 AS treeExist, tree
+                OPTIONAL MATCH (user:GraphUser {id: $userId})
+                WITH count(user) > 0 AS userExist
+                
+                OPTIONAL MATCH (user)-[:HAS_TREE]->(tree:Tree {id: $treeId})
+                RETURN userExist, count(tree) > 0 AS treeExist, tree
             }
                         
             CALL apoc.do.case(
@@ -68,8 +75,11 @@ public interface CitationRepository extends Neo4jRepository<Citation, String> {
     String save(String userId, String treeId, String citationId, String page, String date, String sourceId, String eventId);
     @Query("""
             CALL {
-                OPTIONAL MATCH (user:GraphUser {id: $userId})-[:HAS_TREE]->(tree:Tree {id: $treeId})
-                RETURN count(user) > 0 AS userExist, count(tree) > 0 AS treeExist, tree
+                OPTIONAL MATCH (user:GraphUser {id: $userId})
+                WITH count(user) > 0 AS userExist
+                
+                OPTIONAL MATCH (user)-[:HAS_TREE]->(tree:Tree {id: $treeId})
+                WITH userExist, count(tree) > 0 AS treeExist, tree
             }
                         
             CALL apoc.do.case(
@@ -102,8 +112,11 @@ public interface CitationRepository extends Neo4jRepository<Citation, String> {
 
     @Query("""
             CALL {
-                OPTIONAL MATCH (user:GraphUser {id: $userId})-[:HAS_TREE]->(tree:Tree {id: $treeId})
-                WITH count(user) > 0 AS userExist, count(tree) > 0 AS treeExist, tree
+                OPTIONAL MATCH (user:GraphUser {id: $userId})
+                WITH count(user) > 0 AS userExist
+                
+                OPTIONAL MATCH (user)-[:HAS_TREE]->(tree:Tree {id: $treeId})
+                WITH userExist, count(tree) > 0 AS treeExist, tree
                 
                 OPTIONAL MATCH (tree)-[:HAS_CITATION]->(citation:Citation {id: $citationId})
                 RETURN userExist, treeExist, tree, count(citation) > 0 AS citationExist, citation
@@ -129,8 +142,11 @@ public interface CitationRepository extends Neo4jRepository<Citation, String> {
 
     @Query("""
             CALL {
-                OPTIONAL MATCH (user:GraphUser {id: $userId})-[:HAS_TREE]->(tree:Tree {id: $treeId})
-                WITH count(user) > 0 AS userExist, count(tree) > 0 AS treeExist, tree
+                OPTIONAL MATCH (user:GraphUser {id: $userId})
+                WITH count(user) > 0 AS userExist
+                
+                OPTIONAL MATCH (user)-[:HAS_TREE]->(tree:Tree {id: $treeId})
+                WITH userExist, count(tree) > 0 AS treeExist, tree
                 
                 OPTIONAL MATCH (tree)-[:HAS_CITATION]->(citation:Citation {id: $citationId})
                 RETURN userExist, treeExist, tree, count(citation) > 0 AS citationExist, citation
@@ -157,8 +173,11 @@ public interface CitationRepository extends Neo4jRepository<Citation, String> {
 
     @Query("""
             CALL {
-                OPTIONAL MATCH (user:GraphUser {id: $userId})-[:HAS_TREE]->(tree:Tree {id: $treeId})
-                WITH count(user) > 0 AS userExist, count(tree) > 0 AS treeExist, tree
+                OPTIONAL MATCH (user:GraphUser {id: $userId})
+                WITH count(user) > 0 AS userExist
+                
+                OPTIONAL MATCH (user)-[:HAS_TREE]->(tree:Tree {id: $treeId})
+                WITH userExist, count(tree) > 0 AS treeExist, tree
                 
                 OPTIONAL MATCH (tree)-[:HAS_CITATION]->(citation:Citation {id: $citationId})
                 WITH userExist, treeExist, tree, count(citation) > 0 AS citationExist, citation
@@ -188,8 +207,11 @@ public interface CitationRepository extends Neo4jRepository<Citation, String> {
 
     @Query("""
             CALL {
-                OPTIONAL MATCH (user:GraphUser {id: $userId})-[:HAS_TREE]->(tree:Tree {id: $treeId})
-                WITH count(user) > 0 AS userExist, count(tree) > 0 AS treeExist, tree
+                OPTIONAL MATCH (user:GraphUser {id: $userId})
+                WITH count(user) > 0 AS userExist
+                
+                OPTIONAL MATCH (user)-[:HAS_TREE]->(tree:Tree {id: $treeId})
+                WITH userExist, count(tree) > 0 AS treeExist, tree
                 
                 OPTIONAL MATCH (tree)-[:HAS_CITATION]->(citation:Citation {id: $citationId})
                 WITH userExist, treeExist, tree, count(citation) > 0 AS citationExist, citation
@@ -219,8 +241,11 @@ public interface CitationRepository extends Neo4jRepository<Citation, String> {
 
     @Query("""
             CALL {
-                OPTIONAL MATCH (user:GraphUser {id: $userId})-[:HAS_TREE]->(tree:Tree {id: $treeId})
-                WITH count(user) > 0 AS userExist, count(tree) > 0 AS treeExist, tree
+                OPTIONAL MATCH (user:GraphUser {id: $userId})
+                WITH count(user) > 0 AS userExist
+                
+                OPTIONAL MATCH (user)-[:HAS_TREE]->(tree:Tree {id: $treeId})
+                WITH userExist, count(tree) > 0 AS treeExist, tree
                 
                 OPTIONAL MATCH (tree)-[:HAS_CITATION]->(citation:Citation {id: $citationId})
                 WITH userExist, treeExist, tree, count(citation) > 0 AS citationExist, citation
@@ -249,8 +274,11 @@ public interface CitationRepository extends Neo4jRepository<Citation, String> {
 
     @Query("""
             CALL {
-                OPTIONAL MATCH (user:GraphUser {id: $userId})-[:HAS_TREE]->(tree:Tree {id: $treeId})
-                WITH count(user) > 0 AS userExist, count(tree) > 0 AS treeExist, tree
+                OPTIONAL MATCH (user:GraphUser {id: $userId})
+                WITH count(user) > 0 AS userExist
+                
+                OPTIONAL MATCH (user)-[:HAS_TREE]->(tree:Tree {id: $treeId})
+                WITH userExist, count(tree) > 0 AS treeExist, tree
                 
                 OPTIONAL MATCH (tree)-[:HAS_CITATION]->(citation:Citation {id: $citationId})
                 WITH userExist, treeExist, tree, count(citation) > 0 AS citationExist, citation

@@ -17,8 +17,11 @@ public interface SourceRepository extends Neo4jRepository<Source, String> {
 
     @Query("""
              CALL {
-                OPTIONAL MATCH (user:GraphUser {id: $userId})-[:HAS_TREE]->(tree:Tree {id: $treeId})
-                RETURN count(tree) > 0 AS treeExist, count(user) > 0 AS userExist, tree
+                OPTIONAL MATCH (user:GraphUser {id: $userId})
+                WITH count(user) > 0 AS userExist
+                
+                OPTIONAL MATCH (user)-[:HAS_TREE]->(tree:Tree {id: $treeId})
+                RETURN userExist, count(tree) > 0 AS treeExist, tree
             }
                         
             CALL apoc.do.case(
@@ -41,8 +44,11 @@ public interface SourceRepository extends Neo4jRepository<Source, String> {
 
     @Query("""
             CALL {
-                OPTIONAL MATCH (user:GraphUser {id: $userId})-[:HAS_TREE]->(tree:Tree {id: $treeId})
-                WITH count(tree) > 0 AS treeExist, count(user) > 0 AS userExist, tree
+                OPTIONAL MATCH (user:GraphUser {id: $userId})
+                WITH count(user) > 0 AS userExist
+                
+                OPTIONAL MATCH (user)-[:HAS_TREE]->(tree:Tree {id: $treeId})
+                WITH userExist, count(tree) > 0 AS treeExist, tree
                 
                 OPTIONAL MATCH (tree)-[:HAS_SOURCE]->(source:Source {id: $sourceId})
                 RETURN userExist, treeExist, tree, count(source) > 0 AS sourceExist, source

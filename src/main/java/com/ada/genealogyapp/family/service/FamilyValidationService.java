@@ -4,7 +4,7 @@ import com.ada.genealogyapp.exceptions.ValidationException;
 import com.ada.genealogyapp.family.model.Family;
 import com.ada.genealogyapp.family.validation.FamilyValidator;
 import com.ada.genealogyapp.family.validation.StatusFamilyValidator;
-import com.ada.genealogyapp.user.validation.ValidationResult;
+import com.ada.genealogyapp.validation.ValidationResult;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 

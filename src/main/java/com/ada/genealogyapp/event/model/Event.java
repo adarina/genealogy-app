@@ -46,14 +46,4 @@ public class Event {
     @Relationship(type = "HAS_EVENT", direction = Relationship.Direction.INCOMING)
     private Tree tree;
 
-    public boolean isParticipantAlreadyInEvent(String participantId) {
-        return participants.stream()
-                .anyMatch(ep -> ep.getParticipant().getId().equals(participantId));
-    }
-
-    public boolean isCitationAlreadyInEvent(String citationId) {
-        return citations.stream()
-                .anyMatch(ec -> ec.getCitation().getId().equals(citationId));
-    }
-
 }

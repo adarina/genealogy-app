@@ -41,6 +41,29 @@ public interface TreeRepository extends Neo4jRepository<Tree, String> {
             """)
     Map<String, Object> findTreeWithPersons(String treeId);
 
+    @Query("""
+                CALL {
+                    OPTIONAL MATCH (user:GraphUser {id: $userId})
+                    WITH count(user) > 0 AS userExist
+                    
+                    OPTIONAL MATCH (user)-[:HAS_TREE]->(tree:Tree {id: $treeId})
+                    RETURN count(tree) > 0 AS treeExist, userExist, tree
+
+                }
+                
+                CALL apoc.do.case(
+                    [
+                        userExist AND treeExist, 'RETURN "SUCCESS" AS message',
+                        userExist, 'RETURN "TREE_NOT_EXIST" AS message'
+                    ],
+                    'RETURN "USER_NOT_EXIST" AS message',
+                    {tree: tree}
+                ) YIELD value
+                RETURN value.message
+                LIMIT 1
+            """)
+    String checkTreeAndUserExistence(String userId, String treeId);
+
 
     @Query("""
             MATCH (tree:Tree {id: $treeId})-[:HAS_PERSON]->(person:Person),

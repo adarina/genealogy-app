@@ -1,26 +1,26 @@
 package com.ada.genealogyapp.citation.validation;
 
 import com.ada.genealogyapp.citation.model.Citation;
-import com.ada.genealogyapp.user.validation.ValidationResult;
-import io.micrometer.common.util.StringUtils;
+import com.ada.genealogyapp.validation.ValidationResult;
+import com.ada.genealogyapp.validation.FieldValidator;
+import com.ada.genealogyapp.validation.ValidatorFactory;
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.regex.Pattern;
 
 @Slf4j
 public class PageCitationValidator extends CitationValidator {
 
-    private static final Pattern DESCRIPTION_PATTERN = Pattern.compile(".*");
+    private static final FieldValidator<String> PAGE_VALIDATOR = ValidatorFactory.createStringValidator(
+            "page",
+            ".*",
+            false,
+            0,
+            300
+    );
+
     @Override
     public void check(Citation citation, ValidationResult result) {
-//        if (StringUtils.isBlank(citation.getPage())) {
-//            log.error("Citation validation failed: Page is blank");
-//            result.addError("Page is blank");
-//        } else
-            if (!DESCRIPTION_PATTERN.matcher(citation.getPage()).matches()) {
-            log.error("Citation validation failed: Invalid page format - " + citation.getPage());
-            result.addError("Invalid page format");
-        }
+        PAGE_VALIDATOR.validate(citation.getPage(), result);
         checkNext(citation, result);
     }
 }

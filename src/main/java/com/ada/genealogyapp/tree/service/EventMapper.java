@@ -1,7 +1,6 @@
 package com.ada.genealogyapp.tree.service;
 
 import com.ada.genealogyapp.event.type.EventType;
-import com.ada.genealogyapp.person.type.GenderType;
 
 public class EventMapper {
 

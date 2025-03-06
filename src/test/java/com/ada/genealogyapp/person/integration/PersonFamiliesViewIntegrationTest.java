@@ -3,29 +3,16 @@ package com.ada.genealogyapp.person.integration;
 import com.ada.genealogyapp.citation.repository.CitationRepository;
 import com.ada.genealogyapp.config.IntegrationTestConfig;
 import com.ada.genealogyapp.event.repository.EventRepository;
-import com.ada.genealogyapp.person.relationship.PersonRelationship;
-import com.ada.genealogyapp.family.repostitory.FamilyRepository;
-import com.ada.genealogyapp.person.repostitory.PersonRepository;
+import com.ada.genealogyapp.family.repository.FamilyRepository;
+import com.ada.genealogyapp.person.repository.PersonRepository;
 import com.ada.genealogyapp.tree.repository.TreeRepository;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
-import com.ada.genealogyapp.family.model.Family;
-import com.ada.genealogyapp.person.model.Person;
-import com.ada.genealogyapp.person.type.GenderType;
-import com.ada.genealogyapp.tree.model.Tree;
-import org.junit.jupiter.api.Test;
-import org.springframework.http.MediaType;
-
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 class PersonFamiliesViewIntegrationTest extends IntegrationTestConfig {
 

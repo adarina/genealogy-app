@@ -59,7 +59,7 @@ public class SecurityConfig {
                 .cors(withDefaults())
                 .authorizeHttpRequests(authorizationManagerRequestMatcherRegistry ->
                         authorizationManagerRequestMatcherRegistry
-                                .requestMatchers("/api/v1/genealogy/login").permitAll()
+                                .requestMatchers("/api/v1/genealogy/auth").permitAll()
                                 .requestMatchers("/upload-dir/**").permitAll()
                                 .requestMatchers("/api/v1/genealogy/register").permitAll()
                                 .requestMatchers("/api/v1/genealogy/trees/**").permitAll()
@@ -79,6 +79,7 @@ public class SecurityConfig {
         configuration.setAllowCredentials(true);
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE"));
         configuration.setAllowedHeaders(Arrays.asList("Origin", "Content-Type", "Accept", "Authorization", "X-User-Id"));
+        configuration.setExposedHeaders(Arrays.asList("Authorization", "X-User-Id"));
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
         return source;

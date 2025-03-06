@@ -16,7 +16,6 @@ import java.util.Set;
 @Getter
 @Setter
 @Builder
-//@AllArgsConstructor
 @NoArgsConstructor
 public class Person extends Participant {
 
@@ -30,9 +29,6 @@ public class Person extends Participant {
 
     @Relationship(type = "PARENT_OF", direction = Relationship.Direction.OUTGOING)
     private Set<PersonRelationship> relationships = new HashSet<>();
-
-//    @Relationship(type = "HAS_PARTICIPANT", direction = Relationship.Direction.INCOMING)
-//    private Set<Event> events = new HashSet<>();
 
     @Relationship(type = "HAS_PERSON", direction = Relationship.Direction.INCOMING)
     private Tree tree;

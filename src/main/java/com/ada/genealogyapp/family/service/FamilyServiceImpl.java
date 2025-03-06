@@ -1,11 +1,10 @@
 package com.ada.genealogyapp.family.service;
 
 import com.ada.genealogyapp.exceptions.NodeNotFoundException;
-import com.ada.genealogyapp.family.dto.FamilyFindResponse;
 import com.ada.genealogyapp.query.QueryResultProcessor;
 import com.ada.genealogyapp.family.dto.FamilyChildRequest;
 import com.ada.genealogyapp.family.model.Family;
-import com.ada.genealogyapp.family.repostitory.FamilyRepository;
+import com.ada.genealogyapp.family.repository.FamilyRepository;
 import com.ada.genealogyapp.tree.service.TransactionalInNeo4j;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -54,7 +53,7 @@ public class FamilyServiceImpl implements FamilyService {
     @TransactionalInNeo4j
     public void saveFamily(String userId, String treeId, Family family) {
         String result = familyRepository.save(userId, treeId, family.getId(), family.getStatus().name());
-        queryResultProcessor.process(result, Map.of("treeId", family.getTree().getId(), "familyId", family.getId()));
+        queryResultProcessor.process(result, Map.of("treeId", treeId, "familyId", family.getId()));
     }
 
     @TransactionalInNeo4j

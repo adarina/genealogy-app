@@ -17,7 +17,7 @@ public class GraphUserCreationService {
 
     private final GraphUserRepository graphUserRepository;
 
-    private void creatGraphUser() {
+    public void createGraphUser() {
         graphUserRepository.save(id);
     }
 }

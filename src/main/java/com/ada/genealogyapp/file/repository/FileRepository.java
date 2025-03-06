@@ -17,8 +17,11 @@ public interface FileRepository extends Neo4jRepository<File, String> {
 
     @Query("""
             CALL {
-                OPTIONAL MATCH (user:GraphUser {id: $userId})-[:HAS_TREE]->(tree:Tree {id: $treeId})
-                RETURN count(user) > 0 AS userExist, count(tree) > 0 AS treeExist, tree
+                OPTIONAL MATCH (user:GraphUser {id: $userId})
+                WITH count(user) > 0 AS userExist
+                
+                OPTIONAL MATCH (user)-[:HAS_TREE]->(tree:Tree {id: $treeId})
+                RETURN userExist, count(tree) > 0 AS treeExist, tree
             }
                         
             CALL apoc.do.case(

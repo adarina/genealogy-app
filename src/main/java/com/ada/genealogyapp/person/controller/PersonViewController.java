@@ -27,8 +27,8 @@ public class PersonViewController {
     }
 
     @GetMapping
-    public ResponseEntity<Page<PersonResponse>> getPersons(@PathVariable String treeId, @RequestParam String filter, @PageableDefault Pageable pageable) throws JsonProcessingException {
-        Page<PersonResponse> personResponses = personViewService.getPersons(treeId, filter, pageable);
+    public ResponseEntity<Page<PersonResponse>> getPersons(@PathVariable String treeId, @RequestParam String filter, @PageableDefault Pageable pageable, @RequestHeader(value = "X-User-Id") String userId) throws JsonProcessingException {
+        Page<PersonResponse> personResponses = personViewService.getPersons(userId, treeId, filter, pageable);
         return ResponseEntity.ok(personResponses);
     }
 }

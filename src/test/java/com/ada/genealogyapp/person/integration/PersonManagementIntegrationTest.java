@@ -1,24 +1,15 @@
 package com.ada.genealogyapp.person.integration;
 
 import com.ada.genealogyapp.config.IntegrationTestConfig;
-import com.ada.genealogyapp.person.type.GenderType;
-import com.ada.genealogyapp.person.dto.PersonRequest;
-import com.ada.genealogyapp.person.model.Person;
-import com.ada.genealogyapp.person.repostitory.PersonRepository;
-import com.ada.genealogyapp.tree.model.Tree;
+import com.ada.genealogyapp.person.repository.PersonRepository;
 import com.ada.genealogyapp.tree.repository.TreeRepository;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.MediaType;
-
-import java.time.LocalDate;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 class PersonManagementIntegrationTest extends IntegrationTestConfig {
 

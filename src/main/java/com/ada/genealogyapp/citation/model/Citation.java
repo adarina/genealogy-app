@@ -10,7 +10,6 @@ import org.springframework.data.neo4j.core.schema.Node;
 import org.springframework.data.neo4j.core.schema.Relationship;
 import org.springframework.data.neo4j.core.support.UUIDStringGenerator;
 
-import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -41,29 +40,5 @@ public class Citation {
 
     @Relationship(type = "HAS_CITATION_FILE", direction = Relationship.Direction.OUTGOING)
     private Set<File> files = new HashSet<>();
-
-    public boolean hasSource(Source source) {
-        return nonNull(this.source) && this.source.equals(source);
-    }
-
-    public void addSource(Source source) {
-        this.source = source;
-    }
-
-    public void removeSource() {
-        this.source = null;
-    }
-
-    public boolean hasFile(File file) {
-        return files.contains(file);
-    }
-
-    public void addFile(File file) {
-        files.add(file);
-    }
-
-    public void removeFile(File file) {
-        files.remove(file);
-    }
 
 }

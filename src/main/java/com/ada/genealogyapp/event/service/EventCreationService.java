@@ -30,7 +30,7 @@ public class EventCreationService {
     }
 
     @TransactionalInNeo4j
-    public void createEvent(String userId, String treeId, @NonNull EventRequest eventRequest) {
+    public Event createEvent(String userId, String treeId, @NonNull EventRequest eventRequest) {
         Event event = Event.builder()
                 .id(UUID.randomUUID().toString())
                 .type(eventRequest.getType())
@@ -41,6 +41,7 @@ public class EventCreationService {
 
         eventValidationService.validateEvent(event);
         eventService.saveEvent(userId, treeId, event);
+        return event;
     }
 
     @TransactionalInNeo4j

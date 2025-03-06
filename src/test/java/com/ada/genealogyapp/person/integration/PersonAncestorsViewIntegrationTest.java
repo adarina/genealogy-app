@@ -3,33 +3,21 @@ package com.ada.genealogyapp.person.integration;
 import com.ada.genealogyapp.citation.repository.CitationRepository;
 import com.ada.genealogyapp.config.IntegrationTestConfig;
 import com.ada.genealogyapp.event.repository.EventRepository;
-import com.ada.genealogyapp.family.model.Family;
-import com.ada.genealogyapp.family.type.StatusType;
 import com.ada.genealogyapp.file.repository.FileRepository;
 import com.ada.genealogyapp.person.relationship.PersonRelationship;
-import com.ada.genealogyapp.family.repostitory.FamilyRepository;
+import com.ada.genealogyapp.family.repository.FamilyRepository;
 import com.ada.genealogyapp.person.model.Person;
-import com.ada.genealogyapp.person.repostitory.PersonRepository;
-import com.ada.genealogyapp.person.type.GenderType;
+import com.ada.genealogyapp.person.repository.PersonRepository;
 import com.ada.genealogyapp.person.type.PersonRelationshipType;
 import com.ada.genealogyapp.source.repository.SourceRepository;
-import com.ada.genealogyapp.tree.model.Tree;
 import com.ada.genealogyapp.tree.repository.TreeRepository;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.MediaType;
-
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 
 

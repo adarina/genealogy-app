@@ -1,34 +1,13 @@
 package com.ada.genealogyapp.family.service;
 
-import com.ada.genealogyapp.family.model.Family;
-import com.ada.genealogyapp.exceptions.NodeNotFoundException;
-import com.ada.genealogyapp.family.repostitory.FamilyRepository;
+import com.ada.genealogyapp.family.repository.FamilyRepository;
 import com.ada.genealogyapp.query.QueryResultProcessor;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import com.ada.genealogyapp.exceptions.NodeNotFoundException;
-import com.ada.genealogyapp.family.repostitory.FamilyRepository;
-import com.ada.genealogyapp.query.QueryResultProcessor;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
-
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
-
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 
 @ExtendWith(MockitoExtension.class)
@@ -113,23 +92,6 @@ class FamilyServiceImplTest {
 //        familyService.deleteFamily(family);
 //
 //        verify(familyRepository).delete(family);
-//    }
-
-    @Mock
-    private FamilyRepository familyRepository;
-
-    @Mock
-    private QueryResultProcessor queryResultProcessor;
-
-    @Mock
-    private FamilyService familyService;
-
-    @InjectMocks
-    private FamilyMotherManagementService familyMotherManagementService;
-
-//    @BeforeEach
-//    void setUp() {
-//        MockitoAnnotations.openMocks(this);
 //    }
 
 

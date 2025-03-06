@@ -1,4 +1,4 @@
-package com.ada.genealogyapp.person.repostitory;
+package com.ada.genealogyapp.person.repository;
 
 import com.ada.genealogyapp.person.dto.PersonFamilyResponse;
 import com.ada.genealogyapp.person.dto.PersonResponse;
@@ -23,6 +23,7 @@ public interface PersonRepository extends Neo4jRepository<Person, String> {
             """)
     Person findPersonByTreeIdAndPersonId(String treeId, String personId);
 
+
     @Query("""
             MATCH (t:Tree {id: $treeId})
             MATCH (t)-[:HAS_PERSON]->(p:Person {id: $personId})
@@ -34,8 +35,11 @@ public interface PersonRepository extends Neo4jRepository<Person, String> {
 
     @Query("""
             CALL {
-                OPTIONAL MATCH (user:GraphUser {id: $userId})-[:HAS_TREE]->(tree:Tree {id: $treeId})
-                RETURN count(tree) > 0 AS treeExist, count(user) > 0 AS userExist, tree
+                OPTIONAL MATCH (user:GraphUser {id: $userId})
+                WITH count(user) > 0 AS userExist
+                
+                OPTIONAL MATCH (user)-[:HAS_TREE]->(tree:Tree {id: $treeId})
+                RETURN userExist, count(tree) > 0 AS treeExist, tree
             }
                             
             CALL apoc.do.case(
@@ -62,8 +66,11 @@ public interface PersonRepository extends Neo4jRepository<Person, String> {
 
     @Query("""
             CALL {
-                OPTIONAL MATCH (user:GraphUser {id: $userId})-[:HAS_TREE]->(tree:Tree {id: $treeId})
-                WITH count(tree) > 0 AS treeExist, count(user) > 0 AS userExist, tree
+                OPTIONAL MATCH (user:GraphUser {id: $userId})
+                WITH count(user) > 0 AS userExist
+                
+                OPTIONAL MATCH (user)-[:HAS_TREE]->(tree:Tree {id: $treeId})
+                WITH userExist, count(tree) > 0 AS treeExist, tree
                 
                 OPTIONAL MATCH (tree)-[:HAS_PERSON]->(person:Person {id: $personId})
                 RETURN userExist, treeExist, tree, count(person) > 0 AS personExist, person
@@ -102,8 +109,11 @@ public interface PersonRepository extends Neo4jRepository<Person, String> {
 
     @Query("""
             CALL {
-                OPTIONAL MATCH (user:GraphUser {id: $userId})-[:HAS_TREE]->(tree:Tree {id: $treeId})
-                WITH count(tree) > 0 AS treeExist, count(user) > 0 AS userExist, tree
+                OPTIONAL MATCH (user:GraphUser {id: $userId})
+                WITH count(user) > 0 AS userExist
+                
+                OPTIONAL MATCH (user)-[:HAS_TREE]->(tree:Tree {id: $treeId})
+                WITH userExist, count(tree) > 0 AS treeExist, tree
                 
                 OPTIONAL MATCH (tree)-[:HAS_PERSON]->(person:Person {id: $personId})
                 RETURN userExist, treeExist, tree, count(person) > 0 AS personExist, person
@@ -158,32 +168,37 @@ public interface PersonRepository extends Neo4jRepository<Person, String> {
     Optional<PersonResponse> findByTreeIdAndId(@Param("treeId") String treeId, @Param("personId") String personId);
 
     @Query(value = """
-            MATCH (t:Tree)-[:HAS_PERSON]->(p:Person)
-            WHERE t.id = $treeId
-            AND (toLower(p.firstname) CONTAINS toLower($firstname) OR $firstname = '')
-            AND (toLower(p.lastname) CONTAINS toLower($lastname) OR $lastname = '')
-            AND (p.gender = $gender OR $gender = '')
-            WITH p
-            OPTIONAL MATCH (p)<-[:HAS_PARTICIPANT]-(birthEvent:Event {type: 'BIRTH'})
-            OPTIONAL MATCH (p)<-[:HAS_PARTICIPANT]-(christeningEvent:Event {type: 'CHRISTENING'})
-            OPTIONAL MATCH (p)<-[:HAS_PARTICIPANT]-(deathEvent:Event {type: 'DEATH'})
-            OPTIONAL MATCH (p)<-[:HAS_PARTICIPANT]-(burialEvent:Event {type: 'BURIAL'})
-            RETURN p.id AS id,
-                   p.firstname AS firstname,
-                   p.lastname AS lastname,
-                   COALESCE(birthEvent.date, christeningEvent.date) AS birthdate,
-                   COALESCE(deathEvent.date, burialEvent.date) AS deathdate,
-                   p.gender AS gender
-            :#{orderBy(#pageable)}
-            SKIP $skip
-            LIMIT $limit
+                MATCH (user:GraphUser {id: $userId})-[:HAS_TREE]->(tree:Tree {id: $treeId})
+                OPTIONAL MATCH (tree)-[:HAS_PERSON]->(person:Person)
+                WHERE
+                    ($firstname = "" OR toLower(person.firstname) CONTAINS toLower($firstname))
+                    AND ($lastname = "" OR toLower(person.lastname) CONTAINS toLower($lastname))
+                    AND ($gender = "" OR person.gender = $gender)
+                OPTIONAL MATCH (person)<-[:HAS_PARTICIPANT]-(birthEvent:Event {type: "BIRTH"})
+                OPTIONAL MATCH (person)<-[:HAS_PARTICIPANT]-(christeningEvent:Event {type: "CHRISTENING"})
+                OPTIONAL MATCH (person)<-[:HAS_PARTICIPANT]-(deathEvent:Event {type: "DEATH"})
+                OPTIONAL MATCH (person)<-[:HAS_PARTICIPANT]-(burialEvent:Event {type: "BURIAL"})
+                WITH person, birthEvent, christeningEvent, deathEvent, burialEvent
+                WHERE person IS NOT NULL
+                RETURN person.id AS id,
+                       person.firstname AS firstname,
+                       person.lastname AS lastname,
+                       COALESCE(birthEvent.date, christeningEvent.date) AS birthdate,
+                       COALESCE(deathEvent.date, burialEvent.date) AS deathdate,
+                       person.gender AS gender
+                :#{orderBy(#pageable)}
+                SKIP $skip LIMIT $limit
             """,
             countQuery = """
-                        MATCH (t:Tree)-[:HAS_PERSON]->(p:Person)
-                        WHERE t.id = $treeId
-                        RETURN count(p)
+                        MATCH (user:GraphUser {id: $userId})-[:HAS_TREE]->(tree:Tree {id: $treeId})-[:HAS_PERSON]->(person:Person)
+                        WHERE
+                            ($firstname = "" OR toLower(person.firstname) CONTAINS toLower($firstname))
+                            AND ($lastname = "" OR toLower(person.lastname) CONTAINS toLower($lastname))
+                            AND ($gender = "" OR person.gender = $gender)
+                        RETURN count(person) AS count
                     """)
-    Page<PersonResponse> findByTreeIdAndFilteredFirstnameLastnameAndGender(@Param("treeId") String treeId, String firstname, String lastname, String gender, Pageable pageable);
+    Page<PersonResponse> find(String userId, String treeId, String firstname, String lastname, String gender, Pageable pageable);
+
 
     @Query(value = """
             MATCH (f:Family)

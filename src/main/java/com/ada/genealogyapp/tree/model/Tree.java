@@ -30,8 +30,6 @@ public class Tree {
     @GeneratedValue(UUIDStringGenerator.class)
     private String id;
 
-//    private Long userId;
-
     private String name;
 
     @Relationship(type = "HAS_FAMILY", direction = Relationship.Direction.OUTGOING)
@@ -56,7 +54,6 @@ public class Tree {
     private GraphUser graphUser;
 
     public Tree(String name, Set<Family> families, Set<Person> persons, Set<Event> events, Set<Citation> citations, Set<Source> sources, Set<File> files) {
-//        this.userId = userId;
         this.name = name;
         this.families = families;
         this.persons = persons;

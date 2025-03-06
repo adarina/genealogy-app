@@ -2,7 +2,7 @@ package com.ada.genealogyapp.family.service;
 
 import com.ada.genealogyapp.family.dto.*;
 import com.ada.genealogyapp.exceptions.NodeNotFoundException;
-import com.ada.genealogyapp.family.repostitory.FamilyRepository;
+import com.ada.genealogyapp.family.repository.FamilyRepository;
 import com.ada.genealogyapp.family.type.StatusType;
 import com.ada.genealogyapp.tree.service.TreeService;
 import com.fasterxml.jackson.core.JsonProcessingException;

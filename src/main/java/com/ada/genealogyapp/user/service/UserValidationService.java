@@ -3,6 +3,7 @@ package com.ada.genealogyapp.user.service;
 import com.ada.genealogyapp.exceptions.UserValidationException;
 import com.ada.genealogyapp.user.model.User;
 import com.ada.genealogyapp.user.validation.*;
+import com.ada.genealogyapp.validation.ValidationResult;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 

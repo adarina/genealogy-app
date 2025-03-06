@@ -1,7 +1,7 @@
 package com.ada.genealogyapp.person.validation;
 
 import com.ada.genealogyapp.person.model.Person;
-import com.ada.genealogyapp.user.validation.ValidationResult;
+import com.ada.genealogyapp.validation.ValidationResult;
 
 import static java.util.Objects.nonNull;
 

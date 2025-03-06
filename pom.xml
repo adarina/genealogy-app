@@ -169,6 +169,12 @@
             <artifactId>apoc</artifactId>
             <version>4.4.0.35</version>
         </dependency>
+        <!-- https://mvnrepository.com/artifact/io.vavr/vavr -->
+        <dependency>
+            <groupId>io.vavr</groupId>
+            <artifactId>vavr</artifactId>
+            <version>0.10.4</version>
+        </dependency>
 
 
 

@@ -1,6 +1,5 @@
-package com.ada.genealogyapp;
+package com.ada.genealogyapp.validation;
 
-import com.ada.genealogyapp.user.validation.ValidationResult;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 

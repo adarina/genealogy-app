@@ -4,7 +4,7 @@ import com.ada.genealogyapp.citation.model.Citation;
 import com.ada.genealogyapp.citation.validation.CitationValidator;
 import com.ada.genealogyapp.citation.validation.PageCitationValidator;
 import com.ada.genealogyapp.exceptions.ValidationException;
-import com.ada.genealogyapp.user.validation.ValidationResult;
+import com.ada.genealogyapp.validation.ValidationResult;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
