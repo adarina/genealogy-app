@@ -86,7 +86,6 @@ public class EventCreationService {
 
         eventValidationService.validateEvent(event);
         eventService.saveEvent(userId, tree.getId(), event);
-
         return event;
     }
 }
