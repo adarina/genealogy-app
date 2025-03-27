@@ -6,8 +6,6 @@ public interface EventService {
 
     void saveEvent(SaveEventParams params);
 
-    void saveEventWithParticipant(SaveEventWithParticipantParams params);
-
     void deleteEvent(DeleteEventParams params);
 
     void updateEvent(UpdateEventParams params);

@@ -6,7 +6,6 @@ import com.ada.genealogyapp.event.type.EventType;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 
-import java.time.LocalDate;
 
 
 

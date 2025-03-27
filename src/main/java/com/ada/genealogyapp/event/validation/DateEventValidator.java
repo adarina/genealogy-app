@@ -1,6 +1,5 @@
 package com.ada.genealogyapp.event.validation;
 
-import com.ada.genealogyapp.citation.model.Citation;
 import com.ada.genealogyapp.event.model.Event;
 import com.ada.genealogyapp.validation.model.Validator;
 import com.ada.genealogyapp.validation.result.ValidationResult;

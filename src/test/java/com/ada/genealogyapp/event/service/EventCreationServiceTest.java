@@ -1,7 +1,7 @@
 package com.ada.genealogyapp.event.service;
 
 import com.ada.genealogyapp.event.dto.EventRequest;
-import com.ada.genealogyapp.event.model.Event;
+
 import com.ada.genealogyapp.event.type.EventType;
 import com.ada.genealogyapp.tree.model.Tree;
 import org.junit.jupiter.api.Test;
@@ -11,11 +11,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-
-
-import static org.mockito.Mockito.*;
 
 
 @ExtendWith(MockitoExtension.class)

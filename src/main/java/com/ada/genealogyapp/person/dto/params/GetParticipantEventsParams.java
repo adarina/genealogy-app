@@ -1,6 +1,6 @@
 package com.ada.genealogyapp.person.dto.params;
 
-import com.ada.genealogyapp.participant.dto.BaseParticipantParams;
+
 import com.ada.genealogyapp.participant.dto.GetParticipantParams;
 import lombok.Data;
 import lombok.EqualsAndHashCode;

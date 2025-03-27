@@ -1,6 +1,5 @@
 package com.ada.genealogyapp.gedcom.dto;
 
-import com.ada.genealogyapp.gedcom.dto.MediaRef;
 import lombok.Getter;
 import lombok.Setter;
 
