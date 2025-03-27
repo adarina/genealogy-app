@@ -1,54 +1,42 @@
 package com.ada.genealogyapp.family.service;
 
-import com.ada.genealogyapp.exceptions.NodeNotFoundException;
-import com.ada.genealogyapp.family.dto.FamilyResponse;
+import com.ada.genealogyapp.family.dto.FamiliesResponse;
 import com.ada.genealogyapp.family.dto.FamilyFilterRequest;
+import com.ada.genealogyapp.family.dto.FamilyResponse;
+import com.ada.genealogyapp.family.dto.params.GetFamiliesParams;
+import com.ada.genealogyapp.family.dto.params.GetFamilyParams;
 import com.ada.genealogyapp.family.repository.FamilyRepository;
 import com.ada.genealogyapp.tree.service.TreeService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
 
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class FamilyViewService {
 
+    private final ObjectMapper objectMapper;
+
+    private final TreeService treeService;
 
     private final FamilyRepository familyRepository;
-    private final ObjectMapper objectMapper;
-    private final TreeService treeService;
-    private final FamilyService familyService;
 
-    public FamilyViewService(FamilyRepository familyRepository, ObjectMapper objectMapper, TreeService treeService, FamilyService familyService) {
-        this.familyRepository = familyRepository;
-        this.objectMapper = objectMapper;
-        this.treeService = treeService;
-        this.familyService = familyService;
+
+    public Page<FamiliesResponse> getFamilies(GetFamiliesParams params) throws JsonProcessingException {
+        FamilyFilterRequest filterRequest = objectMapper.readValue(params.getFilter(), FamilyFilterRequest.class);
+        Page<FamiliesResponse> page = familyRepository.find(params.getUserId(), params.getTreeId(), filterRequest.getFatherName(), filterRequest.getMotherName(), filterRequest.getStatus(), params.getPageable());
+        treeService.ensureUserAndTreeExist(params, page);
+        return page;
     }
 
-    public Page<FamilyResponse> getFamilies(String treeId, String filter, Pageable pageable) throws JsonProcessingException {
-        treeService.ensureTreeExists(treeId);
-        FamilyFilterRequest filterRequest = objectMapper.readValue(filter, FamilyFilterRequest.class);
-
-        return familyRepository.findByTreeIdAndFilteredParentNamesAndStatus(
-                treeId,
-                Optional.ofNullable(filterRequest.getMotherName()).orElse(""),
-                Optional.ofNullable(filterRequest.getFatherName()).orElse(""),
-                Optional.ofNullable(filterRequest.getStatus()).orElse(""),
-                pageable
-        );
-    }
-
-    public FamilyResponse getFamily(String treeId, String familyId) {
-        treeService.ensureTreeExists(treeId);
-        familyService.ensureFamilyExists(familyId);
-
-        return familyRepository.findByTreeIdAndFamilyId(treeId, familyId)
-                .orElseThrow(() -> new NodeNotFoundException("Family " + familyId.toString() + " not found for tree " + treeId.toString()));
+    public FamilyResponse getFamily(GetFamilyParams params) {
+        FamilyResponse familyResponse = familyRepository.find(params.getUserId(), params.getTreeId(), params.getFamilyId());
+        treeService.ensureUserAndTreeExist(params, familyResponse);
+        return familyResponse;
     }
 }

@@ -21,7 +21,6 @@ import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
 
 
@@ -72,8 +71,6 @@ class UserAuthenticationIntegrationTest extends IntegrationTestConfig {
                         .content(objectMapper.writeValueAsString(userLoginRequest)))
                 .andDo(print())
                 .andExpect(status().isOk());
-//                .andExpect(jsonPath("$.username").value("john.smith@email.com"))
-//                .andExpect(jsonPath("$.accessToken").isNotEmpty());
     }
 
     @Test

@@ -1,9 +1,10 @@
 package com.ada.genealogyapp.family.service;
 
 import com.ada.genealogyapp.family.dto.FamilyRequest;
+import com.ada.genealogyapp.family.dto.params.CreateFamilyRequestParams;
+import com.ada.genealogyapp.family.dto.params.SaveFamilyParams;
 import com.ada.genealogyapp.family.model.Family;
 import com.ada.genealogyapp.family.type.StatusType;
-import com.ada.genealogyapp.tree.model.Tree;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -32,37 +33,29 @@ class FamilyCreationServiceTest {
     private FamilyCreationService familyCreationService;
 
     @Test
-    void createFamily_shouldValidateAndSaveFamily() {
+    void createFamily_shouldBuildValidateAndSaveFamily() {
         String userId = "user123";
         String treeId = "tree123";
-        FamilyRequest familyRequest = new FamilyRequest();
-        familyRequest.setStatus(StatusType.MARRIED);
+        FamilyRequest familyRequest = FamilyRequest.builder()
+                .status(StatusType.MARRIED)
+                .build();
 
+        CreateFamilyRequestParams createParams = CreateFamilyRequestParams.builder()
+                .userId(userId)
+                .treeId(treeId)
+                .familyRequest(familyRequest)
+                .build();
 
-        Family createdFamily = familyCreationService.createFamily(userId, treeId, familyRequest);
+        doNothing().when(familyValidationService).validateFamily(any(Family.class));
+        doNothing().when(familyService).saveFamily(any(SaveFamilyParams.class));
+
+        Family createdFamily = familyCreationService.createFamily(createParams);
 
         assertNotNull(createdFamily);
         assertEquals(StatusType.MARRIED, createdFamily.getStatus());
         assertEquals("null & null", createdFamily.getName());
 
-        verify(familyValidationService).validateFamily(createdFamily);
-        verify(familyService).saveFamily(userId, treeId, createdFamily);
-    }
-
-    @Test
-    void createFamily_withTreeAndStatus_shouldValidateAndSaveFamily() {
-        String userId = "user123";
-        Tree tree = Tree.builder().id("tree123").build();
-        StatusType status = StatusType.UNKNOWN;
-
-
-        Family createdFamily = familyCreationService.createFamily(userId, tree, status);
-
-        assertNotNull(createdFamily);
-        assertEquals(status, createdFamily.getStatus());
-        assertEquals("null & null", createdFamily.getName());
-
-        verify(familyValidationService).validateFamily(createdFamily);
-        verify(familyService).saveFamily(userId, tree.getId(), createdFamily);
+        verify(familyValidationService).validateFamily(any(Family.class));
+        verify(familyService).saveFamily(any(SaveFamilyParams.class));
     }
 }

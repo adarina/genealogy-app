@@ -2,26 +2,23 @@ package com.ada.genealogyapp.family.validation;
 
 
 import com.ada.genealogyapp.family.model.Family;
-import com.ada.genealogyapp.validation.ValidationResult;
-import com.ada.genealogyapp.validation.FieldValidator;
-import com.ada.genealogyapp.validation.ValidatorFactory;
+import com.ada.genealogyapp.validation.model.Validator;
+import com.ada.genealogyapp.validation.result.ValidationResult;
+import com.ada.genealogyapp.validation.service.FieldValidationService;
+import com.ada.genealogyapp.validation.type.FieldType;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 
 @Slf4j
-public class StatusFamilyValidator extends FamilyValidator {
+@RequiredArgsConstructor
+public class StatusFamilyValidator extends Validator<Family> {
 
-    private static final FieldValidator<String> STATUS_VALIDATOR = ValidatorFactory.createStringValidator(
-            "status",
-            ".*",
-            true,
-            0,
-            300
-    );
+    private final FieldValidationService fieldValidationService;
 
     @Override
     public void check(Family family, ValidationResult result) {
-        STATUS_VALIDATOR.validate(family.getStatus().name(), result);
+        fieldValidationService.validate(FieldType.ENUM_STATUS_FIELD, family.getStatus(), result);
         checkNext(family, result);
     }
 }

@@ -1,13 +1,14 @@
 package com.ada.genealogyapp.event.service;
 
+import com.ada.genealogyapp.tree.dto.params.BaseParams;
 import com.ada.genealogyapp.event.dto.*;
-import com.ada.genealogyapp.event.type.EventParticipantRelationshipType;
-import com.ada.genealogyapp.event.type.EventType;
+import com.ada.genealogyapp.event.dto.params.GetEventParams;
+import com.ada.genealogyapp.event.dto.params.GetEventsParams;
 import com.ada.genealogyapp.exceptions.NodeNotFoundException;
+
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 import com.ada.genealogyapp.event.repository.EventRepository;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import com.ada.genealogyapp.tree.service.TreeService;
@@ -23,9 +24,6 @@ import static org.mockito.Mockito.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.ArrayList;
-import java.util.LinkedHashSet;
-import java.util.Optional;
-import java.util.UUID;
 
 
 @ExtendWith(MockitoExtension.class)
@@ -33,138 +31,179 @@ class EventViewServiceTest {
 
     @Mock
     TreeService treeService;
-
-    @Mock
-    EventService eventService;
-
     @Mock
     EventRepository eventRepository;
-
     @Mock
     ObjectMapper objectMapper;
-
     @InjectMocks
     EventViewService eventViewService;
 
-    String treeId;
-    String eventId;
-    Pageable pageable;
-    String filter;
-
-    @BeforeEach
-    void setUp() {
-
-        treeId = String.valueOf(UUID.randomUUID());
-        eventId = String.valueOf(UUID.randomUUID());
-        filter = "{\"description\":\"Baptism of John Smith\",\"participants\":\"John Smith\",\"type\":\"MARRIAGE\"}";
-        pageable = PageRequest.of(0, 10);
-    }
-
     @Test
     void getEvents_shouldReturnEventsWhenValidFilter() throws JsonProcessingException {
+        String userId = "user123";
+        String treeId = "tree123";
+        String filter = "{\"description\":\"Birth of John Smith\",\"participants\":\"John Smith\",\"type\":\"BIRTH\",\"place\":\"Poland\"}";
+        Pageable pageable = PageRequest.of(0, 10);
 
-        EventFilterRequest filterRequest = new EventFilterRequest("Baptism of John Smith", "John Smith", "MARRIAGE");
-        Page<EventPageResponse> expectedPage = new PageImpl<>(new ArrayList<>());
+        GetEventsParams params = GetEventsParams.builder()
+                .userId(userId)
+                .treeId(treeId)
+                .filter(filter)
+                .pageable(pageable)
+                .build();
+
+        EventFilterRequest filterRequest = EventFilterRequest.builder()
+                .description("Birth of John Smith")
+                .participants("John Smith")
+                .type("BIRTH")
+                .place("Poland")
+                .build();
+
+        Page<EventsResponse> expectedPage = new PageImpl<>(new ArrayList<>());
 
         when(objectMapper.readValue(filter, EventFilterRequest.class)).thenReturn(filterRequest);
-        when(eventRepository.findByTreeIdAndFilteredDescriptionParticipantNamesAndType(
-                treeId, "Baptism of John Smith", "John Smith", "MARRIAGE", pageable
-        )).thenReturn(expectedPage);
+        when(eventRepository.find(userId, treeId, "Birth of John Smith", "John Smith", "BIRTH", "Poland", pageable))
+                .thenReturn(expectedPage);
 
-        Page<EventPageResponse> result = eventViewService.getEvents(treeId, filter, pageable);
+        Page<EventsResponse> result = eventViewService.getEvents(params);
 
         assertNotNull(result);
         assertEquals(expectedPage, result);
-        verify(treeService).ensureTreeExists(treeId);
-        verify(objectMapper).readValue(filter, EventFilterRequest.class);
-        verify(eventRepository).findByTreeIdAndFilteredDescriptionParticipantNamesAndType(
-                treeId, "Baptism of John Smith", "John Smith", "MARRIAGE", pageable);
+
+        verify(objectMapper).readValue(eq(filter), eq(EventFilterRequest.class));
+        verify(treeService).ensureUserAndTreeExist(any(GetEventsParams.class), eq(expectedPage));
+
     }
 
     @Test
-    void getEvents_shouldThrowExceptionWhenTreeDoesNotExist() {
+    void getEvents_shouldThrowExceptionWhenUserDoesNotExist() throws JsonProcessingException {
+        String userId = "user123";
+        String treeId = "tree123";
+        String filter = "{\"description\":\"Birth of John Smith\",\"participants\":\"John Smith\",\"type\":\"BIRTH\",\"place\":\"Poland\"}";
+        Pageable pageable = PageRequest.of(0, 10);
 
-        doThrow(new NodeNotFoundException("Tree not found"))
-                .when(treeService).ensureTreeExists(treeId);
+        GetEventsParams params = GetEventsParams.builder()
+                .userId(userId)
+                .treeId(treeId)
+                .filter(filter)
+                .pageable(pageable)
+                .build();
 
-        NodeNotFoundException exception = assertThrows(NodeNotFoundException.class, () -> {
-            eventViewService.getEvents(treeId, filter, pageable);
-        });
+        EventFilterRequest filterRequest = EventFilterRequest.builder()
+                .description("Birth of John Smith")
+                .participants("John Smith")
+                .type("BIRTH")
+                .place("Poland")
+                .build();
 
-        assertEquals("Tree not found", exception.getMessage());
-        verify(treeService).ensureTreeExists(treeId);
-        verifyNoInteractions(objectMapper, eventRepository);
+        when(objectMapper.readValue(filter, EventFilterRequest.class)).thenReturn(filterRequest);
+        doThrow(new NodeNotFoundException("User not exist with ID: " + userId))
+                .when(treeService).ensureUserAndTreeExist(any(BaseParams.class), any());
+
+        NodeNotFoundException exception = assertThrows(NodeNotFoundException.class, () -> eventViewService.getEvents(params));
+
+        assertEquals("User not exist with ID: " + userId, exception.getMessage());
+        verify(treeService).ensureUserAndTreeExist(any(BaseParams.class), any());
+    }
+
+
+    @Test
+    void getEvents_shouldThrowExceptionWhenTreeDoesNotExist() throws JsonProcessingException {
+        String userId = "user123";
+        String treeId = "tree123";
+        String filter = "{\"description\":\"Birth of John Smith\",\"participants\":\"John Smith\",\"type\":\"BIRTH\",\"place\":\"Poland\"}";
+        Pageable pageable = PageRequest.of(0, 10);
+
+        GetEventsParams params = GetEventsParams.builder()
+                .userId(userId)
+                .treeId(treeId)
+                .filter(filter)
+                .pageable(pageable)
+                .build();
+
+        EventFilterRequest filterRequest = EventFilterRequest.builder()
+                .description("Birth of John Smith")
+                .participants("John Smith")
+                .type("BIRTH")
+                .place("Poland")
+                .build();
+
+        when(objectMapper.readValue(filter, EventFilterRequest.class)).thenReturn(filterRequest);
+
+        doThrow(new NodeNotFoundException("Tree not exist with ID: " + treeId))
+                .when(treeService).ensureUserAndTreeExist(any(BaseParams.class), any());
+
+        NodeNotFoundException exception = assertThrows(NodeNotFoundException.class, () -> eventViewService.getEvents(params));
+
+        assertEquals("Tree not exist with ID: " + treeId, exception.getMessage());
+        verify(treeService).ensureUserAndTreeExist(any(BaseParams.class), any());
     }
 
     @Test
-    void getEvent_shouldReturnEventWhenExists() {
+    void getEvent_shouldReturnEventWhenExist() {
+        String userId = "user123";
+        String treeId = "tree123";
+        String eventId = "event123";
 
-        String participantId = String.valueOf(UUID.randomUUID());
-        String citationId = String.valueOf(UUID.randomUUID());
+        GetEventParams params = GetEventParams.builder()
+                .userId(userId)
+                .treeId(treeId)
+                .eventId(eventId)
+                .build();
 
-        EventResponse expectedResponse = new EventResponse();
-        expectedResponse.setId(eventId);
-        expectedResponse.setType(EventType.MARRIAGE);
-        expectedResponse.setDescription("Marriage of John Smith & Elizabeth Black");
-        expectedResponse.setDate("2020-05-20");
-        expectedResponse.setPlace("Warsaw");
+        EventResponse expectedEvent = EventResponse.builder()
+                .id(eventId)
+                .build();
 
-        LinkedHashSet<EventParticipantResponse> participants = new LinkedHashSet<>();
-        participants.add(new EventParticipantResponse(participantId, "Ella Black", EventParticipantRelationshipType.PRIEST));
-        expectedResponse.setParticipants(participants);
+        when(eventRepository.find(userId, treeId, eventId))
+                .thenReturn(expectedEvent);
 
-        LinkedHashSet<EventCitationResponse> citations = new LinkedHashSet<>();
-        citations.add(new EventCitationResponse(citationId, "Birth certificate nr 4", "1980-05-20"));
-        expectedResponse.setCitations(citations);
-
-        doNothing().when(treeService).ensureTreeExists(treeId);
-        doNothing().when(eventService).ensureEventExists(eventId);
-        when(eventRepository.findByTreeIdAndEventId(treeId, eventId)).thenReturn(Optional.of(expectedResponse));
-
-        EventResponse result = eventViewService.getEvent(treeId, eventId);
+        EventResponse result = eventViewService.getEvent(params);
 
         assertNotNull(result);
-        assertEquals(expectedResponse.getId(), result.getId());
-        assertEquals(expectedResponse.getType(), result.getType());
-        assertEquals(expectedResponse.getDescription(), result.getDescription());
-        assertEquals(expectedResponse.getDate(), result.getDate());
-        assertEquals(expectedResponse.getPlace(), result.getPlace());
-        assertEquals(expectedResponse.getParticipants(), result.getParticipants());
-        assertEquals(expectedResponse.getCitations(), result.getCitations());
-        verify(treeService).ensureTreeExists(treeId);
-        verify(eventService).ensureEventExists(eventId);
-        verify(eventRepository).findByTreeIdAndEventId(treeId, eventId);
+        assertEquals(expectedEvent, result);
+        verify(treeService).ensureUserAndTreeExist(any(GetEventParams.class), eq(expectedEvent));
     }
 
     @Test
     void getEvent_shouldThrowExceptionWhenTreeDoesNotExist() {
+        String userId = "user123";
+        String treeId = "tree123";
+        String eventId = "event123";
 
-        doThrow(new NodeNotFoundException("Tree not found"))
-                .when(treeService).ensureTreeExists(treeId);
+        GetEventParams params = GetEventParams.builder()
+                .userId(userId)
+                .treeId(treeId)
+                .eventId(eventId)
+                .build();
 
-        NodeNotFoundException exception = assertThrows(NodeNotFoundException.class, () -> {
-            eventViewService.getEvent(treeId, eventId);
-        });
-        assertEquals("Tree not found", exception.getMessage());
-        verify(treeService).ensureTreeExists(treeId);
-        verifyNoInteractions(eventService, eventRepository);
+        doThrow(new NodeNotFoundException("Tree not exist with ID: " + treeId))
+                .when(treeService).ensureUserAndTreeExist(any(BaseParams.class), any());
+
+        NodeNotFoundException exception = assertThrows(NodeNotFoundException.class, () -> eventViewService.getEvent(params));
+
+        assertEquals("Tree not exist with ID: " + treeId, exception.getMessage());
+        verify(treeService).ensureUserAndTreeExist(any(BaseParams.class), any());
     }
 
     @Test
-    void getEvent_shouldThrowExceptionWhenEventDoesNotExist() {
+    void getEvent_shouldThrowExceptionWhenUserDoesNotExist() {
+        String userId = "user123";
+        String treeId = "tree123";
+        String eventId = "event123";
 
-        doNothing().when(treeService).ensureTreeExists(treeId);
-        doNothing().when(eventService).ensureEventExists(eventId);
-        when(eventRepository.findByTreeIdAndEventId(treeId, eventId))
-                .thenReturn(Optional.empty());
+        GetEventParams params = GetEventParams.builder()
+                .userId(userId)
+                .treeId(treeId)
+                .eventId(eventId)
+                .build();
 
-        NodeNotFoundException exception = assertThrows(NodeNotFoundException.class, () -> {
-            eventViewService.getEvent(treeId, eventId);
-        });
+        doThrow(new NodeNotFoundException("User not exist with ID: " + treeId))
+                .when(treeService).ensureUserAndTreeExist(any(BaseParams.class), any());
 
-        assertEquals("Event " + eventId + " not found for tree " + treeId, exception.getMessage());
-        verify(treeService).ensureTreeExists(treeId);
-        verify(eventService).ensureEventExists(eventId);
-        verify(eventRepository).findByTreeIdAndEventId(treeId, eventId);
+        NodeNotFoundException exception = assertThrows(NodeNotFoundException.class, () -> eventViewService.getEvent(params));
+
+        assertEquals("User not exist with ID: " + treeId, exception.getMessage());
+        verify(treeService).ensureUserAndTreeExist(any(BaseParams.class), any());
     }
 }

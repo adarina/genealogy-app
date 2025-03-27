@@ -5,6 +5,7 @@ import com.ada.genealogyapp.exceptions.UserAlreadyExistsException;
 import com.ada.genealogyapp.user.dto.UsersResponse;
 import com.ada.genealogyapp.user.model.User;
 import com.ada.genealogyapp.user.repository.UserRepository;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -13,13 +14,10 @@ import java.util.Optional;
 
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class UserSearchService {
 
     private final UserRepository userRepository;
-
-    public UserSearchService(UserRepository userRepository) {
-        this.userRepository = userRepository;
-    }
 
 
     public Optional<User> findUserById(Long id) {

@@ -6,14 +6,13 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.neo4j.repository.Neo4jRepository;
 import org.springframework.data.neo4j.repository.query.Query;
-import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import java.util.Optional;
+import java.util.List;
+
 
 @Repository
 public interface FamilyRepository extends Neo4jRepository<Family, String> {
-
 
     @Query("""
             CALL {
@@ -106,33 +105,6 @@ public interface FamilyRepository extends Neo4jRepository<Family, String> {
             LIMIT 1
             """)
     String update(String userId, String treeId, String familyId, String status);
-
-    @Query("""
-            CALL {
-                OPTIONAL MATCH (user:GraphUser {id: $userId})
-                WITH count(user) > 0 AS userExist
-                
-                OPTIONAL MATCH (user)-[:HAS_TREE]->(tree:Tree {id: $treeId})
-                WITH userExist, count(tree) > 0 AS treeExist, tree
-                
-                OPTIONAL MATCH (tree)-[:HAS_FAMILY]->(family:Family {id: $familyId})
-                RETURN userExist, treeExist, tree, count(family) > 0 AS familyExist, family
-            }
-                        
-            CALL apoc.do.case(
-                [
-                    userExist AND treeExist AND familyExist, '
-                        RETURN "FAMILY_FOUND" AS message, family
-                    ',
-                    userExist AND treeExist, 'RETURN "FAMILY_NOT_EXIST" AS message',
-                    treeExist, 'RETURN "TREE_NOT_EXIST" AS message'
-                ],
-                'RETURN "USER_NOT_EXIST" AS message',
-                {family: family}
-            ) YIELD value
-            RETURN value.message AS message, value.family AS family
-            """)
-    FamilyFindResponse findByTreeIdAndId(String userId, String treeId, String familyId);
 
     @Query("""
             CALL {
@@ -358,7 +330,7 @@ public interface FamilyRepository extends Neo4jRepository<Family, String> {
             RETURN value.message
             LIMIT 1
             """)
-    String removeMother(String userId, String treeId, String familyId, String fatherId);
+    String removeMother(String userId, String treeId, String familyId, String motherId);
 
     @Query("""
             CALL {
@@ -445,84 +417,115 @@ public interface FamilyRepository extends Neo4jRepository<Family, String> {
             """)
     String updateChild(String userId, String treeId, String familyId, String childId, String fatherRelationshipType, String motherRelationshipType);
 
-
     @Query(value = """
-            MATCH (t:Tree)-[:HAS_FAMILY]->(f:Family)
-            WHERE t.id = $treeId
-            AND ($status = '' OR f.status = toUpper($status))
-            OPTIONAL MATCH (f)-[:HAS_MOTHER]->(p1:Person)
-            WITH f, COALESCE(p1.name, '') AS motherName, p1.birthdate AS motherBirthdate, p1.id AS motherId
-            WHERE toLower(motherName) CONTAINS toLower($motherName)
-            OPTIONAL MATCH (f)-[:HAS_FATHER]->(p2:Person)
-            WITH f, motherBirthdate, motherName, motherId, COALESCE(p2.name, '') AS fatherName, p2.birthdate AS fatherBirthdate, p2.id AS fatherId
+            MATCH (user:GraphUser {id: $userId})-[:HAS_TREE]->(tree:Tree {id: $treeId})
+                        
+            OPTIONAL MATCH (tree)-[:HAS_FAMILY]->(family:Family)
+            WHERE toUpper(family.status) = toUpper($status) OR $status = ''
+            WITH family
+                        
+            OPTIONAL MATCH (family)-[:HAS_FATHER]->(father:Person)
+            WITH family, COALESCE(father.name, '') AS fatherName, father.id AS fatherId
             WHERE toLower(fatherName) CONTAINS toLower($fatherName)
-            RETURN f.id AS id,
-                   f.status AS status,
+                        
+            OPTIONAL MATCH (family)-[:HAS_MOTHER]->(mother:Person)
+            WITH family, fatherName, fatherId, COALESCE(mother.name, '') AS motherName, mother.id AS motherId
+            WHERE toLower(motherName) CONTAINS toLower($motherName)
+                        
+            OPTIONAL MATCH (family)<-[:HAS_PARTICIPANT]-(marriageEvent:Event {type: 'MARRIAGE'})
+                        
+            RETURN family.id AS id,
+                   family.status AS status,
                    motherName,
                    fatherName,
                    motherId,
                    fatherId,
-                   motherBirthdate,
-                   fatherBirthdate
-            :#{orderBy(#pageable)}
-            SKIP $skip
-            LIMIT $limit
-            """,
-            countQuery = """
-                    MATCH (t:Tree)-[:HAS_FAMILY]->(f:Family)
-                    WHERE t.id = $treeId
-                    RETURN count(f)
-                    """)
-    Page<FamilyResponse> findByTreeIdAndFilteredParentNamesAndStatus(@Param("treeId") String treeId, String motherName, String fatherName, String status, Pageable pageable);
-
-    @Query(value = """
-            MATCH (f:Family)-[:HAS_CHILD]->(child:Person)
-            WHERE f.id = $familyId
-            WITH f, child
-            OPTIONAL MATCH (f)-[:HAS_FATHER]->(father:Person)
-            OPTIONAL MATCH (f)-[:HAS_MOTHER]->(mother:Person)
-            OPTIONAL MATCH (father)-[r1:PARENT_OF]->(child)
-            OPTIONAL MATCH (mother)-[r2:PARENT_OF]->(child)
-            WITH child, father, mother, r1, r2
-            RETURN child.id AS id,
-                   child.name AS name,
-                   child.birthdate AS birthdate,
-                   child.gender AS gender,
-                   CASE
-                       WHEN r1.relationship IS NOT NULL THEN r1.relationship
-                       ELSE null
-                   END AS fatherRelationship,
-                   CASE
-                       WHEN r2.relationship IS NOT NULL THEN r2.relationship
-                       ELSE null
-                   END AS motherRelationship
+                   marriageEvent.date AS marriageDate
                    :#{orderBy(#pageable)}
                    SKIP $skip
                    LIMIT $limit
             """,
             countQuery = """
-                        MATCH (f:Family)-[:HAS_CHILD]->(child:Person)
-                        WHERE f.id = $familyId
-                        RETURN count(child)
+                        MATCH (user:GraphUser {id: $userId})-[:HAS_TREE]->(tree:Tree {id: $treeId})-[:HAS_FAMILY]->(family:Family)
+                        WHERE (toUpper(family.status) CONTAINS toUpper($status) OR $status = '')
+                        OPTIONAL MATCH (family)-[:HAS_FATHER]->(father:Person)
+                        WHERE toLower(father.name) CONTAINS toLower($fatherName) OR $fatherName = ''
+                        OPTIONAL MATCH (family)-[:HAS_MOTHER]->(mother:Person)
+                        WHERE toLower(mother.name) CONTAINS toLower($motherName) OR $motherName = ''
+                        RETURN count(family)
                     """)
-    Page<FamilyChildResponse> findChildren(@Param("familyId") String familyId, Pageable pageable);
+    Page<FamiliesResponse> find(String userId, String treeId, String fatherName, String motherName, String status, Pageable pageable);
 
     @Query("""
-                MATCH (f:Family {id: $familyId})
-                MATCH (t:Tree {id: $treeId})
-                MERGE (t)-[:HAS_FAMILY]->(f)
-                WITH f
-                OPTIONAL MATCH (f)-[:HAS_FATHER]->(father:Person)
-                OPTIONAL MATCH (f)-[:HAS_MOTHER]->(mother:Person)
-                WITH f, father, mother
-                RETURN f.id AS id,
-                       f.status AS status,
-                       father.id AS fatherId,
-                       mother.id AS motherId,
-                       father.name AS fatherName,
-                       mother.name AS motherName,
-                       father.birthdate AS fatherBirthdate,
-                       mother.birthdate AS motherBirthdate
+            MATCH (user:GraphUser {id: $userId})-[:HAS_TREE]->(tree:Tree {id: $treeId})-[:HAS_FAMILY]->(family:Family {id: $familyId})
+            WITH family
+                        
+            OPTIONAL MATCH (family)-[:HAS_FATHER]->(father:Person)
+            WITH family, father, COALESCE(father.name, '') AS fatherName, father.id AS fatherId
+                        
+            OPTIONAL MATCH (family)-[:HAS_MOTHER]->(mother:Person)
+            WITH family, father, fatherName, fatherId, mother, COALESCE(mother.name, '') AS motherName, mother.id AS motherId
+                        
+            OPTIONAL MATCH (family)<-[:HAS_PARTICIPANT]-(marriageEvent:Event {type: 'MARRIAGE'})
+            WITH family, father, fatherName, fatherId, mother, motherName, motherId, marriageEvent.date AS marriageDate
+                        
+            OPTIONAL MATCH (mother)<-[:HAS_PARTICIPANT]-(motherBirthEvent:Event {type: 'BIRTH'})
+            OPTIONAL MATCH (mother)<-[:HAS_PARTICIPANT]-(motherChristeningEvent:Event {type: 'CHRISTENING'})
+            OPTIONAL MATCH (mother)<-[:HAS_PARTICIPANT]-(motherDeathEvent:Event {type: 'DEATH'})
+            OPTIONAL MATCH (mother)<-[:HAS_PARTICIPANT]-(motherBurialEvent:Event {type: 'BURIAL'})
+            OPTIONAL MATCH (father)<-[:HAS_PARTICIPANT]-(fatherBirthEvent:Event {type: 'BIRTH'})
+            OPTIONAL MATCH (father)<-[:HAS_PARTICIPANT]-(fatherChristeningEvent:Event {type: 'CHRISTENING'})
+            OPTIONAL MATCH (father)<-[:HAS_PARTICIPANT]-(fatherDeathEvent:Event {type: 'DEATH'})
+            OPTIONAL MATCH (father)<-[:HAS_PARTICIPANT]-(fatherBurialEvent:Event {type: 'BURIAL'})
+                        
+            RETURN family.id AS id,
+                family.status AS status,
+                fatherName,
+                motherName,
+                fatherId,
+                motherId,
+                COALESCE(fatherBirthEvent.date, fatherChristeningEvent.date) AS fatherBirthdate,
+                COALESCE(fatherDeathEvent.date, fatherBurialEvent.date) AS fatherDeathdate,
+                COALESCE(motherBirthEvent.date, motherChristeningEvent.date) AS motherBirthdate,
+                COALESCE(motherDeathEvent.date, motherBurialEvent.date) AS motherDeathdate,
+                marriageDate
             """)
-    Optional<FamilyResponse> findByTreeIdAndFamilyId(@Param("treeId") String treeId, @Param("familyId") String familyId);
+    FamilyResponse find(String userId, String treeId, String familyId);
+
+    @Query(value = """
+            MATCH (user:GraphUser {id: $userId})-[:HAS_TREE]->(tree:Tree {id: $treeId})-[:HAS_FAMILY]->(family:Family {id: $familyId})
+            MATCH (family)-[:HAS_CHILD]->(child:Person)
+            
+            OPTIONAL MATCH (family)-[:HAS_FATHER]->(father:Person)
+            OPTIONAL MATCH (family)-[:HAS_MOTHER]->(mother:Person)
+            OPTIONAL MATCH (father)-[rel1:PARENT_OF]->(child)
+            OPTIONAL MATCH (mother)-[rel2:PARENT_OF]->(child)
+            
+            OPTIONAL MATCH (child)<-[:HAS_PARTICIPANT]-(birthEvent:Event {type: 'BIRTH'})
+            OPTIONAL MATCH (child)<-[:HAS_PARTICIPANT]-(christeningEvent:Event {type: 'CHRISTENING'})
+            OPTIONAL MATCH (child)<-[:HAS_PARTICIPANT]-(deathEvent:Event {type: 'DEATH'})
+            OPTIONAL MATCH (child)<-[:HAS_PARTICIPANT]-(burialEvent:Event {type: 'BURIAL'})
+                        
+            RETURN child.id AS id,
+                   child.name AS name,
+                   child.firstname AS firstname,
+                   child.lastname AS lastname,
+                   child.gender AS gender,
+                   COALESCE(rel1.relationship, null) AS fatherRelationship,
+                   COALESCE(rel2.relationship, null) AS motherRelationship,
+                   COALESCE(birthEvent.date, christeningEvent.date) AS birthdate,
+                   COALESCE(deathEvent.date, burialEvent.date) AS deathdate
+                   :#{orderBy(#pageable)}
+                   SKIP $skip
+                   LIMIT $limit
+            """,
+            countQuery = """
+                        MATCH (user:GraphUser {id: $userId})-[:HAS_TREE]->(tree:Tree {id: $treeId})-[:HAS_FAMILY]->(family:Family {id: $familyId})
+                        OPTIONAL MATCH (family)-[:HAS_CHILD]->(child:Person)
+                        RETURN count(child)
+                    """)
+    Page<FamilyChildResponse> findChildren(String userId, String treeId, String familyId, Pageable pageable);
+
+    @Query("MATCH (f:Family) RETURN f")
+    List<Family> findAllFamilies();
 }

@@ -1,32 +1,15 @@
 package com.ada.genealogyapp.family.dto;
 
-import com.ada.genealogyapp.family.type.StatusType;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
+import lombok.experimental.SuperBuilder;
 
-import java.time.LocalDate;
-
-@Getter
-@Setter
-@AllArgsConstructor
+@Data
+@SuperBuilder
 @NoArgsConstructor
-public class FamilyResponse {
-
-    private String id;
-
-    private StatusType status;
-
-    private String motherName;
-
-    private String fatherName;
-
-    private LocalDate fatherBirthdate;
-
-    private LocalDate motherBirthdate;
-
-    private String motherId;
-
-    private String fatherId;
+@EqualsAndHashCode(callSuper = false)
+public class FamilyResponse extends FamiliesResponse {
+    private String fatherBirthdate;
+    private String fatherDeathdate;
+    private String motherBirthdate;
+    private String motherDeathdate;
 }

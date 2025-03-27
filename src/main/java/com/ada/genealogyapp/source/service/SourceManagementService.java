@@ -1,35 +1,40 @@
 package com.ada.genealogyapp.source.service;
 
-
-import com.ada.genealogyapp.source.dto.SourceRequest;
+import com.ada.genealogyapp.source.dto.params.DeleteSourceParams;
+import com.ada.genealogyapp.source.dto.params.UpdateSourceParams;
+import com.ada.genealogyapp.source.dto.params.UpdateSourceRequestParams;
 import com.ada.genealogyapp.source.model.Source;
-import com.ada.genealogyapp.tree.service.TransactionalInNeo4j;
-import com.ada.genealogyapp.tree.service.TreeService;
+import com.ada.genealogyapp.transaction.TransactionalInNeo4j;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class SourceManagementService {
-
 
     private final SourceService sourceService;
 
-
-    public SourceManagementService(SourceService sourceService) {
-        this.sourceService = sourceService;
-    }
-
+    private final SourceValidationService sourceValidationService;
 
     @TransactionalInNeo4j
-    public void updateSource(String userId, String treeId, String sourceId, SourceRequest sourceRequest) {
+    public void updateSource(UpdateSourceRequestParams params) {
         Source source = Source.builder()
-                .name(sourceRequest.getName())
+                .name(params.getSourceRequest().getName())
                 .build();
 
-        //TODO validation
-        sourceService.updateSource(userId, treeId, sourceId, source);
+        sourceValidationService.validateSource(source);
+        sourceService.updateSource(UpdateSourceParams.builder()
+                .userId(params.getUserId())
+                .treeId(params.getTreeId())
+                .sourceId(params.getSourceId())
+                .source(source)
+                .build());
     }
 
-    //TODO deletion
+    @TransactionalInNeo4j
+    public void deleteSource(DeleteSourceParams params) {
+        sourceService.deleteSource(params);
+    }
 }

@@ -1,29 +1,23 @@
 package com.ada.genealogyapp.user.validation;
 
+import com.ada.genealogyapp.exceptions.ValidationException;
 import com.ada.genealogyapp.user.model.User;
-import com.ada.genealogyapp.validation.ValidationResult;
-import org.junit.jupiter.api.BeforeEach;
+import com.ada.genealogyapp.user.service.UserValidationService;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
-public class UserValidatorTest {
+@ExtendWith(MockitoExtension.class)
+class UserValidatorTest {
 
-    private UserValidator userValidator;
+    @InjectMocks
+    UserValidationService userValidationService;
 
-    @BeforeEach
-    void setUp() {
-        userValidator = UserValidator.link(
-                new FirstnameUserValidator(),
-                new LastnameUserValidator(),
-                new UsernameUserValidator(),
-                new PhoneUserValidator(),
-                new PasswordUserValidator()
-        );
-    }
 
-    private User createUser() {
+    User createUser() {
         User user = new User();
         user.setFirstname("John");
         user.setLastname("Smith");
@@ -35,13 +29,15 @@ public class UserValidatorTest {
 
     @Test
     void shouldFailWhenFirstnameIsNull() {
+
         User user = createUser();
         user.setFirstname(null);
 
-        ValidationResult validationResult = new ValidationResult();
-        userValidator.check(user, validationResult);
-
-        assertFalse(validationResult.getErrors().isEmpty());
+        ValidationException exception = assertThrows(
+                ValidationException.class,
+                () -> userValidationService.validateUser(user)
+        );
+        assertTrue(exception.getMessage().contains("Value is null"));
     }
 
     @Test
@@ -49,10 +45,11 @@ public class UserValidatorTest {
         User user = createUser();
         user.setFirstname("");
 
-        ValidationResult validationResult = new ValidationResult();
-        userValidator.check(user, validationResult);
-
-        assertFalse(validationResult.getErrors().isEmpty());
+        ValidationException exception = assertThrows(
+                ValidationException.class,
+                () -> userValidationService.validateUser(user)
+        );
+        assertTrue(exception.getMessage().contains("Value is blank"));
     }
 
     @Test
@@ -60,21 +57,11 @@ public class UserValidatorTest {
         User user = createUser();
         user.setFirstname(" ");
 
-        ValidationResult validationResult = new ValidationResult();
-        userValidator.check(user, validationResult);
-
-        assertFalse(validationResult.getErrors().isEmpty());
-    }
-
-    @Test
-    void shouldFailWhenFirstnameHasInvalidFormat() {
-        User user = createUser();
-        user.setFirstname("Marek$");
-
-        ValidationResult validationResult = new ValidationResult();
-        userValidator.check(user, validationResult);
-
-        assertFalse(validationResult.getErrors().isEmpty());
+        ValidationException exception = assertThrows(
+                ValidationException.class,
+                () -> userValidationService.validateUser(user)
+        );
+        assertTrue(exception.getMessage().contains("Value is blank"));
     }
 
     @Test
@@ -82,10 +69,11 @@ public class UserValidatorTest {
         User user = createUser();
         user.setLastname(null);
 
-        ValidationResult validationResult = new ValidationResult();
-        userValidator.check(user, validationResult);
-
-        assertFalse(validationResult.getErrors().isEmpty());
+        ValidationException exception = assertThrows(
+                ValidationException.class,
+                () -> userValidationService.validateUser(user)
+        );
+        assertTrue(exception.getMessage().contains("Value is null"));
     }
 
     @Test
@@ -93,10 +81,11 @@ public class UserValidatorTest {
         User user = createUser();
         user.setLastname("");
 
-        ValidationResult validationResult = new ValidationResult();
-        userValidator.check(user, validationResult);
-
-        assertFalse(validationResult.getErrors().isEmpty());
+        ValidationException exception = assertThrows(
+                ValidationException.class,
+                () -> userValidationService.validateUser(user)
+        );
+        assertTrue(exception.getMessage().contains("Value is blank"));
     }
 
     @Test
@@ -104,21 +93,11 @@ public class UserValidatorTest {
         User user = createUser();
         user.setLastname(" ");
 
-        ValidationResult validationResult = new ValidationResult();
-        userValidator.check(user, validationResult);
-
-        assertFalse(validationResult.getErrors().isEmpty());
-    }
-
-    @Test
-    void shouldFailWhenLastnameHasInvalidFormat() {
-        User user = createUser();
-        user.setLastname("John$");
-
-        ValidationResult validationResult = new ValidationResult();
-        userValidator.check(user, validationResult);
-
-        assertFalse(validationResult.getErrors().isEmpty());
+        ValidationException exception = assertThrows(
+                ValidationException.class,
+                () -> userValidationService.validateUser(user)
+        );
+        assertTrue(exception.getMessage().contains("Value is blank"));
     }
 
     @Test
@@ -126,10 +105,11 @@ public class UserValidatorTest {
         User user = createUser();
         user.setUsername(null);
 
-        ValidationResult validationResult = new ValidationResult();
-        userValidator.check(user, validationResult);
-
-        assertFalse(validationResult.getErrors().isEmpty());
+        ValidationException exception = assertThrows(
+                ValidationException.class,
+                () -> userValidationService.validateUser(user)
+        );
+        assertTrue(exception.getMessage().contains("Value is null"));
     }
 
     @Test
@@ -137,10 +117,12 @@ public class UserValidatorTest {
         User user = createUser();
         user.setUsername("");
 
-        ValidationResult validationResult = new ValidationResult();
-        userValidator.check(user, validationResult);
-
-        assertFalse(validationResult.getErrors().isEmpty());
+        ValidationException exception = assertThrows(
+                ValidationException.class,
+                () -> userValidationService.validateUser(user)
+        );
+        assertTrue(exception.getMessage().contains("Value is blank"));
+        assertTrue(exception.getMessage().contains("is not email"));
     }
 
     @Test
@@ -148,10 +130,12 @@ public class UserValidatorTest {
         User user = createUser();
         user.setUsername(" ");
 
-        ValidationResult validationResult = new ValidationResult();
-        userValidator.check(user, validationResult);
-
-        assertFalse(validationResult.getErrors().isEmpty());
+        ValidationException exception = assertThrows(
+                ValidationException.class,
+                () -> userValidationService.validateUser(user)
+        );
+        assertTrue(exception.getMessage().contains("Value is blank"));
+        assertTrue(exception.getMessage().contains("is not email"));
     }
 
     @Test
@@ -159,10 +143,10 @@ public class UserValidatorTest {
         User user = createUser();
         user.setUsername("john");
 
-        ValidationResult validationResult = new ValidationResult();
-        userValidator.check(user, validationResult);
+        ValidationException exception = assertThrows(
+                ValidationException.class, () -> userValidationService.validateUser(user));
 
-        assertFalse(validationResult.getErrors().isEmpty());
+        assertTrue(exception.getMessage().contains("is not email"));
     }
 
     @Test
@@ -170,21 +154,18 @@ public class UserValidatorTest {
         User user = createUser();
         user.setUsername("john.smith@email.com");
 
-        ValidationResult validationResult = new ValidationResult();
-        userValidator.check(user, validationResult);
-
-        assertTrue(validationResult.getErrors().isEmpty());
+        assertDoesNotThrow(() -> userValidationService.validateUser(user));
     }
 
     @Test
-    void shouldFailWhenNameContainsNonAlphabeticCharacters() {
+    void shouldFailWhenNameIsTooLong() {
         User user = createUser();
-        user.setFirstname("John1234");
+        user.setFirstname("John12345678901234567891023456789101234567809985983456345345345345");
 
-        ValidationResult validationResult = new ValidationResult();
-        userValidator.check(user, validationResult);
+        ValidationException exception = assertThrows(
+                ValidationException.class, () -> userValidationService.validateUser(user));
 
-        assertFalse(validationResult.getErrors().isEmpty());
+        assertTrue(exception.getMessage().contains("exceeds the maximum length of 50"));
     }
 
     @Test
@@ -192,10 +173,7 @@ public class UserValidatorTest {
         User user = createUser();
         user.setFirstname("John");
 
-        ValidationResult validationResult = new ValidationResult();
-        userValidator.check(user, validationResult);
-
-        assertTrue(validationResult.getErrors().isEmpty());
+        assertDoesNotThrow(() -> userValidationService.validateUser(user));
     }
 
     @Test
@@ -203,10 +181,10 @@ public class UserValidatorTest {
         User user = createUser();
         user.setPassword("short");
 
-        ValidationResult validationResult = new ValidationResult();
-        userValidator.check(user, validationResult);
+        ValidationException exception = assertThrows(
+                ValidationException.class, () -> userValidationService.validateUser(user));
 
-        assertFalse(validationResult.getErrors().isEmpty());
+        assertTrue(exception.getMessage().contains("is shorter than the minimum length of"));
     }
 
     @Test
@@ -214,10 +192,7 @@ public class UserValidatorTest {
         User user = createUser();
         user.setPassword("password123");
 
-        ValidationResult validationResult = new ValidationResult();
-        userValidator.check(user, validationResult);
-
-        assertTrue(validationResult.getErrors().isEmpty());
+        assertDoesNotThrow(() -> userValidationService.validateUser(user));
     }
 
     @Test
@@ -225,10 +200,10 @@ public class UserValidatorTest {
         User user = createUser();
         user.setPhone("12345abc");
 
-        ValidationResult validationResult = new ValidationResult();
-        userValidator.check(user, validationResult);
+        ValidationException exception = assertThrows(
+                ValidationException.class, () -> userValidationService.validateUser(user));
 
-        assertFalse(validationResult.getErrors().isEmpty());
+        assertTrue(exception.getMessage().contains("is not numeric"));
     }
 
     @Test
@@ -236,21 +211,18 @@ public class UserValidatorTest {
         User user = createUser();
         user.setPhone("123456789");
 
-        ValidationResult validationResult = new ValidationResult();
-        userValidator.check(user, validationResult);
-
-        assertTrue(validationResult.getErrors().isEmpty());
+        assertDoesNotThrow(() -> userValidationService.validateUser(user));
     }
 
     @Test
-    void shouldFailWhenLastnameContainsNonAlphabeticCharacters() {
+    void shouldFailWhenLastnameIsTooLong() {
         User user = createUser();
-        user.setLastname("Smith1234");
+        user.setLastname("Smith12345678901234567891023456789101234567809985983456345345345345");
 
-        ValidationResult validationResult = new ValidationResult();
-        userValidator.check(user, validationResult);
+        ValidationException exception = assertThrows(
+                ValidationException.class, () -> userValidationService.validateUser(user));
 
-        assertFalse(validationResult.getErrors().isEmpty());
+        assertTrue(exception.getMessage().contains("exceeds the maximum length of 50"));
     }
 
     @Test
@@ -258,9 +230,6 @@ public class UserValidatorTest {
         User user = createUser();
         user.setLastname("Smith");
 
-        ValidationResult validationResult = new ValidationResult();
-        userValidator.check(user, validationResult);
-
-        assertTrue(validationResult.getErrors().isEmpty());
+        assertDoesNotThrow(() -> userValidationService.validateUser(user));
     }
 }

@@ -1,25 +1,22 @@
 package com.ada.genealogyapp.event.validation;
 
-import com.ada.genealogyapp.validation.FieldValidator;
-import com.ada.genealogyapp.validation.ValidatorFactory;
 import com.ada.genealogyapp.event.model.Event;
-import com.ada.genealogyapp.validation.ValidationResult;
+import com.ada.genealogyapp.validation.model.Validator;
+import com.ada.genealogyapp.validation.result.ValidationResult;
+import com.ada.genealogyapp.validation.service.FieldValidationService;
+import com.ada.genealogyapp.validation.type.FieldType;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public class DescriptionEventValidator extends EventValidator {
+@RequiredArgsConstructor
+public class DescriptionEventValidator extends Validator<Event> {
 
-    private static final FieldValidator<String> DESCRIPTION_VALIDATOR = ValidatorFactory.createStringValidator(
-            "description",
-            ".*",
-            false,
-            0,
-            300
-    );
+    private final FieldValidationService validationService;
 
     @Override
     public void check(Event event, ValidationResult result) {
-        DESCRIPTION_VALIDATOR.validate(event.getDescription(), result);
+        validationService.validate(FieldType.TREE_MEDIUM_TEXT_FIELD, event.getDescription(), result);
         checkNext(event, result);
     }
 }

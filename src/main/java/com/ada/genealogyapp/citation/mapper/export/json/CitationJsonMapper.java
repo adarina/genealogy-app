@@ -9,6 +9,8 @@ import com.ada.genealogyapp.file.model.File;
 
 import java.util.stream.Collectors;
 
+import static java.util.Objects.nonNull;
+
 @Component
 public class CitationJsonMapper implements JsonMapper<Citation, CitationJsonRequest> {
 
@@ -18,17 +20,15 @@ public class CitationJsonMapper implements JsonMapper<Citation, CitationJsonRequ
                 .id(citation.getId())
                 .page(citation.getPage())
                 .date(citation.getDate())
-                .sourceId(citation.getSource() != null ? citation.getSource().getId() : null)
-                .filesIds(
-                        citation.getFiles().stream()
-                                .map(File::getId)
-                                .collect(Collectors.toList())
-                )
+                .sourceId(nonNull(citation.getSource()) ? citation.getSource().getId() : null)
+                .filesIds(citation.getFiles().stream()
+                        .map(File::getId)
+                        .collect(Collectors.toList()))
                 .build();
     }
+
     @Override
     public Class<Citation> getEntityType() {
         return Citation.class;
     }
 }
-

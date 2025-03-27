@@ -5,12 +5,10 @@ import org.springframework.stereotype.Component;
 
 import java.util.Map;
 
-
 @Slf4j
 @Component("SUCCESS")
 public class SuccessHandler implements QueryResultHandler {
     @Override
-    public void handleResult(Map<String, String> context) {
-
+    public void handleResult(Map<IdType, String> context) {
     }
 }

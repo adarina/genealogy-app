@@ -10,10 +10,8 @@ import java.time.LocalDate;
 
 
 
-@Getter
-@Setter
+@Data
 @SuperBuilder
-@AllArgsConstructor
 @NoArgsConstructor
 public class EventRequest {
 

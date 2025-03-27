@@ -1,10 +1,9 @@
 package com.ada.genealogyapp.event.service;
 
-import com.ada.genealogyapp.participant.dto.ParticipantEventRequest;
-import com.ada.genealogyapp.tree.service.TransactionalInNeo4j;
-import com.ada.genealogyapp.event.dto.EventRequest;
+import com.ada.genealogyapp.event.dto.params.*;
+import com.ada.genealogyapp.event.dto.params.UpdateEventRequestWithParticipantParams;
+import com.ada.genealogyapp.transaction.TransactionalInNeo4j;
 import com.ada.genealogyapp.event.model.Event;
-import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -19,39 +18,48 @@ public class EventManagementService {
 
     private final EventValidationService eventValidationService;
 
-    @TransactionalInNeo4j
-    public void updateEvent(String userId, String treeId, String eventId, @NonNull EventRequest eventRequest) {
+    public Event buildAndValidateEvent(UpdateEventRequestParams params) {
         Event event = Event.builder()
-                .description(eventRequest.getDescription())
-                .place(eventRequest.getPlace())
-                .date(eventRequest.getDate())
-                .type(eventRequest.getType())
+                .description(params.getEventRequest().getDescription())
+                .place(params.getEventRequest().getPlace())
+                .date(params.getEventRequest().getDate())
+                .type(params.getEventRequest().getType())
                 .build();
-
         eventValidationService.validateEvent(event);
-        eventService.updateEvent(userId, treeId, eventId, event);
+        return event;
     }
 
     @TransactionalInNeo4j
-    public void updateEventWithParticipant(String userId, String treeId, String eventId, @NonNull ParticipantEventRequest eventRequest, String participantId) {
-        Event event = Event.builder()
-                .description(eventRequest.getDescription())
-                .place(eventRequest.getPlace())
-                .date(eventRequest.getDate())
-                .type(eventRequest.getType())
-                .build();
-
-        eventValidationService.validateEvent(event);
-        eventService.updateEventWithParticipant(userId, treeId, eventId, event, participantId, eventRequest.getRelationship().name());
+    public void updateEvent(UpdateEventRequestParams params) {
+        Event event = buildAndValidateEvent(params);
+        eventService.updateEvent(UpdateEventParams.builder()
+                .userId(params.getUserId())
+                .treeId(params.getTreeId())
+                .eventId(params.getEventId())
+                .event(event)
+                .build());
     }
 
     @TransactionalInNeo4j
-    public void removeParticipantFromEvent(String userId, String treeId, String participantId, String eventId) {
-        eventService.removeParticipantFromEvent(userId, treeId, eventId, participantId);
+    public void updateEventWithParticipant(UpdateEventRequestWithParticipantParams params) {
+        Event event = buildAndValidateEvent(params);
+        eventService.updateEventWithParticipant(UpdateEventWithParticipantParams.builder()
+                .userId(params.getUserId())
+                .treeId(params.getTreeId())
+                .eventId(params.getEventId())
+                .event(event)
+                .participantId(params.getParticipantId())
+                .relationshipType(params.getParticipantEventRequest().getRelationship().name())
+                .build());
     }
 
     @TransactionalInNeo4j
-    public void deleteEvent(String userId, String treeId, String eventId) {
-        eventService.deleteEvent(userId, treeId, eventId);
+    public void removeParticipantFromEvent(RemoveParticipantFromEventParams params) {
+        eventService.removeParticipantFromEvent(params);
+    }
+
+    @TransactionalInNeo4j
+    public void deleteEvent(DeleteEventParams params) {
+        eventService.deleteEvent(params);
     }
 }

@@ -1,10 +1,14 @@
 package com.ada.genealogyapp.person.service;
 
-import com.ada.genealogyapp.person.type.GenderType;
-import com.ada.genealogyapp.tree.service.TransactionalInNeo4j;
-import com.ada.genealogyapp.person.dto.PersonRequest;
+import com.ada.genealogyapp.family.dto.params.AddChildToFamilyRequestParams;
+import com.ada.genealogyapp.family.dto.params.AddPersonToFamilyParams;
+import com.ada.genealogyapp.family.dto.params.CreateAndAddChildToFamilyParams;
+import com.ada.genealogyapp.family.service.FamilyService;
+import com.ada.genealogyapp.person.dto.params.CreateAndAddPersonToFamilyParams;
+import com.ada.genealogyapp.person.dto.params.CreatePersonRequestParams;
+import com.ada.genealogyapp.person.dto.params.SavePersonParams;
+import com.ada.genealogyapp.transaction.TransactionalInNeo4j;
 import com.ada.genealogyapp.person.model.Person;
-import com.ada.genealogyapp.tree.model.Tree;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -19,34 +23,60 @@ public class PersonCreationService {
 
     private final PersonValidationService personValidationService;
 
-    @TransactionalInNeo4j
-    public Person createPerson(String userId, String treeId, PersonRequest personRequest) {
+    private final FamilyService familyService;
 
+    private Person buildValidateAndSavePerson(CreatePersonRequestParams params) {
         Person person = Person.builder()
-                .firstname(personRequest.getFirstname())
-                .lastname(personRequest.getLastname())
-                .gender(personRequest.getGender())
+                .firstname(params.getPersonRequest().getFirstname())
+                .lastname(params.getPersonRequest().getLastname())
+                .gender(params.getPersonRequest().getGender())
                 .build();
-
         personValidationService.validatePerson(person);
-        personService.savePerson(userId, treeId, person);
-
+        personService.savePerson(SavePersonParams.builder()
+                .userId(params.getUserId())
+                .treeId(params.getTreeId())
+                .personId(person.getId())
+                .person(person)
+                .build());
         return person;
     }
 
     @TransactionalInNeo4j
-    public Person createPerson(String userId, Tree tree, String firstname, String lastname, GenderType gender) {
+    public Person createPerson(CreatePersonRequestParams params) {
+        return buildValidateAndSavePerson(params);
+    }
 
-        Person person = Person.builder()
-                .tree(tree)
-                .firstname(firstname)
-                .lastname(lastname)
-                .gender(gender)
-                .build();
+    @TransactionalInNeo4j
+    public void createAndAddFatherToFamily(CreateAndAddPersonToFamilyParams params) {
+        Person person = buildValidateAndSavePerson(params);
+        familyService.addFatherToFamily(AddPersonToFamilyParams.builder()
+                .userId(params.getUserId())
+                .treeId(params.getTreeId())
+                .familyId(params.getFamilyId())
+                .personId(person.getId())
+                .build());
+    }
 
-        personValidationService.validatePerson(person);
-        personService.savePerson(userId, tree.getId(), person);
+    @TransactionalInNeo4j
+    public void createAndAddMotherToFamily(CreateAndAddPersonToFamilyParams params) {
+        Person person = buildValidateAndSavePerson(params);
+        familyService.addMotherToFamily(AddPersonToFamilyParams.builder()
+                .userId(params.getUserId())
+                .treeId(params.getTreeId())
+                .familyId(params.getFamilyId())
+                .personId(person.getId())
+                .build());
+    }
 
-        return person;
+    @TransactionalInNeo4j
+    public void createAndAddChildToFamily(CreateAndAddChildToFamilyParams params) {
+        Person person = buildValidateAndSavePerson(params);
+        familyService.addChildToFamily(AddChildToFamilyRequestParams.builder()
+                .userId(params.getUserId())
+                .treeId(params.getTreeId())
+                .familyId(params.getFamilyId())
+                .personId(person.getId())
+                .familyChildRequest(params.getFamilyChildRequest())
+                .build());
     }
 }

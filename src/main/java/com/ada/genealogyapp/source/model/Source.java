@@ -16,6 +16,7 @@ import org.springframework.data.neo4j.core.support.UUIDStringGenerator;
 @Getter
 @Setter
 @AllArgsConstructor
+@EqualsAndHashCode
 public class Source {
 
     @Id

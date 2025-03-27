@@ -1,45 +1,38 @@
 package com.ada.genealogyapp.user.service;
 
-import com.ada.genealogyapp.exceptions.UserValidationException;
+import com.ada.genealogyapp.exceptions.ValidationException;
 import com.ada.genealogyapp.user.model.User;
 import com.ada.genealogyapp.user.validation.*;
-import com.ada.genealogyapp.validation.ValidationResult;
+import com.ada.genealogyapp.validation.factory.DefaultFieldValidationFactory;
+import com.ada.genealogyapp.validation.model.Validator;
+import com.ada.genealogyapp.validation.result.ValidationResult;
+import com.ada.genealogyapp.validation.service.FieldValidationService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 @Slf4j
 @Service
 public class UserValidationService {
-    private final UserValidator userValidator;
+    private final Validator<User> validator;
 
     public UserValidationService() {
-        this.userValidator = UserValidator.link(
-                new UsernameUserValidator(),
-                new LastnameUserValidator(),
-                new PasswordUserValidator(),
-                new PhoneUserValidator(),
-                new FirstnameUserValidator()
+        FieldValidationService fieldValidationService = new FieldValidationService(new DefaultFieldValidationFactory());
+        this.validator = Validator.link(
+                new UsernameUserValidator(fieldValidationService),
+                new LastnameUserValidator(fieldValidationService),
+                new PasswordUserValidator(fieldValidationService),
+                new PhoneUserValidator(fieldValidationService),
+                new FirstnameUserValidator(fieldValidationService)
         );
     }
 
-    public ValidationResult validateUser(User user) {
-        ValidationResult validationResult = new ValidationResult();
-        userValidator.check(user, validationResult);
-        if (!validationResult.getErrors().isEmpty()) {
-            log.error("User validation failed for user {}: {}", user.getUsername(), validationResult.getErrors());
-        } else {
-            log.info("User validation passed for user: {}", user.getUsername());
+    public void validateUser(User user) {
+        ValidationResult result = new ValidationResult();
+        validator.check(user, result);
+        if (result.hasErrors()) {
+            log.error("User validation failed for user {}: {}", user.getId(), result.getErrors());
+            throw new ValidationException("User validation failed: " + result.getErrors());
         }
-        return validationResult;
-    }
-
-    public void validateUserOrThrowUserValidationException(User user) {
-        ValidationResult validationResult = validateUser(user);
-        if (!validationResult.getErrors().isEmpty()) {
-            log.error("User validation failed for registration: {}", validationResult.getErrors());
-            throw new UserValidationException("User validation failed for registration: " + validationResult.getErrors());
-        } else {
-            log.error("User validation succeeded for registration");
-        }
+        log.info("User validation succeeded for citation: {}", user.getId());
     }
 }

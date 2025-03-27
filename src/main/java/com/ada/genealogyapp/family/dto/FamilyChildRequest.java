@@ -3,13 +3,13 @@ package com.ada.genealogyapp.family.dto;
 import com.ada.genealogyapp.person.dto.PersonRequest;
 import com.ada.genealogyapp.person.type.PersonRelationshipType;
 import lombok.*;
+import lombok.experimental.SuperBuilder;
 
 
-
-@Getter
-@Setter
+@Data
+@SuperBuilder
 @NoArgsConstructor
-@AllArgsConstructor
+@EqualsAndHashCode(callSuper = true)
 public class FamilyChildRequest extends PersonRequest {
 
     private PersonRelationshipType motherRelationship;

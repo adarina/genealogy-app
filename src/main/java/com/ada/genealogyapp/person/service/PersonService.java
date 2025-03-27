@@ -1,25 +1,16 @@
 package com.ada.genealogyapp.person.service;
 
-import com.ada.genealogyapp.person.dto.PersonResponse;
-import com.ada.genealogyapp.person.model.Person;
+import com.ada.genealogyapp.person.dto.params.*;
+
 
 public interface PersonService {
 
+    void savePerson(SavePersonParams params);
 
-    void savePerson(String userId, String treeId, Person person);
+    void deletePerson(DeletePersonParams params);
 
-    void ensurePersonExists(String personId);
+    void addParentChildRelationship(AddParentChildRelationshipParams params);
 
-    void deletePerson(String userId, String treeId, String personId);
-
-    PersonResponse findPersonResponseByTreeIdAndId(String treeId, String personId);
-
-    void addParentChildRelationship(String treeId, String personId, String childId, String relationshipType);
-
-    void updatePerson(String userId, String treeId, String personId, Person person);
-
-    Person findPersonByTreeIdAndPersonId(String treeId, String personId);
-
-
+    void updatePerson(UpdatePersonParams params);
 
 }

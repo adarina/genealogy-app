@@ -18,4 +18,6 @@ public class EventCitationResponse {
     private String page;
 
     private String date;
+
+    private String name;
 }

@@ -1,26 +1,23 @@
 package com.ada.genealogyapp.user.validation;
 
 import com.ada.genealogyapp.user.model.User;
-import com.ada.genealogyapp.validation.FieldValidator;
-import com.ada.genealogyapp.validation.ValidationResult;
-import com.ada.genealogyapp.validation.ValidatorFactory;
+import com.ada.genealogyapp.validation.model.Validator;
+import com.ada.genealogyapp.validation.result.ValidationResult;
+import com.ada.genealogyapp.validation.service.FieldValidationService;
+import com.ada.genealogyapp.validation.type.FieldType;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 
 @Slf4j
-public class PhoneUserValidator extends UserValidator {
+@RequiredArgsConstructor
+public class PhoneUserValidator extends Validator<User> {
 
-    private static final FieldValidator<String> PHONE_VALIDATOR = ValidatorFactory.createStringValidator(
-            "phone",
-            "\\d{9}",
-            false,
-            0,
-            100
-    );
+    private final FieldValidationService validationService;
 
     @Override
     public void check(User user, ValidationResult result) {
-        PHONE_VALIDATOR.validate(user.getPhone(), result);
+        validationService.validate(FieldType.PHONE_NUMERIC_FIELD, user.getPhone(), result);
         checkNext(user, result);
     }
 }

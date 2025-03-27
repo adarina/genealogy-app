@@ -1,8 +1,12 @@
 package com.ada.genealogyapp.person.dto;
 
-import lombok.Getter;
+import lombok.*;
 
 @Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class PersonFilterRequest {
 
     private String firstname;

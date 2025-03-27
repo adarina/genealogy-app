@@ -1,10 +1,9 @@
 package com.ada.genealogyapp.family.service;
 
-import com.ada.genealogyapp.family.type.StatusType;
-import com.ada.genealogyapp.tree.service.TransactionalInNeo4j;
-import com.ada.genealogyapp.family.dto.FamilyRequest;
+import com.ada.genealogyapp.family.dto.params.CreateFamilyRequestParams;
+import com.ada.genealogyapp.family.dto.params.SaveFamilyParams;
+import com.ada.genealogyapp.transaction.TransactionalInNeo4j;
 import com.ada.genealogyapp.family.model.Family;
-import com.ada.genealogyapp.tree.model.Tree;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -20,30 +19,18 @@ public class FamilyCreationService {
     private final FamilyValidationService familyValidationService;
 
     @TransactionalInNeo4j
-    public Family createFamily(String userId, String treeId, FamilyRequest familyRequest) {
-
+    public Family createFamily(CreateFamilyRequestParams params) {
         Family family = Family.builder()
-                .status(familyRequest.getStatus())
+                .status(params.getFamilyRequest().getStatus())
                 .name("null & null")
                 .build();
-
         familyValidationService.validateFamily(family);
-        familyService.saveFamily(userId, treeId, family);
-        return family;
-    }
-
-    @TransactionalInNeo4j
-    public Family createFamily(String userId, Tree tree, StatusType status) {
-
-        Family family = Family.builder()
-                .status(status)
-                .tree(tree)
-                .name("null & null")
-                .build();
-
-        familyValidationService.validateFamily(family);
-        familyService.saveFamily(userId, tree.getId(), family);
-
+        familyService.saveFamily(SaveFamilyParams.builder()
+                .userId(params.getUserId())
+                .treeId(params.getTreeId())
+                .familyId(family.getId())
+                .family(family)
+                .build());
         return family;
     }
 }

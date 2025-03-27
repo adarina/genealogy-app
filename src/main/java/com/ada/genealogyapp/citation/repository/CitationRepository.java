@@ -7,13 +7,12 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.neo4j.repository.Neo4jRepository;
 import org.springframework.data.neo4j.repository.query.Query;
-import org.springframework.data.repository.query.Param;
+import org.springframework.stereotype.Repository;
 
 import java.util.*;
 
-
+@Repository
 public interface CitationRepository extends Neo4jRepository<Citation, String> {
-
 
     @Query("""
             CALL {
@@ -73,13 +72,14 @@ public interface CitationRepository extends Neo4jRepository<Citation, String> {
             LIMIT 1
             """)
     String save(String userId, String treeId, String citationId, String page, String date, String sourceId, String eventId);
+
     @Query("""
             CALL {
                 OPTIONAL MATCH (user:GraphUser {id: $userId})
                 WITH count(user) > 0 AS userExist
                 
                 OPTIONAL MATCH (user)-[:HAS_TREE]->(tree:Tree {id: $treeId})
-                WITH userExist, count(tree) > 0 AS treeExist, tree
+                RETURN userExist, count(tree) > 0 AS treeExist, tree
             }
                         
             CALL apoc.do.case(
@@ -222,7 +222,10 @@ public interface CitationRepository extends Neo4jRepository<Citation, String> {
                         
             CALL apoc.do.case(
                 [
-                    userExist, treeExist AND citationExist AND sourceExist, '
+                    userExist AND treeExist AND citationExist AND sourceExist, '
+                        OPTIONAL MATCH (citation)-[r:HAS_CITATION_SOURCE]->()
+                        DELETE r
+                        WITH citation, source
                         MERGE (citation)-[:HAS_CITATION_SOURCE]->(source)
                        
                         RETURN "SOURCE_ADDED_TO_CITATION" AS message
@@ -256,7 +259,7 @@ public interface CitationRepository extends Neo4jRepository<Citation, String> {
                         
             CALL apoc.do.case(
                 [
-                    userExist, treeExist AND citationExist AND fileExist, '
+                    userExist AND treeExist AND citationExist AND fileExist, '
                         DELETE fileRel
                         RETURN "FILE_REMOVED_FROM_CITATION" AS message
                     ',
@@ -289,7 +292,7 @@ public interface CitationRepository extends Neo4jRepository<Citation, String> {
                         
             CALL apoc.do.case(
                 [
-                    userExist, treeExist AND citationExist AND sourceExist, '
+                    userExist AND treeExist AND citationExist AND sourceExist, '
                         DELETE sourceRel
                         RETURN "SOURCE_REMOVED_FROM_CITATION" AS message
                     ',
@@ -305,61 +308,66 @@ public interface CitationRepository extends Neo4jRepository<Citation, String> {
             """)
     String removeSource(String userId, String treeId, String citationId, String sourceId);
 
+    //TODO uncomment whe name added to citations frontend
     @Query(value = """
-            MATCH (t:Tree)-[:HAS_CITATION]->(c:Citation)
-            WHERE t.id = $treeId
-            AND (toLower(c.page) CONTAINS toLower($page) OR $page = '')
-            WITH c
-            OPTIONAL MATCH (c)-[:HAS_CITATION_SOURCE]->(s:Source)
-            WITH c, s
-            RETURN c.id AS id,
-                   c.page AS page,
-                   c.date AS date,
-                   s.name AS name
-                   :#{orderBy(#pageable)}
-                   SKIP $skip
-                   LIMIT $limit
-                   """,
+                        MATCH (user:GraphUser {id: $userId})-[:HAS_TREE]->(tree:Tree {id: $treeId})
+                        OPTIONAL MATCH (tree)-[:HAS_CITATION]->(citation:Citation)
+                        OPTIONAL MATCH (citation)-[:HAS_CITATION_SOURCE]->(source:Source)
+                        WITH citation, source
+                        WHERE ($page = "" OR toLower (citation.page) CONTAINS toLower($page))
+            //                AND ($name = "" OR toLower(source.name) CONTAINS toLower($name))
+                        WITH citation, source
+                        WHERE citation IS NOT NULL
+                                    
+                        RETURN citation.id AS id,
+                               citation.page AS page,
+                               citation.date AS date,
+                               source.id AS sourceId,
+                               source.name AS name
+                               :#{orderBy(#pageable)}
+                               SKIP $skip
+                               LIMIT $limit
+                        """,
             countQuery = """
-                    MATCH (t:Tree)-[:HAS_CITATION]->(c:Citation)
-                    WHERE t.id = $treeId
-                    RETURN count(c)
-                    """)
-    Page<CitationSourceResponse> findByTreeIdAndFilteredPage(@Param("treeId") String treeId, String page, Pageable pageable);
+                                        MATCH (user:GraphUser {id: $userId})-[:HAS_TREE]->(tree:Tree {id: $treeId})
+                                        OPTIONAL MATCH (tree)-[:HAS_CITATION]->(citation:Citation)
+                                        OPTIONAL MATCH (citation)-[:HAS_CITATION_SOURCE]->(source:Source)
+                                        WITH citation, source
+                                        WHERE ($page = "" OR toLower (citation.page) CONTAINS toLower($page))
+                    //                        AND ($name = "" OR toLower(source.name) CONTAINS toLower($name))
+                                        RETURN count(source)
+                                                """)
+    Page<CitationSourceResponse> find(String userId, String treeId, String page, String name, Pageable pageable);
 
     @Query("""
-                MATCH (c:Citation {id: $citationId})
-                MATCH (t:Tree {id: $treeId})
-                MERGE (t)-[:HAS_CITATION]->(c)
-                WITH c
-                OPTIONAL MATCH (c)-[:HAS_CITATION_SOURCE]->(s:Source)
-                WITH c, s
-                RETURN c.id AS id,
-                       c.page AS page,
-                       c.date AS date,
-                       s.name AS name,
-                       s.id AS sourceId
+            MATCH (user:GraphUser {id: $userId})-[:HAS_TREE]->(tree:Tree {id: $treeId})-[:HAS_CITATION]->(citation:Citation {id: $citationId})
+            OPTIONAL MATCH (citation)-[:HAS_CITATION_SOURCE]->(source:Source)
+            WITH citation, source
+            RETURN citation.id AS id,
+                   citation.page AS page,
+                   citation.date AS date,
+                   source.name AS name,
+                   source.id AS sourceId
             """)
-    Optional<CitationSourceResponse> findByTreeIdAndCitationId(@Param("treeId") String treeId, @Param("citationId") String citationId);
+    CitationSourceResponse find(String userId, String treeId, String citationId);
 
     @Query(value = """
-            MATCH (f:File)<-[:HAS_CITATION_FILE]-(c:Citation)
-            WHERE c.id = $citationId
-            WITH f
-            RETURN f.id AS id,
-                   f.name AS name,
-                   f.type AS type,
-                   'http://localhost:8080/upload-dir/' + f.filename AS path
+            MATCH (user:GraphUser {id: $userId})-[:HAS_TREE]->(tree:Tree {id: $treeId})-[:HAS_CITATION]->(citation:Citation {id: $citationId})
+            OPTIONAL MATCH (file:File)<-[:HAS_CITATION_FILE]-(citation)
+                       
+            RETURN file.id AS id,
+                   file.name AS name,
+                   file.type AS type,
+                   $baseUrl + file.filename AS path
             :#{orderBy(#pageable)}
             SKIP $skip
             LIMIT $limit
             """,
             countQuery = """
-                        MATCH (f:File)<-[:HAS_CITATION_FILE]-(c:Citation)
-                        WHERE c.id = $citationId
-                        RETURN count(f)
+                        MATCH (user:GraphUser {id: $userId})-[:HAS_TREE]->(tree:Tree {id: $treeId})-[:HAS_CITATION]->(citation:Citation {id: $citationId})
+                        OPTIONAL MATCH (file:File)<-[:HAS_CITATION_FILE]-(citation)
+                        RETURN count(file)
                     """
     )
-    Page<FileResponse> findCitationFiles(String citationId, Pageable pageable);
-
+    Page<FileResponse> findFiles(String userId, String treeId, String citationId, String baseUrl, Pageable pageable);
 }

@@ -1,70 +1,90 @@
 package com.ada.genealogyapp.citation.service;
 
 
+import com.ada.genealogyapp.citation.dto.params.*;
 import com.ada.genealogyapp.citation.model.Citation;
-import com.ada.genealogyapp.tree.service.TransactionalInNeo4j;
-import com.ada.genealogyapp.citation.dto.CitationRequest;
-import com.ada.genealogyapp.tree.model.Tree;
-import lombok.NonNull;
+import com.ada.genealogyapp.event.dto.params.AddCitationToEventParams;
+import com.ada.genealogyapp.event.service.EventService;
+import com.ada.genealogyapp.transaction.TransactionalInNeo4j;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 import java.util.UUID;
 
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class CitationCreationService {
-
 
     private final CitationService citationService;
 
     private final CitationValidationService citationValidationService;
 
-    public CitationCreationService(CitationService citationService, CitationValidationService citationValidationService) {
-        this.citationService = citationService;
-        this.citationValidationService = citationValidationService;
-    }
+    private final EventService eventService;
 
-
-    @TransactionalInNeo4j
-    public Citation createCitation(String userId, String treeId, @NonNull CitationRequest citationRequest) {
+    private Citation buildAndValidateCitation(CreateCitationRequestParams params) {
         Citation citation = Citation.builder()
                 .id(UUID.randomUUID().toString())
-                .page(citationRequest.getPage())
-                .date(citationRequest.getDate())
+                .page(params.getCitationRequest().getPage())
+                .date(params.getCitationRequest().getDate())
                 .build();
-
         citationValidationService.validateCitation(citation);
-        citationService.saveCitation(userId, treeId, citation);
+        return citation;
+    }
+
+    private Citation buildValidateAndSaveCitation(CreateCitationRequestParams params) {
+        Citation citation = buildAndValidateCitation(params);
+        citationService.saveCitation(SaveCitationParams.builder()
+                .userId(params.getUserId())
+                .treeId(params.getTreeId())
+                .citationId(citation.getId())
+                .citation(citation)
+                .build());
         return citation;
     }
 
     @TransactionalInNeo4j
-    public Citation createCitationWithSourceAndEvent(String userId, Tree tree, String page, String date, String sourceId, String eventId) {
-        Citation citation = Citation.builder()
-                .id(UUID.randomUUID().toString())
-                .tree(tree)
-                .page(page)
-                .date(date)
-                .build();
+    public void createCitation(CreateCitationRequestParams params) {
+        buildValidateAndSaveCitation(params);
+    }
 
-        citationValidationService.validateCitation(citation);
-        citationService.saveCitationWithSourceAndEvent(userId, citation, sourceId, eventId);
+    @TransactionalInNeo4j
+    public Citation createCitationWithSourceAndEvent(CreateCitationWithSourceAndEventParams params) {
+        Citation citation = buildAndValidateCitation(params);
+        citationService.saveCitationWithSourceAndEvent(SaveCitationWithSourceAndEventParams.builder()
+                .userId(params.getUserId())
+                .treeId(params.getTreeId())
+                .citationId(citation.getId())
+                .citation(citation)
+                .sourceId(params.getSourceId())
+                .eventId(params.getEventId())
+                .build());
         return citation;
     }
 
     @TransactionalInNeo4j
-    public Citation createCitationWithSourceAndFiles(String userId, Tree tree, String page, String date, String sourceId, List<String> filesIds) {
-        Citation citation = Citation.builder()
-                .id(UUID.randomUUID().toString())
-                .tree(tree)
-                .page(page)
-                .date(date)
-                .build();
-
-        citationValidationService.validateCitation(citation);
-        citationService.saveCitationWithSourceAndFiles(userId, citation, sourceId, filesIds);
+    public Citation createCitationWithSourceAndFiles(CreateCitationWithSourceAndFilesParams params) {
+        Citation citation = buildAndValidateCitation(params);
+        citationService.saveCitationWithSourceAndFiles(SaveCitationWithSourceAndFilesParams.builder()
+                .userId(params.getUserId())
+                .treeId(params.getTreeId())
+                .citationId(citation.getId())
+                .citation(citation)
+                .sourceId(params.getSourceId())
+                .filesIds(params.getFilesIds())
+                .build());
         return citation;
+    }
+
+    @TransactionalInNeo4j
+    public void createAndAddCitationToEvent(CreateAndAddCitationToEventRequestParams params) {
+        Citation citation = buildValidateAndSaveCitation(params);
+        eventService.addCitationToEvent(AddCitationToEventParams.builder()
+                .userId(params.getUserId())
+                .treeId(params.getTreeId())
+                .eventId(params.getEventId())
+                .citationId(citation.getId())
+                .build());
     }
 }

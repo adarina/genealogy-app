@@ -2,6 +2,7 @@ package com.ada.genealogyapp.tree.controller;
 
 import com.ada.genealogyapp.tree.service.TreeExportService;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -10,14 +11,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("api/v1/genealogy/trees/{treeId}")
 public class TreeExportController {
 
     private final TreeExportService treeExportService;
-
-    public TreeExportController(TreeExportService treeExportService) {
-        this.treeExportService = treeExportService;
-    }
 
     @GetMapping("/exportJson")
     public ResponseEntity<?> exportTreeToJson(@PathVariable String treeId) throws JsonProcessingException {

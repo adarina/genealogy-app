@@ -1,34 +1,30 @@
 package com.ada.genealogyapp.person.controller;
 
 import com.ada.genealogyapp.participant.dto.ParticipantEventResponse;
-import com.ada.genealogyapp.person.service.PersonEventsViewService;
+import com.ada.genealogyapp.participant.service.ParticipantEventsViewService;
+import com.ada.genealogyapp.person.dto.params.GetParticipantEventsParams;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.UUID;
-
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("api/v1/genealogy/trees/{treeId}/persons/{personId}/events")
 public class PersonEventsViewController {
 
-    private final PersonEventsViewService personEventsViewService;
-
-    public PersonEventsViewController(PersonEventsViewService personEventsViewService) {
-        this.personEventsViewService = personEventsViewService;
-    }
+    private final ParticipantEventsViewService participantEventsViewService;
 
     @GetMapping
-    public ResponseEntity<Page<ParticipantEventResponse>> getPersonalEvents(@PathVariable String treeId, @PathVariable String personId, @PageableDefault Pageable pageable) {
-        Page<ParticipantEventResponse> eventResponses = personEventsViewService.getPersonalEvents(treeId, personId, pageable);
+    public ResponseEntity<Page<ParticipantEventResponse>> getPersonEvents(@PathVariable String treeId, @PathVariable String personId, @PageableDefault Pageable pageable, @RequestHeader(value = "X-User-Id") String userId) {
+        Page<ParticipantEventResponse> eventResponses = participantEventsViewService.getParticipantEvents(GetParticipantEventsParams.builder()
+                .userId(userId)
+                .treeId(treeId)
+                .participantId(personId)
+                .pageable(pageable)
+                .build());
         return ResponseEntity.ok(eventResponses);
-    }
-
-    @GetMapping("/{eventId}")
-    public ResponseEntity<ParticipantEventResponse> getPersonalEvent(@PathVariable String treeId, @PathVariable String personId, @PathVariable UUID eventId) {
-        ParticipantEventResponse eventResponse = personEventsViewService.getPersonalEvent(treeId, personId, eventId);
-        return ResponseEntity.ok(eventResponse);
     }
 }

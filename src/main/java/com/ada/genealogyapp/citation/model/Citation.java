@@ -13,8 +13,6 @@ import org.springframework.data.neo4j.core.support.UUIDStringGenerator;
 import java.util.HashSet;
 import java.util.Set;
 
-import static java.util.Objects.nonNull;
-
 
 @Node
 @Getter

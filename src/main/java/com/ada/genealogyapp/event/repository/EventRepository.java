@@ -6,7 +6,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.neo4j.repository.Neo4jRepository;
 import org.springframework.data.neo4j.repository.query.Query;
-import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
@@ -321,102 +320,102 @@ public interface EventRepository extends Neo4jRepository<Event, String> {
     String addCitation(String userId, String treeId, String eventId, String citationId);
 
     @Query("""
-                MATCH (e:Event {id: $eventId})
-                MATCH (t:Tree {id: $treeId})
-                MERGE (t)-[:HAS_EVENT]->(e)
-                WITH e
-                OPTIONAL MATCH (e)-[:HAS_EVENT_CITATION]->(c:Citation)
-                WITH e, COLLECT({
-                    id: c.id,
-                    page: c.page,
-                    date: c.date
-                }) AS citations
-                OPTIONAL MATCH (e)-[r2:HAS_PARTICIPANT]->(p:Participant)
-                WITH e, citations, COLLECT({
-                    id: p.id,
-                    name: p.name,
-                    relationship: r2.relationship
-                }) AS participants
-                RETURN e.id AS id,
-                       e.type AS type,
-                       e.date AS date,
-                       e.place AS place,
-                       e.description AS description,
-                       citations,
-                       participants
+            MATCH (user:GraphUser {id: $userId})-[:HAS_TREE]->(tree:Tree {id: $treeId})-[:HAS_EVENT]->(event:Event {id: $eventId})
+            OPTIONAL MATCH (event)-[:HAS_EVENT_CITATION]->(citation:Citation)
+            WITH event, COLLECT({id: citation.id, page: citation.page, date: citation.date}) AS citations
+                        
+            OPTIONAL MATCH (event)-[rel:HAS_PARTICIPANT]->(participant:Participant)
+            WITH event, citations, COLLECT({id: participant.id, name: participant.name, relationship: rel.relationship}) AS participants
+                        
+            RETURN event.id AS id,
+                   event.type AS type,
+                   event.date AS date,
+                   event.place AS place,
+                   event.description AS description,
+                   citations,
+                   participants
             """)
-    Optional<EventResponse> findByTreeIdAndEventId(@Param("treeId") String treeId, @Param("eventId") String eventId);
+    EventResponse find(String userId, String treeId, String eventId);
 
-
+    //TODO frontend add place uncomment
     @Query(value = """
-            MATCH (t:Tree)-[:HAS_EVENT]->(e:Event)
-            WHERE t.id = $treeId
-            AND (toLower(e.description) CONTAINS toLower($description) OR $description = '')
-            AND ($type = '' OR e.type = toUpper($type))
-            OPTIONAL MATCH (e)-[:HAS_PARTICIPANT]->(p:Participant)
-            WITH e, COLLECT(COALESCE(p.name, '')) AS participants
-            WITH e, REDUCE(s = '', participant IN participants | s + CASE WHEN s = '' THEN participant ELSE ', ' + participant END) AS participantNames
-            WHERE toLower(participantNames) CONTAINS toLower($participants) OR $participants = ''
-            RETURN e.id AS id,
-                   e.description AS description,
-                   e.date AS date,
-                   e.type AS type,
-                   e.place AS place,
-                   participantNames
-                   :#{orderBy(#pageable)}
-                   SKIP $skip
-                   LIMIT $limit
-                   """,
+                        MATCH (user:GraphUser {id: $userId})-[:HAS_TREE]->(tree:Tree {id: $treeId})
+                        OPTIONAL MATCH (tree)-[:HAS_EVENT]->(event:Event)
+                        OPTIONAL MATCH (event)-[:HAS_PARTICIPANT]->(part:Participant)
+                        WITH event, COLLECT(COALESCE(part.name, '')) AS parts
+                        WITH event, REDUCE(s = '', part IN parts | s + CASE WHEN s = '' THEN part ELSE ', ' + part END) AS participantNames
+                        
+                        WHERE ($participants = "" OR toLower (participantNames) CONTAINS toLower($participants))
+                            AND ($description = "" OR toLower(event.description) CONTAINS toLower($description))
+            //              AND ($place = "" OR toLower(event.place) CONTAINS toLower($place))
+                            AND ($type = "" OR event.type = $type)
+                        WITH event, participantNames
+                        WHERE event IS NOT NULL
+                                      
+                        RETURN event.id AS id,
+                               event.description AS description,
+                               event.date AS date,
+                               event.type AS type,
+                               event.place AS place,
+                               participantNames
+                               :#{orderBy(#pageable)}
+                               SKIP $skip
+                               LIMIT $limit
+                               """,
             countQuery = """
-                    MATCH (t:Tree)-[:HAS_EVENT]->(e:Event)
-                    WHERE t.id = $treeId
-                    RETURN count(e)
-                    """)
-    Page<EventPageResponse> findByTreeIdAndFilteredDescriptionParticipantNamesAndType(@Param("treeId") String treeId, String description, String participants, String type, Pageable pageable);
+                                MATCH (user:GraphUser {id: $userId})-[:HAS_TREE]->(tree:Tree {id: $treeId})
+                                OPTIONAL MATCH (tree)-[:HAS_EVENT]->(event:Event)
+                                OPTIONAL MATCH (event)-[:HAS_PARTICIPANT]->(part:Participant)
+                                WITH event, COLLECT(COALESCE(part.name, '')) AS parts
+                                WITH event, REDUCE(s = '', part IN parts | s + CASE WHEN s = '' THEN part ELSE ', ' + part END) AS participantNames
+                                WHERE ($participants = "" OR toLower (participantNames) CONTAINS toLower($participants))
+                                    AND ($description = "" OR toLower(event.description) CONTAINS toLower($description))
+                    //              AND ($place = "" OR toLower(event.place) CONTAINS toLower($place))
+                                    AND ($type = "" OR event.type = $type)
+                                RETURN count(event)
+                                            """)
+    Page<EventsResponse> find(String userId, String treeId, String description, String participants, String type, String place, Pageable pageable);
 
     @Query(value = """
-            MATCH (t:Tree)-[:HAS_EVENT]->(e:Event)-[:HAS_EVENT_CITATION]->(c:Citation)
-            WHERE t.id = $treeId AND e.id = $eventId
-            WITH c
-            RETURN c.id AS id,
-                   c.page AS page,
-                   c.date AS date
+            MATCH (user:GraphUser {id: $userId})-[:HAS_TREE]->(tree:Tree {id: $treeId})-[:HAS_EVENT]->(event:Event {id: $eventId})
+            OPTIONAL MATCH (event)-[:HAS_EVENT_CITATION]->(citation:Citation)
+            OPTIONAL MATCH (citation)-[:HAS_CITATION_SOURCE]->(source:Source)
+            RETURN citation.id AS id,
+                   citation.page AS page,
+                   citation.date AS date,
+                   source.name AS name
             :#{orderBy(#pageable)}
             SKIP $skip
             LIMIT $limit
             """,
             countQuery = """
-                        MATCH (t:Tree)-[:HAS_EVENT]->(e:Event)-[:HAS_EVENT_CITATION]->(c:Citation)
-                        WHERE t.id = $treeId AND e.id = $eventId
-                        RETURN count(c)
+                        MATCH (user:GraphUser {id: $userId})-[:HAS_TREE]->(tree:Tree {id: $treeId})-[:HAS_EVENT]->(event:Event {id: $eventId})
+                        OPTIONAL MATCH (event)-[:HAS_EVENT_CITATION]->(citation:Citation)
+                        RETURN count(citation)
                     """)
-    Page<EventCitationResponse> findEventCitations(String treeId, String eventId, Pageable pageable);
+    Page<EventCitationResponse> findCitations(String userId, String treeId, String eventId, Pageable pageable);
 
     @Query(value = """
-            MATCH (t:Tree)-[:HAS_EVENT]->(e:Event)-[:HAS_EVENT_CITATION]->(c:Citation)
-            WHERE t.id = $treeId AND e.id = $eventId AND c.id = $citationId
-            RETURN c.id AS id,
-                   c.page AS page,
-                   c.date AS date
-            """)
-    Optional<EventCitationResponse> findEventCitation(String treeId, String eventId, String citationId);
-
-
-    @Query(value = """
-            MATCH (t:Tree)-[:HAS_EVENT]->(e:Event)-[r:HAS_PARTICIPANT]->(p:Participant)
-            WHERE t.id = $treeId AND e.id = $eventId
-            WITH p, e, r
-            RETURN p.id AS id,
-                   p.name AS name,
-                   r.relationship AS relationship
+            MATCH (user:GraphUser {id: $userId})-[:HAS_TREE]->(tree:Tree {id: $treeId})-[:HAS_EVENT]->(event:Event {id: $eventId})
+            OPTIONAL MATCH (event)-[rel:HAS_PARTICIPANT]->(participant:Participant)
+                        
+            RETURN participant.id AS id,
+                   participant.name AS name,
+                   rel.relationship AS relationship
             :#{orderBy(#pageable)}
             SKIP $skip
             LIMIT $limit
             """,
             countQuery = """
-                        MATCH (t:Tree)-[:HAS_EVENT]->(e:Event)-[:HAS_PARTICIPANT]->(p:Participant)
-                        WHERE t.id = $treeId AND e.id = $eventId
-                        RETURN count(p)
+                        MATCH (user:GraphUser {id: $userId})-[:HAS_TREE]->(tree:Tree {id: $treeId})-[:HAS_EVENT]->(event:Event {id: $eventId})
+                        OPTIONAL MATCH (event)-[rel:HAS_PARTICIPANT]->(participant:Participant)
+                        RETURN count(participant)
                     """)
-    Page<EventParticipantResponse> findEventParticipants(String treeId, String eventId, Pageable pageable);
+    Page<EventParticipantResponse> findParticipants(String userId, String treeId, String eventId, Pageable pageable);
+
+    @Query("""
+            MATCH (event:Event {id: $eventId})
+            RETURN event
+            """)
+    Optional<Event> findEvent(String eventId);
 }

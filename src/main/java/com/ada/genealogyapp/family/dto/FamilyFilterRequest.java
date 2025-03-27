@@ -1,11 +1,13 @@
 package com.ada.genealogyapp.family.dto;
 
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
+import lombok.*;
 
 @Getter
+@Setter
+@NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class FamilyFilterRequest {
 
     private String motherName;

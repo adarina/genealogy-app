@@ -5,13 +5,9 @@ import lombok.*;
 import lombok.experimental.SuperBuilder;
 
 
-@Getter
-@Setter
+@Data
 @SuperBuilder
 @NoArgsConstructor
-@AllArgsConstructor
-@ToString
-@EqualsAndHashCode
 public class PersonRequest {
 
     private String firstname;

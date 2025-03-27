@@ -6,73 +6,50 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.neo4j.repository.Neo4jRepository;
 import org.springframework.data.neo4j.repository.query.Query;
-import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import java.util.Optional;
-import java.util.UUID;
 
 @Repository
 public interface ParticipantRepository extends Neo4jRepository<Participant, String> {
 
     @Query(value = """
-            MATCH (e:Event)-[r1:HAS_PARTICIPANT]->(p1:Participant)
-            WHERE p1.id = $participantId
-            WITH e, p1, r1.relationship AS relationship
-            OPTIONAL MATCH (e)-[r2:HAS_PARTICIPANT]->(p2:Participant)
-            OPTIONAL MATCH (e)-[:HAS_EVENT_CITATION]->(c:Citation)
-            RETURN e.id AS id,
-                    e.type AS type,
-                    e.date AS date,
-                    e.place AS place,
-                    e.description AS description,
+            MATCH (user:GraphUser {id: $userId})-[:HAS_TREE]->(tree:Tree {id: $treeId})
+            OPTIONAL MATCH (tree)-[:HAS_PERSON]->(person:Person {id: $participantId})
+            OPTIONAL MATCH (tree)-[:HAS_FAMILY]->(family:Family {id: $participantId})
+            WITH user, tree, COALESCE(person, family) AS participant
+
+            MATCH (event:Event)-[rel:HAS_PARTICIPANT]->(participant)
+            WITH event, participant, rel.relationship AS relationship
+            OPTIONAL MATCH (event)-[otherRel:HAS_PARTICIPANT]->(others:Participant)
+            OPTIONAL MATCH (event)-[:HAS_EVENT_CITATION]->(citation:Citation)
+            RETURN event.id AS id,
+                    event.type AS type,
+                    event.date AS date,
+                    event.place AS place,
+                    event.description AS description,
                     relationship,
                     COLLECT({
-                        name: COALESCE(p2.name, p1.name),
-                        id: COALESCE(p2.id, p1.id),
-                        relationship: COALESCE(r2.relationship, relationship)
+                        name: COALESCE(others.name, participant.name),
+                        id: COALESCE(others.id, participant.id),
+                        relationship: COALESCE(otherRel.relationship, relationship)
                     }) AS participants,
                     COLLECT({
-                        id: c.id,
-                        page: c.page,
-                        date: c.date
+                        id: citation.id,
+                        page: citation.page,
+                        date: citation.date
                     }) AS citations
                     :#{orderBy(#pageable)}
                     SKIP $skip
                     LIMIT $limit
                     """,
             countQuery = """
-                        MATCH (e:Event)-[r1:HAS_PARTICIPANT]->(p1:Participant)
-                        WHERE p1.id = $personId
-                        RETURN count(e)
+                        MATCH (user:GraphUser {id: $userId})-[:HAS_TREE]->(tree:Tree {id: $treeId})
+                        OPTIONAL MATCH (tree)-[:HAS_PERSON]->(person:Person {id: $participantId})
+                        OPTIONAL MATCH (tree)-[:HAS_FAMILY]->(family:Family {id: $participantId})
+                        WITH user, tree, COALESCE(person, family) AS participant
+            
+                        MATCH (event:Event)-[rel:HAS_PARTICIPANT]->(participant)
+                        RETURN count(event)
                     """)
-    Page<ParticipantEventResponse> findParticipantEvents(@Param("participantId") String participantId, Pageable pageable);
-
-    @Query("""
-                MATCH (e:Event {id: $eventId})
-                MATCH (p1:Participant {id: $participantId})
-                MERGE (e)-[r1:HAS_PARTICIPANT]->(p1)
-                WITH e, p1, r1.relationship AS relationship
-                OPTIONAL MATCH (e)-[r2:HAS_PARTICIPANT]->(p2:Participant)
-                WITH e, relationship, COLLECT({
-                    id: COALESCE(p2.id, p1.id),
-                    name: COALESCE(p2.name, p1.name),
-                    relationship: COALESCE(r2.relationship, relationship)
-                    }) AS participants
-                OPTIONAL MATCH (e)-[:HAS_EVENT_CITATION]->(c:Citation)
-                WITH e, relationship, participants, COLLECT({
-                    id: c.id,
-                    page: c.page,
-                    date: c.date
-                }) AS citations
-                RETURN e.id AS id,
-                       e.type AS type,
-                       e.date AS date,
-                       e.place AS place,
-                       e.description AS description,
-                       relationship,
-                       participants,
-                       citations
-            """)
-    Optional<ParticipantEventResponse> findParticipantEvent(@Param("eventId") UUID eventId, @Param("participantId") String participantId);
+    Page<ParticipantEventResponse> findParticipantEvents(String userId, String treeId, String participantId, Pageable pageable);
 }

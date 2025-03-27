@@ -1,7 +1,9 @@
 package com.ada.genealogyapp.event.service;
 
 
-import com.ada.genealogyapp.tree.service.TransactionalInNeo4j;
+import com.ada.genealogyapp.event.dto.params.AddCitationToEventParams;
+import com.ada.genealogyapp.event.dto.params.RemoveCitationFromEventParams;
+import com.ada.genealogyapp.transaction.TransactionalInNeo4j;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -15,12 +17,12 @@ public class EventCitationManagementService {
 
 
     @TransactionalInNeo4j
-    public void removeCitationFromEvent(String userId, String treeId, String eventId, String citationId) {
-        eventService.removeCitationFromEvent(userId, treeId, eventId, citationId);
+    public void removeCitationFromEvent(RemoveCitationFromEventParams params) {
+        eventService.removeCitationFromEvent(params);
     }
 
     @TransactionalInNeo4j
-    public void addCitationToEvent(String userId, String treeId, String eventId, String citationId) {
-        eventService.addCitationToEvent(userId, treeId, eventId, citationId);
+    public void addCitationToEvent(AddCitationToEventParams params) {
+        eventService.addCitationToEvent(params);
     }
 }

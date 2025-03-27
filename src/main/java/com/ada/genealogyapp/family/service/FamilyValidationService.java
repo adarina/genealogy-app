@@ -2,26 +2,29 @@ package com.ada.genealogyapp.family.service;
 
 import com.ada.genealogyapp.exceptions.ValidationException;
 import com.ada.genealogyapp.family.model.Family;
-import com.ada.genealogyapp.family.validation.FamilyValidator;
 import com.ada.genealogyapp.family.validation.StatusFamilyValidator;
-import com.ada.genealogyapp.validation.ValidationResult;
+import com.ada.genealogyapp.validation.factory.DefaultFieldValidationFactory;
+import com.ada.genealogyapp.validation.model.Validator;
+import com.ada.genealogyapp.validation.result.ValidationResult;
+import com.ada.genealogyapp.validation.service.FieldValidationService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 @Slf4j
 @Service
 public class FamilyValidationService {
-    private final FamilyValidator familyValidator;
+    private final Validator<Family> validator;
 
     public FamilyValidationService() {
-        this.familyValidator = FamilyValidator.link(
-            new StatusFamilyValidator()
+        FieldValidationService fieldValidationService = new FieldValidationService(new DefaultFieldValidationFactory());
+        this.validator = Validator.link(
+            new StatusFamilyValidator(fieldValidationService)
         );
     }
 
     public void validateFamily(Family family) {
         ValidationResult result = new ValidationResult();
-        familyValidator.check(family, result);
+        validator.check(family, result);
 
         if (result.hasErrors()) {
             log.error("Family validation failed for family {}: {}", family.getId(), result.getErrors());

@@ -1,8 +1,19 @@
 package com.ada.genealogyapp.tree.service;
 
 
+import com.ada.genealogyapp.citation.dto.CitationRequest;
+import com.ada.genealogyapp.citation.dto.params.AddFileToCitationParams;
+import com.ada.genealogyapp.citation.dto.params.CreateCitationWithSourceAndEventParams;
 import com.ada.genealogyapp.citation.model.Citation;
 import com.ada.genealogyapp.citation.service.CitationCreationService;
+import com.ada.genealogyapp.event.dto.EventRequest;
+import com.ada.genealogyapp.family.dto.FamilyChildRequest;
+import com.ada.genealogyapp.family.dto.FamilyRequest;
+import com.ada.genealogyapp.family.dto.params.AddChildToFamilyRequestParams;
+import com.ada.genealogyapp.family.dto.params.AddPersonToFamilyParams;
+import com.ada.genealogyapp.family.dto.params.CreateFamilyRequestParams;
+import com.ada.genealogyapp.file.dto.FileRequest;
+import com.ada.genealogyapp.file.dto.params.CreateFileRequestParams;
 import com.ada.genealogyapp.file.service.FileCreationService;
 import com.ada.genealogyapp.citation.service.CitationService;
 import com.ada.genealogyapp.event.model.Event;
@@ -14,16 +25,30 @@ import com.ada.genealogyapp.family.service.FamilyCreationService;
 import com.ada.genealogyapp.family.service.FamilyService;
 import com.ada.genealogyapp.family.type.StatusType;
 import com.ada.genealogyapp.file.model.File;
+import com.ada.genealogyapp.gedcom.dto.EventFact;
+import com.ada.genealogyapp.gedcom.dto.MediaRef;
+import com.ada.genealogyapp.gedcom.dto.Reference;
+import com.ada.genealogyapp.gedcom.dto.SourceCitation;
 import com.ada.genealogyapp.graphuser.model.GraphUser;
 import com.ada.genealogyapp.graphuser.repository.GraphUserRepository;
 import com.ada.genealogyapp.participant.model.Participant;
+import com.ada.genealogyapp.person.dto.PersonRequest;
+import com.ada.genealogyapp.person.dto.params.CreateEventRequestWithParticipantParams;
+import com.ada.genealogyapp.person.dto.params.CreatePersonRequestParams;
 import com.ada.genealogyapp.person.model.Person;
 import com.ada.genealogyapp.person.service.PersonCreationService;
 import com.ada.genealogyapp.person.type.PersonRelationshipType;
+import com.ada.genealogyapp.source.dto.SourceRequest;
+import com.ada.genealogyapp.source.dto.params.CreateSourceRequestParams;
 import com.ada.genealogyapp.source.model.Source;
 import com.ada.genealogyapp.source.service.SourceCreationService;
+import com.ada.genealogyapp.transaction.TransactionalInNeo4j;
 import com.ada.genealogyapp.tree.dto.*;
 import com.ada.genealogyapp.tree.dto.gedcom.*;
+import com.ada.genealogyapp.gedcom.mappers.EventMapper;
+import com.ada.genealogyapp.gedcom.mappers.GenderMapper;
+import com.ada.genealogyapp.tree.dto.params.CreateTreeImportParams;
+import com.ada.genealogyapp.tree.dto.params.CreateTreeRequestParams;
 import com.ada.genealogyapp.tree.model.Tree;
 import com.ada.genealogyapp.tree.repository.TreeRepository;
 import lombok.RequiredArgsConstructor;
@@ -39,8 +64,6 @@ import static java.util.Objects.nonNull;
 @Service
 @RequiredArgsConstructor
 public class TreeImportGedcomService {
-
-    private final TreeRepository treeRepository;
 
     private final PersonCreationService personCreationService;
 
@@ -60,10 +83,13 @@ public class TreeImportGedcomService {
 
     private final GraphUserRepository graphUserRepository;
 
+    private final TreeCreationService treeCreationService;
+
     @TransactionalInNeo4j
     public Tree importTree(TreeImportGedcomRequest importRequest) throws IOException {
         GraphUser graphUser = graphUserRepository.find("1");
-        Tree tree = initializeTree(importRequest, graphUser);
+        Tree tree = treeCreationService.createTreeImport(CreateTreeImportParams.builder()
+                .userId(graphUser.getId()).name("sth").build());
         Map<String, Source> sourceMap = processSources(importRequest, tree, graphUser.getId());
         Map<String, File> fileMap = processFiles(importRequest, tree, graphUser.getId());
         Map<String, Person> personMap = processPersons(importRequest, tree, sourceMap, fileMap, graphUser.getId());
@@ -73,22 +99,19 @@ public class TreeImportGedcomService {
         return tree;
     }
 
-    private Tree initializeTree(TreeImportGedcomRequest importRequest, GraphUser graphUser) {
-        Tree tree = Tree.builder()
-                .graphUser(graphUser)
-                .build();
-        treeRepository.save(tree);
-        return tree;
-    }
-
     private Map<String, Person> processPersons(TreeImportGedcomRequest treeImportGedcomRequest, Tree tree, Map<String, Source> sourceMap, Map<String, File> fileMap, String userId) {
         Map<String, Person> personMap = new HashMap<>();
         for (PersonGedcomRequest people : treeImportGedcomRequest.getPeople()) {
-            Person person = personCreationService.createPerson(userId, tree,
-                    people.getNames().get(0).getGivn(),
-                    people.getNames().get(0).getSurn(),
-                    GenderMapper.mapGender(people.getEventsFacts().get(0).getValue())
-            );
+            PersonRequest personRequest = PersonRequest.builder()
+                    .firstname(people.getNames().get(0).getGivn())
+                    .lastname(people.getNames().get(0).getSurn())
+                    .gender(GenderMapper.mapGender(people.getEventsFacts().get(0).getValue()))
+                    .build();
+            Person person = personCreationService.createPerson(CreatePersonRequestParams.builder()
+                    .userId(userId)
+                    .treeId(tree.getId())
+                    .personRequest(personRequest)
+                    .build());
             personMap.put(people.getId(), person);
             List<EventFact> eventsFacts = people.getEventsFacts();
 
@@ -100,7 +123,14 @@ public class TreeImportGedcomService {
     private Map<String, Family> processFamilies(TreeImportGedcomRequest treeImportGedcomRequest, Tree tree, Map<String, Person> personMap, Map<String, Participant> participantMap, Map<String, Source> sourceMap, Map<String, File> fileMap, String userId) {
         Map<String, Family> familyMap = new HashMap<>();
         for (FamilyGedcomRequest families : treeImportGedcomRequest.getFamilies()) {
-            Family family = familyCreationService.createFamily(userId, tree, StatusType.MARRIED);
+            FamilyRequest familyRequest = FamilyRequest.builder()
+                    .status(StatusType.MARRIED)
+                    .build();
+            Family family = familyCreationService.createFamily(CreateFamilyRequestParams.builder()
+                    .userId(userId)
+                    .treeId(tree.getId())
+                    .familyRequest(familyRequest)
+                    .build());
 
             addChildrenToFamily(userId, tree.getId(), family.getId(), families, personMap);
             addParentsToFamily(userId, tree.getId(), family.getId(), families, personMap);
@@ -126,9 +156,19 @@ public class TreeImportGedcomService {
 
         if (nonNull(parent)) {
             if (isFather) {
-                familyService.addFatherToFamily(userId, treeId, familyId, parent.getId());
+                familyService.addFatherToFamily(AddPersonToFamilyParams.builder()
+                        .userId(userId)
+                        .treeId(treeId)
+                        .familyId(familyId)
+                        .personId(parent.getId())
+                        .build());
             } else {
-                familyService.addMotherToFamily(userId, treeId, familyId, parent.getId());
+                familyService.addMotherToFamily(AddPersonToFamilyParams.builder()
+                        .userId(userId)
+                        .treeId(treeId)
+                        .familyId(familyId)
+                        .personId(parent.getId())
+                        .build());
             }
         }
     }
@@ -141,7 +181,16 @@ public class TreeImportGedcomService {
                 Person child = personMap.get(childId);
 
                 if (nonNull(child)) {
-                    familyService.addChildToFamily(userId, treeId, familyId, child.getId(), PersonRelationshipType.BIOLOGICAL.name(), PersonRelationshipType.BIOLOGICAL.name());
+                    familyService.addChildToFamily(AddChildToFamilyRequestParams.builder()
+                            .userId(userId)
+                            .treeId(treeId)
+                            .familyId(familyId)
+                            .personId(child.getId())
+                            .familyChildRequest(FamilyChildRequest.builder()
+                                    .fatherRelationship(PersonRelationshipType.BIOLOGICAL)
+                                    .motherRelationship(PersonRelationshipType.BIOLOGICAL)
+                                    .build())
+                            .build());
                 }
             }
         }
@@ -150,7 +199,15 @@ public class TreeImportGedcomService {
     private Map<String, Source> processSources(TreeImportGedcomRequest treeImportGedcomRequest, Tree tree, String userId) {
         Map<String, Source> sourceMap = new HashMap<>();
         for (SourceGedcomRequest sourceGedcomRequest : treeImportGedcomRequest.getSources()) {
-            Source source = sourceCreationService.createSource(userId, tree, sourceGedcomRequest.getTitl());
+            SourceRequest sourceRequest = SourceRequest.builder()
+                    .name(sourceGedcomRequest.getTitl())
+                    .build();
+            Source source = sourceCreationService.createSource(CreateSourceRequestParams.builder()
+                    .userId(userId)
+                    .treeId(tree.getId())
+                    .sourceRequest(sourceRequest)
+                    .build());
+
             sourceMap.put(sourceGedcomRequest.getId(), source);
         }
         return sourceMap;
@@ -164,8 +221,18 @@ public class TreeImportGedcomService {
 
                 if (nonNull(source)) {
                     String sourceId = source.getId();
+                    CitationRequest citationRequest = CitationRequest.builder()
+                            .page(sourceCitation.getPage())
+                            .date(sourceCitation.getDate())
+                            .build();
 
-                    Citation citation = citationCreationService.createCitationWithSourceAndEvent(userId, tree, sourceCitation.getPage(), sourceCitation.getDate(), sourceId, eventId);
+                    Citation citation = citationCreationService.createCitationWithSourceAndEvent(CreateCitationWithSourceAndEventParams.builder()
+                            .userId(userId)
+                            .treeId(tree.getId())
+                            .citationRequest(citationRequest)
+                            .sourceId(sourceId)
+                            .eventId(eventId)
+                            .build());
                     List<MediaRef> mediaRef = sourceCitation.getMediaRefs();
                     processFiles(tree.getId(), citation.getId(), mediaRef, fileMap, userId);
                 }
@@ -179,7 +246,12 @@ public class TreeImportGedcomService {
             File file = (nonNull(fileRef)) ? fileMap.get(fileRef) : null;
 
             if (nonNull(file)) {
-                citationService.addFileToCitation(userId, treeId, citationId, file.getId());
+                citationService.addFileToCitation(AddFileToCitationParams.builder()
+                        .userId(userId)
+                        .treeId(treeId)
+                        .citationId(citationId)
+                        .fileId(file.getId())
+                        .build());
             }
         }
     }
@@ -190,7 +262,19 @@ public class TreeImportGedcomService {
                 if (nonNull(eventFact)) {
                     EventType type = EventMapper.mapEvent(eventFact.getTag());
                     if (!type.equals(EventType.ERROR)) {
-                        Event event = eventCreationService.createEventWithParticipant(userId, tree, type, eventFact.getPlace(), eventFact.getType(), eventFact.getDate(), participant, relationship);
+                        EventRequest eventRequest = EventRequest.builder()
+                                .place(eventFact.getPlace())
+                                .type(type)
+                                .date(eventFact.getDate())
+                                .description(eventFact.getType())
+                                .build();
+                        Event event = eventCreationService.createEventWithParticipant(CreateEventRequestWithParticipantParams.builder()
+                                .userId(userId)
+                                .treeId(tree.getId())
+                                .eventRequest(eventRequest)
+                                .participantId(participant.getId())
+                                .relationshipType(relationship.name())
+                                .build());
 
                         List<SourceCitation> sourceCitations = eventFact.getSourceCitations();
                         processCitations(tree, event.getId(), sourceCitations, sourceMap, fileMap, userId);
@@ -209,11 +293,22 @@ public class TreeImportGedcomService {
             String name = filesRequestJson.getExtensions().getMoreTags().get(1).getValue() + "." + type;
             String path = filesRequestJson.get_file() + "." + type;
             type = Files.probeContentType(Path.of(path));
+            FileRequest fileRequest = FileRequest.builder()
+                    .path(path)
+                    .type(type)
+                    .name(name)
+                    .build();
 
-            File file = fileCreationService.createFile(userId, tree, name, type, path);
+            File file = fileCreationService.createFile(CreateFileRequestParams.builder()
+                    .userId(userId)
+                    .treeId(tree.getId())
+                    .fileRequest(fileRequest)
+                    .build());
 
             fileMap.put(filesRequestJson.getId(), file);
         }
         return fileMap;
     }
 }
+
+

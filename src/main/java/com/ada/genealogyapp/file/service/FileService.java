@@ -1,14 +1,14 @@
 package com.ada.genealogyapp.file.service;
 
-import com.ada.genealogyapp.file.model.File;
-import com.ada.genealogyapp.tree.model.Tree;
-import lombok.NonNull;
+import com.ada.genealogyapp.file.dto.params.DeleteFileParams;
+import com.ada.genealogyapp.file.dto.params.SaveFileParams;
+import com.ada.genealogyapp.file.dto.params.UpdateFileParams;
+
 
 public interface FileService {
+    void saveFile(SaveFileParams params);
 
+    void updateFile(UpdateFileParams params);
 
-
-    void ensureFileExists(String fileId);
-
-    void saveFile(String userID, String treeId, File file);
+    void deleteFile(DeleteFileParams params);
 }

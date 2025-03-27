@@ -13,8 +13,4 @@ public class FileJsonRequest extends FileRequest {
     private String id;
 
     private String filename;
-
-    private String type;
-
-    private String path;
 }

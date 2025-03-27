@@ -1,25 +1,22 @@
 package com.ada.genealogyapp.user.validation;
 
 import com.ada.genealogyapp.user.model.User;
-import com.ada.genealogyapp.validation.FieldValidator;
-import com.ada.genealogyapp.validation.ValidationResult;
-import com.ada.genealogyapp.validation.ValidatorFactory;
+import com.ada.genealogyapp.validation.model.Validator;
+import com.ada.genealogyapp.validation.result.ValidationResult;
+import com.ada.genealogyapp.validation.service.FieldValidationService;
+import com.ada.genealogyapp.validation.type.FieldType;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public class LastnameUserValidator extends UserValidator {
+@RequiredArgsConstructor
+public class LastnameUserValidator extends Validator<User> {
 
-    private static final FieldValidator<String> LASTNAME_VALIDATOR = ValidatorFactory.createStringValidator(
-            "lastname",
-            "[A-Za-z]+",
-            true,
-            1,
-            100
-    );
+    private final FieldValidationService validationService;
 
     @Override
     public void check(User user, ValidationResult result) {
-        LASTNAME_VALIDATOR.validate(user.getLastname(), result);
+        validationService.validate(FieldType.USER_NAME_TEXT_FIELD, user.getLastname(), result);
         checkNext(user, result);
     }
 }

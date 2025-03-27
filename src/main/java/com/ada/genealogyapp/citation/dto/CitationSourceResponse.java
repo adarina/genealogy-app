@@ -1,15 +1,15 @@
 package com.ada.genealogyapp.citation.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
+import lombok.experimental.SuperBuilder;
 
-@Getter
-@Setter
-@AllArgsConstructor
+@Data
+@SuperBuilder
 @NoArgsConstructor
+@EqualsAndHashCode(callSuper = true)
 public class CitationSourceResponse extends CitationResponse {
 
     private String name;
+
+    private String sourceId;
 }

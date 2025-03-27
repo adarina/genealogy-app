@@ -14,7 +14,7 @@ public class QueryResultProcessor {
         this.handlers = handlers;
     }
 
-    public void process(String result, Map<String, String> context) {
+    public void process(String result, Map<IdType, String> context) {
         QueryResult queryResult = QueryResult.valueOf(result);
         QueryResultHandler handler = handlers.get(queryResult.toString());
         if (handler == null) {

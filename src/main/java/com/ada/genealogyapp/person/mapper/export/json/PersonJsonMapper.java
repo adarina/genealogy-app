@@ -19,15 +19,13 @@ public class PersonJsonMapper implements JsonMapper<Person, PersonJsonRequest> {
                 .firstname(person.getFirstname())
                 .lastname(person.getLastname())
                 .gender(person.getGender())
-                .relationships(
-                        person.getRelationships().stream()
-                                .map(relationship -> PersonRelationshipRequest.builder()
-                                        .id(relationship.getId())
-                                        .childId(relationship.getChild().getId())
-                                        .relationship(relationship.getRelationship())
-                                        .build())
-                                .collect(Collectors.toList())
-                )
+                .relationships(person.getRelationships().stream()
+                        .map(relationship -> PersonRelationshipRequest.builder()
+                                .id(relationship.getId())
+                                .childId(relationship.getChild().getId())
+                                .relationship(relationship.getRelationship())
+                                .build())
+                        .collect(Collectors.toList()))
                 .build();
     }
 

@@ -10,6 +10,7 @@ import java.util.LinkedHashSet;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 public class EventResponse {
 
     private String id;

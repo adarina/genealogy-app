@@ -1,13 +1,16 @@
 package com.ada.genealogyapp.family.service;
 
+import com.ada.genealogyapp.tree.dto.params.BaseParams;
 import com.ada.genealogyapp.family.dto.*;
 import com.ada.genealogyapp.exceptions.NodeNotFoundException;
+import com.ada.genealogyapp.family.dto.params.GetFamiliesParams;
+import com.ada.genealogyapp.family.dto.params.GetFamilyParams;
+
+
 import com.ada.genealogyapp.family.repository.FamilyRepository;
-import com.ada.genealogyapp.family.type.StatusType;
 import com.ada.genealogyapp.tree.service.TreeService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -19,8 +22,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
 import java.util.ArrayList;
-import java.util.Optional;
-import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -32,125 +33,175 @@ class FamilyViewServiceTest {
 
     @Mock
     TreeService treeService;
-
-    @Mock
-    FamilyService familyService;
-
     @Mock
     FamilyRepository familyRepository;
-
     @Mock
     ObjectMapper objectMapper;
-
     @InjectMocks
     FamilyViewService familyViewService;
 
-    String treeId;
-    String familyId;
-    Pageable pageable;
-    String filter;
-
-    @BeforeEach
-    void setUp() {
-
-        treeId = String.valueOf(UUID.randomUUID());
-        familyId = String.valueOf(UUID.randomUUID());
-        filter = "{\"motherName\":\"Elizabeth Black\",\"fatherName\":\"John Smith\",\"status\":\"MARRIED\"}";
-        pageable = PageRequest.of(0, 10);
-    }
-
     @Test
     void getFamilies_shouldReturnFamiliesWhenValidFilter() throws JsonProcessingException {
+        String userId = "user123";
+        String treeId = "tree123";
+        String filter = "{\"motherName\":\"Elizabeth Black\",\"fatherName\":\"John Smith\",\"status\":\"MARRIED\"}";
+        Pageable pageable = PageRequest.of(0, 10);
 
-        FamilyFilterRequest filterRequest = new FamilyFilterRequest("Elizabeth Black", "John Smith", "MARRIED");
-        Page<FamilyResponse> expectedPage = new PageImpl<>(new ArrayList<>());
+        GetFamiliesParams params = GetFamiliesParams.builder()
+                .userId(userId)
+                .treeId(treeId)
+                .filter(filter)
+                .pageable(pageable)
+                .build();
+
+        FamilyFilterRequest filterRequest = FamilyFilterRequest.builder()
+                .motherName("Elizabeth Black")
+                .fatherName("John Smith")
+                .status("MARRIED")
+                .build();
+
+        Page<FamiliesResponse> expectedPage = new PageImpl<>(new ArrayList<>());
 
         when(objectMapper.readValue(filter, FamilyFilterRequest.class)).thenReturn(filterRequest);
-        when(familyRepository.findByTreeIdAndFilteredParentNamesAndStatus(
-                treeId, "Elizabeth Black", "John Smith", "MARRIED", pageable
-        )).thenReturn(expectedPage);
+        when(familyRepository.find(userId, treeId, "John Smith", "Elizabeth Black", "MARRIED", pageable))
+                .thenReturn(expectedPage);
 
-        Page<FamilyResponse> result = familyViewService.getFamilies(treeId, filter, pageable);
+        Page<FamiliesResponse> result = familyViewService.getFamilies(params);
 
         assertNotNull(result);
         assertEquals(expectedPage, result);
-        verify(treeService).ensureTreeExists(treeId);
-        verify(objectMapper).readValue(filter, FamilyFilterRequest.class);
-        verify(familyRepository).findByTreeIdAndFilteredParentNamesAndStatus(
-                treeId, "Elizabeth Black", "John Smith", "MARRIED", pageable);
+
+        verify(objectMapper).readValue(eq(filter), eq(FamilyFilterRequest.class));
+        verify(treeService).ensureUserAndTreeExist(any(GetFamiliesParams.class), eq(expectedPage));
     }
 
     @Test
-    void getFamilies_shouldThrowExceptionWhenTreeDoesNotExist() {
+    void getFamilies_shouldThrowExceptionWhenUserDoesNotExist() throws JsonProcessingException {
+        String userId = "user123";
+        String treeId = "tree123";
+        String filter = "{\"motherName\":\"Elizabeth Black\",\"fatherName\":\"John Smith\",\"status\":\"MARRIED\"}";
+        Pageable pageable = PageRequest.of(0, 10);
 
-        doThrow(new NodeNotFoundException("Tree not found"))
-                .when(treeService).ensureTreeExists(treeId);
+        GetFamiliesParams params = GetFamiliesParams.builder()
+                .userId(userId)
+                .treeId(treeId)
+                .filter(filter)
+                .pageable(pageable)
+                .build();
 
-        NodeNotFoundException exception = assertThrows(NodeNotFoundException.class, () -> {
-            familyViewService.getFamilies(treeId, filter, pageable);
-        });
+        FamilyFilterRequest filterRequest = FamilyFilterRequest.builder()
+                .motherName("Elizabeth Black")
+                .fatherName("John Smith")
+                .status("MARRIED")
+                .build();
 
-        assertEquals("Tree not found", exception.getMessage());
-        verify(treeService).ensureTreeExists(treeId);
-        verifyNoInteractions(objectMapper, familyRepository);
+        when(objectMapper.readValue(filter, FamilyFilterRequest.class)).thenReturn(filterRequest);
+        doThrow(new NodeNotFoundException("User not exist with ID: " + userId))
+                .when(treeService).ensureUserAndTreeExist(any(BaseParams.class), any());
+
+        NodeNotFoundException exception = assertThrows(NodeNotFoundException.class, () -> familyViewService.getFamilies(params));
+
+        assertEquals("User not exist with ID: " + userId, exception.getMessage());
+        verify(treeService).ensureUserAndTreeExist(any(BaseParams.class), any());
+    }
+
+
+    @Test
+    void getFamilies_shouldThrowExceptionWhenTreeDoesNotExist() throws JsonProcessingException {
+        String userId = "user123";
+        String treeId = "tree123";
+        String filter = "{\"motherName\":\"Elizabeth Black\",\"fatherName\":\"John Smith\",\"status\":\"MARRIED\"}";
+        Pageable pageable = PageRequest.of(0, 10);
+
+        GetFamiliesParams params = GetFamiliesParams.builder()
+                .userId(userId)
+                .treeId(treeId)
+                .filter(filter)
+                .pageable(pageable)
+                .build();
+
+        FamilyFilterRequest filterRequest = FamilyFilterRequest.builder()
+                .motherName("Elizabeth Black")
+                .fatherName("John Smith")
+                .status("MARRIED")
+                .build();
+
+        when(objectMapper.readValue(filter, FamilyFilterRequest.class)).thenReturn(filterRequest);
+
+        doThrow(new NodeNotFoundException("Tree not exist with ID: " + treeId))
+                .when(treeService).ensureUserAndTreeExist(any(BaseParams.class), any());
+
+        NodeNotFoundException exception = assertThrows(NodeNotFoundException.class, () -> familyViewService.getFamilies(params));
+
+        assertEquals("Tree not exist with ID: " + treeId, exception.getMessage());
+        verify(treeService).ensureUserAndTreeExist(any(BaseParams.class), any());
     }
 
     @Test
-    void getFamily_shouldReturnFamilyWhenExists() {
+    void getFamily_shouldReturnFamilyWhenExist() {
+        String userId = "user123";
+        String treeId = "tree123";
+        String familyId = "family123";
 
-        String fatherId = String.valueOf(UUID.randomUUID());
+        GetFamilyParams params = GetFamilyParams.builder()
+                .userId(userId)
+                .treeId(treeId)
+                .familyId(familyId)
+                .build();
 
-        FamilyResponse expectedResponse = new FamilyResponse();
-        expectedResponse.setId(familyId);
-        expectedResponse.setStatus(StatusType.MARRIED);
-        expectedResponse.setFatherId(fatherId);
-        expectedResponse.setFatherName("John Smith");
+        FamilyResponse expectedFamily = FamilyResponse.builder()
+                .id(familyId)
+                .build();
 
-        doNothing().when(treeService).ensureTreeExists(treeId);
-        doNothing().when(familyService).ensureFamilyExists(familyId);
-        when(familyRepository.findByTreeIdAndFamilyId(treeId, familyId)).thenReturn(Optional.of(expectedResponse));
+        when(familyRepository.find(userId, treeId, familyId))
+                .thenReturn(expectedFamily);
 
-        FamilyResponse result = familyViewService.getFamily(treeId, familyId);
+        FamilyResponse result = familyViewService.getFamily(params);
 
         assertNotNull(result);
-        assertEquals(expectedResponse.getId(), result.getId());
-        assertEquals(expectedResponse.getFatherId(), result.getFatherId());
-        assertEquals(expectedResponse.getFatherName(), result.getFatherName());
-        assertEquals(expectedResponse.getStatus(), result.getStatus());
-        verify(treeService).ensureTreeExists(treeId);
-        verify(familyService).ensureFamilyExists(familyId);
-        verify(familyRepository).findByTreeIdAndFamilyId(treeId, familyId);
+        assertEquals(expectedFamily, result);
+        verify(treeService).ensureUserAndTreeExist(any(GetFamilyParams.class), eq(expectedFamily));
     }
 
     @Test
     void getFamily_shouldThrowExceptionWhenTreeDoesNotExist() {
+        String userId = "user123";
+        String treeId = "tree123";
+        String familyId = "family123";
 
-        doThrow(new NodeNotFoundException("Tree not found"))
-                .when(treeService).ensureTreeExists(treeId);
+        GetFamilyParams params = GetFamilyParams.builder()
+                .userId(userId)
+                .treeId(treeId)
+                .familyId(familyId)
+                .build();
 
-        NodeNotFoundException exception = assertThrows(NodeNotFoundException.class, () -> {
-            familyViewService.getFamily(treeId, familyId);
-        });
-        assertEquals("Tree not found", exception.getMessage());
-        verify(treeService).ensureTreeExists(treeId);
-        verifyNoInteractions(familyService, familyRepository);
+        doThrow(new NodeNotFoundException("Tree not exist with ID: " + treeId))
+                .when(treeService).ensureUserAndTreeExist(any(BaseParams.class), any());
+
+        NodeNotFoundException exception = assertThrows(NodeNotFoundException.class, () -> familyViewService.getFamily(params));
+
+        assertEquals("Tree not exist with ID: " + treeId, exception.getMessage());
+        verify(treeService).ensureUserAndTreeExist(any(BaseParams.class), any());
     }
 
     @Test
-    void getFamily_shouldThrowExceptionWhenFamilyDoesNotExist() {
+    void getFamily_shouldThrowExceptionWhenUserDoesNotExist() {
+        String userId = "user123";
+        String treeId = "tree123";
+        String familyId = "family123";
 
-        doNothing().when(treeService).ensureTreeExists(treeId);
-        doNothing().when(familyService).ensureFamilyExists(familyId);
-        when(familyRepository.findByTreeIdAndFamilyId(treeId, familyId))
-                .thenReturn(Optional.empty());
+        GetFamilyParams params = GetFamilyParams.builder()
+                .userId(userId)
+                .treeId(treeId)
+                .familyId(familyId)
+                .build();
 
-        NodeNotFoundException exception = assertThrows(NodeNotFoundException.class, () -> {
-            familyViewService.getFamily(treeId, familyId);
-        });
+        doThrow(new NodeNotFoundException("User not exist with ID: " + treeId))
+                .when(treeService).ensureUserAndTreeExist(any(BaseParams.class), any());
 
-        assertEquals("Family " + familyId + " not found for tree " + treeId, exception.getMessage());
-        verify(treeService).ensureTreeExists(treeId);
-        verify(familyService).ensureFamilyExists(familyId);
-        verify(familyRepository).findByTreeIdAndFamilyId(treeId, familyId);
+        NodeNotFoundException exception = assertThrows(NodeNotFoundException.class, () -> familyViewService.getFamily(params));
+
+        assertEquals("User not exist with ID: " + treeId, exception.getMessage());
+        verify(treeService).ensureUserAndTreeExist(any(BaseParams.class), any());
     }
 }

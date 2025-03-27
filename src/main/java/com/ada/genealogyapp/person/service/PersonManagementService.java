@@ -1,18 +1,13 @@
 package com.ada.genealogyapp.person.service;
 
 
-import com.ada.genealogyapp.family.model.Family;
 import com.ada.genealogyapp.family.service.FamilyService;
-import com.ada.genealogyapp.tree.service.TransactionalInNeo4j;
-import com.ada.genealogyapp.person.dto.PersonRequest;
+import com.ada.genealogyapp.person.dto.params.*;
+import com.ada.genealogyapp.transaction.TransactionalInNeo4j;
 import com.ada.genealogyapp.person.model.Person;
-import com.ada.genealogyapp.tree.service.TreeService;
-import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-
-import java.util.*;
 
 @Service
 @Slf4j
@@ -21,27 +16,44 @@ public class PersonManagementService {
 
     private final PersonService personService;
 
-    private final TreeService treeService;
-
     private final PersonValidationService personValidationService;
 
     private final FamilyService familyService;
 
-
-    @TransactionalInNeo4j
-    public void updatePerson(String userId, String treeId, String personId, @NonNull PersonRequest personRequest) {
-
+    private void buildValidateAndUpdatePerson(UpdatePersonRequestParams params) {
         Person person = Person.builder()
-                .firstname(personRequest.getFirstname())
-                .lastname(personRequest.getLastname())
-                .gender(personRequest.getGender())
+                .firstname(params.getPersonRequest().getFirstname())
+                .lastname(params.getPersonRequest().getLastname())
+                .gender(params.getPersonRequest().getGender())
                 .build();
         personValidationService.validatePerson(person);
-        personService.updatePerson(userId, treeId, personId, person);
+        personService.updatePerson(UpdatePersonParams.builder()
+                .userId(params.getUserId())
+                .treeId(params.getTreeId())
+                .personId(params.getPersonId())
+                .person(person)
+                .build());
     }
 
     @TransactionalInNeo4j
-    public void deletePerson(String userId, String treeId, String personId) {
-        personService.deletePerson(userId, treeId, personId);
+    public void updatePerson(UpdatePersonRequestParams params) {
+        buildValidateAndUpdatePerson(params);
+    }
+
+    @TransactionalInNeo4j
+    public void updateChildInFamily(UpdateChildInFamilyRequestParams params) {
+        buildValidateAndUpdatePerson(params);
+        familyService.updateChildInFamily(UpdateChildInFamilyParams.builder()
+                .userId(params.getUserId())
+                .treeId(params.getTreeId())
+                .familyId(params.getFamilyId())
+                .personId(params.getPersonId())
+                .familyChildRequest(params.getFamilyChildRequest())
+                .build());
+    }
+
+    @TransactionalInNeo4j
+    public void deletePerson(DeletePersonParams params) {
+        personService.deletePerson(params);
     }
 }

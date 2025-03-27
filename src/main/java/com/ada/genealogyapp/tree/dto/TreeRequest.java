@@ -18,8 +18,6 @@ public class TreeRequest {
 
     private String name;
 
-    private Long userId;
-
 }
 
 

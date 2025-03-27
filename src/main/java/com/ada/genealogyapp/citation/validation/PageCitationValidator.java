@@ -1,26 +1,23 @@
 package com.ada.genealogyapp.citation.validation;
 
 import com.ada.genealogyapp.citation.model.Citation;
-import com.ada.genealogyapp.validation.ValidationResult;
-import com.ada.genealogyapp.validation.FieldValidator;
-import com.ada.genealogyapp.validation.ValidatorFactory;
+import com.ada.genealogyapp.validation.model.Validator;
+import com.ada.genealogyapp.validation.result.ValidationResult;
+import com.ada.genealogyapp.validation.service.FieldValidationService;
+import com.ada.genealogyapp.validation.type.FieldType;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 
 @Slf4j
-public class PageCitationValidator extends CitationValidator {
+@RequiredArgsConstructor
+public class PageCitationValidator extends Validator<Citation> {
 
-    private static final FieldValidator<String> PAGE_VALIDATOR = ValidatorFactory.createStringValidator(
-            "page",
-            ".*",
-            false,
-            0,
-            300
-    );
+    private final FieldValidationService validationService;
 
     @Override
     public void check(Citation citation, ValidationResult result) {
-        PAGE_VALIDATOR.validate(citation.getPage(), result);
+        validationService.validate(FieldType.TREE_SHORT_TEXT_FIELD, citation.getPage(), result);
         checkNext(citation, result);
     }
 }

@@ -19,6 +19,7 @@ public class PersonAncestorResponse {
 
     private String birthdate;
 
-    private List<PersonAncestorResponse> ancestors;
+    private String deathdate;
 
+    private List<PersonAncestorResponse> ancestors;
 }

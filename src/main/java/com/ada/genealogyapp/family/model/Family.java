@@ -15,6 +15,7 @@ import java.util.*;
 @Setter
 @Builder
 @NoArgsConstructor
+@EqualsAndHashCode(callSuper = false)
 public class Family extends Participant {
 
     private String name;

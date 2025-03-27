@@ -1,9 +1,10 @@
 package com.ada.genealogyapp.tree.integration;
 
 import com.ada.genealogyapp.config.IntegrationTestConfig;
+import com.ada.genealogyapp.graphuser.model.GraphUser;
+import com.ada.genealogyapp.graphuser.repository.GraphUserRepository;
 import com.ada.genealogyapp.tree.dto.TreeRequest;
 import com.ada.genealogyapp.tree.repository.TreeRepository;
-import com.ada.genealogyapp.user.model.User;
 import com.ada.genealogyapp.user.repository.UserRepository;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -24,17 +25,20 @@ class TreeCreationIntegrationTest extends IntegrationTestConfig {
     @Autowired
     UserRepository userRepository;
 
+    @Autowired
+    GraphUserRepository graphUserRepository;
+
 
     @BeforeEach
     void setUp() {
-
+        graphUserRepository.deleteAll();
         treeRepository.deleteAll();
         userRepository.deleteAll();
     }
 
     @AfterEach
     void tearDown() {
-
+        graphUserRepository.deleteAll();
         treeRepository.deleteAll();
         userRepository.deleteAll();
     }
@@ -42,38 +46,17 @@ class TreeCreationIntegrationTest extends IntegrationTestConfig {
     @Test
     void shouldCreateTreeSuccessfully() throws Exception {
 
-        User user = new User();
-        user.setId(1L);
-        userRepository.save(user);
+        GraphUser user = new GraphUser();
+        graphUserRepository.save(user);
 
         TreeRequest request = new TreeRequest();
         request.setName("Smith Family");
-        request.setUserId(user.getId());
 
         mockMvc.perform(post("/api/v1/genealogy/trees")
                         .contentType(MediaType.APPLICATION_JSON)
+                        .header("X-User-Id", user.getId())
                         .content(objectMapper.writeValueAsString(request)))
                 .andDo(print())
                 .andExpect(status().isCreated());
     }
-
-//    @Test
-//    void shouldReturnBadRequestForExistingTree() throws Exception {
-//
-//        Tree existingTree = new Tree();
-//        existingTree.setName("Smith Family");
-//        existingTree.setUserId(1L);
-//        treeRepository.save(existingTree);
-//
-//        TreeRequest request = new TreeRequest();
-//        request.setName("Smith Family");
-//        request.setUserId(1L);
-//
-//
-//        mockMvc.perform(post("/api/v1/genealogy/trees")
-//                        .contentType(MediaType.APPLICATION_JSON)
-//                        .content(objectMapper.writeValueAsString(request)))
-//                .andDo(print())
-//                .andExpect(status().isBadRequest());
-//    }
 }

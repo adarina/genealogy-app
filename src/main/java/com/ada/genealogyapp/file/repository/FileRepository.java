@@ -8,12 +8,11 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.neo4j.repository.Neo4jRepository;
 import org.springframework.data.neo4j.repository.query.Query;
-import org.springframework.data.repository.query.Param;
+import org.springframework.stereotype.Repository;
 
-import java.util.Optional;
 
+@Repository
 public interface FileRepository extends Neo4jRepository<File, String> {
-
 
     @Query("""
             CALL {
@@ -46,37 +45,95 @@ public interface FileRepository extends Neo4jRepository<File, String> {
     String save(String userId, String treeId, String fileId, String name, String type, String path, String filename);
 
     @Query("""
-                MATCH (f:File {id: $fileId})
-                MATCH (t:Tree {id: $treeId})
-                MERGE (t)-[:HAS_FILE]->(f)
-                WITH f
-                RETURN f.id AS id,
-                       f.type AS type,
-                       f.filename AS filename,
-                       $baseUrl + f.filename AS path,
-                       f.name AS name
+            CALL {
+                OPTIONAL MATCH (user:GraphUser {id: $userId})
+                WITH count(user) > 0 AS userExist
+                
+                OPTIONAL MATCH (user)-[:HAS_TREE]->(tree:Tree {id: $treeId})
+                WITH userExist, count(tree) > 0 AS treeExist, tree
+                
+                OPTIONAL MATCH (tree)-[:HAS_FILE]->(file:File {id: $fileId})
+                RETURN userExist, treeExist, tree, count(file) > 0 AS fileExist, file
+            }
+                        
+            CALL apoc.do.case(
+                [
+                    treeExist AND fileExist, '
+                        SET file.name = $name
+  
+                        RETURN "FILE_UPDATED" AS message
+                    ',
+                    userExist AND treeExist, 'RETURN "FILE_NOT_EXIST" AS message',
+                    userExist, 'RETURN "TREE_NOT_EXIST" AS message'
+                ],
+                'RETURN "USER_NOT_EXIST" AS message',
+                {file: file, name: $name}
+            ) YIELD value
+            RETURN value.message
+            LIMIT 1
             """)
-    Optional<FileResponse> findByTreeIdAndFileId(@Param("treeId") String treeId, @Param("fileId") String fileId, String baseUrl);
+    String update(String userId, String treeId, String fileId, String name);
+
+    @Query("""
+            CALL {
+                OPTIONAL MATCH (user:GraphUser {id: $userId})
+                WITH count(user) > 0 AS userExist
+                
+                OPTIONAL MATCH (user)-[:HAS_TREE]->(tree:Tree {id: $treeId})
+                WITH userExist, count(tree) > 0 AS treeExist, tree
+                
+                OPTIONAL MATCH (tree)-[:HAS_FILE]->(file:File {id: $fileId})
+                RETURN userExist, treeExist, tree, count(file) > 0 AS fileExist, file
+            }
+                        
+            CALL apoc.do.case(
+                [
+                    userExist AND treeExist AND fileExist, '
+                        OPTIONAL MATCH (file)-[rel]-()
+                        DELETE rel, file
+                        RETURN "FILE_DELETED" AS message
+                    ',
+                    userExist AND treeExist, 'RETURN "FILE_NOT_EXIST" AS message',
+                    userExist, 'RETURN "TREE_NOT_EXIST" AS message'
+                ],
+                'RETURN "USER_NOT_EXIST" AS message',
+                {tree: tree, file: file}
+            ) YIELD value
+            RETURN value.message
+            LIMIT 1
+            """)
+    String delete(String userId, String treeId, String fileId);
+    @Query("""
+                MATCH (user:GraphUser {id: $userId})-[:HAS_TREE]->(tree:Tree {id: $treeId})-[:HAS_FILE]->(file:File {id: $fileId})
+                RETURN file.id AS id,
+                       file.type AS type,
+                       file.filename AS filename,
+                       $baseUrl + file.filename AS path,
+                       file.name AS name
+            """)
+    FileResponse find(String userId, String treeId, String fileId, String baseUrl);
 
     @Query(value = """
-            MATCH (t:Tree)-[:HAS_FILE]->(f:File)
-            WHERE t.id = $treeId
-            AND (toLower(f.name) CONTAINS toLower($name) OR $name = '')
-            AND (toLower(f.type) CONTAINS toLower($type) OR $type = '')
-            WITH f
-            RETURN f.id AS id,
-                   f.type AS type,
-                   f.filename AS filename,
-                   $baseUrl + f.filename AS path,
-                   f.name AS name
+            MATCH (user:GraphUser {id: $userId})-[:HAS_TREE]->(tree:Tree {id: $treeId})
+            OPTIONAL MATCH (tree)-[:HAS_FILE]->(file:File)
+            WHERE (toLower(file.name) CONTAINS toLower($name) OR $name = '')
+                AND (toLower(file.type) CONTAINS toLower($type) OR $type = '')
+            WITH file
+            RETURN file.id AS id,
+                   file.type AS type,
+                   file.filename AS filename,
+                   $baseUrl + file.filename AS path,
+                   file.name AS name
                    :#{orderBy(#pageable)}
                    SKIP $skip
                    LIMIT $limit
                    """,
             countQuery = """
-                    MATCH (t:Tree)-[:HAS_FILE]->(f:File)
-                    WHERE t.id = $treeId
-                    RETURN count(f)
+                    MATCH (user:GraphUser {id: $userId})-[:HAS_TREE]->(tree:Tree {id: $treeId})
+                    OPTIONAL MATCH (tree)-[:HAS_FILE]->(file:File)
+                    WHERE (toLower(file.name) CONTAINS toLower($name) OR $name = '')
+                       AND (toLower(file.type) CONTAINS toLower($type) OR $type = '')
+                    RETURN count(file)
                     """)
-    Page<FileResponse> findByTreeIdAndFilteredNameAndType(@Param("treeId") String treeId, String name, String type, @Param("baseUrl") String baseUrl, Pageable pageable);
+    Page<FileResponse> find(String userId, String treeId, String name, String type, String baseUrl, Pageable pageable);
 }

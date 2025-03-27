@@ -1,37 +1,41 @@
 package com.ada.genealogyapp.family.service;
 
-import com.ada.genealogyapp.family.dto.FamilyRequest;
+import com.ada.genealogyapp.family.dto.params.DeleteFamilyParams;
+import com.ada.genealogyapp.family.dto.params.UpdateFamilyParams;
+import com.ada.genealogyapp.family.dto.params.UpdateFamilyRequestParams;
 import com.ada.genealogyapp.family.model.Family;
-import com.ada.genealogyapp.tree.service.TransactionalInNeo4j;
+import com.ada.genealogyapp.transaction.TransactionalInNeo4j;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class FamilyManagementService {
 
     private final FamilyService familyService;
 
     private final FamilyValidationService familyValidationService;
 
-    public FamilyManagementService(FamilyService familyService, FamilyValidationService familyValidationService) {
-        this.familyService = familyService;
-        this.familyValidationService = familyValidationService;
-    }
-
 
     @TransactionalInNeo4j
-    public void updateFamily(String userId, String treeId, String familyId, FamilyRequest familyRequest) {
+    public void updateFamily(UpdateFamilyRequestParams params) {
         Family family = Family.builder()
-                .status(familyRequest.getStatus())
+                .status(params.getFamilyRequest().getStatus())
                 .build();
 
         familyValidationService.validateFamily(family);
-        familyService.updateFamily(userId, treeId, familyId, family);
+        familyService.updateFamily(UpdateFamilyParams.builder()
+                .userId(params.getUserId())
+                .treeId(params.getTreeId())
+                .familyId(params.getFamilyId())
+                .family(family)
+                .build());
     }
 
     @TransactionalInNeo4j
-    public void deleteFamily(String userId, String treeId, String familyId) {
-        familyService.deleteFamily(userId, treeId, familyId);
+    public void deleteFamily(DeleteFamilyParams params) {
+        familyService.deleteFamily(params);
     }
 }

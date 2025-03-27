@@ -6,6 +6,8 @@ import org.springframework.stereotype.Component;
 
 import java.util.Map;
 
+import static java.util.Objects.nonNull;
+
 @Component
 public class CitationGedcomMapper extends GedcomMapper<Citation> {
 
@@ -13,7 +15,7 @@ public class CitationGedcomMapper extends GedcomMapper<Citation> {
     public String generateGedcomContent(Citation citation, String gedcomId, Map<String, String> personGedcomIds) {
         StringBuilder builder = new StringBuilder();
         builder.append("0 ").append(gedcomId).append(" SOUR ").append(citation.getSource().getId()).append("\n");
-        if (citation.getPage() != null) {
+        if (nonNull(citation.getPage())) {
             builder.append("1 PAGE ").append(citation.getPage()).append("\n");
         }
         return builder.toString();

@@ -1,18 +1,24 @@
 package com.ada.genealogyapp.event.service;
 
-import com.ada.genealogyapp.event.model.Event;
+import com.ada.genealogyapp.event.dto.params.*;
 
 public interface EventService {
-    Event findEventById(String eventId);
-    void saveEvent(String userId, String treeId, Event event);
-    void saveEventWithParticipant(String userId, String treeId, Event event, String participantId, String relationshipType);
-    void ensureEventExists(String eventId);
-    void deleteEvent(String userId, String treeId, String eventId);
-    void updateEvent(String userId, String treeId, String eventId, Event event);
-    void updateEventWithParticipant(String userId, String treeId, String eventId, Event event, String participantId, String relationshipType);
-    void addParticipantToEvent(String userId, String treeId, String eventId, String participantId, String relationshipType);
-    void removeParticipantFromEvent(String userId, String treeId, String eventId, String participantId);
-    void removeCitationFromEvent(String userId, String treeId, String eventId, String citationId);
-    void addCitationToEvent(String userId, String treeId, String eventId, String citationId);
 
+    void saveEvent(SaveEventParams params);
+
+    void saveEventWithParticipant(SaveEventWithParticipantParams params);
+
+    void deleteEvent(DeleteEventParams params);
+
+    void updateEvent(UpdateEventParams params);
+
+    void updateEventWithParticipant(UpdateEventWithParticipantParams params);
+
+    void addParticipantToEvent(AddParticipantToEventParams params);
+
+    void removeParticipantFromEvent(RemoveParticipantFromEventParams params);
+
+    void removeCitationFromEvent(RemoveCitationFromEventParams params);
+
+    void addCitationToEvent(AddCitationToEventParams params);
 }

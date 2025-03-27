@@ -1,11 +1,9 @@
 package com.ada.genealogyapp.file.service;
 
-import com.ada.genealogyapp.tree.service.TransactionalInNeo4j;
+import com.ada.genealogyapp.transaction.TransactionalInNeo4j;
 import com.ada.genealogyapp.exceptions.StorageException;
 import com.ada.genealogyapp.file.model.File;
-import com.ada.genealogyapp.file.repository.FileRepository;
-import com.ada.genealogyapp.tree.model.Tree;
-import com.ada.genealogyapp.tree.service.TreeService;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -22,24 +20,14 @@ import java.util.UUID;
 
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class FileStorageService {
-
-    private final TreeService treeService;
-    private final FileRepository fileRepository;
-
-    private final  FileService fileService;
 
     @Value("${file.storage}")
     private String storage;
 
-    public FileStorageService(TreeService treeService, FileRepository fileRepository, FileService fileService) {
-        this.treeService = treeService;
-        this.fileRepository = fileRepository;
-        this.fileService = fileService;
-    }
-
     @TransactionalInNeo4j
-    public File storeFile(String userId, String treeId, MultipartFile multipartFile) {
+    public File saveMultipartFileToFileSystem(MultipartFile multipartFile) {
         if (this.storage.trim().isEmpty()) {
             throw new StorageException("File upload location can not be empty");
         }
@@ -60,15 +48,12 @@ public class FileStorageService {
             throw new StorageException("Failed to store file");
         }
 
-        File file = File.builder()
+        return File.builder()
                 .id(UUID.randomUUID().toString())
                 .name(multipartFile.getOriginalFilename())
                 .type(multipartFile.getContentType())
                 .path(destinationFile.toString())
                 .filename(multipartFile.getOriginalFilename())
                 .build();
-
-        fileService.saveFile(userId, treeId, file);
-        return file;
     }
 }

@@ -1,0 +1,20 @@
+package com.ada.genealogyapp.validation.type;
+
+public enum FieldType {
+
+    TEXT_FIELD,
+    NUMERIC_FIELD,
+    ENUM_FIELD,
+    ENUM_STATUS_FIELD,
+    ENUM_TYPE_FIELD,
+    ENUM_GENDER_FIELD,
+    TREE_SHORT_TEXT_FIELD,
+    TREE_MEDIUM_TEXT_FIELD,
+    TREE_LONG_TEXT_FIELD,
+    TREE_DATE_FIELD,
+    USER_NAME_TEXT_FIELD,
+    PASSWORD_TEXT_FIELD,
+    PHONE_NUMERIC_FIELD,
+    EMAIL_TEXT_FIELD
+
+}

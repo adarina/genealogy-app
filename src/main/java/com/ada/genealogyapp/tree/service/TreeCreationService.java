@@ -1,39 +1,51 @@
 package com.ada.genealogyapp.tree.service;
 
-import com.ada.genealogyapp.exceptions.NodeAlreadyExistsException;
-import com.ada.genealogyapp.tree.dto.TreeRequest;
+
+import com.ada.genealogyapp.transaction.TransactionalInNeo4j;
+import com.ada.genealogyapp.tree.dto.params.CreateTreeImportParams;
+import com.ada.genealogyapp.tree.dto.params.CreateTreeRequestParams;
+import com.ada.genealogyapp.tree.dto.params.SaveTreeParams;
 import com.ada.genealogyapp.tree.model.Tree;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.util.Optional;
+import java.util.UUID;
 
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class TreeCreationService {
-
 
     private final TreeService treeService;
 
-    public TreeCreationService(TreeService treeService) {
-        this.treeService = treeService;
+    private final TreeValidationService treeValidationService;
+
+    public void validateAndSaveTree(String userId, Tree tree) {
+        treeValidationService.validateTree(tree);
+        treeService.saveTree(SaveTreeParams.builder()
+                .userId(userId)
+                .treeId(tree.getId())
+                .tree(tree)
+                .build());
     }
 
-
-    //TODO validation
     @TransactionalInNeo4j
-    public void createTree(TreeRequest treeRequest) {
-
+    public void createTree(CreateTreeRequestParams params) {
         Tree tree = Tree.builder()
-                .name(treeRequest.getName())
-//                .userId(treeRequest.getUserId())
+                .id(UUID.randomUUID().toString())
+                .name(params.getTreeRequest().getName())
                 .build();
+        validateAndSaveTree(params.getUserId(), tree);
+    }
 
-        Optional<Tree> existingTree = treeService.findTreeByName(tree.getName());
-
-        if (existingTree.isPresent()) {
-            throw new NodeAlreadyExistsException("Tree with name " + tree.getName() + " already exists");
-        }
-        treeService.saveTree(tree);
+    @TransactionalInNeo4j
+    public Tree createTreeImport(CreateTreeImportParams params) {
+        Tree tree = Tree.builder()
+                .id(UUID.randomUUID().toString())
+                .name(params.getName())
+                .build();
+        validateAndSaveTree(params.getUserId(), tree);
+        return tree;
     }
 }

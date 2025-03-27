@@ -1,29 +1,31 @@
 package com.ada.genealogyapp.family.service;
 
-import com.ada.genealogyapp.family.dto.FamilyChildRequest;
-import com.ada.genealogyapp.family.model.Family;
+import com.ada.genealogyapp.family.dto.FamiliesResponse;
+import com.ada.genealogyapp.family.dto.FamilyResponse;
+import com.ada.genealogyapp.family.dto.params.*;
+import com.ada.genealogyapp.person.dto.params.UpdateChildInFamilyParams;
+import com.ada.genealogyapp.person.dto.params.UpdateChildInFamilyRequestParams;
+import org.springframework.data.domain.Page;
 
 public interface FamilyService {
 
-    void saveFamily(String userId, String treeId, Family family);
+    void saveFamily(SaveFamilyParams params);
 
-    void updateFamily(String userId, String treeId, String familyId, Family family);
+    void updateFamily(UpdateFamilyParams params);
 
-    void ensureFamilyExists(String familyId);
+    void deleteFamily(DeleteFamilyParams params);
 
-    void deleteFamily(String userId, String treeId, String familyId);
+    void addFatherToFamily(AddPersonToFamilyParams params);
 
-    void addFatherToFamily(String userId, String treeId, String familyId, String fatherId);
+    void addMotherToFamily(AddPersonToFamilyParams params);
 
-    void addMotherToFamily(String userId, String treeId, String familyId, String motherId);
+    void addChildToFamily(AddChildToFamilyRequestParams params);
 
-    void addChildToFamily(String userId, String treeId, String familyId, String childId, String fatherRelationshipType, String motherRelationshipType);
+    void removeFatherFromFamily(RemovePersonFromFamilyParams params);
 
-    void removeFatherFromFamily(String userId, String treeId, String familyId, String fatherId);
+    void removeMotherFromFamily(RemovePersonFromFamilyParams params);
 
-    void removeMotherFromFamily(String userId, String treeId, String familyId, String motherId);
+    void removeChildFromFamily(RemovePersonFromFamilyParams params);
 
-    void removeChildFromFamily(String userId, String treeId, String familyId, String childId);
-
-    void updateChildInFamily(String userId, String treeId, String familyId, String childId, FamilyChildRequest familyChildRequest);
+    void updateChildInFamily(UpdateChildInFamilyParams params);
 }

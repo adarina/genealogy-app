@@ -1,31 +1,17 @@
 package com.ada.genealogyapp.tree.repository;
 
 
-import com.ada.genealogyapp.tree.dto.TreeExportJsonResponse;
+import com.ada.genealogyapp.tree.dto.TreeResponse;
 import com.ada.genealogyapp.tree.model.Tree;
 import org.springframework.data.neo4j.repository.Neo4jRepository;
 import org.springframework.data.neo4j.repository.query.Query;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
+@Repository
 public interface TreeRepository extends Neo4jRepository<Tree, String> {
-
-    Optional<Tree> findByName(String name);
-
-    @Query("""
-            MATCH (t:Tree)
-            RETURN t
-            """)
-    List<Tree> findAllTrees();
-
-    @Query("""
-            MATCH (t:Tree {id: $treeId})-[:HAS_PERSON]->(p:Person)
-            WITH t, COLLECT(p) AS persons
-            RETURN t, persons
-            """)
-    TreeExportJsonResponse findTree(String treeId);
 
     @Query("""
             MATCH (t:Tree {id: $treeId})
@@ -33,13 +19,13 @@ public interface TreeRepository extends Neo4jRepository<Tree, String> {
             """)
     Optional<Tree> findTreeById(String treeId);
 
-
     @Query("""
-            MATCH (t:Tree {id: $treeId})
-            OPTIONAL MATCH (t)-[:HAS_PERSON]->(p:Person)
-            RETURN t, COLLECT(p) AS persons
+            MATCH (user:GraphUser {id: $userId})
+            OPTIONAL MATCH (user)-[:HAS_TREE]->(tree:Tree)
+            RETURN tree.id AS id,
+                   tree.name AS name
             """)
-    Map<String, Object> findTreeWithPersons(String treeId);
+    List<TreeResponse> find(String userId);
 
     @Query("""
                 CALL {
@@ -48,9 +34,7 @@ public interface TreeRepository extends Neo4jRepository<Tree, String> {
                     
                     OPTIONAL MATCH (user)-[:HAS_TREE]->(tree:Tree {id: $treeId})
                     RETURN count(tree) > 0 AS treeExist, userExist, tree
-
                 }
-                
                 CALL apoc.do.case(
                     [
                         userExist AND treeExist, 'RETURN "SUCCESS" AS message',
@@ -64,30 +48,88 @@ public interface TreeRepository extends Neo4jRepository<Tree, String> {
             """)
     String checkTreeAndUserExistence(String userId, String treeId);
 
+    @Query("""
+               RETURN CASE
+                    WHEN EXISTS { MATCH (user:GraphUser {id: $userId}) }
+                    THEN "SUCCESS"
+                    ELSE "USER_NOT_EXIST"
+                END AS message
+                LIMIT 1
+            """)
+    String checkUserExistence(String userId);
 
     @Query("""
-            MATCH (tree:Tree {id: $treeId})-[:HAS_PERSON]->(person:Person),
-                  (tree)-[:HAS_FAMILY]->(family:Family),
-                  (tree)-[:HAS_EVENT]->(event:Event)
-            WITH tree, person, family, event
-            OPTIONAL MATCH (person)-[:PARENT_OF]->(child:Person)
-            OPTIONAL MATCH (family)-[:HAS_FATHER]->(father:Person),
-                             (family)-[:HAS_MOTHER]->(mother:Person),
-                             (family)-[:HAS_CHILD]->(child:Person)
-            OPTIONAL MATCH (event)-[:HAS_PARTICIPANT]->(participant:Person),
-                             (event)-[:HAS_EVENT_CITATION]->(citation)
-            RETURN tree,
-                   person,
-                   family,
-                   event,
-                   father,
-                   mother,
-                   participant,
-                   citation
+            CALL {
+                OPTIONAL MATCH (user:GraphUser {id: $userId})
+                RETURN count(user) > 0 AS userExist, user
+            }
+                        
+            CALL apoc.do.case(
+                [
+                    userExist, '
+                        MERGE (user)-[:HAS_TREE]->(tree:Tree {id: treeId})
+                        SET tree.name = name
+                            
+                        RETURN "TREE_CREATED" AS message
+                    '
+                ],
+                'RETURN "USER_NOT_EXIST" AS message',
+                {user: user, treeId: $treeId, name: $name}
+            ) YIELD value
+            RETURN value.message
+            LIMIT 1
             """)
-    Tree fetchTreeWithDetails(String treeId);
+    String save(String userId, String treeId, String name);
 
+    @Query("""
+            CALL {
+                OPTIONAL MATCH (user:GraphUser {id: $userId})
+                WITH count(user) > 0 AS userExist
+                
+                OPTIONAL MATCH (user)-[:HAS_TREE]->(tree:Tree {id: $treeId})
+                RETURN userExist, count(tree) > 0 AS treeExist, tree
+            }
+                        
+            CALL apoc.do.case(
+                [
+                     userExist AND treeExist, '
+                        SET tree.name = $name
+                            
+                        RETURN "TREE_UPDATED" AS message
+                    ',
+                    userExist, 'RETURN "TREE_NOT_EXIST" AS message'
+                ],
+                'RETURN "USER_NOT_EXIST" AS message',
+                {tree: tree, name: $name}
+            ) YIELD value
+            RETURN value.message
+            LIMIT 1
+            """)
+    String update(String userId, String treeId, String name);
 
+    @Query("""
+            CALL {
+                OPTIONAL MATCH (user:GraphUser {id: $userId})
+                WITH count(user) > 0 AS userExist
+                
+                OPTIONAL MATCH (user)-[:HAS_TREE]->(tree:Tree {id: $treeId})
+                RETURN userExist, count(tree) > 0 AS treeExist, tree
+            }
+                        
+            CALL apoc.do.case(
+                [
+                    userExist AND treeExist, '
+                        OPTIONAL MATCH (tree)-[rel]-()
+                        DELETE rel, tree
+                        RETURN "TREE_DELETED" AS message
+                    ',
+                    userExist, 'RETURN "TREE_NOT_EXIST" AS message'
+                ],
+                'RETURN "USER_NOT_EXIST" AS message',
+                {tree: tree}
+            ) YIELD value
+            RETURN value.message
+            LIMIT 1
+            """)
+    String delete(String userId, String treeId);
 }
-
-

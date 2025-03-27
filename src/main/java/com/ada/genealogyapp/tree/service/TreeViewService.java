@@ -1,38 +1,26 @@
 package com.ada.genealogyapp.tree.service;
 
-
-
 import com.ada.genealogyapp.tree.dto.TreeResponse;
-import com.ada.genealogyapp.tree.model.Tree;
+import com.ada.genealogyapp.tree.repository.TreeRepository;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 
 
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class TreeViewService {
 
-    private final TreeSearchService treeSearchService;
+    private final TreeRepository treeRepository;
 
-    public TreeViewService(TreeSearchService treeSearchService) {
-        this.treeSearchService = treeSearchService;
-    }
+    private final TreeService treeService;
 
-    //TODO za wolne
-    public List<TreeResponse> getTrees() {
-        List<Tree> trees = treeSearchService.getTreesOrThrowNodeNotFoundException();
-        List<TreeResponse> treeResponses = new ArrayList<>();
-
-        for (Tree tree : trees) {
-            TreeResponse response = new TreeResponse();
-            response.setId(tree.getId());
-            response.setName(tree.getName());
-
-            treeResponses.add(response);
-        }
-        return treeResponses;
+    public List<TreeResponse> getTrees(String userId) {
+        List<TreeResponse> trees = treeRepository.find(userId);
+        treeService.checkUserExistence(userId, trees);
+        return trees;
     }
 }

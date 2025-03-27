@@ -1,39 +1,43 @@
 package com.ada.genealogyapp.citation.service;
 
 
-import com.ada.genealogyapp.citation.dto.CitationRequest;
+import com.ada.genealogyapp.citation.dto.params.DeleteCitationParams;
+import com.ada.genealogyapp.citation.dto.params.UpdateCitationParams;
+import com.ada.genealogyapp.citation.dto.params.UpdateCitationRequestParams;
 import com.ada.genealogyapp.citation.model.Citation;
-import com.ada.genealogyapp.tree.service.TransactionalInNeo4j;
+import com.ada.genealogyapp.transaction.TransactionalInNeo4j;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class CitationManagementService {
 
     private final CitationService citationService;
 
     private final CitationValidationService citationValidationService;
 
-    public CitationManagementService(CitationService citationService, CitationValidationService citationValidationService) {
-        this.citationService = citationService;
-        this.citationValidationService = citationValidationService;
-    }
-
     @TransactionalInNeo4j
-    public void updateCitation(String userId, String treeId, String citationId, CitationRequest citationRequest) {
+    public void updateCitation(UpdateCitationRequestParams params) {
         Citation citation = Citation.builder()
-                .page(citationRequest.getPage())
-                .date(citationRequest.getDate())
+                .page(params.getCitationRequest().getPage())
+                .date(params.getCitationRequest().getDate())
                 .build();
 
         citationValidationService.validateCitation(citation);
-        citationService.updateCitation(userId, treeId, citationId, citation);
+        citationService.updateCitation(UpdateCitationParams.builder()
+                .userId(params.getUserId())
+                .treeId(params.getTreeId())
+                .citationId(params.getCitationId())
+                .citation(citation)
+                .build());
     }
 
     @TransactionalInNeo4j
-    public void deleteCitation(String userId, String treeId, String citationId) {
-        citationService.deleteCitation(userId, treeId, citationId);
+    public void deleteCitation(DeleteCitationParams params) {
+        citationService.deleteCitation(params);
     }
 }
