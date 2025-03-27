@@ -3,7 +3,6 @@ package com.ada.genealogyapp.family.controller;
 
 import com.ada.genealogyapp.family.dto.FamilyChildRequest;
 import com.ada.genealogyapp.family.dto.params.CreateAndAddChildToFamilyParams;
-import com.ada.genealogyapp.person.dto.params.CreateAndAddPersonToFamilyParams;
 import com.ada.genealogyapp.person.service.PersonCreationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;

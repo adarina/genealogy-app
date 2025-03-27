@@ -51,44 +51,6 @@ public interface EventRepository extends Neo4jRepository<Event, String> {
                 OPTIONAL MATCH (user)-[:HAS_TREE]->(tree:Tree {id: $treeId})
                 WITH userExist, count(tree) > 0 AS treeExist, tree
                 
-                OPTIONAL MATCH (tree)-[:HAS_FAMILY|HAS_PERSON]->(participant:Participant {id: $participantId})
-                RETURN userExist, treeExist, tree, count(participant) > 0 AS participantExist, participant
-            }
-                            
-            CALL apoc.do.case(
-                [
-                    userExist AND treeExist AND participantExist, '
-                        MERGE (tree)-[:HAS_EVENT]->(event:Event {id: $eventId})
-                        SET event.description = $description,
-                            event.place = $place,
-                            event.type = $type,
-                            event.date = $date
-                
-                        MERGE (event)-[:HAS_PARTICIPANT {relationship: $relationshipType}]->(participant)
-                            
-                        RETURN "EVENT_CREATED" AS message
-                    ',
-                    userExist AND treeExist, '
-                        RETURN "PARTICIPANT_NOT_EXIST" AS message
-                    ',
-                    userExist, 'RETURN "TREE_NOT_EXIST" AS message'
-                ],
-                'RETURN "USER_NOT_EXIST" AS message',
-                {tree: tree, eventId: $eventId, description: $description, place: $place, type: $type, date: $date, participant: participant, relationshipType: $relationshipType}
-            ) YIELD value
-            RETURN value.message
-            LIMIT 1
-            """)
-    String save(String userId, String treeId, String eventId, String description, String place, String type, String date, String participantId, String relationshipType);
-
-    @Query("""
-            CALL {
-                OPTIONAL MATCH (user:GraphUser {id: $userId})
-                WITH count(user) > 0 AS userExist
-                
-                OPTIONAL MATCH (user)-[:HAS_TREE]->(tree:Tree {id: $treeId})
-                WITH userExist, count(tree) > 0 AS treeExist, tree
-                
                 OPTIONAL MATCH (tree)-[:HAS_EVENT]->(event:Event {id: $eventId})
                 RETURN userExist, treeExist, tree, count(event) > 0 AS eventExist, event
             }
@@ -412,10 +374,4 @@ public interface EventRepository extends Neo4jRepository<Event, String> {
                         RETURN count(participant)
                     """)
     Page<EventParticipantResponse> findParticipants(String userId, String treeId, String eventId, Pageable pageable);
-
-    @Query("""
-            MATCH (event:Event {id: $eventId})
-            RETURN event
-            """)
-    Optional<Event> findEvent(String eventId);
 }

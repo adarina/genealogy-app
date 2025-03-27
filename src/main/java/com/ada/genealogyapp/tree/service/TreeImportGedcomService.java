@@ -48,9 +48,7 @@ import com.ada.genealogyapp.tree.dto.gedcom.*;
 import com.ada.genealogyapp.gedcom.mappers.EventMapper;
 import com.ada.genealogyapp.gedcom.mappers.GenderMapper;
 import com.ada.genealogyapp.tree.dto.params.CreateTreeImportParams;
-import com.ada.genealogyapp.tree.dto.params.CreateTreeRequestParams;
 import com.ada.genealogyapp.tree.model.Tree;
-import com.ada.genealogyapp.tree.repository.TreeRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

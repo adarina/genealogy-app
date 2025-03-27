@@ -3,7 +3,6 @@ package com.ada.genealogyapp.event.dto;
 import com.ada.genealogyapp.event.type.EventType;
 import lombok.*;
 
-import java.time.LocalDate;
 import java.util.LinkedHashSet;
 
 @Getter

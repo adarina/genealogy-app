@@ -1,6 +1,5 @@
 package com.ada.genealogyapp.file.dto.params;
 
-import com.ada.genealogyapp.family.dto.params.BaseFamilyParams;
 import com.ada.genealogyapp.file.model.File;
 import lombok.Data;
 import lombok.EqualsAndHashCode;

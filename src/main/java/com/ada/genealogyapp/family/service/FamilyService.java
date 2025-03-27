@@ -1,11 +1,7 @@
 package com.ada.genealogyapp.family.service;
 
-import com.ada.genealogyapp.family.dto.FamiliesResponse;
-import com.ada.genealogyapp.family.dto.FamilyResponse;
 import com.ada.genealogyapp.family.dto.params.*;
 import com.ada.genealogyapp.person.dto.params.UpdateChildInFamilyParams;
-import com.ada.genealogyapp.person.dto.params.UpdateChildInFamilyRequestParams;
-import org.springframework.data.domain.Page;
 
 public interface FamilyService {
 
