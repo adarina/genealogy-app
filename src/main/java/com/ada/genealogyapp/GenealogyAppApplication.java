@@ -10,13 +10,11 @@ import org.springframework.data.web.config.EnableSpringDataWebSupport;
 
 
 
-//@SpringBootApplication
+
 @Slf4j
 @EnableAspectJAutoProxy
-//@EnableSpringDataWebSupport(pageSerializationMode = EnableSpringDataWebSupport.PageSerializationMode.VIA_DTO)
 @EnableDiscoveryClient
 @SpringBootApplication(exclude = {Neo4jReactiveDataAutoConfiguration.class})
-
 public class GenealogyAppApplication {
 
     public static void main(String[] args) {

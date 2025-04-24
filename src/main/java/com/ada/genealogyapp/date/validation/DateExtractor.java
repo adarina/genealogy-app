@@ -58,7 +58,7 @@ public class DateExtractor {
             return date;
         }
 
-        throw new IllegalArgumentException("Nieprawidłowy format daty: " + input);
+        throw new IllegalArgumentException("Wrong date: " + input);
     }
 
     private static void setQualityAndType(Date date, String quality, String type) {
@@ -98,10 +98,10 @@ public class DateExtractor {
                     date.setTypeType(TypeType.RANGE);
                     break;
                 default:
-                    date.setTypeType(TypeType.EXACT); // Domyślnie EXACT
+                    date.setTypeType(TypeType.EXACT);
             }
         } else {
-            date.setTypeType(TypeType.EXACT); // Domyślnie EXACT
+            date.setTypeType(TypeType.EXACT);
         }
     }
 
@@ -112,28 +112,4 @@ public class DateExtractor {
         partialDate.setDay(day);
         return partialDate;
     }
-
-//    public static void main(String[] args) {
-//        // Przykładowe daty wejściowe
-//        String[] testDates = {
-//                "12.12.1990",
-//                "1800",
-//                "EXACT 12.12.1990",
-//                "ESTIMATED 1800",
-//                "BEFORE 1700",
-//                "ABOUT 13.04.1234",
-//                "EXACT BEFORE 1700",
-//                "RANGE 12.12.1800 and 13.01.1810"
-//        };
-//
-//        for (String testDate : testDates) {
-//            try {
-//                Date parsedDate = parseDate(testDate);
-//                System.out.println("Input: " + testDate);
-//                System.out.println("Parsed: " + parsedDate);
-//            } catch (Exception e) {
-//                System.out.println("Error parsing date: " + testDate + " (" + e.getMessage() + ")");
-//            }
-//        }
-//    }
 }
