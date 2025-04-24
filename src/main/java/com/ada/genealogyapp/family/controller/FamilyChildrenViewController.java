@@ -1,6 +1,7 @@
 package com.ada.genealogyapp.family.controller;
 
 import com.ada.genealogyapp.family.dto.FamilyChildResponse;
+import com.ada.genealogyapp.family.dto.params.GetChildParams;
 import com.ada.genealogyapp.family.dto.params.GetChildrenParams;
 import com.ada.genealogyapp.family.service.FamilyChildrenViewService;
 import lombok.RequiredArgsConstructor;
@@ -26,5 +27,16 @@ public class FamilyChildrenViewController {
                 .pageable(pageable)
                 .build());
         return ResponseEntity.ok(childResponses);
+    }
+
+    @GetMapping("/{childId}")
+    public ResponseEntity<FamilyChildResponse> getChild(@PathVariable String treeId, @PathVariable String familyId, @PathVariable String childId, @RequestHeader(value = "X-User-Id") String userId) {
+        FamilyChildResponse familyChildResponse = familyChildrenViewService.getChild(GetChildParams.builder()
+                .userId(userId)
+                .treeId(treeId)
+                .childId(childId)
+                .familyId(familyId)
+                .build());
+        return ResponseEntity.ok(familyChildResponse);
     }
 }

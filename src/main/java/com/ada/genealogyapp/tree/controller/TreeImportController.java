@@ -6,11 +6,10 @@ import com.ada.genealogyapp.tree.model.Tree;
 import com.ada.genealogyapp.tree.service.TreeImportGedcomService;
 import com.ada.genealogyapp.tree.service.TreeImportJsonService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 
@@ -24,14 +23,20 @@ public class TreeImportController {
     private final TreeImportGedcomService treeImportGedcomService;
 
     @PostMapping("/importJson")
-    public ResponseEntity<Tree> importTreeFromJson(@RequestBody TreeImportJsonRequest importRequest) {
-        Tree tree = treeImportJsonService.importTree(importRequest);
+    public ResponseEntity<Tree> importTreeFromJson(@RequestBody TreeImportJsonRequest importRequest, @RequestHeader(value = "X-User-Id") String userId) {
+        Tree tree = treeImportJsonService.importTree(importRequest, userId);
         return ResponseEntity.ok(tree);
     }
 
     @PostMapping("/importGedcom")
     public ResponseEntity<Tree> importTreeFromGedcom(@RequestBody TreeImportGedcomRequest importRequest) throws IOException {
         Tree tree = treeImportGedcomService.importTree(importRequest);
+        return ResponseEntity.ok(tree);
+    }
+
+    @PostMapping(path = "/importFileJson", consumes = { MediaType.MULTIPART_FORM_DATA_VALUE })
+    public ResponseEntity<Tree> importTreeFromFileJson(@RequestParam MultipartFile multipartFile, @RequestHeader(value = "X-User-Id") String userId) {
+        Tree tree = treeImportJsonService.importTreeFile(multipartFile, userId);
         return ResponseEntity.ok(tree);
     }
 }

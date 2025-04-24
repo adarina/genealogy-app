@@ -284,10 +284,10 @@ public interface EventRepository extends Neo4jRepository<Event, String> {
     @Query("""
             MATCH (user:GraphUser {id: $userId})-[:HAS_TREE]->(tree:Tree {id: $treeId})-[:HAS_EVENT]->(event:Event {id: $eventId})
             OPTIONAL MATCH (event)-[:HAS_EVENT_CITATION]->(citation:Citation)
-            WITH event, COLLECT({id: citation.id, page: citation.page, date: citation.date}) AS citations
+            WITH event,  COLLECT(DISTINCT {id: citation.id, page: citation.page, date: citation.date}) AS citations
                         
             OPTIONAL MATCH (event)-[rel:HAS_PARTICIPANT]->(participant:Participant)
-            WITH event, citations, COLLECT({id: participant.id, name: participant.name, relationship: rel.relationship}) AS participants
+            WITH event, citations,  COLLECT(DISTINCT {id: participant.id, name: participant.name, relationship: rel.relationship}) AS participants
                         
             RETURN event.id AS id,
                    event.type AS type,
@@ -339,8 +339,7 @@ public interface EventRepository extends Neo4jRepository<Event, String> {
     Page<EventsResponse> find(String userId, String treeId, String description, String participants, String type, String place, Pageable pageable);
 
     @Query(value = """
-            MATCH (user:GraphUser {id: $userId})-[:HAS_TREE]->(tree:Tree {id: $treeId})-[:HAS_EVENT]->(event:Event {id: $eventId})
-            OPTIONAL MATCH (event)-[:HAS_EVENT_CITATION]->(citation:Citation)
+            MATCH (user:GraphUser {id: $userId})-[:HAS_TREE]->(tree:Tree {id: $treeId})-[:HAS_EVENT]->(event:Event {id: $eventId})-[:HAS_EVENT_CITATION]->(citation:Citation)
             OPTIONAL MATCH (citation)-[:HAS_CITATION_SOURCE]->(source:Source)
             RETURN citation.id AS id,
                    citation.page AS page,
@@ -351,9 +350,8 @@ public interface EventRepository extends Neo4jRepository<Event, String> {
             LIMIT $limit
             """,
             countQuery = """
-                        MATCH (user:GraphUser {id: $userId})-[:HAS_TREE]->(tree:Tree {id: $treeId})-[:HAS_EVENT]->(event:Event {id: $eventId})
-                        OPTIONAL MATCH (event)-[:HAS_EVENT_CITATION]->(citation:Citation)
-                        RETURN count(citation)
+                    MATCH (user:GraphUser {id: $userId})-[:HAS_TREE]->(tree:Tree {id: $treeId})-[:HAS_EVENT]->(event:Event {id: $eventId})-[:HAS_EVENT_CITATION]->(citation:Citation)
+                    RETURN count(citation)
                     """)
     Page<EventCitationResponse> findCitations(String userId, String treeId, String eventId, Pageable pageable);
 

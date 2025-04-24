@@ -2,6 +2,7 @@ package com.ada.genealogyapp.participant.service;
 
 import com.ada.genealogyapp.participant.dto.ParticipantEventResponse;
 import com.ada.genealogyapp.participant.repository.ParticipantRepository;
+import com.ada.genealogyapp.person.dto.params.GetParticipantEventParams;
 import com.ada.genealogyapp.person.dto.params.GetParticipantEventsParams;
 import com.ada.genealogyapp.tree.service.TreeService;
 import lombok.RequiredArgsConstructor;
@@ -23,5 +24,11 @@ public class ParticipantEventsViewService {
         Page<ParticipantEventResponse> page = participantRepository.findParticipantEvents(params.getUserId(), params.getTreeId(), params.getParticipantId(), params.getPageable());
         treeService.ensureUserAndTreeExist(params, page);
         return page;
+    }
+
+    public ParticipantEventResponse getParticipantEvent(GetParticipantEventParams params) {
+        ParticipantEventResponse participantEventResponse = participantRepository.findParticipantEvent(params.getUserId(), params.getTreeId(), params.getParticipantId(), params.getEventId());
+        treeService.ensureUserAndTreeExist(params, participantEventResponse);
+        return participantEventResponse;
     }
 }

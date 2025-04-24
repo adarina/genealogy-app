@@ -47,9 +47,48 @@ public interface ParticipantRepository extends Neo4jRepository<Participant, Stri
                         OPTIONAL MATCH (tree)-[:HAS_PERSON]->(person:Person {id: $participantId})
                         OPTIONAL MATCH (tree)-[:HAS_FAMILY]->(family:Family {id: $participantId})
                         WITH user, tree, COALESCE(person, family) AS participant
-            
+                                
                         MATCH (event:Event)-[rel:HAS_PARTICIPANT]->(participant)
                         RETURN count(event)
                     """)
     Page<ParticipantEventResponse> findParticipantEvents(String userId, String treeId, String participantId, Pageable pageable);
+
+    @Query(value = """
+             MATCH (user:GraphUser {id: $userId})-[:HAS_TREE]->(tree:Tree {id: $treeId})
+
+            OPTIONAL MATCH (tree)-[:HAS_PERSON]->(person:Person {id: $participantId})
+            OPTIONAL MATCH (tree)-[:HAS_FAMILY]->(family:Family {id: $participantId})
+            WITH tree, COALESCE(person, family) AS participant
+
+            WHERE participant IS NOT NULL
+
+            MATCH (event:Event {id: $eventId})-[rel:HAS_PARTICIPANT]->(participant)
+            MATCH (tree)-[:HAS_EVENT]->(event)
+
+            OPTIONAL MATCH (event)-[otherRel:HAS_PARTICIPANT]->(otherParticipant)
+            OPTIONAL MATCH (event)-[:HAS_EVENT_CITATION]->(citation:Citation)
+
+            WITH event,
+                 rel.relationship AS relationship,
+                 COLLECT(DISTINCT {
+                     id: otherParticipant.id,
+                     name: otherParticipant.name,
+                     relationship: otherRel.relationship
+                 }) AS participants,
+                 COLLECT(DISTINCT {
+                     id: citation.id,
+                     page: citation.page,
+                     date: citation.date
+                 }) AS citations
+
+            RETURN event.id AS id,
+                   event.type AS type,
+                   event.date AS date,
+                   event.place AS place,
+                   event.description AS description,
+                   relationship,
+                   participants,
+                   citations
+            """)
+    ParticipantEventResponse findParticipantEvent(String userId, String treeId, String participantId, String eventId);
 }

@@ -1,7 +1,7 @@
 package com.ada.genealogyapp.configuration;
 
 
-import com.ada.genealogyapp.user.repository.UserRepository;
+//import com.ada.genealogyapp.user.repository.UserRepository;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -30,18 +30,18 @@ public class SecurityConfig {
 
     private final JwtTokenFilter jwtTokenFilter;
 
-    private final UserRepository userRepository;
+//    private final UserRepository userRepository;
 
-    public SecurityConfig(JwtTokenFilter jwtTokenFilter, UserRepository userRepository) {
+    public SecurityConfig(JwtTokenFilter jwtTokenFilter) {
         this.jwtTokenFilter = jwtTokenFilter;
-        this.userRepository = userRepository;
+//        this.userRepository = userRepository;
     }
 
-    @Bean
-    public UserDetailsService userDetailsService() {
-        return username -> userRepository.findByUsername(username)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
-    }
+//    @Bean
+//    public UserDetailsService userDetailsService() {
+//        return username -> userRepository.findByUsername(username)
+//                .orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
+//    }
 
     @Bean
     public PasswordEncoder getBcryptPasswordEncoder() {
@@ -64,6 +64,8 @@ public class SecurityConfig {
                                 .requestMatchers("/api/v1/genealogy/register").permitAll()
                                 .requestMatchers("/api/v1/genealogy/trees/**").permitAll()
                                 .requestMatchers("/api/v1/genealogy/types/**").permitAll()
+                                .requestMatchers("/api/graph-users/**").permitAll()
+                                .requestMatchers("/api/graph-users/validate").permitAll()
                                 .requestMatchers("/api/v1/genealogy/all/**").hasRole("ADMIN")
                                 .requestMatchers("/api/v1/genealogy/delete").hasRole("ADMIN")
                                 .anyRequest().authenticated())

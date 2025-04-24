@@ -457,39 +457,48 @@ public interface FamilyRepository extends Neo4jRepository<Family, String> {
     Page<FamiliesResponse> find(String userId, String treeId, String fatherName, String motherName, String status, Pageable pageable);
 
     @Query("""
-            MATCH (user:GraphUser {id: $userId})-[:HAS_TREE]->(tree:Tree {id: $treeId})-[:HAS_FAMILY]->(family:Family {id: $familyId})
-            WITH family
-                        
-            OPTIONAL MATCH (family)-[:HAS_FATHER]->(father:Person)
-            WITH family, father, COALESCE(father.name, '') AS fatherName, father.id AS fatherId
-                        
-            OPTIONAL MATCH (family)-[:HAS_MOTHER]->(mother:Person)
-            WITH family, father, fatherName, fatherId, mother, COALESCE(mother.name, '') AS motherName, mother.id AS motherId
-                        
-            OPTIONAL MATCH (family)<-[:HAS_PARTICIPANT]-(marriageEvent:Event {type: 'MARRIAGE'})
-            WITH family, father, fatherName, fatherId, mother, motherName, motherId, marriageEvent.date AS marriageDate
-                        
-            OPTIONAL MATCH (mother)<-[:HAS_PARTICIPANT]-(motherBirthEvent:Event {type: 'BIRTH'})
-            OPTIONAL MATCH (mother)<-[:HAS_PARTICIPANT]-(motherChristeningEvent:Event {type: 'CHRISTENING'})
-            OPTIONAL MATCH (mother)<-[:HAS_PARTICIPANT]-(motherDeathEvent:Event {type: 'DEATH'})
-            OPTIONAL MATCH (mother)<-[:HAS_PARTICIPANT]-(motherBurialEvent:Event {type: 'BURIAL'})
-            OPTIONAL MATCH (father)<-[:HAS_PARTICIPANT]-(fatherBirthEvent:Event {type: 'BIRTH'})
-            OPTIONAL MATCH (father)<-[:HAS_PARTICIPANT]-(fatherChristeningEvent:Event {type: 'CHRISTENING'})
-            OPTIONAL MATCH (father)<-[:HAS_PARTICIPANT]-(fatherDeathEvent:Event {type: 'DEATH'})
-            OPTIONAL MATCH (father)<-[:HAS_PARTICIPANT]-(fatherBurialEvent:Event {type: 'BURIAL'})
-                        
-            RETURN family.id AS id,
-                family.status AS status,
-                fatherName,
-                motherName,
-                fatherId,
-                motherId,
-                COALESCE(fatherBirthEvent.date, fatherChristeningEvent.date) AS fatherBirthdate,
-                COALESCE(fatherDeathEvent.date, fatherBurialEvent.date) AS fatherDeathdate,
-                COALESCE(motherBirthEvent.date, motherChristeningEvent.date) AS motherBirthdate,
-                COALESCE(motherDeathEvent.date, motherBurialEvent.date) AS motherDeathdate,
-                marriageDate
-            """)
+        MATCH (user:GraphUser {id: $userId})-[:HAS_TREE]->(tree:Tree {id: $treeId})-[:HAS_FAMILY]->(family:Family {id: $familyId})
+        WITH family
+
+        OPTIONAL MATCH (family)-[:HAS_FATHER]->(father:Person)
+        WITH family, father, COALESCE(father.name, '') AS fatherName, father.id AS fatherId
+
+        OPTIONAL MATCH (family)-[:HAS_MOTHER]->(mother:Person)
+        WITH family, father, fatherName, fatherId, mother, COALESCE(mother.name, '') AS motherName, mother.id AS motherId
+
+        OPTIONAL MATCH (family)<-[part_m:HAS_PARTICIPANT {relationship: 'FAMILY'}]-(marriageEvent:Event {type: 'MARRIAGE'})
+        WITH family, father, fatherName, fatherId, mother, motherName, motherId, head(collect(marriageEvent)) AS singleMarriageEvent
+
+        OPTIONAL MATCH (mother)<-[part_mb:HAS_PARTICIPANT {relationship: 'MAIN'}]-(motherBirthEvent:Event {type: 'BIRTH'})
+        WITH family, father, fatherName, fatherId, mother, motherName, motherId, singleMarriageEvent, head(collect(motherBirthEvent)) AS singleMotherBirthEvent
+        OPTIONAL MATCH (mother)<-[part_mc:HAS_PARTICIPANT {relationship: 'MAIN'}]-(motherChristeningEvent:Event {type: 'CHRISTENING'})
+        WITH family, father, fatherName, fatherId, mother, motherName, motherId, singleMarriageEvent, singleMotherBirthEvent, head(collect(motherChristeningEvent)) AS singleMotherChristeningEvent
+        OPTIONAL MATCH (mother)<-[part_md:HAS_PARTICIPANT {relationship: 'MAIN'}]-(motherDeathEvent:Event {type: 'DEATH'})
+        WITH family, father, fatherName, fatherId, mother, motherName, motherId, singleMarriageEvent, singleMotherBirthEvent, singleMotherChristeningEvent, head(collect(motherDeathEvent)) AS singleMotherDeathEvent
+        OPTIONAL MATCH (mother)<-[part_mu:HAS_PARTICIPANT {relationship: 'MAIN'}]-(motherBurialEvent:Event {type: 'BURIAL'})
+        WITH family, father, fatherName, fatherId, mother, motherName, motherId, singleMarriageEvent, singleMotherBirthEvent, singleMotherChristeningEvent, singleMotherDeathEvent, head(collect(motherBurialEvent)) AS singleMotherBurialEvent
+
+        OPTIONAL MATCH (father)<-[part_fb:HAS_PARTICIPANT {relationship: 'MAIN'}]-(fatherBirthEvent:Event {type: 'BIRTH'})
+        WITH family, father, fatherName, fatherId, mother, motherName, motherId, singleMarriageEvent, singleMotherBirthEvent, singleMotherChristeningEvent, singleMotherDeathEvent, singleMotherBurialEvent, head(collect(fatherBirthEvent)) AS singleFatherBirthEvent
+        OPTIONAL MATCH (father)<-[part_fc:HAS_PARTICIPANT {relationship: 'MAIN'}]-(fatherChristeningEvent:Event {type: 'CHRISTENING'})
+        WITH family, father, fatherName, fatherId, mother, motherName, motherId, singleMarriageEvent, singleMotherBirthEvent, singleMotherChristeningEvent, singleMotherDeathEvent, singleMotherBurialEvent, singleFatherBirthEvent, head(collect(fatherChristeningEvent)) AS singleFatherChristeningEvent
+        OPTIONAL MATCH (father)<-[part_fd:HAS_PARTICIPANT {relationship: 'MAIN'}]-(fatherDeathEvent:Event {type: 'DEATH'})
+        WITH family, father, fatherName, fatherId, mother, motherName, motherId, singleMarriageEvent, singleMotherBirthEvent, singleMotherChristeningEvent, singleMotherDeathEvent, singleMotherBurialEvent, singleFatherBirthEvent, singleFatherChristeningEvent, head(collect(fatherDeathEvent)) AS singleFatherDeathEvent
+        OPTIONAL MATCH (father)<-[part_fu:HAS_PARTICIPANT {relationship: 'MAIN'}]-(fatherBurialEvent:Event {type: 'BURIAL'})
+        WITH family, father, fatherName, fatherId, mother, motherName, motherId, singleMarriageEvent, singleMotherBirthEvent, singleMotherChristeningEvent, singleMotherDeathEvent, singleMotherBurialEvent, singleFatherBirthEvent, singleFatherChristeningEvent, singleFatherDeathEvent, head(collect(fatherBurialEvent)) AS singleFatherBurialEvent
+
+        RETURN family.id AS id,
+            family.status AS status,
+            fatherName,
+            motherName,
+            fatherId,
+            motherId,
+            COALESCE(singleFatherBirthEvent.date, singleFatherChristeningEvent.date) AS fatherBirthdate,
+            COALESCE(singleFatherDeathEvent.date, singleFatherBurialEvent.date) AS fatherDeathdate,
+            COALESCE(singleMotherBirthEvent.date, singleMotherChristeningEvent.date) AS motherBirthdate,
+            COALESCE(singleMotherDeathEvent.date, singleMotherBurialEvent.date) AS motherDeathdate,
+            singleMarriageEvent.date AS marriageDate
+        """)
     FamilyResponse find(String userId, String treeId, String familyId);
 
     @Query(value = """
@@ -525,6 +534,31 @@ public interface FamilyRepository extends Neo4jRepository<Family, String> {
                         RETURN count(child)
                     """)
     Page<FamilyChildResponse> findChildren(String userId, String treeId, String familyId, Pageable pageable);
+
+    @Query(value = """
+            MATCH (user:GraphUser {id: $userId})-[:HAS_TREE]->(tree:Tree {id: $treeId})-[:HAS_FAMILY]->(family:Family {id: $familyId})-[:HAS_CHILD]->(child:Person {id: $childId})
+
+            OPTIONAL MATCH (family)-[:HAS_FATHER]->(father:Person)
+            OPTIONAL MATCH (family)-[:HAS_MOTHER]->(mother:Person)
+            OPTIONAL MATCH (father)-[rel1:PARENT_OF]->(child)
+            OPTIONAL MATCH (mother)-[rel2:PARENT_OF]->(child)
+            
+            OPTIONAL MATCH (child)<-[:HAS_PARTICIPANT]-(birthEvent:Event {type: 'BIRTH'})
+            OPTIONAL MATCH (child)<-[:HAS_PARTICIPANT]-(christeningEvent:Event {type: 'CHRISTENING'})
+            OPTIONAL MATCH (child)<-[:HAS_PARTICIPANT]-(deathEvent:Event {type: 'DEATH'})
+            OPTIONAL MATCH (child)<-[:HAS_PARTICIPANT]-(burialEvent:Event {type: 'BURIAL'})
+                        
+            RETURN child.id AS id,
+                   child.name AS name,
+                   child.firstname AS firstname,
+                   child.lastname AS lastname,
+                   child.gender AS gender,
+                   COALESCE(rel1.relationship, null) AS fatherRelationship,
+                   COALESCE(rel2.relationship, null) AS motherRelationship,
+                   COALESCE(birthEvent.date, christeningEvent.date) AS birthdate,
+                   COALESCE(deathEvent.date, burialEvent.date) AS deathdate
+            """)
+    FamilyChildResponse findChild(String userId, String treeId, String familyId, String childId);
 
     @Query("MATCH (f:Family) RETURN f")
     List<Family> findAllFamilies();

@@ -16,7 +16,6 @@ public class PersonEventManagementController {
 
     private final EventManagementService eventManagementService;
 
-    //TODO upload nie działa ale dla family dizła więc jak na razie nie wiem, może coś na froncie
     @PutMapping
     public ResponseEntity<?> updateEventWithPerson(@PathVariable String treeId, @PathVariable String personId, @PathVariable String eventId, @RequestBody ParticipantEventRequest participantEventRequest, @RequestHeader(value = "X-User-Id") String userId) {
         eventManagementService.updateEventWithParticipant(UpdateEventRequestWithParticipantParams.builder()
@@ -49,7 +48,8 @@ public class PersonEventManagementController {
                 .participantId(personId)
                 .eventId(eventId)
                 .participantEventRequest(participantEventRequest)
+                .eventRequest(participantEventRequest)
                 .build());
-        return ResponseEntity.ok().build();
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 }

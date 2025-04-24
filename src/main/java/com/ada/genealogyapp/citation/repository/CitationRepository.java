@@ -353,7 +353,7 @@ public interface CitationRepository extends Neo4jRepository<Citation, String> {
 
     @Query(value = """
             MATCH (user:GraphUser {id: $userId})-[:HAS_TREE]->(tree:Tree {id: $treeId})-[:HAS_CITATION]->(citation:Citation {id: $citationId})
-            OPTIONAL MATCH (file:File)<-[:HAS_CITATION_FILE]-(citation)
+            MATCH (file:File)<-[:HAS_CITATION_FILE]-(citation)
                        
             RETURN file.id AS id,
                    file.name AS name,

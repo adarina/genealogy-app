@@ -1,7 +1,10 @@
 package com.ada.genealogyapp.person.controller;
 
+import com.ada.genealogyapp.event.dto.EventResponse;
+import com.ada.genealogyapp.event.dto.params.GetEventParams;
 import com.ada.genealogyapp.participant.dto.ParticipantEventResponse;
 import com.ada.genealogyapp.participant.service.ParticipantEventsViewService;
+import com.ada.genealogyapp.person.dto.params.GetParticipantEventParams;
 import com.ada.genealogyapp.person.dto.params.GetParticipantEventsParams;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -26,5 +29,16 @@ public class PersonEventsViewController {
                 .pageable(pageable)
                 .build());
         return ResponseEntity.ok(eventResponses);
+    }
+
+    @GetMapping("/{eventId}")
+    public ResponseEntity<ParticipantEventResponse> getPersonEvent(@PathVariable String treeId, @PathVariable String personId, @PathVariable String eventId, @RequestHeader(value = "X-User-Id") String userId) {
+        ParticipantEventResponse participantEventResponse = participantEventsViewService.getParticipantEvent(GetParticipantEventParams.builder()
+                .userId(userId)
+                .treeId(treeId)
+                .participantId(personId)
+                .eventId(eventId)
+                .build());
+        return ResponseEntity.ok(participantEventResponse);
     }
 }

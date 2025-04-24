@@ -46,9 +46,13 @@ import com.ada.genealogyapp.transaction.TransactionalInNeo4j;
 import com.ada.genealogyapp.tree.dto.TreeImportJsonRequest;
 import com.ada.genealogyapp.tree.dto.params.CreateTreeImportParams;
 import com.ada.genealogyapp.tree.model.Tree;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.*;
 
 import static java.util.Objects.nonNull;
@@ -81,11 +85,24 @@ public class TreeImportJsonService {
 
     private final TreeCreationService treeCreationService;
 
+    private final ObjectMapper objectMapper;
+
+    public Tree importTreeFile(MultipartFile multipartFile, String userId) {
+        Tree tree;
+        try (InputStream inputStream = multipartFile.getInputStream()) {
+            TreeImportJsonRequest importRequest = objectMapper.readValue(inputStream, TreeImportJsonRequest.class);
+            tree = importTree(importRequest, userId);
+        } catch (IOException ex) {
+            throw new RuntimeException("Failed to parse JSON file", ex);
+        }
+        return tree;
+    }
+
     //TODO gdzies dublują się eventy dla osób o tym samym imieniu i nazwisku (chrzest i narodziny, pogrzeb i smierc ok)
     @TransactionalInNeo4j
-    public Tree importTree(TreeImportJsonRequest importRequest) {
+    public Tree importTree(TreeImportJsonRequest importRequest, String userId) {
 //        graphUserRepository.save("1");
-        GraphUser graphUser = graphUserRepository.find("1");
+        GraphUser graphUser = graphUserRepository.find(userId);
         Tree tree = treeCreationService.createTreeImport(CreateTreeImportParams.builder()
                 .userId(graphUser.getId()).name(importRequest.getTree().getName()).build());
         Map<String, Person> personMap = processPersons(importRequest, tree, graphUser.getId());

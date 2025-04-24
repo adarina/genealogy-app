@@ -1,6 +1,7 @@
 package com.ada.genealogyapp.family.service;
 
 import com.ada.genealogyapp.family.dto.FamilyChildResponse;
+import com.ada.genealogyapp.family.dto.params.GetChildParams;
 import com.ada.genealogyapp.family.dto.params.GetChildrenParams;
 import com.ada.genealogyapp.family.repository.FamilyRepository;
 import com.ada.genealogyapp.tree.service.TreeService;
@@ -22,5 +23,11 @@ public class FamilyChildrenViewService {
         Page<FamilyChildResponse> page = familyRepository.findChildren(params.getUserId(), params.getTreeId(), params.getFamilyId(), params.getPageable());
         treeService.ensureUserAndTreeExist(params, page);
         return page;
+    }
+
+    public FamilyChildResponse getChild(GetChildParams params) {
+        FamilyChildResponse familyChildResponse = familyRepository.findChild(params.getUserId(), params.getTreeId(), params.getFamilyId(), params.getChildId());
+        treeService.ensureUserAndTreeExist(params, familyChildResponse);
+        return familyChildResponse;
     }
 }

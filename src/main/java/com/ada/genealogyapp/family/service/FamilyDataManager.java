@@ -1,5 +1,6 @@
 package com.ada.genealogyapp.family.service;
 
+import com.ada.genealogyapp.person.type.PersonRelationshipType;
 import com.ada.genealogyapp.query.IdType;
 import com.ada.genealogyapp.family.dto.params.*;
 import com.ada.genealogyapp.person.dto.params.UpdateChildInFamilyParams;
@@ -11,6 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
+import java.util.Optional;
 
 
 @Service
@@ -27,7 +29,7 @@ public class FamilyDataManager implements FamilyService {
     @TransactionalInNeo4j
     public void deleteFamily(DeleteFamilyParams params) {
         String result = familyRepository.delete(params.getUserId(), params.getTreeId(), params.getFamilyId());
-        processor.process(result, Map.of(IdType.FAMILY_ID,  params.getFamilyId()));
+        processor.process(result, Map.of(IdType.FAMILY_ID, params.getFamilyId()));
     }
 
     @TransactionalInNeo4j
@@ -80,7 +82,14 @@ public class FamilyDataManager implements FamilyService {
 
     @TransactionalInNeo4j
     public void updateChildInFamily(UpdateChildInFamilyParams params) {
-        String result = familyRepository.updateChild(params.getUserId(), params.getTreeId(), params.getFamilyId(), params.getPersonId(), params.getFamilyChildRequest().getFatherRelationship().name(), params.getFamilyChildRequest().getMotherRelationship().name());
+        String fatherRelationship = Optional.ofNullable(params.getFamilyChildRequest().getFatherRelationship())
+                .map(PersonRelationshipType::name)
+                .orElse("");
+        String motherRelationship = Optional.ofNullable(params.getFamilyChildRequest().getMotherRelationship())
+                .map(PersonRelationshipType::name)
+                .orElse("");
+        String result = familyRepository.updateChild(params.getUserId(), params.getTreeId(), params.getFamilyId(), params.getPersonId(), fatherRelationship,
+                motherRelationship);
         processor.process(result, Map.of(IdType.FAMILY_ID, params.getFamilyId(), IdType.CHILD_ID, params.getPersonId()));
     }
 }

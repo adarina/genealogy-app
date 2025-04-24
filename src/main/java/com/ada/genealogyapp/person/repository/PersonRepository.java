@@ -127,12 +127,10 @@ public interface PersonRepository extends Neo4jRepository<Person, String> {
                         WITH tree, person
                         OPTIONAL MATCH (tree)-[:HAS_FAMILY]->(family:Family)
                         WHERE (family)-[:HAS_FATHER]->(person) OR (family)-[:HAS_MOTHER]->(person)
-                        WITH person, COLLECT(family) AS families
+                        OPTIONAL MATCH (family)-[:HAS_FATHER]->(father:Person)
+                        OPTIONAL MATCH (family)-[:HAS_MOTHER]->(mother:Person)
+                        SET family.name = COALESCE(father.name, "null") + " & " + COALESCE(mother.name, "null")
                         
-                        UNWIND families AS fam
-                        OPTIONAL MATCH (fam)-[:HAS_FATHER]->(father:Person)
-                        OPTIONAL MATCH (fam)-[:HAS_MOTHER]->(mother:Person)
-                        SET fam.name = COALESCE(father.name, "null") + " & " + COALESCE(mother.name, "null")
                         WITH person
                         OPTIONAL MATCH (person)-[rel]-()
                         DELETE rel, person
@@ -151,18 +149,27 @@ public interface PersonRepository extends Neo4jRepository<Person, String> {
 
     @Query("""
             MATCH (user:GraphUser {id: $userId})-[:HAS_TREE]->(tree:Tree {id: $treeId})-[:HAS_PERSON]->(person:Person {id: $personId})
-            OPTIONAL MATCH (person)<-[:HAS_PARTICIPANT]-(birthEvent:Event {type: 'BIRTH'})
-            OPTIONAL MATCH (person)<-[:HAS_PARTICIPANT]-(christeningEvent:Event {type: 'CHRISTENING'})
-            OPTIONAL MATCH (person)<-[:HAS_PARTICIPANT]-(deathEvent:Event {type: 'DEATH'})
-            OPTIONAL MATCH (person)<-[:HAS_PARTICIPANT]-(burialEvent:Event {type: 'BURIAL'})
+                        
+            OPTIONAL MATCH (person)<-[:HAS_PARTICIPANT {relationship: 'MAIN'}]-(birthEvent:Event {type: 'BIRTH'})
+            WITH person, head(collect(birthEvent)) AS singleBirthEvent
+                        
+            OPTIONAL MATCH (person)<-[:HAS_PARTICIPANT {relationship: 'MAIN'}]-(christeningEvent:Event {type: 'CHRISTENING'})
+            WITH person, singleBirthEvent, head(collect(christeningEvent)) AS singleChristeningEvent
+                        
+            OPTIONAL MATCH (person)<-[:HAS_PARTICIPANT {relationship: 'MAIN'}]-(deathEvent:Event {type: 'DEATH'})
+            WITH person, singleBirthEvent, singleChristeningEvent, head(collect(deathEvent)) AS singleDeathEvent
+                        
+            OPTIONAL MATCH (person)<-[:HAS_PARTICIPANT {relationship: 'MAIN'}]-(burialEvent:Event {type: 'BURIAL'})
+            WITH person, singleBirthEvent, singleChristeningEvent, singleDeathEvent, head(collect(burialEvent)) AS singleBurialEvent
+                        
             RETURN person.id AS id,
                    person.firstname AS firstname,
                    person.lastname AS lastname,
                    person.name AS name,
-                   COALESCE(birthEvent.date, christeningEvent.date) AS birthdate,
-                   COALESCE(deathEvent.date, burialEvent.date) AS deathdate,
+                   COALESCE(singleBirthEvent.date, singleChristeningEvent.date) AS birthdate,
+                   COALESCE(singleDeathEvent.date, singleBurialEvent.date) AS deathdate,
                    person.gender AS gender
-            """)
+                   """)
     PersonResponse find(String userId, String treeId, String personId);
 
     @Query(value = """
