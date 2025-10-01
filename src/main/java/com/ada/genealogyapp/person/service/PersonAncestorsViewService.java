@@ -66,7 +66,12 @@ public class PersonAncestorsViewService {
     }
 
     private PersonResponse createPlaceholderPerson(GenderType gender) {
-        return PersonResponse.builder().id("placeholder-" + UUID.randomUUID()).name("No data").gender(gender).build();
+        System.out.println("LOOOOOOOL");
+        return PersonResponse.builder()
+                .id("placeholder-" + UUID.randomUUID())
+                .name("No data")
+                .gender(gender)
+                .build();
     }
 
     private boolean isPlaceholder(PersonResponse person) {
