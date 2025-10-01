@@ -2,6 +2,7 @@ package com.ada.genealogyapp.event.service;
 
 import com.ada.genealogyapp.event.dto.params.*;
 import com.ada.genealogyapp.event.dto.params.UpdateEventRequestWithParticipantParams;
+import com.ada.genealogyapp.exceptions.ValidationException;
 import com.ada.genealogyapp.transaction.TransactionalInNeo4j;
 import com.ada.genealogyapp.event.model.Event;
 import lombok.RequiredArgsConstructor;
@@ -18,7 +19,7 @@ public class EventManagementService {
 
     private final EventValidationService eventValidationService;
 
-    public Event buildAndValidateEvent(UpdateEventRequestParams params) {
+    public Event buildAndValidateEvent(UpdateEventRequestParams params) throws ValidationException {
         Event event = Event.builder()
                 .description(params.getEventRequest().getDescription())
                 .place(params.getEventRequest().getPlace())
@@ -30,7 +31,7 @@ public class EventManagementService {
     }
 
     @TransactionalInNeo4j
-    public void updateEvent(UpdateEventRequestParams params) {
+    public void updateEvent(UpdateEventRequestParams params) throws ValidationException {
         Event event = buildAndValidateEvent(params);
         eventService.updateEvent(UpdateEventParams.builder()
                 .userId(params.getUserId())
@@ -41,7 +42,7 @@ public class EventManagementService {
     }
 
     @TransactionalInNeo4j
-    public void updateEventWithParticipant(UpdateEventRequestWithParticipantParams params) {
+    public void updateEventWithParticipant(UpdateEventRequestWithParticipantParams params) throws ValidationException {
         Event event = buildAndValidateEvent(params);
         eventService.updateEventWithParticipant(UpdateEventWithParticipantParams.builder()
                 .userId(params.getUserId())

@@ -22,4 +22,6 @@ public class TreeImportGedcomRequest {
 
     private List<FileGedcomRequest> media;
 
+    private TreeRequest tree;
+
 }

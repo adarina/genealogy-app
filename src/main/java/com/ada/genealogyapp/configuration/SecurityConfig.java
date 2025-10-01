@@ -4,6 +4,7 @@ package com.ada.genealogyapp.configuration;
 //import com.ada.genealogyapp.user.repository.UserRepository;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -62,10 +63,12 @@ public class SecurityConfig {
                                 .requestMatchers("/api/v1/genealogy/auth").permitAll()
                                 .requestMatchers("/upload-dir/**").permitAll()
                                 .requestMatchers("/api/v1/genealogy/register").permitAll()
+                                .requestMatchers(HttpMethod.POST, "/api/v1/genealogy/trees/importJson").permitAll()
+                                .requestMatchers(HttpMethod.POST, "/api/v1/genealogy/trees/importFileGedcom").permitAll()
                                 .requestMatchers("/api/v1/genealogy/trees/**").permitAll()
                                 .requestMatchers("/api/v1/genealogy/types/**").permitAll()
-                                .requestMatchers("/api/graph-users/**").permitAll()
-                                .requestMatchers("/api/graph-users/validate").permitAll()
+                                .requestMatchers("/api/users/**").permitAll()
+                                .requestMatchers("/api/users/validate").permitAll()
                                 .requestMatchers("/api/v1/genealogy/all/**").hasRole("ADMIN")
                                 .requestMatchers("/api/v1/genealogy/delete").hasRole("ADMIN")
                                 .anyRequest().authenticated())

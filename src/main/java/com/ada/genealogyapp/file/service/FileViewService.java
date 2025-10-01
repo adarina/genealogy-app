@@ -1,10 +1,12 @@
 package com.ada.genealogyapp.file.service;
 
 import com.ada.genealogyapp.file.dto.FileFilterRequest;
+import com.ada.genealogyapp.file.dto.FileExportResponse;
 import com.ada.genealogyapp.file.dto.FileResponse;
 import com.ada.genealogyapp.file.dto.params.GetFileParams;
 import com.ada.genealogyapp.file.dto.params.GetFilesParams;
 import com.ada.genealogyapp.file.repository.FileRepository;
+import com.ada.genealogyapp.tree.dto.params.BaseParams;
 import com.ada.genealogyapp.tree.service.TreeService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -13,6 +15,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
+
+import java.util.Set;
 
 
 @Service
@@ -41,5 +45,9 @@ public class FileViewService {
         FileResponse fileResponse = fileRepository.find(params.getUserId(), params.getTreeId(), params.getFileId(), baseUrl);
         treeService.ensureUserAndTreeExist(params, fileResponse);
         return fileResponse;
+    }
+
+    public Set<FileExportResponse> findFiles(BaseParams params) {
+        return fileRepository.find(params.getUserId(), params.getTreeId(), baseUrl);
     }
 }

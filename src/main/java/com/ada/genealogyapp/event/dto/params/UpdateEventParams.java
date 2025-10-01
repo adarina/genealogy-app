@@ -13,4 +13,6 @@ import lombok.experimental.SuperBuilder;
 @EqualsAndHashCode(callSuper = true)
 public class UpdateEventParams extends BaseEventParams {
     private Event event;
+
+    private String locationId;
 }

@@ -1,7 +1,6 @@
 package com.ada.genealogyapp.person.repository;
 
-import com.ada.genealogyapp.person.dto.PersonFamilyResponse;
-import com.ada.genealogyapp.person.dto.PersonResponse;
+import com.ada.genealogyapp.person.dto.*;
 import com.ada.genealogyapp.person.model.Person;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -9,11 +8,13 @@ import org.springframework.data.neo4j.repository.Neo4jRepository;
 import org.springframework.data.neo4j.repository.query.Query;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Set;
 
 
 @Repository
 public interface PersonRepository extends Neo4jRepository<Person, String> {
+
     @Query("""
             MATCH (user:GraphUser {id: $userId})-[:HAS_TREE]->(tree:Tree {id: $treeId})-[:HAS_PERSON]->(child:Person {id: $childId})
             MATCH (ancestor:Person)-[:PARENT_OF]->(child)
@@ -28,7 +29,39 @@ public interface PersonRepository extends Neo4jRepository<Person, String> {
                    COALESCE(birthEvent.date, christeningEvent.date) AS birthdate,
                    COALESCE(deathEvent.date, burialEvent.date) AS deathdate
             """)
-    Set<PersonResponse> findParentsOf(String userId, String treeId, String childId);
+    Set<PersonResponse> findAncestor(String userId, String treeId, String childId);
+
+    @Query("""
+            MATCH (user:GraphUser {id: $userId})-[:HAS_TREE]->(tree:Tree {id: $treeId})-[:HAS_PERSON]->(person:Person {id: $personId})
+            OPTIONAL MATCH (person)<-[:HAS_PARTICIPANT]-(event:Event)
+            OPTIONAL MATCH (event)-[:HAS_EVENT_LOCATION]->(location:Location)
+            RETURN person.id AS id,
+                   collect(DISTINCT {
+                       type: location.type,
+                       id: location.id,
+                       name: location.name,
+                       latitude: location.latitude,
+                       longitude: location.longitude
+                   }) AS locations
+            """)
+    PersonGeographyResponse findGeography(String userId, String treeId, String personId);
+
+    @Query("""
+            MATCH (user:GraphUser {id: $userId})-[:HAS_TREE]->(tree:Tree {id: $treeId})-[:HAS_PERSON]->(child:Person {id: $childId})
+            MATCH (ancestor:Person)-[:PARENT_OF]->(child)
+            OPTIONAL MATCH (ancestor)<-[:HAS_PARTICIPANT]-(event:Event)
+            OPTIONAL MATCH (event)-[:HAS_EVENT_LOCATION]->(location:Location)
+                      
+            RETURN ancestor.id AS id,
+                   collect(DISTINCT {
+                       type: location.type,
+                       id: location.id,
+                       name: location.name,
+                       latitude: location.latitude,
+                       longitude: location.longitude
+                   }) AS locations
+            """)
+    Set<PersonGeographyResponse> findAncestorGeography(String userId, String treeId, String childId);
 
     @Query("""
             MATCH (user:GraphUser {id: $userId})-[:HAS_TREE]->(tree:Tree {id: $treeId})
@@ -267,5 +300,36 @@ public interface PersonRepository extends Neo4jRepository<Person, String> {
                          RETURN count(family)
                     """)
     Page<PersonFamilyResponse> findFamilies(String userId, String treeId, String personId, Pageable pageable);
+
+    @Query(value = """
+            MATCH (user:GraphUser {id: $userId})-[:HAS_TREE]->(tree:Tree {id: $treeId})-[:HAS_PERSON]->(person:Person {id: $personId})
+            MATCH (family:Family)
+            WHERE (family)-[:HAS_CHILD]->(person)
+               OR (family)-[:HAS_MOTHER]->(person)
+               OR (family)-[:HAS_FATHER]->(person)
+            RETURN family.id AS id,
+                   COALESCE((family)-[:HAS_FATHER]->(person) OR (family)-[:HAS_MOTHER]->(person), false) AS isParent
+                   """)
+    List<PersonFamilyGedcomResponse> findFamilies(String userId, String treeId, String personId);
+
+    @Query(value = """
+            MATCH (user:GraphUser {id: $userId})-[:HAS_TREE]->(tree:Tree {id: $treeId})-[:HAS_PERSON]->(person:Person)
+            OPTIONAL MATCH (person)-[:PARENT_OF]->(child:Person)
+            RETURN person.id AS id,
+                   person.firstname AS firstname,
+                   person.lastname AS lastname,
+                   person.gender AS gender,
+                   person.name AS name
+            """)
+    Set<PersonExportResponse> find(String userId, String treeId);
+
+    @Query("""
+            MATCH (user:GraphUser {id: $userId})-[:HAS_TREE]->(tree:Tree {id: $treeId})-[:HAS_PERSON]->(person:Person {id: $personId})
+            MATCH (person)-[r:PARENT_OF]->(child:Person)
+            RETURN child.id AS childId,
+                   r.relationship AS relationship
+            """)
+    Set<PersonRelationshipExportResponse> findRelationships(String userId, String treeId, String personId);
+
 }
 

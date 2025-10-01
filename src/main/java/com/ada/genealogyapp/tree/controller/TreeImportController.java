@@ -1,7 +1,6 @@
 package com.ada.genealogyapp.tree.controller;
 
-import com.ada.genealogyapp.tree.dto.TreeImportGedcomRequest;
-import com.ada.genealogyapp.tree.dto.TreeImportJsonRequest;
+
 import com.ada.genealogyapp.tree.model.Tree;
 import com.ada.genealogyapp.tree.service.TreeImportGedcomService;
 import com.ada.genealogyapp.tree.service.TreeImportJsonService;
@@ -11,7 +10,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
 
 @RestController
 @RequiredArgsConstructor
@@ -22,20 +20,14 @@ public class TreeImportController {
 
     private final TreeImportGedcomService treeImportGedcomService;
 
-    @PostMapping("/importJson")
-    public ResponseEntity<Tree> importTreeFromJson(@RequestBody TreeImportJsonRequest importRequest, @RequestHeader(value = "X-User-Id") String userId) {
-        Tree tree = treeImportJsonService.importTree(importRequest, userId);
-        return ResponseEntity.ok(tree);
-    }
-
-    @PostMapping("/importGedcom")
-    public ResponseEntity<Tree> importTreeFromGedcom(@RequestBody TreeImportGedcomRequest importRequest) throws IOException {
-        Tree tree = treeImportGedcomService.importTree(importRequest);
+    @PostMapping(path = "/importFileGedcom", consumes = { MediaType.MULTIPART_FORM_DATA_VALUE })
+    public ResponseEntity<Tree> importTreeFromFileGedcom(@RequestParam MultipartFile multipartFile, @RequestHeader(value = "X-User-Id") String userId) throws Throwable {
+        Tree tree = treeImportGedcomService.importTreeFile(multipartFile, userId);
         return ResponseEntity.ok(tree);
     }
 
     @PostMapping(path = "/importFileJson", consumes = { MediaType.MULTIPART_FORM_DATA_VALUE })
-    public ResponseEntity<Tree> importTreeFromFileJson(@RequestParam MultipartFile multipartFile, @RequestHeader(value = "X-User-Id") String userId) {
+    public ResponseEntity<Tree> importTreeFromFileJson(@RequestParam MultipartFile multipartFile, @RequestHeader(value = "X-User-Id") String userId) throws Throwable {
         Tree tree = treeImportJsonService.importTreeFile(multipartFile, userId);
         return ResponseEntity.ok(tree);
     }

@@ -1,5 +1,6 @@
 package com.ada.genealogyapp.source.repository;
 
+import com.ada.genealogyapp.source.dto.SourceExportResponse;
 import com.ada.genealogyapp.source.dto.SourceResponse;
 import com.ada.genealogyapp.source.model.Source;
 import org.springframework.data.domain.Page;
@@ -7,6 +8,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.neo4j.repository.Neo4jRepository;
 import org.springframework.data.neo4j.repository.query.Query;
 import org.springframework.stereotype.Repository;
+
+import java.util.Set;
 
 @Repository
 public interface SourceRepository extends Neo4jRepository<Source, String> {
@@ -121,4 +124,11 @@ public interface SourceRepository extends Neo4jRepository<Source, String> {
                 source.name AS name
             """)
     SourceResponse find(String userId, String treeId, String sourceId);
+
+    @Query(value = """
+            MATCH (user:GraphUser {id: $userId})-[:HAS_TREE]->(tree:Tree {id: $treeId})-[:HAS_SOURCE]->(source:Source)
+            RETURN source.id AS id,
+                   source.name AS name
+            """)
+    Set<SourceExportResponse> find(String userId, String treeId);
 }

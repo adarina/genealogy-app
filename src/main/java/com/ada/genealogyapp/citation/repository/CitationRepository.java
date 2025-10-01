@@ -1,5 +1,6 @@
 package com.ada.genealogyapp.citation.repository;
 
+import com.ada.genealogyapp.citation.dto.CitationExportResponse;
 import com.ada.genealogyapp.citation.dto.CitationSourceResponse;
 import com.ada.genealogyapp.citation.model.Citation;
 import com.ada.genealogyapp.file.dto.FileResponse;
@@ -58,9 +59,16 @@ public interface CitationRepository extends Neo4jRepository<Citation, String> {
                         SET citation.page = page,
                             citation.date = date
                             
-                        MERGE (citation)-[:HAS_CITATION_SOURCE]->(:Source {id: sourceId})
-                        MERGE (:Event {id: eventId})-[:HAS_EVENT_CITATION]->(citation)
-                            
+                        WITH tree, citation, sourceId, eventId
+                       
+                        OPTIONAL MATCH (tree)-[:HAS_EVENT]->(event:Event {id: eventId})
+                        MERGE (event)-[:HAS_EVENT_CITATION]->(citation)
+                        
+                        WITH tree, citation, sourceId, eventId
+                        FOREACH (s IN CASE WHEN sourceId IS NOT NULL THEN [1] ELSE [] END |
+                            MERGE (source:Source {id: sourceId})
+                            MERGE (citation)-[:HAS_CITATION_SOURCE]->(source)
+                        )
                         RETURN "CITATION_CREATED" AS message
                     ',
                     userExist, 'RETURN "TREE_NOT_EXIST" AS message'
@@ -94,10 +102,10 @@ public interface CitationRepository extends Neo4jRepository<Citation, String> {
                         MERGE (citation)-[:HAS_CITATION_SOURCE]->(source)
                         
                         WITH tree, citation, filesIds
-                        UNWIND filesIds AS fileId
-                        OPTIONAL MATCH (tree)-[:HAS_FILE]->(file:File {id: fileId})
-                        MERGE (citation)-[:HAS_CITATION_FILE]->(file)
-                            
+                        FOREACH (id IN CASE WHEN filesIds IS NOT NULL THEN filesIds ELSE [] END |
+                            MERGE (tree)-[:HAS_FILE]->(file:File {id: id})
+                            MERGE (citation)-[:HAS_CITATION_FILE]->(file)
+                        )
                         RETURN "CITATION_CREATED" AS message
                     ',
                     userExist, 'RETURN "TREE_NOT_EXIST" AS message'
@@ -108,7 +116,7 @@ public interface CitationRepository extends Neo4jRepository<Citation, String> {
             RETURN value.message
             LIMIT 1
             """)
-    String save(String userId, String citationId, String page, String date, String treeId, String sourceId, List<String> filesIds);
+    String save(String userId, String treeId, String page, String date, String citationId, String sourceId, List<String> filesIds);
 
     @Query("""
             CALL {
@@ -351,6 +359,16 @@ public interface CitationRepository extends Neo4jRepository<Citation, String> {
             """)
     CitationSourceResponse find(String userId, String treeId, String citationId);
 
+    @Query("""
+            MATCH (user:GraphUser {id: $userId})-[:HAS_TREE]->(tree:Tree {id: $treeId})-[:HAS_CITATION]->(citation:Citation {id: $citationId})
+            MATCH (file:File)<-[:HAS_CITATION_FILE]-(citation)
+            RETURN file.id AS id,
+                   file.name AS name,
+                   file.type AS type,
+                   file.filename AS path
+            """)
+    List<FileResponse> findFiles(String userId, String treeId, String citationId);
+
     @Query(value = """
             MATCH (user:GraphUser {id: $userId})-[:HAS_TREE]->(tree:Tree {id: $treeId})-[:HAS_CITATION]->(citation:Citation {id: $citationId})
             MATCH (file:File)<-[:HAS_CITATION_FILE]-(citation)
@@ -370,4 +388,16 @@ public interface CitationRepository extends Neo4jRepository<Citation, String> {
                     """
     )
     Page<FileResponse> findFiles(String userId, String treeId, String citationId, String baseUrl, Pageable pageable);
+
+    @Query(value = """
+            MATCH (user:GraphUser {id: $userId})-[:HAS_TREE]->(tree:Tree {id: $treeId})-[:HAS_CITATION]->(citation:Citation)
+            OPTIONAL MATCH (citation)-[:HAS_CITATION_SOURCE]->(source:Source)
+            OPTIONAL MATCH (citation)-[:HAS_CITATION_FILE]->(file:File)
+            RETURN citation.id AS id,
+                   citation.page AS page,
+                   citation.date AS date,
+                   source.id AS sourceId,
+                   collect(DISTINCT file.id) AS filesIds
+                   """)
+    Set<CitationExportResponse> find(String userId, String treeId);
 }

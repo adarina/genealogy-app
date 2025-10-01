@@ -4,22 +4,26 @@ import com.ada.genealogyapp.citation.model.Citation;
 import com.ada.genealogyapp.citation.validation.DateCitationValidator;
 import com.ada.genealogyapp.citation.validation.PageCitationValidator;
 import com.ada.genealogyapp.exceptions.ValidationException;
-import com.ada.genealogyapp.validation.factory.DefaultFieldValidationFactory;
 import com.ada.genealogyapp.validation.model.Validator;
 import com.ada.genealogyapp.validation.service.FieldValidationService;
 import com.ada.genealogyapp.validation.result.ValidationResult;
+import jakarta.annotation.PostConstruct;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class CitationValidationService {
 
-    private final Validator<Citation> validator;
+    private Validator<Citation> validator;
 
-    public CitationValidationService() {
-        FieldValidationService fieldValidationService = new FieldValidationService(new DefaultFieldValidationFactory());
-        this.validator = Validator.link(
+    private final FieldValidationService fieldValidationService;
+
+    @PostConstruct
+    public void init() {
+        validator = Validator.link(
                 new PageCitationValidator(fieldValidationService),
                 new DateCitationValidator(fieldValidationService)
         );

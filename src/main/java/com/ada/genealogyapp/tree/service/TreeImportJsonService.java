@@ -5,10 +5,11 @@ import com.ada.genealogyapp.citation.dto.params.CreateCitationWithSourceAndFiles
 import com.ada.genealogyapp.citation.model.Citation;
 import com.ada.genealogyapp.citation.service.CitationCreationService;
 import com.ada.genealogyapp.event.dto.EventCitationRequest;
-import com.ada.genealogyapp.event.dto.EventParticipantRequest;
 import com.ada.genealogyapp.event.dto.EventJsonRequest;
+import com.ada.genealogyapp.event.dto.EventParticipantRequest;
 import com.ada.genealogyapp.event.dto.EventRequest;
 import com.ada.genealogyapp.event.dto.params.AddCitationToEventParams;
+import com.ada.genealogyapp.event.dto.params.AddLocationToEventParams;
 import com.ada.genealogyapp.event.dto.params.AddParticipantToEventParams;
 import com.ada.genealogyapp.event.dto.params.CreateEventRequestParams;
 import com.ada.genealogyapp.event.model.Event;
@@ -27,11 +28,17 @@ import com.ada.genealogyapp.file.dto.FileRequest;
 import com.ada.genealogyapp.file.dto.params.CreateFileRequestParams;
 import com.ada.genealogyapp.file.model.File;
 import com.ada.genealogyapp.file.service.FileCreationService;
-import com.ada.genealogyapp.graphuser.model.GraphUser;
-import com.ada.genealogyapp.graphuser.repository.GraphUserRepository;
+import com.ada.genealogyapp.graphuser.service.GraphUserViewService;
+import com.ada.genealogyapp.tree.dto.params.TreeImportJsonParams;
+import com.ada.genealogyapp.location.dto.LocationJsonRequest;
+import com.ada.genealogyapp.location.dto.params.AddParentToLocationParams;
+import com.ada.genealogyapp.location.dto.params.CreateLocationRequestParams;
+import com.ada.genealogyapp.location.model.Location;
+import com.ada.genealogyapp.location.service.LocationCreationService;
+import com.ada.genealogyapp.location.service.LocationService;
 import com.ada.genealogyapp.participant.model.Participant;
-import com.ada.genealogyapp.person.dto.PersonRelationshipRequest;
 import com.ada.genealogyapp.person.dto.PersonJsonRequest;
+import com.ada.genealogyapp.person.dto.PersonRelationshipRequest;
 import com.ada.genealogyapp.person.dto.params.AddParentChildRelationshipParams;
 import com.ada.genealogyapp.person.dto.params.CreatePersonRequestParams;
 import com.ada.genealogyapp.person.model.Person;
@@ -42,110 +49,103 @@ import com.ada.genealogyapp.source.dto.SourceJsonRequest;
 import com.ada.genealogyapp.source.dto.params.CreateSourceRequestParams;
 import com.ada.genealogyapp.source.model.Source;
 import com.ada.genealogyapp.source.service.SourceCreationService;
-import com.ada.genealogyapp.transaction.TransactionalInNeo4j;
 import com.ada.genealogyapp.tree.dto.TreeImportJsonRequest;
-import com.ada.genealogyapp.tree.dto.params.CreateTreeImportParams;
 import com.ada.genealogyapp.tree.model.Tree;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import static java.util.Objects.nonNull;
 
-
 @Service
-@RequiredArgsConstructor
-public class TreeImportJsonService {
 
-
-    private final PersonService personService;
-
-    private final FamilyService familyService;
-
-    private final PersonCreationService personCreationService;
-
-    private final FamilyCreationService familyCreationService;
-
-    private final EventCreationService eventCreationService;
-
-    private final CitationCreationService citationCreationService;
-
-    private final SourceCreationService sourceCreationService;
-
-    private final EventService eventService;
-
-    private final FileCreationService fileCreationService;
-
-    private final GraphUserRepository graphUserRepository;
-
-    private final TreeCreationService treeCreationService;
+public class TreeImportJsonService extends TreeImportService<TreeImportJsonRequest, TreeImportJsonParams> {
 
     private final ObjectMapper objectMapper;
+    private final PersonCreationService personCreationService;
+    private final PersonService personService;
+    private final FamilyCreationService familyCreationService;
+    private final FamilyService familyService;
+    private final SourceCreationService sourceCreationService;
+    private final LocationCreationService locationCreationService;
+    private final LocationService locationService;
+    private final FileCreationService fileCreationService;
+    private final EventCreationService eventCreationService;
+    private final EventService eventService;
+    private final CitationCreationService citationCreationService;
 
-    public Tree importTreeFile(MultipartFile multipartFile, String userId) {
-        Tree tree;
-        try (InputStream inputStream = multipartFile.getInputStream()) {
-            TreeImportJsonRequest importRequest = objectMapper.readValue(inputStream, TreeImportJsonRequest.class);
-            tree = importTree(importRequest, userId);
-        } catch (IOException ex) {
-            throw new RuntimeException("Failed to parse JSON file", ex);
-        }
-        return tree;
+
+    public TreeImportJsonService(TreeCreationService treeCreationService, GraphUserViewService graphUserViewService,
+                                 ObjectMapper objectMapper, PersonCreationService personCreationService,
+                                 PersonService personService, FamilyCreationService familyCreationService,
+                                 FamilyService familyService, SourceCreationService sourceCreationService,
+                                 LocationCreationService locationCreationService, LocationService locationService,
+                                 FileCreationService fileCreationService, EventCreationService eventCreationService, EventService eventService, CitationCreationService citationCreationService) {
+        super(graphUserViewService, treeCreationService);
+        this.objectMapper = objectMapper;
+        this.personCreationService = personCreationService;
+        this.personService = personService;
+        this.familyCreationService = familyCreationService;
+        this.familyService = familyService;
+        this.sourceCreationService = sourceCreationService;
+        this.locationCreationService = locationCreationService;
+        this.locationService = locationService;
+        this.fileCreationService = fileCreationService;
+        this.eventCreationService = eventCreationService;
+        this.eventService = eventService;
+        this.citationCreationService = citationCreationService;
     }
 
-    //TODO gdzies dublują się eventy dla osób o tym samym imieniu i nazwisku (chrzest i narodziny, pogrzeb i smierc ok)
-    @TransactionalInNeo4j
-    public Tree importTree(TreeImportJsonRequest importRequest, String userId) {
-//        graphUserRepository.save("1");
-        GraphUser graphUser = graphUserRepository.find(userId);
-        Tree tree = treeCreationService.createTreeImport(CreateTreeImportParams.builder()
-                .userId(graphUser.getId()).name(importRequest.getTree().getName()).build());
-        Map<String, Person> personMap = processPersons(importRequest, tree, graphUser.getId());
-        Map<String, Participant> participantMap = new HashMap<>(personMap);
-        processPersonRelationships(graphUser.getId(), tree.getId(), importRequest, personMap);
-
-        Map<String, Family> familyMap = processFamilies(importRequest, tree, personMap, participantMap, graphUser.getId());
-
-        Map<String, Source> sourceMap = processSources(importRequest, tree, graphUser.getId());
-
-        Map<String, File> fileMap = processFiles(importRequest, tree, graphUser.getId());
-
-        Map<String, Citation> citationMap = processCitations(importRequest, tree, sourceMap, fileMap, graphUser.getId());
-
-        Map<String, Event> eventMap = processEvents(importRequest, tree, graphUser.getId());
-        processEventRelationships(tree, importRequest, eventMap, participantMap, citationMap, graphUser.getId());
-
-        return tree;
+    @Override
+    protected TreeImportJsonRequest parseInputFile(InputStream inputStream) throws IOException {
+        return objectMapper.readValue(inputStream, TreeImportJsonRequest.class);
     }
 
+    @Override
+    protected TreeImportJsonParams initializeImportParams(Tree tree, String userId) {
+        return TreeImportJsonParams.builder()
+                .tree(tree)
+                .userId(userId)
+                .build();
+    }
 
-    private Map<String, Person> processPersons(TreeImportJsonRequest importRequest, Tree tree, String userId) {
-        Map<String, Person> personMap = new HashMap<>();
-        for (PersonJsonRequest personJsonRequest : importRequest.getPersons()) {
+    @Override
+    protected void processEntities(TreeImportJsonRequest importRequest, TreeImportJsonParams params) {
+        List<EntityProcessor<TreeImportJsonRequest, TreeImportJsonParams>> processors = Arrays.asList(
+                this::processPersons,
+                this::processFamilies,
+                this::processSources,
+                this::processLocations,
+                this::processFiles,
+                this::processCitations,
+                this::processEvents
+        );
+        processAllEntities(importRequest, params, processors);
+    }
+
+    @Override
+    public void processPersons(TreeImportJsonRequest request, TreeImportJsonParams params) {
+        for (PersonJsonRequest personJsonRequest : request.getPersons()) {
             Person person = personCreationService.createPerson(CreatePersonRequestParams.builder()
-                    .userId(userId)
-                    .treeId(tree.getId())
+                    .userId(params.getUserId())
+                    .treeId(params.getTree().getId())
                     .personRequest(personJsonRequest)
                     .build());
-            personMap.put(personJsonRequest.getId(), person);
+            params.getPersonMap().put(personJsonRequest.getId(), person);
         }
-        return personMap;
-    }
-
-    private void processPersonRelationships(String userId, String treeId, TreeImportJsonRequest importRequest, Map<String, Person> personMap) {
-        for (PersonJsonRequest personJsonRequest : importRequest.getPersons()) {
-            Person person = personMap.get(personJsonRequest.getId());
+        for (PersonJsonRequest personJsonRequest : request.getPersons()) {
+            Person person = params.getPersonMap().get(personJsonRequest.getId());
             for (PersonRelationshipRequest personRelationshipRequest : personJsonRequest.getRelationships()) {
-                Person child = personMap.get(personRelationshipRequest.getChildId());
+                Person child = params.getPersonMap().get(personRelationshipRequest.getChildId());
                 if (nonNull(child)) {
                     personService.addParentChildRelationship(AddParentChildRelationshipParams.builder()
-                            .userId(userId)
-                            .treeId(treeId)
+                            .userId(params.getUserId())
+                            .treeId(params.getTree().getId())
                             .parentId(person.getId())
                             .childId(child.getId())
                             .relationshipType(personRelationshipRequest.getRelationship().toString())
@@ -153,152 +153,134 @@ public class TreeImportJsonService {
                 }
             }
         }
+        params.getParticipantMap().putAll(params.getPersonMap());
     }
 
-    private Map<String, Family> processFamilies(TreeImportJsonRequest importRequest, Tree tree, Map<String, Person> personMap, Map<String, Participant> participantMap, String userId) {
-        Map<String, Family> familyMap = new HashMap<>();
-        for (FamilyJsonRequest familyJsonRequest : importRequest.getFamilies()) {
+
+    @Override
+    public void processFamilies(TreeImportJsonRequest request, TreeImportJsonParams params) {
+        for (FamilyJsonRequest familyJsonRequest : request.getFamilies()) {
             Family family = familyCreationService.createFamily(CreateFamilyRequestParams.builder()
-                    .userId(userId)
-                    .treeId(tree.getId())
+                    .userId(params.getUserId())
+                    .treeId(params.getTree().getId())
                     .familyRequest(familyJsonRequest)
                     .build());
-            familyMap.put(familyJsonRequest.getId(), family);
-            participantMap.put(familyJsonRequest.getId(), family);
+            params.getFamilyMap().put(familyJsonRequest.getId(), family);
+            params.getParticipantMap().put(familyJsonRequest.getId(), family);
 
-            addChildrenToFamily(tree.getId(), family.getId(), familyJsonRequest, personMap, userId);
-            addParentsToFamily(tree.getId(), family.getId(), familyJsonRequest, personMap, userId);
+            Person father = params.getPersonMap().get(familyJsonRequest.getFatherId());
+            Person mother = params.getPersonMap().get(familyJsonRequest.getMotherId());
+            if (nonNull(father)) {
+                familyService.addFatherToFamily(AddPersonToFamilyParams.builder()
+                        .userId(params.getUserId())
+                        .treeId(params.getTree().getId())
+                        .familyId(family.getId())
+                        .personId(father.getId())
+                        .build());
+            }
+            if (nonNull(mother)) {
+                familyService.addMotherToFamily(AddPersonToFamilyParams.builder()
+                        .userId(params.getUserId())
+                        .treeId(params.getTree().getId())
+                        .familyId(family.getId())
+                        .personId(mother.getId())
+                        .build());
+            }
+            for (String childId : familyJsonRequest.getChildrenIds()) {
+                Person child = params.getPersonMap().get(childId);
+                if (nonNull(child)) {
+                    familyService.addChildToFamily(AddChildToFamilyRequestParams.builder()
+                            .userId(params.getUserId())
+                            .treeId(params.getTree().getId())
+                            .familyId(family.getId())
+                            .personId(child.getId())
+                            .familyChildRequest(FamilyChildRequest.builder()
+                                    .fatherRelationship(PersonRelationshipType.BIOLOGICAL)
+                                    .motherRelationship(PersonRelationshipType.BIOLOGICAL)
+                                    .build())
+                            .build());
+                }
+            }
         }
-        return familyMap;
     }
 
-    private void addParentsToFamily(String treeId, String familyId, FamilyJsonRequest familyJsonRequest, Map<String, Person> personMap, String userId) {
-        Person father = personMap.get(familyJsonRequest.getFatherId());
-        Person mother = personMap.get(familyJsonRequest.getMotherId());
-
-        if (nonNull(father)) {
-            familyService.addFatherToFamily(AddPersonToFamilyParams.builder()
-                    .userId(userId)
-                    .treeId(treeId)
-                    .familyId(familyId)
-                    .personId(father.getId())
+    @Override
+    public void processSources(TreeImportJsonRequest request, TreeImportJsonParams params) {
+        for (SourceJsonRequest sourceJsonRequest : request.getSources()) {
+            Source source = sourceCreationService.createSource(CreateSourceRequestParams.builder()
+                    .userId(params.getUserId())
+                    .treeId(params.getTree().getId())
+                    .sourceRequest(sourceJsonRequest)
                     .build());
-        }
-        if (nonNull(mother)) {
-            familyService.addMotherToFamily(AddPersonToFamilyParams.builder()
-                    .userId(userId)
-                    .treeId(treeId)
-                    .familyId(familyId)
-                    .personId(mother.getId())
-                    .build());
+            params.getSourceMap().put(sourceJsonRequest.getId(), source);
         }
     }
 
-    private void addChildrenToFamily(String treeId, String familyId, FamilyJsonRequest familyJsonRequest, Map<String, Person> personMap, String userId) {
-        for (String childId : familyJsonRequest.getChildrenIds()) {
-            Person child = personMap.get(childId);
-            if (nonNull(child)) {
-                familyService.addChildToFamily(AddChildToFamilyRequestParams.builder()
-                        .userId(userId)
-                        .treeId(treeId)
-                        .familyId(familyId)
-                        .personId(child.getId())
-                        .familyChildRequest(FamilyChildRequest.builder()
-                                .fatherRelationship(PersonRelationshipType.BIOLOGICAL)
-                                .motherRelationship(PersonRelationshipType.BIOLOGICAL)
-                                .build())
+    private void processLocations(TreeImportJsonRequest request, TreeImportJsonParams params) {
+        for (LocationJsonRequest locationJsonRequest : request.getLocations()) {
+            Location location = locationCreationService.createLocation(CreateLocationRequestParams.builder()
+                    .userId(params.getUserId())
+                    .treeId(params.getTree().getId())
+                    .locationRequest(locationJsonRequest)
+                    .build());
+            params.getLocationMap().put(locationJsonRequest.getId(), location);
+        }
+        for (LocationJsonRequest locationJsonRequest : request.getLocations()) {
+            if (nonNull(locationJsonRequest.getLocationId()) && params.getLocationMap().containsKey(locationJsonRequest.getId()) && params.getLocationMap().containsKey(locationJsonRequest.getLocationId())) {
+                Location location = params.getLocationMap().get(locationJsonRequest.getId());
+                Location parent = params.getLocationMap().get(locationJsonRequest.getLocationId());
+                locationService.addParentToLocation(AddParentToLocationParams.builder()
+                        .locationId(location.getId())
+                        .parentId(parent.getId())
+                        .userId(params.getUserId())
+                        .treeId(params.getTree().getId())
                         .build());
             }
         }
     }
 
-    private Map<String, Source> processSources(TreeImportJsonRequest importRequest, Tree tree, String userId) {
-        Map<String, Source> sourceMap = new HashMap<>();
-        for (SourceJsonRequest sourceJsonRequest : importRequest.getSources()) {
-            Source source = sourceCreationService.createSource(CreateSourceRequestParams.builder()
-                    .userId(userId)
-                    .treeId(tree.getId())
-                    .sourceRequest(sourceJsonRequest)
-                    .build());
-            sourceMap.put(sourceJsonRequest.getId(), source);
-        }
-        return sourceMap;
-    }
-
-    private Map<String, File> processFiles(TreeImportJsonRequest importRequest, Tree tree, String userId) {
-        Map<String, File> fileMap = new HashMap<>();
-        for (FileJsonRequest fileJsonRequest : importRequest.getFiles()) {
-
-            FileRequest fileRequest = FileRequest.builder()
-                    .path(fileJsonRequest.getPath())
-                    .type(fileJsonRequest.getType())
-                    .name(fileJsonRequest.getName())
-                    .build();
+    @Override
+    public void processFiles(TreeImportJsonRequest request, TreeImportJsonParams params) {
+        for (FileJsonRequest fileJsonRequest : request.getFiles()) {
             File file = fileCreationService.createFile(CreateFileRequestParams.builder()
-                    .userId(userId)
-                    .treeId(tree.getId())
-                    .fileRequest(fileRequest)
+                    .userId(params.getUserId())
+                    .treeId(params.getTree().getId())
+                    .fileRequest(FileRequest.builder()
+                            .path(fileJsonRequest.getPath())
+                            .type(fileJsonRequest.getType())
+                            .name(fileJsonRequest.getName())
+                            .build())
                     .build());
-            fileMap.put(fileJsonRequest.getId(), file);
+            params.getFileMap().put(fileJsonRequest.getId(), file);
         }
-
-        return fileMap;
     }
 
-    private Map<String, Citation> processCitations(TreeImportJsonRequest importRequest, Tree tree, Map<String, Source> sourceMap, Map<String, File> fileMap, String userId) {
-        Map<String, Citation> citationMap = new HashMap<>();
-        for (CitationJsonRequest citationJsonRequest : importRequest.getCitations()) {
-            Source source = sourceMap.get(citationJsonRequest.getSourceId());
-            List<String> fileIds = new ArrayList<>();
-            for (String fileId : citationJsonRequest.getFilesIds()) {
-                File file = fileMap.get(fileId);
-                if (nonNull(file)) {
-                    fileIds.add(file.getId());
-                }
-            }
-
-            Citation citation = citationCreationService.createCitationWithSourceAndFiles(CreateCitationWithSourceAndFilesParams.builder()
-                    .userId(userId)
-                    .treeId(tree.getId())
-                    .citationRequest(citationJsonRequest)
-                    .sourceId(source.getId())
-                    .filesIds(fileIds)
-                    .build());
-            citationMap.put(citationJsonRequest.getId(), citation);
-
-        }
-        return citationMap;
-    }
-
-    private Map<String, Event> processEvents(TreeImportJsonRequest importRequest, Tree tree, String userId) {
-        Map<String, Event> eventMap = new HashMap<>();
-        for (EventJsonRequest eventJsonRequest : importRequest.getEvents()) {
-            EventRequest eventRequest = EventRequest.builder()
-                    .place(eventJsonRequest.getPlace())
-                    .date(eventJsonRequest.getDate())
-                    .type(eventJsonRequest.getType())
-                    .description(eventJsonRequest.getDescription())
-                    .build();
+    public void processEvents(TreeImportJsonRequest request, TreeImportJsonParams params) {
+        for (EventJsonRequest eventJsonRequest : request.getEvents()) {
             Event event = eventCreationService.createEvent(CreateEventRequestParams.builder()
-                    .userId(userId)
-                    .treeId(tree.getId())
-                    .eventRequest(eventRequest)
+                    .userId(params.getUserId())
+                    .treeId(params.getTree().getId())
+                    .eventRequest(EventRequest.builder()
+                            .place(eventJsonRequest.getPlace())
+                            .date(eventJsonRequest.getDate())
+                            .type(eventJsonRequest.getType())
+                            .description(eventJsonRequest.getDescription())
+                            .build())
                     .build());
-            eventMap.put(eventJsonRequest.getId(), event);
+            params.getEventMap().put(eventJsonRequest.getId(), event);
         }
-        return eventMap;
+        processEventRelationships(request, params);
     }
 
-    private void processEventRelationships(Tree tree, TreeImportJsonRequest importRequest, Map<String, Event> eventMap,
-                                           Map<String, Participant> participantMap, Map<String, Citation> citationMap, String userId) {
-        for (EventJsonRequest eventJsonRequest : importRequest.getEvents()) {
-            Event event = eventMap.get(eventJsonRequest.getId());
+    private void processEventRelationships(TreeImportJsonRequest request, TreeImportJsonParams params) {
+        for (EventJsonRequest eventJsonRequest : request.getEvents()) {
+            Event event = params.getEventMap().get(eventJsonRequest.getId());
             for (EventParticipantRequest eventParticipantRequest : eventJsonRequest.getParticipants()) {
-                Participant participant = participantMap.get(eventParticipantRequest.getParticipantId());
+                Participant participant = params.getParticipantMap().get(eventParticipantRequest.getParticipantId());
                 if (nonNull(participant)) {
                     eventService.addParticipantToEvent(AddParticipantToEventParams.builder()
-                            .userId(userId)
-                            .treeId(tree.getId())
+                            .userId(params.getUserId())
+                            .treeId(params.getTree().getId())
                             .eventId(event.getId())
                             .participantId(participant.getId())
                             .relationshipType(eventParticipantRequest.getRelationship().name())
@@ -306,16 +288,49 @@ public class TreeImportJsonService {
                 }
             }
             for (EventCitationRequest eventCitationRequest : eventJsonRequest.getCitations()) {
-                Citation citation = citationMap.get(eventCitationRequest.getCitationId());
+                Citation citation = params.getCitationMap().get(eventCitationRequest.getCitationId());
                 if (nonNull(citation)) {
                     eventService.addCitationToEvent(AddCitationToEventParams.builder()
-                            .userId(userId)
-                            .treeId(tree.getId())
+                            .userId(params.getUserId())
+                            .treeId(params.getTree().getId())
                             .eventId(event.getId())
                             .citationId(citation.getId())
                             .build());
                 }
             }
+            if (nonNull(eventJsonRequest.getLocationId())) {
+                Location location = params.getLocationMap().get(eventJsonRequest.getLocationId());
+                if (nonNull(location)) {
+                    eventService.addLocationToEvent(AddLocationToEventParams.builder()
+                            .userId(params.getUserId())
+                            .treeId(params.getTree().getId())
+                            .eventId(event.getId())
+                            .locationId(location.getId())
+                            .build());
+                }
+            }
+        }
+    }
+
+    public void processCitations(TreeImportJsonRequest request, TreeImportJsonParams params) {
+        for (CitationJsonRequest citationJsonRequest : request.getCitations()) {
+            Source source = params.getSourceMap().get(citationJsonRequest.getSourceId());
+            List<String> fileIds = new ArrayList<>();
+            for (String fileId : citationJsonRequest.getFilesIds()) {
+                File file = params.getFileMap().get(fileId);
+                if (nonNull(file)) {
+                    fileIds.add(file.getId());
+                }
+            }
+
+            Citation citation = citationCreationService.createCitationWithSourceAndFiles(CreateCitationWithSourceAndFilesParams.builder()
+                    .userId(params.getUserId())
+                    .treeId(params.getTree().getId())
+                    .citationRequest(citationJsonRequest)
+                    .sourceId(source.getId())
+                    .filesIds(fileIds)
+                    .build());
+            params.getCitationMap().put(citationJsonRequest.getId(), citation);
         }
     }
 }

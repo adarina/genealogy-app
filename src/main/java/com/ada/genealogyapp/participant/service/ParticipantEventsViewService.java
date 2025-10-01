@@ -1,5 +1,7 @@
 package com.ada.genealogyapp.participant.service;
 
+import com.ada.genealogyapp.participant.dto.BaseParticipantParams;
+import com.ada.genealogyapp.participant.dto.ParticipantEventGedcomResponse;
 import com.ada.genealogyapp.participant.dto.ParticipantEventResponse;
 import com.ada.genealogyapp.participant.repository.ParticipantRepository;
 import com.ada.genealogyapp.person.dto.params.GetParticipantEventParams;
@@ -9,6 +11,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 @Slf4j
@@ -30,5 +34,9 @@ public class ParticipantEventsViewService {
         ParticipantEventResponse participantEventResponse = participantRepository.findParticipantEvent(params.getUserId(), params.getTreeId(), params.getParticipantId(), params.getEventId());
         treeService.ensureUserAndTreeExist(params, participantEventResponse);
         return participantEventResponse;
+    }
+
+    public List<ParticipantEventGedcomResponse> getParticipantEventsGedcom(BaseParticipantParams params) {
+        return participantRepository.findParticipantEvents(params.getUserId(), params.getTreeId(), params.getParticipantId());
     }
 }

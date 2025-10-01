@@ -5,6 +5,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.Map;
 
+import static java.util.Objects.isNull;
+
 @Service
 @Slf4j
 public class QueryResultProcessor {
@@ -17,7 +19,7 @@ public class QueryResultProcessor {
     public void process(String result, Map<IdType, String> context) {
         QueryResult queryResult = QueryResult.valueOf(result);
         QueryResultHandler handler = handlers.get(queryResult.toString());
-        if (handler == null) {
+        if (isNull(handler)) {
             throw new IllegalArgumentException("No handler found for result: " + queryResult);
         }
         handler.handleResult(context);

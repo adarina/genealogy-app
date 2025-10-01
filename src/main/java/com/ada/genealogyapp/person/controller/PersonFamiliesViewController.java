@@ -20,7 +20,7 @@ public class PersonFamiliesViewController {
 
     @GetMapping
     public ResponseEntity<Page<PersonFamilyResponse>> getPersonalFamilies(@PathVariable String treeId, @PathVariable String personId, @PageableDefault Pageable pageable, @RequestHeader(value = "X-User-Id") String userId) {
-        Page<PersonFamilyResponse> personFamiliesResponses = personFamiliesViewService.getPersonalFamilies(GetPersonFamiliesParams.builder()
+        Page<PersonFamilyResponse> personFamiliesResponses = personFamiliesViewService.getPersonFamilies(GetPersonFamiliesParams.builder()
                 .userId(userId)
                 .treeId(treeId)
                 .personId(personId)

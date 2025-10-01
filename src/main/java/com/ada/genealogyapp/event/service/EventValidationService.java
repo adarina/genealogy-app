@@ -7,22 +7,26 @@ import com.ada.genealogyapp.event.validation.DescriptionEventValidator;
 import com.ada.genealogyapp.event.validation.PlaceEventValidator;
 import com.ada.genealogyapp.event.validation.TypeEventValidator;
 import com.ada.genealogyapp.exceptions.ValidationException;
-import com.ada.genealogyapp.validation.factory.DefaultFieldValidationFactory;
 import com.ada.genealogyapp.validation.model.Validator;
 import com.ada.genealogyapp.validation.result.ValidationResult;
 import com.ada.genealogyapp.validation.service.FieldValidationService;
+import jakarta.annotation.PostConstruct;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class EventValidationService {
-    private final Validator<Event> validator;
+    private Validator<Event> validator;
 
-    public EventValidationService() {
-        FieldValidationService fieldValidationService = new FieldValidationService(new DefaultFieldValidationFactory());
-        this.validator = Validator.link(
+    private final FieldValidationService fieldValidationService;
+
+    @PostConstruct
+    public void init() {
+        validator = Validator.link(
                 new DescriptionEventValidator(fieldValidationService),
                 new DateEventValidator(fieldValidationService),
                 new PlaceEventValidator(fieldValidationService),
@@ -30,7 +34,7 @@ public class EventValidationService {
         );
     }
 
-    public void validateEvent(Event event) {
+    public void validateEvent(Event event) throws ValidationException {
         ValidationResult result = new ValidationResult();
         validator.check(event, result);
         if (result.hasErrors()) {

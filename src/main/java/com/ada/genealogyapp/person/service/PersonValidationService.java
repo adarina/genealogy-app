@@ -5,21 +5,25 @@ import com.ada.genealogyapp.person.model.Person;
 import com.ada.genealogyapp.person.validation.FirstnamePersonValidator;
 import com.ada.genealogyapp.person.validation.GenderPersonValidator;
 import com.ada.genealogyapp.person.validation.LastnamePersonValidator;
-import com.ada.genealogyapp.validation.factory.DefaultFieldValidationFactory;
 import com.ada.genealogyapp.validation.model.Validator;
 import com.ada.genealogyapp.validation.result.ValidationResult;
 import com.ada.genealogyapp.validation.service.FieldValidationService;
+import jakarta.annotation.PostConstruct;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class PersonValidationService {
-    private final Validator<Person> validator;
+    private Validator<Person> validator;
 
-    public PersonValidationService() {
-        FieldValidationService fieldValidationService = new FieldValidationService(new DefaultFieldValidationFactory());
-        this.validator = Validator.link(
+    private final FieldValidationService fieldValidationService;
+
+    @PostConstruct
+    public void init() {
+        validator = Validator.link(
                 new FirstnamePersonValidator(fieldValidationService),
                 new LastnamePersonValidator(fieldValidationService),
                 new GenderPersonValidator(fieldValidationService)

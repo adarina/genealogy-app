@@ -1,5 +1,6 @@
 package com.ada.genealogyapp.family.controller;
 
+import com.ada.genealogyapp.exceptions.ValidationException;
 import com.ada.genealogyapp.family.dto.FamilyRequest;
 import com.ada.genealogyapp.family.dto.params.CreateFamilyRequestParams;
 import com.ada.genealogyapp.family.service.FamilyCreationService;
@@ -16,7 +17,7 @@ public class FamilyCreationController {
     private final FamilyCreationService familyCreationService;
 
     @PostMapping
-    public ResponseEntity<?> createFamily(@PathVariable String treeId, @RequestBody FamilyRequest familyRequest, @RequestHeader(value = "X-User-Id") String userId) {
+    public ResponseEntity<?> createFamily(@PathVariable String treeId, @RequestBody FamilyRequest familyRequest, @RequestHeader(value = "X-User-Id") String userId) throws ValidationException {
         familyCreationService.createFamily(CreateFamilyRequestParams.builder()
                 .userId(userId)
                 .treeId(treeId)

@@ -1,7 +1,7 @@
 package com.ada.genealogyapp.date.model;
 
 import com.ada.genealogyapp.date.type.QualityType;
-import com.ada.genealogyapp.date.type.TypeType;
+import com.ada.genealogyapp.date.type.KindType;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -11,10 +11,10 @@ public class Date {
 
     private QualityType qualityType;
 
-    private TypeType typeType;
+    private KindType kindType;
 
     private PartialDate firstDate;
 
-    private PartialDate SecondDate;
+    private PartialDate secondDate;
 
 }

@@ -2,10 +2,12 @@ package com.ada.genealogyapp.source.service;
 
 
 import com.ada.genealogyapp.source.dto.SourceFilterRequest;
+import com.ada.genealogyapp.source.dto.SourceExportResponse;
 import com.ada.genealogyapp.source.dto.SourceResponse;
 import com.ada.genealogyapp.source.dto.params.GetSourceParams;
 import com.ada.genealogyapp.source.dto.params.GetSourcesParams;
 import com.ada.genealogyapp.source.repository.SourceRepository;
+import com.ada.genealogyapp.tree.dto.params.BaseParams;
 import com.ada.genealogyapp.tree.service.TreeService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -13,6 +15,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
+
+import java.util.Set;
 
 
 @Slf4j
@@ -37,5 +41,9 @@ public class SourceViewService {
         SourceResponse sourceResponse = sourceRepository.find(params.getUserId(), params.getTreeId(), params.getSourceId());
         treeService.ensureUserAndTreeExist(params, sourceResponse);
         return sourceResponse;
+    }
+
+    public Set<SourceExportResponse> findSources(BaseParams params) {
+        return sourceRepository.find(params.getUserId(), params.getTreeId());
     }
 }

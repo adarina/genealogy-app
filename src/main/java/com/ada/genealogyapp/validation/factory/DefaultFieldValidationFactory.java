@@ -26,7 +26,7 @@ public class DefaultFieldValidationFactory implements FieldValidationFactory<Fie
             Map.entry(FieldType.USER_NAME_TEXT_FIELD, List.of(new NotBlankValidator(), new MinLengthValidator(1), new MaxLengthValidator(50))),
             Map.entry(FieldType.PASSWORD_TEXT_FIELD, List.of(new NotBlankValidator(), new MinLengthValidator(6), new MaxLengthValidator(50))),
             Map.entry(FieldType.EMAIL_TEXT_FIELD, List.of(new NotBlankValidator(), new MaxLengthValidator(50), new EmailValidator())),
-            Map.entry(FieldType.TREE_DATE_FIELD, List.of(new MaxLengthValidator(30), new DateValidator())),
+            Map.entry(FieldType.TREE_DATE_FIELD, List.of(new MaxLengthValidator(50), new DateValidator())),
             Map.entry(FieldType.PHONE_NUMERIC_FIELD, List.of(new NotBlankValidator(), new MaxLengthValidator(15), new NumericValidator()))
     );
 

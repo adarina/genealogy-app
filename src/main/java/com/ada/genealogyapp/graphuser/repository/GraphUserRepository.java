@@ -1,6 +1,7 @@
 package com.ada.genealogyapp.graphuser.repository;
 
 
+import com.ada.genealogyapp.graphuser.dto.GraphUserResponse;
 import com.ada.genealogyapp.graphuser.model.GraphUser;
 import org.springframework.data.neo4j.repository.Neo4jRepository;
 import org.springframework.data.neo4j.repository.query.Query;
@@ -15,7 +16,7 @@ public interface GraphUserRepository extends Neo4jRepository<GraphUser, String> 
 
     @Query("""
             MATCH (user:GraphUser {id: $userId})
-            RETURN user
+            RETURN user.id AS id
             """)
-    GraphUser find(String userId);
+    GraphUserResponse find(String userId);
 }

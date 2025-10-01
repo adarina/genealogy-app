@@ -1,6 +1,7 @@
 package com.ada.genealogyapp.date.model;
 
 
+import com.ada.genealogyapp.date.type.MonthType;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -10,7 +11,7 @@ public class PartialDate {
 
     private Integer year;
 
-    private Integer month;
+    private MonthType month;
 
     private Integer day;
 }

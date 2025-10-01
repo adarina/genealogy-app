@@ -4,6 +4,7 @@ import com.ada.genealogyapp.citation.dto.CitationJsonRequest;
 import com.ada.genealogyapp.event.dto.EventJsonRequest;
 import com.ada.genealogyapp.family.dto.FamilyJsonRequest;
 import com.ada.genealogyapp.file.dto.FileJsonRequest;
+import com.ada.genealogyapp.location.dto.LocationJsonRequest;
 import com.ada.genealogyapp.person.dto.PersonJsonRequest;
 import com.ada.genealogyapp.source.dto.SourceJsonRequest;
 import lombok.Getter;
@@ -29,5 +30,7 @@ public class TreeImportJsonRequest {
     private List<SourceJsonRequest> sources;
 
     private List<FileJsonRequest> files;
+
+    private List<LocationJsonRequest> locations;
 
 }

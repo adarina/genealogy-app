@@ -19,6 +19,17 @@ public enum EventType {
 
     BURIAL,
 
-    ERROR
+    ERROR,
 
+    EMIGRATION,
+
+    IMMIGRATION,
+
+    MILITARY,
+
+    CENSUS,
+
+    NATURALIZATION,
+
+    EVENT
 }

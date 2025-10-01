@@ -1,6 +1,5 @@
 package com.ada.genealogyapp.person.dto.params;
 
-
 import com.ada.genealogyapp.event.dto.params.CreateEventRequestParams;
 import com.ada.genealogyapp.participant.dto.ParticipantEventRequest;
 import lombok.Data;
@@ -13,7 +12,11 @@ import lombok.experimental.SuperBuilder;
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 public class CreateEventRequestWithParticipantParams extends CreateEventRequestParams {
+
     private ParticipantEventRequest participantEventRequest;
+
     private String participantId;
+
     private String relationshipType;
+
 }

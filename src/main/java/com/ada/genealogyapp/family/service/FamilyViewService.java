@@ -2,10 +2,12 @@ package com.ada.genealogyapp.family.service;
 
 import com.ada.genealogyapp.family.dto.FamiliesResponse;
 import com.ada.genealogyapp.family.dto.FamilyFilterRequest;
+import com.ada.genealogyapp.family.dto.FamilyExportResponse;
 import com.ada.genealogyapp.family.dto.FamilyResponse;
 import com.ada.genealogyapp.family.dto.params.GetFamiliesParams;
 import com.ada.genealogyapp.family.dto.params.GetFamilyParams;
 import com.ada.genealogyapp.family.repository.FamilyRepository;
+import com.ada.genealogyapp.tree.dto.params.BaseParams;
 import com.ada.genealogyapp.tree.service.TreeService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -13,6 +15,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
+
+import java.util.Set;
 
 
 @Service
@@ -38,5 +42,9 @@ public class FamilyViewService {
         FamilyResponse familyResponse = familyRepository.find(params.getUserId(), params.getTreeId(), params.getFamilyId());
         treeService.ensureUserAndTreeExist(params, familyResponse);
         return familyResponse;
+    }
+
+    public Set<FamilyExportResponse> findFamilies(BaseParams params) {
+        return familyRepository.find(params.getUserId(), params.getTreeId());
     }
 }

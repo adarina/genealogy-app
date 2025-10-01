@@ -6,6 +6,7 @@ public abstract class Validator<T> {
 
     private Validator<T> next;
 
+    @SafeVarargs
     public static <T> Validator<T> link(Validator<T> first, Validator<T>... chain) {
         Validator<T> head = first;
         for (Validator<T> nextInChain : chain) {

@@ -8,16 +8,10 @@ import org.springframework.data.neo4j.repository.query.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
-import java.util.Optional;
 
 @Repository
 public interface TreeRepository extends Neo4jRepository<Tree, String> {
 
-    @Query("""
-            MATCH (t:Tree {id: $treeId})
-            RETURN t
-            """)
-    Optional<Tree> findTreeById(String treeId);
 
     @Query("""
             MATCH (user:GraphUser {id: $userId})
@@ -26,6 +20,14 @@ public interface TreeRepository extends Neo4jRepository<Tree, String> {
                    tree.name AS name
             """)
     List<TreeResponse> find(String userId);
+
+    @Query("""
+            MATCH (user:GraphUser {id: $userId})
+            OPTIONAL MATCH (user)-[:HAS_TREE]->(tree:Tree {id: $treeId})
+            RETURN tree.id AS id,
+                   tree.name AS name
+            """)
+    TreeResponse find(String userId, String treeId);
 
     @Query("""
                 CALL {
@@ -108,7 +110,7 @@ public interface TreeRepository extends Neo4jRepository<Tree, String> {
     String update(String userId, String treeId, String name);
 
     @Query("""
-            CALL {
+                CALL {
                 OPTIONAL MATCH (user:GraphUser {id: $userId})
                 WITH count(user) > 0 AS userExist
                 
@@ -119,17 +121,59 @@ public interface TreeRepository extends Neo4jRepository<Tree, String> {
             CALL apoc.do.case(
                 [
                     userExist AND treeExist, '
-                        OPTIONAL MATCH (tree)-[rel]-()
-                        DELETE rel, tree
+                        CALL apoc.periodic.iterate(
+                            "MATCH (t:Tree {id: $treeId})-[:HAS_PERSON]->(p:Person) RETURN p",
+                            "DETACH DELETE p",
+                            {batchSize: 1000, parallel: false, params: {treeId: $treeId}}
+                        ) YIELD batches AS personsBatches, total AS personsTotal
+                        
+                        CALL apoc.periodic.iterate(
+                            "MATCH (t:Tree {id: $treeId})-[:HAS_FAMILY]->(f:Family) RETURN f",
+                            "DETACH DELETE f",
+                            {batchSize: 1000, parallel: false, params: {treeId: $treeId}}
+                        ) YIELD batches AS familiesBatches, total AS familiesTotal
+                        
+                        CALL apoc.periodic.iterate(
+                            "MATCH (t:Tree {id: $treeId})-[:HAS_EVENT]->(e:Event) RETURN e",
+                            "DETACH DELETE e",
+                            {batchSize: 1000, parallel: false, params: {treeId: $treeId}}
+                        ) YIELD batches AS eventsBatches, total AS eventsTotal
+                        
+                        CALL apoc.periodic.iterate(
+                            "MATCH (t:Tree {id: $treeId})-[:HAS_CITATION]->(c:Citation) RETURN c",
+                            "DETACH DELETE c",
+                            {batchSize: 1000, parallel: false, params: {treeId: $treeId}}
+                        ) YIELD batches AS citationsBatches, total AS citationsTotal
+                        
+                        CALL apoc.periodic.iterate(
+                            "MATCH (t:Tree {id: $treeId})-[:HAS_SOURCE]->(s:Source) RETURN s",
+                            "DETACH DELETE s",
+                            {batchSize: 1000, parallel: false, params: {treeId: $treeId}}
+                        ) YIELD batches AS sourcesBatches, total AS sourcesTotal
+                        
+                        CALL apoc.periodic.iterate(
+                            "MATCH (t:Tree {id: $treeId})-[:HAS_FILE]->(file:File) RETURN file",
+                            "DETACH DELETE file",
+                            {batchSize: 1000, parallel: false, params: {treeId: $treeId}}
+                        ) YIELD batches AS filesBatches, total AS filesTotal
+                        
+                        CALL apoc.periodic.iterate(
+                            "MATCH (t:Tree {id: $treeId})-[:HAS_LOCATION]->(l:Location) RETURN l",
+                            "DETACH DELETE l",
+                            {batchSize: 1000, parallel: false, params: {treeId: $treeId}}
+                        ) YIELD batches AS locationsBatches, total AS locationsTotal
+                        
+                        MATCH (t:Tree {id: $treeId})
+                        DETACH DELETE t
+                        
                         RETURN "TREE_DELETED" AS message
                     ',
                     userExist, 'RETURN "TREE_NOT_EXIST" AS message'
                 ],
                 'RETURN "USER_NOT_EXIST" AS message',
-                {tree: tree}
+                {tree: tree, treeId: $treeId}
             ) YIELD value
             RETURN value.message
-            LIMIT 1
-            """)
+            LIMIT 1""")
     String delete(String userId, String treeId);
 }

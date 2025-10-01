@@ -2,7 +2,6 @@ package com.ada.genealogyapp.user.service;
 
 import com.ada.genealogyapp.exceptions.ValidationException;
 import com.ada.genealogyapp.user.dto.UserRequest;
-//import com.ada.genealogyapp.user.dto.User;
 import com.ada.genealogyapp.user.validation.*;
 import com.ada.genealogyapp.validation.factory.DefaultFieldValidationFactory;
 import com.ada.genealogyapp.validation.model.Validator;
@@ -27,7 +26,7 @@ public class UserValidationService {
         );
     }
 
-    public void validateUser(UserRequest user) {
+    public void validateUser(UserRequest user) throws ValidationException {
         ValidationResult result = new ValidationResult();
         validator.check(user, result);
         if (result.hasErrors()) {

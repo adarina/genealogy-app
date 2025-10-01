@@ -12,7 +12,7 @@ import java.util.Map;
 @Component("CITATION_NOT_EXIST")
 public class CitationNotExistHandler implements QueryResultHandler {
     @Override
-    public void handleResult(Map<IdType, String> context) {
+    public void handleResult(Map<IdType, String> context) throws NodeNotFoundException {
         String citationId = context.get(IdType.CITATION_ID);
         throw new NodeNotFoundException("Citation not exist with ID: " + citationId);
     }

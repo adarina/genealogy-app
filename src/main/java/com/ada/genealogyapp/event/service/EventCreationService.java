@@ -1,9 +1,12 @@
 package com.ada.genealogyapp.event.service;
 
 
+import com.ada.genealogyapp.event.dto.params.AddParticipantAndLocationToEventParams;
 import com.ada.genealogyapp.event.dto.params.AddParticipantToEventParams;
 import com.ada.genealogyapp.event.dto.params.CreateEventRequestParams;
 import com.ada.genealogyapp.event.dto.params.SaveEventParams;
+import com.ada.genealogyapp.exceptions.ValidationException;
+import com.ada.genealogyapp.person.dto.params.CreateEventRequestWithParticipantAndLocationParams;
 import com.ada.genealogyapp.person.dto.params.CreateEventRequestWithParticipantParams;
 import com.ada.genealogyapp.transaction.TransactionalInNeo4j;
 import com.ada.genealogyapp.event.model.Event;
@@ -22,7 +25,7 @@ public class EventCreationService {
     private final EventService eventService;
     private final EventValidationService eventValidationService;
 
-    private Event buildValidateAndSaveEvent(CreateEventRequestParams params) {
+    private Event buildValidateAndSaveEvent(CreateEventRequestParams params) throws ValidationException {
         Event event = Event.builder()
                 .id(UUID.randomUUID().toString())
                 .type(params.getEventRequest().getType())
@@ -41,19 +44,33 @@ public class EventCreationService {
     }
 
     @TransactionalInNeo4j
-    public Event createEvent(CreateEventRequestParams params) {
+    public Event createEvent(CreateEventRequestParams params) throws ValidationException {
         return buildValidateAndSaveEvent(params);
     }
 
     @TransactionalInNeo4j
-    public Event createEventWithParticipant(CreateEventRequestWithParticipantParams params) {
+    public Event createEventWithParticipantAndLocation(CreateEventRequestWithParticipantAndLocationParams params) throws ValidationException {
+        Event event = buildValidateAndSaveEvent(params);
+        eventService.addParticipantAndLocationToEvent(AddParticipantAndLocationToEventParams.builder()
+                .userId(params.getUserId())
+                .treeId(params.getTreeId())
+                .eventId(event.getId())
+                .locationId(params.getLocationId())
+                .participantId(params.getParticipantId())
+                .relationshipType(params.getParticipantEventRequest().getRelationship().name())
+                .build());
+        return event;
+    }
+
+    @TransactionalInNeo4j
+    public Event createEventWithParticipant(CreateEventRequestWithParticipantParams params) throws ValidationException {
         Event event = buildValidateAndSaveEvent(params);
         eventService.addParticipantToEvent(AddParticipantToEventParams.builder()
                 .userId(params.getUserId())
                 .treeId(params.getTreeId())
                 .eventId(event.getId())
                 .participantId(params.getParticipantId())
-                .relationshipType(params.getParticipantEventRequest().getRelationship().name())
+                .relationshipType(params.getRelationshipType())
                 .build());
         return event;
     }

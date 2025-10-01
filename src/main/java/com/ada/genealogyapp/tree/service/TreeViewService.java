@@ -1,6 +1,7 @@
 package com.ada.genealogyapp.tree.service;
 
 import com.ada.genealogyapp.tree.dto.TreeResponse;
+import com.ada.genealogyapp.tree.dto.params.BaseParams;
 import com.ada.genealogyapp.tree.repository.TreeRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,5 +23,11 @@ public class TreeViewService {
         List<TreeResponse> trees = treeRepository.find(userId);
         treeService.checkUserExistence(userId, trees);
         return trees;
+    }
+
+    public TreeResponse getTree(BaseParams params) {
+        TreeResponse tree = treeRepository.find(params.getUserId(), params.getTreeId());
+        treeService.checkUserExistence(params.getUserId(), tree);
+        return tree;
     }
 }

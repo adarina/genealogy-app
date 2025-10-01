@@ -22,4 +22,6 @@ public class EventFact {
     private Address addr;
 
     private List<SourceCitation> sourceCitations;
+
+    private Extensions extensions;
 }

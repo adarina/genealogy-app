@@ -3,6 +3,7 @@ package com.ada.genealogyapp.event.model;
 import com.ada.genealogyapp.event.relationship.EventCitation;
 import com.ada.genealogyapp.event.relationship.EventParticipant;
 import com.ada.genealogyapp.event.type.EventType;
+import com.ada.genealogyapp.location.model.Location;
 import com.ada.genealogyapp.tree.model.Tree;
 import lombok.*;
 import org.springframework.data.neo4j.core.schema.GeneratedValue;
@@ -45,5 +46,8 @@ public class Event {
 
     @Relationship(type = "HAS_EVENT", direction = Relationship.Direction.INCOMING)
     private Tree tree;
+
+    @Relationship(type = "HAS_EVENT_LOCATION", direction = Relationship.Direction.OUTGOING)
+    private Location location;
 
 }

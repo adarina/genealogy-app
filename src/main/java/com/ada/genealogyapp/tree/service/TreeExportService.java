@@ -1,97 +1,96 @@
 package com.ada.genealogyapp.tree.service;
 
-import com.ada.genealogyapp.citation.model.Citation;
-import com.ada.genealogyapp.event.model.Event;
-import com.ada.genealogyapp.family.model.Family;
-import com.ada.genealogyapp.file.model.File;
-import com.ada.genealogyapp.export.dto.GedcomRequest;
-import com.ada.genealogyapp.export.gedcom.GedcomMapper;
-import com.ada.genealogyapp.export.gedcom.GedcomMapperFactory;
-import com.ada.genealogyapp.export.json.JsonMapper;
-import com.ada.genealogyapp.export.json.JsonMapperFactory;
-import com.ada.genealogyapp.person.model.Person;
-import com.ada.genealogyapp.source.model.Source;
-import com.ada.genealogyapp.tree.dto.TreeExportJsonResponse;
-import com.ada.genealogyapp.tree.dto.TreeRequest;
-import com.ada.genealogyapp.tree.model.Tree;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
+import com.ada.genealogyapp.citation.dto.CitationExportResponse;
+import com.ada.genealogyapp.citation.service.CitationViewService;
+import com.ada.genealogyapp.event.dto.EventExportResponse;
+import com.ada.genealogyapp.event.service.EventViewService;
+import com.ada.genealogyapp.family.dto.FamilyExportResponse;
+import com.ada.genealogyapp.family.service.FamilyViewService;
+import com.ada.genealogyapp.file.dto.FileExportResponse;
+import com.ada.genealogyapp.file.service.FileViewService;
+import com.ada.genealogyapp.location.dto.LocationExportResponse;
+import com.ada.genealogyapp.location.service.LocationViewService;
+import com.ada.genealogyapp.person.dto.PersonExportResponse;
+import com.ada.genealogyapp.person.service.PersonViewService;
+import com.ada.genealogyapp.source.dto.SourceExportResponse;
+import com.ada.genealogyapp.source.service.SourceViewService;
+import com.ada.genealogyapp.tree.dto.TreeResponse;
+import com.ada.genealogyapp.tree.dto.params.BaseParams;
+import lombok.*;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
-@Service
-@RequiredArgsConstructor
-public class TreeExportService {
 
-    private final ObjectMapper objectMapper;
+@EqualsAndHashCode
+@AllArgsConstructor
+public abstract class TreeExportService {
 
-    private final JsonMapperFactory jsonMapperFactory;
+    protected final PersonViewService personViewService;
 
-    private final GedcomMapperFactory gedcomMapperFactory;
+    protected final FamilyViewService familyViewService;
 
-    private final TreeService treeService;
+    protected final EventViewService eventViewService;
 
-    public String exportTreeToJson(String treeId) throws JsonProcessingException {
-        objectMapper.configure(SerializationFeature.FAIL_ON_SELF_REFERENCES, false);
+    protected final CitationViewService citationViewService;
 
-        Tree tree = treeService.findTreeById(treeId);
-        TreeRequest treeRequest = TreeRequest.builder()
-                .id(tree.getId())
-                .name(tree.getName())
-                .build();
+    protected final SourceViewService sourceViewService;
 
-        TreeExportJsonResponse response = TreeExportJsonResponse.builder()
-                .tree(treeRequest)
-                .persons(mapEntitiesJson(treeService.findPersonsById(treeId), Person.class))
-                .families(mapEntitiesJson(treeService.findFamiliesById(treeId), Family.class))
-                .events(mapEntitiesJson(treeService.findEventsById(treeId), Event.class))
-                .citations(mapEntitiesJson(treeService.findCitationsById(treeId), Citation.class))
-                .sources(mapEntitiesJson(treeService.findSourcesById(treeId), Source.class))
-                .files(mapEntitiesJson(treeService.findFilesById(treeId), File.class))
-                .build();
+    protected final FileViewService fileViewService;
 
-        return objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(response);
+    protected final LocationViewService locationViewService;
+
+    protected final TreeViewService treeViewService;
+
+    public final Object exportTree(BaseParams params) {
+        TreeResponse tree = fetchTree(params);
+
+        Set<PersonExportResponse> persons = fetchPersons(params);
+        Set<FamilyExportResponse> families = fetchFamilies(params);
+        Set<EventExportResponse> events = fetchEvents(params);
+        Set<CitationExportResponse> citations = fetchCitations(params);
+        Set<SourceExportResponse> sources = fetchSources(params);
+        Set<FileExportResponse> files = fetchFiles(params);
+        Set<LocationExportResponse> locations = fetchLocations(params);
+
+        return assembleOutput(tree, persons, families, events, citations, sources, files, locations, params);
     }
 
-    private <E, D> List<D> mapEntitiesJson(Collection<E> entities, Class<E> entityType) {
-        JsonMapper<E, D> mapper = jsonMapperFactory.getMapper(entityType);
-        return mapper.map(entities);
+    protected TreeResponse fetchTree(BaseParams params) {
+        return treeViewService.getTree(params);
     }
 
-    public String exportTreeToGedcom(String treeId) {
-
-        Tree tree = treeService.findTreeById(treeId);
-        String header = String.join("\n",
-                "0 HEAD",
-                "1 SOUR " + tree.getName());
-
-        GedcomRequest personsGedcom = mapEntitiesGedcom(treeService.findPersonsById(treeId), null, Person.class);
-        GedcomRequest familiesGedcom = mapEntitiesGedcom(treeService.findFamiliesById(treeId), personsGedcom.getGedcomIds(), Family.class);
-        GedcomRequest eventsGedcom = mapEntitiesGedcom(treeService.findEventsById(treeId), null, Event.class);
-        GedcomRequest citationsGedcom = mapEntitiesGedcom(treeService.findCitationsById(treeId), null, Citation.class);
-        GedcomRequest sourcesGedcom = mapEntitiesGedcom(treeService.findSourcesById(treeId), null, Source.class);
-        GedcomRequest filesGedcom = mapEntitiesGedcom(treeService.findFilesById(treeId), null, File.class);
-
-        return String.join("\n",
-                header,
-                personsGedcom.getGedcomString(),
-                familiesGedcom.getGedcomString(),
-                eventsGedcom.getGedcomString(),
-                citationsGedcom.getGedcomString(),
-                sourcesGedcom.getGedcomString(),
-                filesGedcom.getGedcomString(),
-                "0 TRLR"
-        );
+    protected Set<PersonExportResponse> fetchPersons(BaseParams params) {
+        return personViewService.findPersons(params);
     }
 
-    private <E> GedcomRequest mapEntitiesGedcom(Set<E> entities, Map<String, String> gedcomIds, Class<E> entityType) {
-        GedcomMapper<E> mapper = gedcomMapperFactory.getMapper(entityType);
-        return mapper.map(entities, gedcomIds);
+    protected Set<FamilyExportResponse> fetchFamilies(BaseParams params) {
+        return familyViewService.findFamilies(params);
     }
+
+    protected Set<EventExportResponse> fetchEvents(BaseParams params) {
+        return eventViewService.findEvents(params);
+    }
+
+    protected Set<CitationExportResponse> fetchCitations(BaseParams params) {
+        return citationViewService.findCitations(params);
+    }
+
+    protected Set<SourceExportResponse> fetchSources(BaseParams params) {
+        return sourceViewService.findSources(params);
+    }
+
+    protected Set<FileExportResponse> fetchFiles(BaseParams params) {
+        return fileViewService.findFiles(params);
+    }
+
+    protected Set<LocationExportResponse> fetchLocations(BaseParams params) {
+        return locationViewService.findLocations(params);
+    }
+
+    protected abstract Object assembleOutput(TreeResponse tree, Set<PersonExportResponse> persons,
+                                             Set<FamilyExportResponse> families, Set<EventExportResponse> events,
+                                             Set<CitationExportResponse> citations, Set<SourceExportResponse> sources,
+                                             Set<FileExportResponse> files, Set<LocationExportResponse> locations,
+                                             BaseParams params);
+
 }

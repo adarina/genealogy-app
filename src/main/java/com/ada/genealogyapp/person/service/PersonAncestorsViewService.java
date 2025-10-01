@@ -10,8 +10,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
-//TODO performance, change to one query someday
+import static java.util.Objects.isNull;
+
+
 @Service
 @Slf4j
 @RequiredArgsConstructor
@@ -28,40 +31,46 @@ public class PersonAncestorsViewService {
     }
 
     private void buildAncestryMapRecursive(PersonResponse person, Map<PersonResponse, Set<PersonResponse>> ancestors, Set<PersonResponse> visited, GetPersonParams params) {
-        if (person == null || visited.contains(person)) {
+        if (isNull(person) || visited.contains(person) || isPlaceholder(person)) {
             return;
         }
         visited.add(person);
 
-        Set<PersonResponse> parents = personRepository.findParentsOf(params.getUserId(), params.getTreeId(), person.getId());
-        if (parents.isEmpty()) {
-            return;
+        Set<PersonResponse> biologicalParents = personRepository.findAncestor(params.getUserId(), params.getTreeId(), person.getId());
+
+        Set<PersonResponse> completeParents = new LinkedHashSet<>(biologicalParents);
+
+        if (completeParents.stream().noneMatch(p -> p.getGender() == GenderType.MALE)) {
+            completeParents.add(createPlaceholderPerson(GenderType.MALE));
         }
 
-        ancestors.put(person, new LinkedHashSet<>(parents));
-        for (PersonResponse parent : parents) {
+        if (completeParents.stream().noneMatch(p -> p.getGender() == GenderType.FEMALE)) {
+            completeParents.add(createPlaceholderPerson(GenderType.FEMALE));
+        }
+
+        ancestors.put(person, completeParents);
+
+        for (PersonResponse parent : completeParents) {
             buildAncestryMapRecursive(parent, ancestors, visited, params);
         }
     }
 
     private PersonAncestorResponse mapToResponse(PersonResponse person, Map<PersonResponse, Set<PersonResponse>> ancestryMap) {
-        if (person == null) return null;
+        if (isNull(person)) {
+            return null;
+        }
 
-        List<PersonAncestorResponse> ancestors = Optional.ofNullable(ancestryMap.get(person))
-                .orElse(Collections.emptySet())
-                .stream()
-                .sorted(this::compareByGender)
-                .map(parent -> mapToResponse(parent, ancestryMap))
-                .toList();
+        List<PersonAncestorResponse> ancestors = Optional.ofNullable(ancestryMap.get(person)).orElse(Collections.emptySet()).stream().sorted(this::compareByGender).map(parent -> mapToResponse(parent, ancestryMap)).collect(Collectors.toList());
 
-        return PersonAncestorResponse.builder()
-                .id(person.getId())
-                .name(person.getName())
-                .gender(person.getGender().toString())
-                .birthdate(person.getBirthdate())
-                .deathdate(person.getDeathdate())
-                .ancestors(ancestors)
-                .build();
+        return PersonAncestorResponse.builder().id(person.getId()).name(person.getName()).gender(person.getGender() != null ? person.getGender().toString() : "UNKNOWN").birthdate(person.getBirthdate()).deathdate(person.getDeathdate()).ancestors(ancestors).build();
+    }
+
+    private PersonResponse createPlaceholderPerson(GenderType gender) {
+        return PersonResponse.builder().id("placeholder-" + UUID.randomUUID()).name("No data").gender(gender).build();
+    }
+
+    private boolean isPlaceholder(PersonResponse person) {
+        return "No data".equals(person.getName());
     }
 
     private int compareByGender(PersonResponse firstPerson, PersonResponse secondPerson) {

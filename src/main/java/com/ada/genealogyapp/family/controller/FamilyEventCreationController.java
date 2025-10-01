@@ -1,6 +1,7 @@
 package com.ada.genealogyapp.family.controller;
 
 import com.ada.genealogyapp.event.service.EventCreationService;
+import com.ada.genealogyapp.exceptions.ValidationException;
 import com.ada.genealogyapp.participant.dto.ParticipantEventRequest;
 import com.ada.genealogyapp.person.dto.params.CreateEventRequestWithParticipantParams;
 import lombok.RequiredArgsConstructor;
@@ -16,7 +17,7 @@ public class FamilyEventCreationController {
     private final EventCreationService eventCreationService;
 
     @PostMapping
-    public ResponseEntity<?> createAndAddFamilyToEvent(@PathVariable String treeId, @PathVariable String familyId, @RequestBody ParticipantEventRequest participantEventRequest, @RequestHeader(value = "X-User-Id") String userId) {
+    public ResponseEntity<?> createAndAddFamilyToEvent(@PathVariable String treeId, @PathVariable String familyId, @RequestBody ParticipantEventRequest participantEventRequest, @RequestHeader(value = "X-User-Id") String userId) throws ValidationException {
         eventCreationService.createEventWithParticipant(CreateEventRequestWithParticipantParams.builder()
                 .userId(userId)
                 .treeId(treeId)

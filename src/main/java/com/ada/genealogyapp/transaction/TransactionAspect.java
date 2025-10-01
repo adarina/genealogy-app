@@ -22,6 +22,7 @@ public class TransactionAspect {
         this.transactionManager = transactionManager;
     }
 
+
     @Around("@annotation(com.ada.genealogyapp.transaction.TransactionalInNeo4j)")
     public Object manageTransaction(ProceedingJoinPoint joinPoint) throws Throwable {
         DefaultTransactionDefinition def = new DefaultTransactionDefinition();
@@ -29,14 +30,15 @@ public class TransactionAspect {
         def.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRED);
 
         TransactionStatus status = transactionManager.getTransaction(def);
-
+        log.info("Transaction started for: {}", joinPoint.getSignature().getName());
         Object result;
         try {
             result = joinPoint.proceed();
             transactionManager.commit(status);
+            log.info("Transaction committed for: {}", joinPoint.getSignature().getName());
         } catch (Throwable ex) {
             transactionManager.rollback(status);
-            log.info("Transaction rolled back");
+            log.info("Transaction rolled back for: {} due to: {}", joinPoint.getSignature().getName(), ex.getMessage());
             throw ex;
         }
         return result;

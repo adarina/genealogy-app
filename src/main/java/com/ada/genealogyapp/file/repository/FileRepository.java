@@ -1,6 +1,7 @@
 package com.ada.genealogyapp.file.repository;
 
 
+import com.ada.genealogyapp.file.dto.FileExportResponse;
 import com.ada.genealogyapp.file.dto.FileResponse;
 import com.ada.genealogyapp.file.model.File;
 
@@ -9,6 +10,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.neo4j.repository.Neo4jRepository;
 import org.springframework.data.neo4j.repository.query.Query;
 import org.springframework.stereotype.Repository;
+
+import java.util.Set;
 
 
 @Repository
@@ -136,4 +139,14 @@ public interface FileRepository extends Neo4jRepository<File, String> {
                     RETURN count(file)
                     """)
     Page<FileResponse> find(String userId, String treeId, String name, String type, String baseUrl, Pageable pageable);
+
+    @Query(value = """
+            MATCH (user:GraphUser {id: $userId})-[:HAS_TREE]->(tree:Tree {id: $treeId})-[:HAS_FILE]->(file:File)
+            RETURN file.id AS id,
+                   file.name AS name,
+                   file.type AS type,
+                   $baseUrl + file.filename AS path,
+                   file.filename AS filename
+                   """)
+    Set<FileExportResponse> find(String userId, String treeId, String baseUrl);
 }

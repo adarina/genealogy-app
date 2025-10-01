@@ -1,5 +1,6 @@
 package com.ada.genealogyapp.family.controller;
 
+import com.ada.genealogyapp.exceptions.ValidationException;
 import com.ada.genealogyapp.family.dto.params.AddChildToFamilyRequestParams;
 import com.ada.genealogyapp.family.dto.params.RemovePersonFromFamilyParams;
 import com.ada.genealogyapp.family.service.FamilyChildManagementService;
@@ -21,7 +22,7 @@ public class FamilyChildManagementController {
     private final PersonManagementService personManagementService;
 
     @PutMapping
-    public ResponseEntity<?> updateChildInFamily(@PathVariable String treeId, @PathVariable String familyId, @PathVariable String childId, @RequestBody FamilyChildRequest familyChildRequest, @RequestHeader(value = "X-User-Id") String userId) {
+    public ResponseEntity<?> updateChildInFamily(@PathVariable String treeId, @PathVariable String familyId, @PathVariable String childId, @RequestBody FamilyChildRequest familyChildRequest, @RequestHeader(value = "X-User-Id") String userId) throws ValidationException {
         personManagementService.updateChildInFamily(UpdateChildInFamilyRequestParams.builder()
                 .userId(userId)
                 .treeId(treeId)

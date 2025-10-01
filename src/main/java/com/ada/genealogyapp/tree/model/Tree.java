@@ -5,6 +5,7 @@ import com.ada.genealogyapp.event.model.Event;
 import com.ada.genealogyapp.family.model.Family;
 import com.ada.genealogyapp.file.model.File;
 import com.ada.genealogyapp.graphuser.model.GraphUser;
+import com.ada.genealogyapp.location.model.Location;
 import com.ada.genealogyapp.person.model.Person;
 import com.ada.genealogyapp.source.model.Source;
 import lombok.*;
@@ -50,10 +51,13 @@ public class Tree {
     @Relationship(type = "HAS_FILE", direction = Relationship.Direction.OUTGOING)
     private Set<File> files = new HashSet<>();
 
+    @Relationship(type = "HAS_LOCATION", direction = Relationship.Direction.OUTGOING)
+    private Set<Location> locations = new HashSet<>();
+
     @Relationship(type = "HAS_TREE", direction = Relationship.Direction.INCOMING)
     private GraphUser graphUser;
 
-    public Tree(String name, Set<Family> families, Set<Person> persons, Set<Event> events, Set<Citation> citations, Set<Source> sources, Set<File> files) {
+    public Tree(String name, Set<Family> families, Set<Person> persons, Set<Event> events, Set<Citation> citations, Set<Source> sources, Set<File> files, Set<Location> locations) {
         this.name = name;
         this.families = families;
         this.persons = persons;
@@ -61,6 +65,7 @@ public class Tree {
         this.citations = citations;
         this.sources = sources;
         this.files = files;
+        this.locations = locations;
     }
 }
 

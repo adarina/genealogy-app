@@ -2,6 +2,7 @@ package com.ada.genealogyapp.family.controller;
 
 import com.ada.genealogyapp.event.dto.params.RemoveParticipantFromEventParams;
 import com.ada.genealogyapp.event.service.EventManagementService;
+import com.ada.genealogyapp.exceptions.ValidationException;
 import com.ada.genealogyapp.participant.dto.ParticipantEventRequest;
 import com.ada.genealogyapp.event.dto.params.UpdateEventRequestWithParticipantParams;
 import lombok.RequiredArgsConstructor;
@@ -17,7 +18,7 @@ public class FamilyEventManagementController {
     private final EventManagementService eventManagementService;
 
     @PutMapping
-    public ResponseEntity<?> updateEventInFamily(@PathVariable String treeId, @PathVariable String familyId, @PathVariable String eventId, @RequestBody ParticipantEventRequest participantEventRequest, @RequestHeader(value = "X-User-Id") String userId) {
+    public ResponseEntity<?> updateEventInFamily(@PathVariable String treeId, @PathVariable String familyId, @PathVariable String eventId, @RequestBody ParticipantEventRequest participantEventRequest, @RequestHeader(value = "X-User-Id") String userId) throws ValidationException {
         eventManagementService.updateEventWithParticipant(UpdateEventRequestWithParticipantParams.builder()
                 .userId(userId)
                 .treeId(treeId)
@@ -30,7 +31,7 @@ public class FamilyEventManagementController {
     }
 
     @PostMapping
-    public ResponseEntity<?> addFamilyToEvent(@PathVariable String treeId, @PathVariable String familyId, @PathVariable String eventId, @RequestBody ParticipantEventRequest participantEventRequest, @RequestHeader(value = "X-User-Id") String userId) {
+    public ResponseEntity<?> addFamilyToEvent(@PathVariable String treeId, @PathVariable String familyId, @PathVariable String eventId, @RequestBody ParticipantEventRequest participantEventRequest, @RequestHeader(value = "X-User-Id") String userId) throws ValidationException {
         eventManagementService.updateEventWithParticipant(UpdateEventRequestWithParticipantParams.builder()
                 .userId(userId)
                 .treeId(treeId)

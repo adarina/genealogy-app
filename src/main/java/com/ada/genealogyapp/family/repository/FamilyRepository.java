@@ -8,7 +8,7 @@ import org.springframework.data.neo4j.repository.Neo4jRepository;
 import org.springframework.data.neo4j.repository.query.Query;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
+import java.util.Set;
 
 
 @Repository
@@ -560,6 +560,17 @@ public interface FamilyRepository extends Neo4jRepository<Family, String> {
             """)
     FamilyChildResponse findChild(String userId, String treeId, String familyId, String childId);
 
-    @Query("MATCH (f:Family) RETURN f")
-    List<Family> findAllFamilies();
+    @Query(value = """
+            MATCH (user:GraphUser {id: $userId})-[:HAS_TREE]->(tree:Tree {id: $treeId})-[:HAS_FAMILY]->(family:Family)
+            OPTIONAL MATCH (family)-[:HAS_FATHER]->(father:Person)
+            OPTIONAL MATCH (family)-[:HAS_MOTHER]->(mother:Person)
+            OPTIONAL MATCH (family)-[:HAS_CHILD]->(child:Person)
+            RETURN family.id AS id,
+                   family.status AS status,
+                   family.name AS name,
+                   father.id AS fatherId,
+                   mother.id AS motherId,
+                   collect(DISTINCT child.id) AS childrenIds
+                   """)
+    Set<FamilyExportResponse> find(String userId, String treeId);
 }

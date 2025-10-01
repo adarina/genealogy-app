@@ -1,35 +1,67 @@
 package com.ada.genealogyapp.tree.controller;
 
-import com.ada.genealogyapp.tree.service.TreeExportService;
-import com.fasterxml.jackson.core.JsonProcessingException;
+import com.ada.genealogyapp.tree.dto.TreeExportJsonResponse;
+import com.ada.genealogyapp.tree.dto.params.BaseParams;
+import com.ada.genealogyapp.tree.service.TreeExportGedcomService;
+import com.ada.genealogyapp.tree.service.TreeExportJsonService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("api/v1/genealogy/trees/{treeId}")
+@RequestMapping("api/v1/genealogy/trees/{treeId}/export")
 public class TreeExportController {
 
-    private final TreeExportService treeExportService;
+    private final TreeExportGedcomService gedcomService;
 
-    @GetMapping("/exportJson")
-    public ResponseEntity<?> exportTreeToJson(@PathVariable String treeId) throws JsonProcessingException {
-        String treeJson = treeExportService.exportTreeToJson(treeId);
+    private final TreeExportJsonService jsonService;
+
+    private final ObjectMapper objectMapper;
+
+    //TODO wyczyscic serwis
+    @GetMapping("/json")
+    public ResponseEntity<Resource> exportTreeToJsonFile(@PathVariable String treeId) throws IOException {
+        TreeExportJsonResponse treeJson = (TreeExportJsonResponse) jsonService.exportTree(BaseParams.builder()
+                .userId("2")
+                .treeId(treeId)
+                .build());
+
+        String jsonString = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(treeJson);
+        byte[] jsonBytes = jsonString.getBytes(StandardCharsets.UTF_8);
+        ByteArrayResource resource = new ByteArrayResource(jsonBytes);
+        String fileName = "tree_" + treeId + ".json";
+
         return ResponseEntity.ok()
-                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=tree_" + treeId + ".json")
-                .body(treeJson);
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + fileName + "\"")
+                .contentType(MediaType.APPLICATION_JSON)
+                .contentLength(jsonBytes.length)
+                .body(resource);
     }
 
-    @GetMapping("/exportGedcom")
-    public ResponseEntity<?> exportTreeToGedcom(@PathVariable String treeId) {
-        String treeJson = treeExportService.exportTreeToGedcom(treeId);
+    @GetMapping("/gedcom")
+    public ResponseEntity<Resource> exportTreeToGedcomFile(@PathVariable String treeId) {
+        String gedcomContent = (String) gedcomService.exportTree(BaseParams.builder()
+                .userId("2")
+                .treeId(treeId)
+                .build());
+
+        byte[] gedcomBytes = gedcomContent.getBytes(StandardCharsets.UTF_8);
+        ByteArrayResource resource = new ByteArrayResource(gedcomBytes);
+        String fileName = "tree_" + treeId + ".ged";
+
         return ResponseEntity.ok()
-                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=tree_" + treeId + ".ged")
-                .body(treeJson);
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + fileName + "\"")
+                .contentType(MediaType.TEXT_PLAIN)
+                .contentLength(gedcomBytes.length)
+                .body(resource);
     }
 }

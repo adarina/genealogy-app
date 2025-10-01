@@ -1,14 +1,15 @@
 package com.ada.genealogyapp.tree.dto;
 
-import com.ada.genealogyapp.citation.dto.CitationRequest;
-import com.ada.genealogyapp.event.dto.EventRequest;
-import com.ada.genealogyapp.family.dto.FamilyRequest;
-import com.ada.genealogyapp.file.dto.MultipartFileRequest;
-import com.ada.genealogyapp.person.dto.PersonRequest;
-import com.ada.genealogyapp.source.dto.SourceRequest;
+import com.ada.genealogyapp.citation.dto.CitationExportResponse;
+import com.ada.genealogyapp.event.dto.EventExportResponse;
+import com.ada.genealogyapp.family.dto.FamilyExportResponse;
+import com.ada.genealogyapp.file.dto.FileExportResponse;
+import com.ada.genealogyapp.location.dto.LocationExportResponse;
+import com.ada.genealogyapp.person.dto.PersonExportResponse;
+import com.ada.genealogyapp.source.dto.SourceExportResponse;
 import lombok.*;
 
-import java.util.List;
+import java.util.Set;
 
 @Builder
 @Getter
@@ -19,17 +20,20 @@ public class TreeExportJsonResponse {
 
     private TreeRequest tree;
 
-    private List<PersonRequest> persons;
+    private Set<PersonExportResponse> persons;
 
-    private List<FamilyRequest> families;
+    private Set<FamilyExportResponse> families;
 
-    private List<EventRequest> events;
+    private Set<EventExportResponse> events;
 
-    private List<CitationRequest> citations;
+    private Set<CitationExportResponse> citations;
 
-    private List<SourceRequest> sources;
+    private Set<SourceExportResponse> sources;
 
-    private List<MultipartFileRequest> files;
+    private Set<FileExportResponse> files;
+
+    private Set<LocationExportResponse> locations;
+
 }
 
 

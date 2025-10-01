@@ -12,5 +12,7 @@ public enum IdType {
     CHILD_ID,
     MOTHER_ID,
     FATHER_ID,
-    USER_ID
+    USER_ID,
+    LOCATION_ID,
+    PARENT_ID
 }

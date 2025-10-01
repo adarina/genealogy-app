@@ -18,5 +18,11 @@ public interface EventService {
 
     void removeCitationFromEvent(RemoveCitationFromEventParams params);
 
+    void removeLocationFromEvent(RemoveLocationFromEventParams params);
+
     void addCitationToEvent(AddCitationToEventParams params);
+
+    void addLocationToEvent(AddLocationToEventParams params);
+
+    void addParticipantAndLocationToEvent(AddParticipantAndLocationToEventParams params);
 }

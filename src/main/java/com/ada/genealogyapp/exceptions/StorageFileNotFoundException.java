@@ -4,7 +4,7 @@ import lombok.Getter;
 
 
 @Getter
-public class StorageFileNotFoundException extends RuntimeException {
+public class StorageFileNotFoundException extends Exception {
     public StorageFileNotFoundException(String message) {
         super(message);
     }

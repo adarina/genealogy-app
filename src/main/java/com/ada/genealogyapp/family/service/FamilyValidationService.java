@@ -3,21 +3,25 @@ package com.ada.genealogyapp.family.service;
 import com.ada.genealogyapp.exceptions.ValidationException;
 import com.ada.genealogyapp.family.model.Family;
 import com.ada.genealogyapp.family.validation.StatusFamilyValidator;
-import com.ada.genealogyapp.validation.factory.DefaultFieldValidationFactory;
 import com.ada.genealogyapp.validation.model.Validator;
 import com.ada.genealogyapp.validation.result.ValidationResult;
 import com.ada.genealogyapp.validation.service.FieldValidationService;
+import jakarta.annotation.PostConstruct;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class FamilyValidationService {
-    private final Validator<Family> validator;
+    private  Validator<Family> validator;
 
-    public FamilyValidationService() {
-        FieldValidationService fieldValidationService = new FieldValidationService(new DefaultFieldValidationFactory());
-        this.validator = Validator.link(
+    private final FieldValidationService fieldValidationService;
+
+    @PostConstruct
+    public void init() {
+        validator = Validator.link(
             new StatusFamilyValidator(fieldValidationService)
         );
     }

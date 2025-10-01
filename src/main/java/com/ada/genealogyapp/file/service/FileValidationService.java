@@ -3,21 +3,25 @@ package com.ada.genealogyapp.file.service;
 import com.ada.genealogyapp.exceptions.ValidationException;
 import com.ada.genealogyapp.file.model.File;
 import com.ada.genealogyapp.file.validation.NameFileValidator;
-import com.ada.genealogyapp.validation.factory.DefaultFieldValidationFactory;
 import com.ada.genealogyapp.validation.model.Validator;
 import com.ada.genealogyapp.validation.result.ValidationResult;
 import com.ada.genealogyapp.validation.service.FieldValidationService;
+import jakarta.annotation.PostConstruct;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class FileValidationService {
-    private final Validator<File> validator;
+    private Validator<File> validator;
 
-    public FileValidationService() {
-        FieldValidationService fieldValidationService = new FieldValidationService(new DefaultFieldValidationFactory());
-        this.validator = Validator.link(
+    private final FieldValidationService fieldValidationService;
+
+    @PostConstruct
+    public void init() {
+        validator = Validator.link(
                 new NameFileValidator(fieldValidationService)
         );
     }

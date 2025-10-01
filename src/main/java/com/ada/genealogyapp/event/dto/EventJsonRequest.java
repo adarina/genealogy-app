@@ -14,7 +14,9 @@ public class EventJsonRequest extends EventRequest {
 
     private String id;
 
-    List<EventParticipantRequest> participants;
+    private List<EventParticipantRequest> participants;
 
-    List<EventCitationRequest> citations;
+    private List<EventCitationRequest> citations;
+
+    private String locationId;
 }

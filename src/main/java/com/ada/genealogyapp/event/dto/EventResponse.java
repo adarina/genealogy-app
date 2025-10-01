@@ -2,14 +2,11 @@ package com.ada.genealogyapp.event.dto;
 
 import com.ada.genealogyapp.event.type.EventType;
 import lombok.*;
+import lombok.experimental.SuperBuilder;
 
-import java.util.LinkedHashSet;
-
-@Getter
-@Setter
-@AllArgsConstructor
+@Data
+@SuperBuilder
 @NoArgsConstructor
-@Builder
 public class EventResponse {
 
     private String id;
@@ -21,9 +18,5 @@ public class EventResponse {
     private String date;
 
     private String place;
-
-    private LinkedHashSet<EventParticipantResponse> participants;
-
-    private LinkedHashSet<EventCitationResponse> citations;
 
 }

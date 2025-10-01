@@ -21,7 +21,7 @@ public class PersonRelationship {
 
     @Id
     @GeneratedValue
-    private String id;
+    private Long id;
 
     @TargetNode
     private Person child;
