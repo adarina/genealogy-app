@@ -1,6 +1,5 @@
 package com.ada.genealogyapp.event.repository;
 
-import com.ada.genealogyapp.citation.dto.CitationSourceResponse;
 import com.ada.genealogyapp.event.dto.*;
 import com.ada.genealogyapp.event.model.Event;
 import com.ada.genealogyapp.location.dto.LocationResponse;
@@ -11,6 +10,8 @@ import org.springframework.data.neo4j.repository.query.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 @Repository
@@ -20,11 +21,11 @@ public interface EventRepository extends Neo4jRepository<Event, String> {
             CALL {
                 OPTIONAL MATCH (user:GraphUser {id: $userId})
                 WITH count(user) > 0 AS userExist
-                
+            
                 OPTIONAL MATCH (user)-[:HAS_TREE]->(tree:Tree {id: $treeId})
                 RETURN userExist, count(tree) > 0 AS treeExist, tree
             }
-                        
+            
             CALL apoc.do.case(
                 [
                     userExist AND treeExist, '
@@ -33,7 +34,7 @@ public interface EventRepository extends Neo4jRepository<Event, String> {
                             event.place = place,
                             event.type = type,
                             event.date = date
-                        
+            
                         WITH tree, event, locationId
                         OPTIONAL MATCH (tree)-[:HAS_LOCATION]->(location:Location {id: locationId})
                         WITH tree, event, locationId
@@ -41,7 +42,7 @@ public interface EventRepository extends Neo4jRepository<Event, String> {
                         FOREACH (_ IN CASE WHEN location IS NOT NULL THEN [1] ELSE [] END |
                         MERGE (event)-[:HAS_EVENT_LOCATION]->(location)
                         )
-                            
+            
                         RETURN "EVENT_CREATED" AS message
                     ',
                     userExist, 'RETURN "TREE_NOT_EXIST" AS message'
@@ -58,14 +59,14 @@ public interface EventRepository extends Neo4jRepository<Event, String> {
             CALL {
                 OPTIONAL MATCH (user:GraphUser {id: $userId})
                 WITH count(user) > 0 AS userExist
-                
+            
                 OPTIONAL MATCH (user)-[:HAS_TREE]->(tree:Tree {id: $treeId})
                 WITH userExist, count(tree) > 0 AS treeExist, tree
-                
+            
                 OPTIONAL MATCH (tree)-[:HAS_EVENT]->(event:Event {id: $eventId})
                 RETURN userExist, treeExist, tree, count(event) > 0 AS eventExist, event
             }
-                        
+            
             CALL apoc.do.case(
                 [
                     userExist AND treeExist AND eventExist, '
@@ -88,14 +89,14 @@ public interface EventRepository extends Neo4jRepository<Event, String> {
             CALL {
                 OPTIONAL MATCH (user:GraphUser {id: $userId})
                 WITH count(user) > 0 AS userExist
-                
+            
                 OPTIONAL MATCH (user)-[:HAS_TREE]->(tree:Tree {id: $treeId})
                 WITH userExist, count(tree) > 0 AS treeExist, tree
-                
+            
                 OPTIONAL MATCH (tree)-[:HAS_EVENT]->(event:Event {id: $eventId})
                 RETURN userExist, treeExist, tree, count(event) > 0 AS eventExist, event
             }
-                        
+            
             CALL apoc.do.case(
                 [
                     userExist AND treeExist AND eventExist, '
@@ -103,7 +104,7 @@ public interface EventRepository extends Neo4jRepository<Event, String> {
                             event.place = $place,
                             event.date = $date,
                             event.type = $type
-                            
+            
                         RETURN "EVENT_UPDATED" AS message
                     ',
                     userExist AND treeExist, 'RETURN "EVENT_NOT_EXIST" AS message',
@@ -121,17 +122,17 @@ public interface EventRepository extends Neo4jRepository<Event, String> {
             CALL {
                 OPTIONAL MATCH (user:GraphUser {id: $userId})
                 WITH count(user) > 0 AS userExist
-                
+            
                 OPTIONAL MATCH (user)-[:HAS_TREE]->(tree:Tree {id: $treeId})
                 WITH userExist, count(tree) > 0 AS treeExist, tree
-                
+            
                 OPTIONAL MATCH (tree)-[:HAS_EVENT]->(event:Event {id: $eventId})
                 WITH userExist, treeExist, tree, count(event) > 0 AS eventExist, event
-                
+            
                 OPTIONAL MATCH (tree)-[:HAS_FAMILY|HAS_PERSON]->(participant:Participant {id: $participantId})
                 RETURN userExist, treeExist, tree, eventExist, event, count(participant) > 0 AS participantExist, participant
             }
-                        
+            
             CALL apoc.do.case(
                 [
                     userExist AND treeExist AND eventExist AND participantExist, '
@@ -139,11 +140,11 @@ public interface EventRepository extends Neo4jRepository<Event, String> {
                             event.place = $place,
                             event.date = $date,
                             event.type = $type
-                     
+            
                         MERGE (event)-[rel:HAS_PARTICIPANT]->(participant)
                         ON CREATE SET rel.relationship = $relationshipType
                         ON MATCH SET rel.relationship = $relationshipType
-                   
+            
                         RETURN "EVENT_UPDATED" AS message
                     ',
                     userExist AND treeExist AND eventExist, 'RETURN "PARTICIPANT_NOT_EXIST" AS message',
@@ -162,22 +163,22 @@ public interface EventRepository extends Neo4jRepository<Event, String> {
             CALL {
                 OPTIONAL MATCH (user:GraphUser {id: $userId})
                 WITH count(user) > 0 AS userExist
-                
+            
                 OPTIONAL MATCH (user)-[:HAS_TREE]->(tree:Tree {id: $treeId})
                 WITH userExist, count(tree) > 0 AS treeExist, tree
-                
+            
                 OPTIONAL MATCH (tree)-[:HAS_EVENT]->(event:Event {id: $eventId})
                 WITH userExist, treeExist, tree, count(event) > 0 AS eventExist, event
-                
+            
                 OPTIONAL MATCH (tree)-[:HAS_FAMILY|HAS_PERSON]->(participant:Participant {id: $participantId})
                 RETURN userExist, treeExist, tree, eventExist, event, count(participant) > 0 AS participantExist, participant
             }
-                            
+            
             CALL apoc.do.case(
                 [
                     userExist AND treeExist AND eventExist AND participantExist, '
                         MERGE (event)-[:HAS_PARTICIPANT {relationship: relationshipType}]->(participant)
-                            
+            
                         RETURN "PARTICIPANT_ADDED_TO_EVENT" AS message
                     ',
                     userExist AND treeExist AND eventExist, 'RETURN "PARTICIPANT_NOT_EXIST" AS message',
@@ -196,17 +197,17 @@ public interface EventRepository extends Neo4jRepository<Event, String> {
             CALL {
                 OPTIONAL MATCH (user:GraphUser {id: $userId})
                 WITH count(user) > 0 AS userExist
-                
+            
                 OPTIONAL MATCH (user)-[:HAS_TREE]->(tree:Tree {id: $treeId})
                 WITH userExist, count(tree) > 0 AS treeExist, tree
-                
+            
                 OPTIONAL MATCH (tree)-[:HAS_EVENT]->(event:Event {id: $eventId})
                 WITH userExist, treeExist, tree, count(event) > 0 AS eventExist, event
-                
+            
                 OPTIONAL MATCH (event)-[participantRel:HAS_PARTICIPANT]->(participant:Participant {id: $participantId})
                 RETURN userExist, treeExist, tree, eventExist, event, count(participant) > 0 AS participantExist, participant, participantRel
             }
-                        
+            
             CALL apoc.do.case(
                 [
                     userExist AND treeExist AND eventExist AND participantExist, '
@@ -229,17 +230,17 @@ public interface EventRepository extends Neo4jRepository<Event, String> {
             CALL {
                 OPTIONAL MATCH (user:GraphUser {id: $userId})
                 WITH count(user) > 0 AS userExist
-                
+            
                 OPTIONAL MATCH (user)-[:HAS_TREE]->(tree:Tree {id: $treeId})
                 WITH userExist, count(tree) > 0 AS treeExist, tree
-                
+            
                 OPTIONAL MATCH (tree)-[:HAS_EVENT]->(event:Event {id: $eventId})
                 WITH userExist, treeExist, tree, count(event) > 0 AS eventExist, event
-                
+            
                 OPTIONAL MATCH (event)-[citationRel:HAS_EVENT_CITATION]->(citation:Citation {id: $citationId})
                 RETURN userExist, treeExist, tree, eventExist, event, count(citation) > 0 AS citationExist, citation, citationRel
             }
-                        
+            
             CALL apoc.do.case(
                 [
                     userExist AND treeExist AND eventExist AND citationExist, '
@@ -262,22 +263,22 @@ public interface EventRepository extends Neo4jRepository<Event, String> {
             CALL {
                 OPTIONAL MATCH (user:GraphUser {id: $userId})
                 WITH count(user) > 0 AS userExist
-                
+            
                 OPTIONAL MATCH (user)-[:HAS_TREE]->(tree:Tree {id: $treeId})
                 WITH userExist, count(tree) > 0 AS treeExist, tree
-                
+            
                 OPTIONAL MATCH (tree)-[:HAS_EVENT]->(event:Event {id: $eventId})
                 WITH userExist, treeExist, tree, count(event) > 0 AS eventExist, event
-                
+            
                 OPTIONAL MATCH (tree)-[:HAS_CITATION]->(citation:Citation {id: $citationId})
                 RETURN userExist, treeExist, tree, eventExist, event, count(citation) > 0 AS citationExist, citation
             }
-                            
+            
             CALL apoc.do.case(
                 [
                     userExist AND treeExist AND eventExist AND citationExist, '
                         MERGE (event)-[:HAS_EVENT_CITATION]->(citation)
-                            
+            
                         RETURN "CITATION_ADDED_TO_EVENT" AS message
                     ',
                     userExist AND treeExist AND eventExist, 'RETURN "CITATION_NOT_EXIST" AS message',
@@ -356,7 +357,7 @@ public interface EventRepository extends Neo4jRepository<Event, String> {
             RETURN ancestor.id AS id,
                    ancestor.name AS name
                    ancestor.type AS type
-                   """)
+            """)
     LinkedHashSet<LocationResponse> findLocation(String userId, String treeId, String eventId);
 
     @Query(value = """
@@ -379,7 +380,7 @@ public interface EventRepository extends Neo4jRepository<Event, String> {
     @Query(value = """
             MATCH (user:GraphUser {id: $userId})-[:HAS_TREE]->(tree:Tree {id: $treeId})-[:HAS_EVENT]->(event:Event {id: $eventId})
             OPTIONAL MATCH (event)-[rel:HAS_PARTICIPANT]->(participant:Participant)
-                        
+            
             RETURN participant.id AS id,
                    participant.name AS name,
                    rel.relationship AS relationship
@@ -400,17 +401,17 @@ public interface EventRepository extends Neo4jRepository<Event, String> {
             CALL {
                 OPTIONAL MATCH (user:GraphUser {id: $userId})
                 WITH count(user) > 0 AS userExist
-                
+            
                 OPTIONAL MATCH (user)-[:HAS_TREE]->(tree:Tree {id: $treeId})
                 WITH userExist, count(tree) > 0 AS treeExist, tree
-                
+            
                 OPTIONAL MATCH (tree)-[:HAS_EVENT]->(event:Event {id: $eventId})
                 WITH userExist, treeExist, tree, count(event) > 0 AS eventExist, event
-                
+            
                 OPTIONAL MATCH (event)-[locationRel:HAS_EVENT_LOCATION]->(location:Location {id: $locationId})
                 RETURN userExist, treeExist, tree, eventExist, event, count(location) > 0 AS locationExist, location, locationRel
             }
-                        
+            
             CALL apoc.do.case(
                 [
                     userExist AND treeExist AND eventExist AND locationExist, '
@@ -433,17 +434,17 @@ public interface EventRepository extends Neo4jRepository<Event, String> {
             CALL {
                 OPTIONAL MATCH (user:GraphUser {id: $userId})
                 WITH count(user) > 0 AS userExist
-                
+            
                 OPTIONAL MATCH (user)-[:HAS_TREE]->(tree:Tree {id: $treeId})
                 WITH userExist, count(tree) > 0 AS treeExist, tree
-                
+            
                 OPTIONAL MATCH (tree)-[:HAS_EVENT]->(event:Event {id: $eventId})
                 WITH userExist, treeExist, tree, count(event) > 0 AS eventExist, event
-                
+            
                 OPTIONAL MATCH (tree)-[:HAS_LOCATION]->(location:Location {id: $locationId})
                 RETURN userExist, treeExist, tree, eventExist, event, count(location) > 0 AS locationExist, location
             }
-                            
+            
             CALL apoc.do.case(
                 [
                     userExist AND treeExist AND eventExist AND locationExist, '
@@ -451,7 +452,7 @@ public interface EventRepository extends Neo4jRepository<Event, String> {
                         DELETE r
                         WITH event, location
                         MERGE (event)-[:HAS_EVENT_LOCATION]->(location)
-                            
+            
                         RETURN "LOCATION_ADDED_TO_EVENT" AS message
                     ',
                     userExist AND treeExist AND eventExist, 'RETURN "LOCATION_NOT_EXIST" AS message',
@@ -465,18 +466,6 @@ public interface EventRepository extends Neo4jRepository<Event, String> {
             LIMIT 1
             """)
     String addLocation(String userId, String treeId, String eventId, String locationId);
-
-
-    @Query(value = """
-            MATCH (user:GraphUser {id: $userId})-[:HAS_TREE]->(tree:Tree {id: $treeId})-[:HAS_EVENT]->(event:Event)
-            OPTIONAL MATCH (event)-[:HAS_EVENT_LOCATION]->(location:Location)
-            RETURN event.id AS id,
-                   event.type AS type,
-                   event.date AS date,
-                   event.description AS description,
-                   location.id AS locationId
-                   """)
-    Set<EventExportResponse> find(String userId, String treeId);
 
     @Query("""
             MATCH (user:GraphUser {id: $userId})-[:HAS_TREE]->(tree:Tree {id: $treeId})-[:HAS_EVENT]->(event:Event {id: $eventId})
@@ -492,5 +481,58 @@ public interface EventRepository extends Neo4jRepository<Event, String> {
             RETURN citation.id AS citationId
             """)
     Set<EventCitationExportResponse> findCitations(String userId, String treeId, String eventId);
+
+    @Query(value = """
+            MATCH (user:GraphUser {id: $userId})-[:HAS_TREE]->(tree:Tree {id: $treeId})-[:HAS_EVENT]->(event:Event)
+            
+            RETURN event.id AS id,
+                   event.type AS type,
+                   event.date AS date,
+                   event.description AS description,
+                   [(event)-[:HAS_EVENT_LOCATION]->(location:Location) | location.id][0] AS locationId
+            """)
+    Set<EventExportResponse> find(String userId, String treeId);
+
+    @Query("""
+                    MATCH (user:GraphUser {id: $userId})-[:HAS_TREE]->(tree:Tree {id: $treeId})
+                    UNWIND $events AS eventData
+                    MERGE (tree)-[:HAS_EVENT]->(event:Event {id: eventData.id})
+            
+                    SET event.type = eventData.type,
+                        event.description = eventData.description,
+                        event.date = eventData.date
+            """)
+    void saveEvents(String userId, String treeId, List<Map<String, Object>> events);
+
+    @Query("""
+                MATCH (user:GraphUser {id: $userId})-[:HAS_TREE]->(tree:Tree {id: $treeId})
+                UNWIND $participantsData AS data
+                MATCH (tree)-[:HAS_EVENT]->(event:Event {id: data.eventId})
+                MATCH (tree)-[:HAS_FAMILY|HAS_PERSON]->(participant:Participant {id: data.participantId})
+                MERGE (event)-[:HAS_PARTICIPANT {relationship: data.relationshipType}]->(participant)
+            
+            """)
+    void addParticipantsToEvents(String userId, String treeId, List<Map<String, Object>> participantsData);
+
+    @Query("""
+                MATCH (user:GraphUser {id: $userId})-[:HAS_TREE]->(tree:Tree {id: $treeId})
+                UNWIND $citationsData AS data
+                MATCH (tree)-[:HAS_EVENT]->(event:Event {id: data.eventId})
+                MATCH (tree)-[:HAS_CITATION]->(citation:Citation {id: data.citationId})
+                MERGE (event)-[:HAS_EVENT_CITATION]->(citation)
+            
+            """)
+    void addCitationsToEvents(String userId, String treeId, List<Map<String, String>> citationsData);
+
+    @Query("""
+                MATCH (user:GraphUser {id: $userId})-[:HAS_TREE]->(tree:Tree {id: $treeId})
+                UNWIND $locationsData AS data
+                MATCH (tree)-[:HAS_EVENT]->(event:Event {id: data.eventId})
+                MATCH (tree)-[:HAS_LOCATION]->(location:Location {id: data.locationId})
+                MERGE (event)-[:HAS_EVENT_LOCATION]->(location)
+            
+            """)
+    void addLocationsToEvents(String userId, String treeId, List<Map<String, String>> locationsData);
+
 
 }

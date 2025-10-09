@@ -19,18 +19,18 @@ public interface CitationRepository extends Neo4jRepository<Citation, String> {
             CALL {
                 OPTIONAL MATCH (user:GraphUser {id: $userId})
                 WITH count(user) > 0 AS userExist
-                
+            
                 OPTIONAL MATCH (user)-[:HAS_TREE]->(tree:Tree {id: $treeId})
                 RETURN userExist, count(tree) > 0 AS treeExist, tree
             }
-                        
+            
             CALL apoc.do.case(
                 [
                     userExist AND treeExist, '
                         MERGE (tree)-[:HAS_CITATION]->(citation:Citation {id: citationId})
                         SET citation.page = page,
                             citation.date = date
-                            
+            
                         RETURN "CITATION_CREATED" AS message
                     ',
                     userExist, 'RETURN "TREE_NOT_EXIST" AS message'
@@ -47,23 +47,23 @@ public interface CitationRepository extends Neo4jRepository<Citation, String> {
             CALL {
                 OPTIONAL MATCH (user:GraphUser {id: $userId})
                 WITH count(user) > 0 AS userExist
-                
+            
                 OPTIONAL MATCH (user)-[:HAS_TREE]->(tree:Tree {id: $treeId})
                 RETURN userExist, count(tree) > 0 AS treeExist, tree
             }
-                        
+            
             CALL apoc.do.case(
                 [
                     userExist AND treeExist, '
                         MERGE (tree)-[:HAS_CITATION]->(citation:Citation {id: citationId})
                         SET citation.page = page,
                             citation.date = date
-                            
+            
                         WITH tree, citation, sourceId, eventId
-                       
+            
                         OPTIONAL MATCH (tree)-[:HAS_EVENT]->(event:Event {id: eventId})
                         MERGE (event)-[:HAS_EVENT_CITATION]->(citation)
-                        
+            
                         WITH tree, citation, sourceId, eventId
                         FOREACH (s IN CASE WHEN sourceId IS NOT NULL THEN [1] ELSE [] END |
                             MERGE (source:Source {id: sourceId})
@@ -85,22 +85,22 @@ public interface CitationRepository extends Neo4jRepository<Citation, String> {
             CALL {
                 OPTIONAL MATCH (user:GraphUser {id: $userId})
                 WITH count(user) > 0 AS userExist
-                
+            
                 OPTIONAL MATCH (user)-[:HAS_TREE]->(tree:Tree {id: $treeId})
                 RETURN userExist, count(tree) > 0 AS treeExist, tree
             }
-                        
+            
             CALL apoc.do.case(
                 [
                     userExist AND treeExist, '
                         MERGE (tree)-[:HAS_CITATION]->(citation:Citation {id: citationId})
                         SET citation.page = page,
                             citation.date = date
-                        
+            
                         WITH tree, citation, sourceId, filesIds
                         OPTIONAL MATCH (tree)-[:HAS_SOURCE]->(source:Source {id: sourceId})
                         MERGE (citation)-[:HAS_CITATION_SOURCE]->(source)
-                        
+            
                         WITH tree, citation, filesIds
                         FOREACH (id IN CASE WHEN filesIds IS NOT NULL THEN filesIds ELSE [] END |
                             MERGE (tree)-[:HAS_FILE]->(file:File {id: id})
@@ -122,14 +122,14 @@ public interface CitationRepository extends Neo4jRepository<Citation, String> {
             CALL {
                 OPTIONAL MATCH (user:GraphUser {id: $userId})
                 WITH count(user) > 0 AS userExist
-                
+            
                 OPTIONAL MATCH (user)-[:HAS_TREE]->(tree:Tree {id: $treeId})
                 WITH userExist, count(tree) > 0 AS treeExist, tree
-                
+            
                 OPTIONAL MATCH (tree)-[:HAS_CITATION]->(citation:Citation {id: $citationId})
                 RETURN userExist, treeExist, tree, count(citation) > 0 AS citationExist, citation
             }
-                        
+            
             CALL apoc.do.case(
                 [
                     userExist AND treeExist AND citationExist, '
@@ -152,20 +152,20 @@ public interface CitationRepository extends Neo4jRepository<Citation, String> {
             CALL {
                 OPTIONAL MATCH (user:GraphUser {id: $userId})
                 WITH count(user) > 0 AS userExist
-                
+            
                 OPTIONAL MATCH (user)-[:HAS_TREE]->(tree:Tree {id: $treeId})
                 WITH userExist, count(tree) > 0 AS treeExist, tree
-                
+            
                 OPTIONAL MATCH (tree)-[:HAS_CITATION]->(citation:Citation {id: $citationId})
                 RETURN userExist, treeExist, tree, count(citation) > 0 AS citationExist, citation
             }
-                        
+            
             CALL apoc.do.case(
                 [
                     userExist AND treeExist AND citationExist, '
                         SET citation.page = $page,
                             citation.date = $date
-                            
+            
                         RETURN "CITATION_UPDATED" AS message
                     ',
                     userExist AND treeExist, 'RETURN "CITATION_NOT_EXIST" AS message',
@@ -183,22 +183,22 @@ public interface CitationRepository extends Neo4jRepository<Citation, String> {
             CALL {
                 OPTIONAL MATCH (user:GraphUser {id: $userId})
                 WITH count(user) > 0 AS userExist
-                
+            
                 OPTIONAL MATCH (user)-[:HAS_TREE]->(tree:Tree {id: $treeId})
                 WITH userExist, count(tree) > 0 AS treeExist, tree
-                
+            
                 OPTIONAL MATCH (tree)-[:HAS_CITATION]->(citation:Citation {id: $citationId})
                 WITH userExist, treeExist, tree, count(citation) > 0 AS citationExist, citation
-                
+            
                 OPTIONAL MATCH (tree)-[:HAS_FILE]->(file:File {id: $fileId})
                 RETURN userExist, treeExist, tree, citationExist, citation, count(file) > 0 AS fileExist, file
             }
-                        
+            
             CALL apoc.do.case(
                 [
                     userExist AND treeExist AND citationExist AND fileExist, '
                         MERGE (citation)-[:HAS_CITATION_FILE]->(file)
-                       
+            
                         RETURN "FILE_ADDED_TO_CITATION" AS message
                     ',
                     userExist AND treeExist AND citationExist, 'RETURN "FILE_NOT_EXIST" AS message',
@@ -217,17 +217,17 @@ public interface CitationRepository extends Neo4jRepository<Citation, String> {
             CALL {
                 OPTIONAL MATCH (user:GraphUser {id: $userId})
                 WITH count(user) > 0 AS userExist
-                
+            
                 OPTIONAL MATCH (user)-[:HAS_TREE]->(tree:Tree {id: $treeId})
                 WITH userExist, count(tree) > 0 AS treeExist, tree
-                
+            
                 OPTIONAL MATCH (tree)-[:HAS_CITATION]->(citation:Citation {id: $citationId})
                 WITH userExist, treeExist, tree, count(citation) > 0 AS citationExist, citation
-                
+            
                 OPTIONAL MATCH (tree)-[:HAS_SOURCE]->(source:Source {id: $sourceId})
                 RETURN userExist, treeExist, tree, citationExist, citation, count(source) > 0 AS sourceExist, source
             }
-                        
+            
             CALL apoc.do.case(
                 [
                     userExist AND treeExist AND citationExist AND sourceExist, '
@@ -235,7 +235,7 @@ public interface CitationRepository extends Neo4jRepository<Citation, String> {
                         DELETE r
                         WITH citation, source
                         MERGE (citation)-[:HAS_CITATION_SOURCE]->(source)
-                       
+            
                         RETURN "SOURCE_ADDED_TO_CITATION" AS message
                     ',
                     userExist AND treeExist AND citationExist, 'RETURN "SOURCE_NOT_EXIST" AS message',
@@ -254,17 +254,17 @@ public interface CitationRepository extends Neo4jRepository<Citation, String> {
             CALL {
                 OPTIONAL MATCH (user:GraphUser {id: $userId})
                 WITH count(user) > 0 AS userExist
-                
+            
                 OPTIONAL MATCH (user)-[:HAS_TREE]->(tree:Tree {id: $treeId})
                 WITH userExist, count(tree) > 0 AS treeExist, tree
-                
+            
                 OPTIONAL MATCH (tree)-[:HAS_CITATION]->(citation:Citation {id: $citationId})
                 WITH userExist, treeExist, tree, count(citation) > 0 AS citationExist, citation
-                
+            
                 OPTIONAL MATCH (citation)-[fileRel:HAS_CITATION_FILE]->(file:File {id: $fileId})
                 RETURN userExist, treeExist, tree, citationExist, citation, count(file) > 0 AS fileExist, file, fileRel
             }
-                        
+            
             CALL apoc.do.case(
                 [
                     userExist AND treeExist AND citationExist AND fileExist, '
@@ -287,17 +287,17 @@ public interface CitationRepository extends Neo4jRepository<Citation, String> {
             CALL {
                 OPTIONAL MATCH (user:GraphUser {id: $userId})
                 WITH count(user) > 0 AS userExist
-                
+            
                 OPTIONAL MATCH (user)-[:HAS_TREE]->(tree:Tree {id: $treeId})
                 WITH userExist, count(tree) > 0 AS treeExist, tree
-                
+            
                 OPTIONAL MATCH (tree)-[:HAS_CITATION]->(citation:Citation {id: $citationId})
                 WITH userExist, treeExist, tree, count(citation) > 0 AS citationExist, citation
-                
+            
                 OPTIONAL MATCH (citation)-[sourceRel:HAS_CITATION_SOURCE]->(source:Source {id: $sourceId})
                 RETURN userExist, treeExist, tree, citationExist, citation, count(source) > 0 AS sourceExist, source, sourceRel
             }
-                        
+            
             CALL apoc.do.case(
                 [
                     userExist AND treeExist AND citationExist AND sourceExist, '
@@ -326,7 +326,7 @@ public interface CitationRepository extends Neo4jRepository<Citation, String> {
             //                AND ($name = "" OR toLower(source.name) CONTAINS toLower($name))
                         WITH citation, source
                         WHERE citation IS NOT NULL
-                                    
+            
                         RETURN citation.id AS id,
                                citation.page AS page,
                                citation.date AS date,
@@ -335,7 +335,7 @@ public interface CitationRepository extends Neo4jRepository<Citation, String> {
                                :#{orderBy(#pageable)}
                                SKIP $skip
                                LIMIT $limit
-                        """,
+            """,
             countQuery = """
                                         MATCH (user:GraphUser {id: $userId})-[:HAS_TREE]->(tree:Tree {id: $treeId})
                                         OPTIONAL MATCH (tree)-[:HAS_CITATION]->(citation:Citation)
@@ -344,7 +344,7 @@ public interface CitationRepository extends Neo4jRepository<Citation, String> {
                                         WHERE ($page = "" OR toLower (citation.page) CONTAINS toLower($page))
                     //                        AND ($name = "" OR toLower(source.name) CONTAINS toLower($name))
                                         RETURN count(source)
-                                                """)
+                    """)
     Page<CitationSourceResponse> find(String userId, String treeId, String page, String name, Pageable pageable);
 
     @Query("""
@@ -372,7 +372,7 @@ public interface CitationRepository extends Neo4jRepository<Citation, String> {
     @Query(value = """
             MATCH (user:GraphUser {id: $userId})-[:HAS_TREE]->(tree:Tree {id: $treeId})-[:HAS_CITATION]->(citation:Citation {id: $citationId})
             MATCH (file:File)<-[:HAS_CITATION_FILE]-(citation)
-                       
+            
             RETURN file.id AS id,
                    file.name AS name,
                    file.type AS type,
@@ -391,13 +391,61 @@ public interface CitationRepository extends Neo4jRepository<Citation, String> {
 
     @Query(value = """
             MATCH (user:GraphUser {id: $userId})-[:HAS_TREE]->(tree:Tree {id: $treeId})-[:HAS_CITATION]->(citation:Citation)
-            OPTIONAL MATCH (citation)-[:HAS_CITATION_SOURCE]->(source:Source)
-            OPTIONAL MATCH (citation)-[:HAS_CITATION_FILE]->(file:File)
+            
             RETURN citation.id AS id,
                    citation.page AS page,
                    citation.date AS date,
-                   source.id AS sourceId,
-                   collect(DISTINCT file.id) AS filesIds
-                   """)
+                   [(citation)-[:HAS_CITATION_SOURCE]->(source:Source) | source.id][0] AS sourceId,
+                   [(citation)-[:HAS_CITATION_FILE]->(file:File) | file.id] AS filesIds
+            """)
     Set<CitationExportResponse> find(String userId, String treeId);
+
+    @Query("""
+                MATCH (user:GraphUser {id: $userId})-[:HAS_TREE]->(tree:Tree {id: $treeId})
+                UNWIND $citations AS citationData
+                MERGE (tree)-[:HAS_CITATION]->(citation:Citation {id: citationData.id})
+            
+                SET citation.page = citationData.page,
+                    citation.date = citationData.date
+            """)
+    void saveCitations(String userId, String treeId, List<Map<String, Object>> citations);
+
+    @Query("""
+                MATCH (user:GraphUser {id: $userId})-[:HAS_TREE]->(tree:Tree {id: $treeId})
+                UNWIND $filesData AS data
+                MATCH (tree)-[:HAS_CITATION]->(citation:Citation {id: data.citationId})
+                MATCH (tree)-[:HAS_FILE]->(file:File {id: data.fileId})
+                MERGE (citation)-[:HAS_CITATION_FILE]->(file)
+            """)
+    void addFilesToEvents(String userId, String treeId, List<Map<String, String>> filesData);
+
+    @Query("""
+                MATCH (user:GraphUser {id: $userId})-[:HAS_TREE]->(tree:Tree {id: $treeId})
+                UNWIND $sourcesData AS data
+                MATCH (tree)-[:HAS_CITATION]->(citation:Citation {id: data.citationId})
+                MATCH (tree)-[:HAS_SOURCE]->(source:Source {id: data.sourceId})
+                MERGE (citation)-[:HAS_CITATION_SOURCE]->(source)
+            """)
+    void addSourcesToEvents(String userId, String treeId, List<Map<String, String>> sourcesData);
+
+    @Query("""
+                MATCH (user:GraphUser {id: $userId})-[:HAS_TREE]->(tree:Tree {id: $treeId})
+            
+                CALL {
+                    WITH tree
+                    UNWIND $filesData AS data
+                    MATCH (tree)-[:HAS_CITATION]->(citation:Citation {id: data.citationId})
+                    MATCH (tree)-[:HAS_FILE]->(file:File {id: data.fileId})
+                    MERGE (citation)-[:HAS_CITATION_FILE]->(file)
+                }
+            
+                CALL {
+                    WITH tree
+                    UNWIND $sourcesData AS data
+                    MATCH (tree)-[:HAS_CITATION]->(citation:Citation {id: data.citationId})
+                    MATCH (tree)-[:HAS_SOURCE]->(source:Source {id: data.sourceId})
+                    MERGE (citation)-[:HAS_CITATION_SOURCE]->(source)
+                }
+            """)
+    void addFilesAndSourcesToEvents(String userId, String treeId, List<Map<String, String>> filesData, List<Map<String, String>> sourcesData);
 }

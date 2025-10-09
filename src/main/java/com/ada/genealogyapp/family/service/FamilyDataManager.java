@@ -6,10 +6,12 @@ import com.ada.genealogyapp.family.dto.params.*;
 import com.ada.genealogyapp.person.dto.params.UpdateChildInFamilyParams;
 import com.ada.genealogyapp.query.QueryResultProcessor;
 import com.ada.genealogyapp.family.repository.FamilyRepository;
+import com.ada.genealogyapp.transaction.TransactionalInNeo4j;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -79,5 +81,14 @@ public class FamilyDataManager implements FamilyService {
         String result = familyRepository.updateChild(params.getUserId(), params.getTreeId(), params.getFamilyId(), params.getPersonId(), fatherRelationship,
                 motherRelationship);
         processor.process(result, Map.of(IdType.FAMILY_ID, params.getFamilyId(), IdType.CHILD_ID, params.getPersonId()));
+    }
+
+    public void saveFamilies(String userId, String treeId, List<Map<String, Object>> familiesData) {
+        familyRepository.saveFamilies(userId, treeId, familiesData);
+    }
+
+    @TransactionalInNeo4j
+    public void addFamilyRelationships(String userId, String treeId, List<Map<String, Object>> fathersData, List<Map<String, Object>> mothersData, List<Map<String, Object>> childrenData) {
+        familyRepository.addFamilyRelationships(userId, treeId, fathersData, mothersData, childrenData);
     }
 }

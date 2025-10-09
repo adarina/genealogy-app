@@ -11,6 +11,8 @@ import org.springframework.data.neo4j.repository.Neo4jRepository;
 import org.springframework.data.neo4j.repository.query.Query;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 
@@ -149,4 +151,17 @@ public interface FileRepository extends Neo4jRepository<File, String> {
                    file.filename AS filename
                    """)
     Set<FileExportResponse> find(String userId, String treeId, String baseUrl);
+
+    @Query("""
+        MATCH (user:GraphUser {id: $userId})-[:HAS_TREE]->(tree:Tree {id: $treeId})
+        UNWIND $files AS fileData
+        MERGE (tree)-[:HAS_FILE]->(file:File {id: fileData.id})
+        
+        SET file.name = fileData.name,
+            file.type = fileData.type,
+            file.path = fileData.path,
+            file.filename = fileData.filename
+    """)
+    void saveFilesBatch(String userId, String treeId, List<Map<String, Object>> files);
+
 }

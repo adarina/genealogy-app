@@ -3,6 +3,7 @@ package com.ada.genealogyapp.location.service;
 
 import com.ada.genealogyapp.event.dto.params.AddLocationToEventParams;
 import com.ada.genealogyapp.event.service.EventService;
+import com.ada.genealogyapp.location.dto.LocationJsonRequest;
 import com.ada.genealogyapp.location.dto.params.*;
 import com.ada.genealogyapp.location.model.Location;
 import com.ada.genealogyapp.location.repository.LocationRepository;
@@ -16,7 +17,6 @@ import java.util.*;
 
 import static com.ada.genealogyapp.gedcom.mappers.LocationMapper.determineType;
 import static java.util.Objects.isNull;
-import static java.util.Objects.nonNull;
 import static java.util.stream.Collectors.groupingBy;
 
 @Service
@@ -84,7 +84,37 @@ public class LocationCreationService {
                 .build());
     }
 
-    //TODO coś nie tak bo kościoły i cmentarze się zagubiły
+    @TransactionalInNeo4j
+    public Map<String, Location> createLocations(String userId, String treeId, List<LocationJsonRequest> locationRequests) {
+        Map<String, Location> createdLocationsMap = new HashMap<>();
+        List<Map<String, Object>> locations = new ArrayList<>();
+
+        for (LocationJsonRequest request : locationRequests) {
+            Location location = Location.builder()
+                    .id(UUID.randomUUID().toString())
+                    .name(request.getName())
+                    .type(request.getType())
+                    .latitude(request.getLatitude())
+                    .longitude(request.getLongitude())
+                    .isMain(request.getIsMain())
+                    .build();
+//            locationValidationService.validateLocation(location);
+
+            Map<String, Object> locationData = new HashMap<>();
+            locationData.put("id", location.getId());
+            locationData.put("name", location.getName());
+            locationData.put("type", location.getType().name());
+            locationData.put("latitude", location.getLatitude());
+            locationData.put("longitude", location.getLongitude());
+            locationData.put("isMain", location.getIsMain());
+
+
+            locations.add(locationData);
+            createdLocationsMap.put(request.getId(), location);
+        }
+        locationService.saveLocations(userId, treeId, locations);
+        return createdLocationsMap;
+    }
 
     public Location createLocationAndHierarchy(CreateLocationAndHierarchyParams params) {
         if (isNull(params.getHierarchy())) {
@@ -94,17 +124,13 @@ public class LocationCreationService {
         if (trimmedHierarchy.isEmpty()) {
             return null;
         }
-        Map<String, List<Location>> existingLocations = locationRepository.findAllByTreeId(params.getTreeId()).stream()
-                .collect(groupingBy(Location::getName));
 
+        String[] parts = trimmedHierarchy.split(",");
         Location parent = null;
         Location firstLocation = null;
 
-        String[] parts = trimmedHierarchy.split(",");
-
         for (int i = 0; i < parts.length; i++) {
             String part = parts[i];
-
             if (isNull(part)) {
                 continue;
             }
@@ -113,40 +139,30 @@ public class LocationCreationService {
                 continue;
             }
             LocationType type = determineType(partName, params.getAddress().getCountry(), params.getAddress().getState(), params.getAddress().getCity());
+            boolean isMain = (i == parts.length - 1);
 
-            List<Location> locationsWithSameName = existingLocations.getOrDefault(partName, new ArrayList<>());
-            Location currentLocation = locationsWithSameName.stream()
-                    .filter(location -> location.getType() == type)
-                    .findFirst()
-                    .orElse(null);
+            Location currentLocation;
 
-            if (isNull(currentLocation)) {
-                currentLocation = Location.builder()
-                        .id(UUID.randomUUID().toString())
-                        .type(type)
-                        .name(partName)
-                        .latitude(null)
-                        .longitude(null)
-                        .isMain(i == parts.length - 1)
-                        .build();
-
-                if (isNull(firstLocation)) {
-                    if (nonNull(params.getLatitude())) currentLocation.setLatitude(params.getLatitude());
-                    if (nonNull(params.getLongitude())) currentLocation.setLongitude(params.getLongitude());
-                }
-                locationService.saveLocation(SaveLocationParams.builder()
-                        .userId(params.getUserId())
-                        .treeId(params.getTreeId())
-                        .locationId(currentLocation.getId())
-                        .location(currentLocation)
-                        .build());
-                existingLocations.computeIfAbsent(partName, k -> new ArrayList<>()).add(currentLocation);
+            if (parent == null) {
+                currentLocation = locationRepository.findOrCreateTopLevelLocation(
+                        params.getTreeId(),
+                        partName,
+                        String.valueOf(type),
+                        isMain,
+                        params.getLatitude(),
+                        params.getLongitude()
+                );
+            } else {
+                currentLocation = locationRepository.findOrCreateChildLocation(
+                        params.getTreeId(),
+                        parent.getId(),
+                        partName,
+                        String.valueOf(type),
+                        isMain
+                );
             }
-            if (isNull(firstLocation)) {
+            if (firstLocation == null) {
                 firstLocation = currentLocation;
-            }
-            if (nonNull(parent)) {
-                locationRepository.createLocatedInRelationship(parent.getId(), currentLocation.getId());
             }
             parent = currentLocation;
         }

@@ -2,6 +2,9 @@ package com.ada.genealogyapp.event.service;
 
 import com.ada.genealogyapp.event.dto.params.*;
 
+import java.util.List;
+import java.util.Map;
+
 public interface EventService {
 
     void saveEvent(SaveEventParams params);
@@ -25,4 +28,12 @@ public interface EventService {
     void addLocationToEvent(AddLocationToEventParams params);
 
     void addParticipantAndLocationToEvent(AddParticipantAndLocationToEventParams params);
+
+    void saveEvents(String userId, String treeId, List<Map<String, Object>> eventsData);
+
+    void addParticipantsToEvents(String userId, String id, List<Map<String, Object>> participantsToAdd);
+
+    void addCitationsToEvents(String userId, String id, List<Map<String, String>> citationsToAdd);
+
+    void addLocationsToEvents(String userId, String id, List<Map<String, String>> locationsToAdd);
 }

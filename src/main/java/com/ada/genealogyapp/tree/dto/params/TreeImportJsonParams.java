@@ -39,6 +39,4 @@ public class TreeImportJsonParams {
     private Map<String, Citation> citationMap = new HashMap<>();
     @Builder.Default
     private Map<String, Event> eventMap = new HashMap<>();
-
-
 }

@@ -34,6 +34,5 @@ public class FileValidationService {
             log.error("File validation failed for file {}: {}", file.getId(), result.getErrors());
             throw new ValidationException("File validation failed: " + result.getErrors());
         }
-        log.info("File validation succeeded for file: {}", file.getId());
     }
 }

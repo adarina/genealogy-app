@@ -1,16 +1,14 @@
 package com.ada.genealogyapp.location.repository;
 
 
-import com.ada.genealogyapp.location.dto.GeographyResponse;
-import com.ada.genealogyapp.location.dto.LocationExportResponse;
-import com.ada.genealogyapp.location.dto.LocationResponse;
-import com.ada.genealogyapp.location.dto.LocationWithParentsResponse;
+import com.ada.genealogyapp.location.dto.*;
 import com.ada.genealogyapp.location.model.Location;
 import org.springframework.data.neo4j.repository.Neo4jRepository;
 import org.springframework.data.neo4j.repository.query.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 @Repository
@@ -35,11 +33,11 @@ public interface LocationRepository extends Neo4jRepository<Location, String> {
             CALL {
                 OPTIONAL MATCH (user:GraphUser {id: $userId})
                 WITH count(user) > 0 AS userExist
-                
+            
                 OPTIONAL MATCH (user)-[:HAS_TREE]->(tree:Tree {id: $treeId})
                 RETURN userExist, count(tree) > 0 AS treeExist, tree
             }
-                        
+            
             CALL apoc.do.case(
                 [
                     userExist AND treeExist, '
@@ -49,7 +47,7 @@ public interface LocationRepository extends Neo4jRepository<Location, String> {
                             location.isMain = isMain,
                             location.latitude = latitude,
                             location.longitude = longitude
-                            
+            
                         RETURN "LOCATION_CREATED" AS message
                     ',
                      userExist, 'RETURN "TREE_NOT_EXIST" AS message'
@@ -66,14 +64,14 @@ public interface LocationRepository extends Neo4jRepository<Location, String> {
             CALL {
                 OPTIONAL MATCH (user:GraphUser {id: $userId})
                 WITH count(user) > 0 AS userExist
-                
+            
                 OPTIONAL MATCH (user)-[:HAS_TREE]->(tree:Tree {id: $treeId})
                 WITH userExist, count(tree) > 0 AS treeExist, tree
-                
+            
                 OPTIONAL MATCH (tree)-[:HAS_LOCATION]->(location:Location {id: $locationId})
                 RETURN userExist, treeExist, tree, count(location) > 0 AS locationExist, location
             }
-                        
+            
             CALL apoc.do.case(
                 [
                      userExist AND treeExist AND locationExist, '
@@ -81,7 +79,7 @@ public interface LocationRepository extends Neo4jRepository<Location, String> {
                             location.type = type,
                             location.latitude = latitude,
                             location.longitude = longitude
-                            
+            
                         RETURN "LOCATION_UPDATED" AS message
                     ',
                     userExist AND treeExist, 'RETURN "LOCATION_NOT_EXIST" AS message',
@@ -99,17 +97,17 @@ public interface LocationRepository extends Neo4jRepository<Location, String> {
             CALL {
                 OPTIONAL MATCH (user:GraphUser {id: $userId})
                 WITH count(user) > 0 AS userExist
-                
+            
                 OPTIONAL MATCH (user)-[:HAS_TREE]->(tree:Tree {id: $treeId})
                 WITH userExist, count(tree) > 0 AS treeExist, tree
-                
+            
                 OPTIONAL MATCH (tree)-[:HAS_LOCATION]->(location:Location {id: $locationId})
                 WITH userExist, treeExist, tree, count(location) > 0 AS locationExist, location
-                
+            
                 OPTIONAL MATCH (tree)-[:HAS_LOCATION]->(parent:Location {id: $parentId})
                 RETURN userExist, treeExist, tree, locationExist, location, count(parent) > 0 AS parentExist, parent
             }
-                        
+            
             CALL apoc.do.case(
                 [
                     userExist AND treeExist AND locationExist AND parentExist, '
@@ -117,7 +115,7 @@ public interface LocationRepository extends Neo4jRepository<Location, String> {
                         DELETE r
                         WITH location, parent
                         MERGE (location)-[:LOCATED_IN]->(parent)
-                       
+            
                         RETURN "PARENT_ADDED_TO_LOCATION" AS message
                     ',
                     userExist AND treeExist AND locationExist, 'RETURN "LOCATION_NOT_EXIST" AS message',
@@ -135,7 +133,7 @@ public interface LocationRepository extends Neo4jRepository<Location, String> {
     @Query("""
             MATCH (user:GraphUser {id: $userId})-[:HAS_TREE]->(tree:Tree {id: $treeId})-[:HAS_LOCATION]->(location:Location {id: $locationId})
             MATCH (child:Location)-[:LOCATED_IN]->(location)
-                      
+            
             RETURN child.id AS id,
                    child.name AS name,
                    child.type AS type,
@@ -153,7 +151,7 @@ public interface LocationRepository extends Neo4jRepository<Location, String> {
                    location.latitude AS latitude,
                    location.longitude AS longitude,
                    count(event) AS amount
-                   """)
+            """)
     LocationResponse find(String userId, String treeId, String locationId);
 
     @Query("""
@@ -177,7 +175,7 @@ public interface LocationRepository extends Neo4jRepository<Location, String> {
                    location.type AS type,
                    location.latitude AS latitude,
                    location.longitude AS longitude
-                   """)
+            """)
     List<LocationResponse> findMain(String userId, String treeId);
 
     @Query("""
@@ -195,17 +193,18 @@ public interface LocationRepository extends Neo4jRepository<Location, String> {
             """)
     List<GeographyResponse> find(String userId, String treeId, String name, String type);
 
+
     @Query(value = """
             MATCH (user:GraphUser {id: $userId})-[:HAS_TREE]->(tree:Tree {id: $treeId})-[:HAS_LOCATION]->(location:Location)
-            OPTIONAL MATCH (location)-[:LOCATED_IN]->(parentLocation:Location)
+            
             RETURN location.id AS id,
                    location.name AS name,
                    location.type AS type,
                    location.isMain AS isMain,
                    location.latitude AS latitude,
                    location.longitude AS longitude,
-                   parentLocation.id AS locationId
-                   """)
+                   [(location)-[:LOCATED_IN]->(parentLocation:Location) | parentLocation.id][0] AS locationId
+            """)
     Set<LocationExportResponse> find(String userId, String treeId);
 
     @Query("""
@@ -215,24 +214,24 @@ public interface LocationRepository extends Neo4jRepository<Location, String> {
                    parent.type AS type,
                    parent.latitude AS latitude,
                    parent.longitude AS longitude
-                   """)
+            """)
     LocationResponse findParent(String userId, String treeId, String locationId);
 
     @Query("""
             CALL {
                 OPTIONAL MATCH (user:GraphUser {id: $userId})
                 WITH count(user) > 0 AS userExist
-                
+            
                 OPTIONAL MATCH (user)-[:HAS_TREE]->(tree:Tree {id: $treeId})
                 WITH userExist, count(tree) > 0 AS treeExist, tree
-                
+            
                 OPTIONAL MATCH (tree)-[:HAS_LOCATION]->(location:Location {id: $locationId})
                 WITH userExist, treeExist, tree, count(location) > 0 AS locationExist, location
-                
+            
                 OPTIONAL MATCH (location)-[parentRel:LOCATED_IN]->(parent:Location {id: $parentId})
                 RETURN userExist, treeExist, tree, locationExist, location, count(parent) > 0 AS parentExist, parent, parentRel
             }
-                        
+            
             CALL apoc.do.case(
                 [
                     userExist AND treeExist AND locationExist AND parentExist, '
@@ -256,17 +255,17 @@ public interface LocationRepository extends Neo4jRepository<Location, String> {
             CALL {
                 OPTIONAL MATCH (user:GraphUser {id: $userId})
                 WITH count(user) > 0 AS userExist
-                
+            
                 OPTIONAL MATCH (user)-[:HAS_TREE]->(tree:Tree {id: $treeId})
                 WITH userExist, count(tree) > 0 AS treeExist, tree
-                
+            
                 OPTIONAL MATCH (tree)-[:HAS_LOCATION]->(location:Location {id: $locationId})
                 WITH userExist, treeExist, tree, count(location) > 0 AS locationExist, location
-                
+            
                 OPTIONAL MATCH (tree)-[:HAS_LOCATION]->(parent:Location {id: $parentId})
                 RETURN userExist, treeExist, tree, locationExist, location, count(parent) > 0 AS parentExist, parent
             }
-                        
+            
             CALL apoc.do.case(
                 [
                     userExist AND treeExist AND locationExist AND parentExist, '
@@ -281,7 +280,7 @@ public interface LocationRepository extends Neo4jRepository<Location, String> {
                         MERGE (location)-[:LOCATED_IN]->(parent)
                         WITH location
                         SET location.isMain = false
-                        
+            
                         RETURN "LOCATION_UPDATED" AS message
                     ',
                     userExist AND treeExist AND locationExist, 'RETURN "PARENT_NOT_EXIST" AS message',
@@ -300,14 +299,14 @@ public interface LocationRepository extends Neo4jRepository<Location, String> {
             CALL {
                 OPTIONAL MATCH (user:GraphUser {id: $userId})
                 WITH count(user) > 0 AS userExist
-                
+            
                 OPTIONAL MATCH (user)-[:HAS_TREE]->(tree:Tree {id: $treeId})
                 WITH userExist, count(tree) > 0 AS treeExist, tree
-                
+            
                 OPTIONAL MATCH (tree)-[:HAS_LOCATION]->(location:Location {id: $locationId})
                 RETURN userExist, treeExist, tree, count(location) > 0 AS locationExist, location
             }
-                            
+            
             CALL apoc.do.case(
                 [
                     userExist AND treeExist AND locationExist, '
@@ -326,4 +325,54 @@ public interface LocationRepository extends Neo4jRepository<Location, String> {
             LIMIT 1
             """)
     String delete(String userId, String treeId, String locationId);
+
+    @Query("""
+                MATCH (t:Tree {id: $treeId})
+                MERGE (l:Location {name: $name, type: $type})<-[:HAS_LOCATION]-(t)
+                ON CREATE SET
+                    l.id = randomUUID(),
+                    l.isMain = $isMain,
+                    l.latitude = $latitude,
+                    l.longitude = $longitude
+                RETURN l
+            """)
+    Location findOrCreateTopLevelLocation(String treeId, String name, String type, boolean isMain, Double latitude, Double longitude);
+
+    /**
+     * Atomowo znajduje lub tworzy lokalizację i łączy ją z istniejącym rodzicem relacją LOCATED_IN.
+     */
+    @Query("""
+                MATCH (t:Tree {id: $treeId})
+                MATCH (parent:Location {id: $parentId})
+                MERGE (l:Location {name: $name, type: $type})<-[:HAS_LOCATION]-(t)
+                ON CREATE SET
+                    l.id = randomUUID(),
+                    l.isMain = $isMain
+                MERGE (parent)-[:LOCATED_IN]->(l)
+                RETURN l
+            """)
+    Location findOrCreateChildLocation(String treeId, String parentId, String name, String type, boolean isMain);
+
+    @Query("""
+                MATCH (user:GraphUser {id: $userId})-[:HAS_TREE]->(tree:Tree {id: $treeId})
+                UNWIND $locations AS locationData
+                MERGE (tree)-[:HAS_LOCATION]->(location:Location {id: locationData.id})
+            
+                SET location.name = locationData.name,
+                    location.type = locationData.type,
+                    location.latitude = locationData.latitude,
+                    location.longitude = locationData.longitude,
+                    location.isMain = locationData.isMain
+            """)
+    void saveLocations(String userId, String treeId, List<Map<String, Object>> locations);
+
+
+    @Query("""
+                MATCH (user:GraphUser {id: $userId})-[:HAS_TREE]->(tree:Tree {id: $treeId})
+                UNWIND $relationships AS data
+                MATCH (tree)-[:HAS_LOCATION]->(child:Location {id: data.childId})
+                MATCH (tree)-[:HAS_LOCATION]->(parent:Location {id: data.parentId})
+                MERGE (child)-[:LOCATED_IN]->(parent)
+            """)
+    void addLocatedInRelationships(String userId, String treeId, List<Map<String, Object>> relationships);
 }

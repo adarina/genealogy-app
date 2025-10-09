@@ -1,6 +1,7 @@
 package com.ada.genealogyapp.citation.service;
 
 
+import com.ada.genealogyapp.citation.dto.CitationJsonRequest;
 import com.ada.genealogyapp.citation.dto.params.*;
 import com.ada.genealogyapp.citation.model.Citation;
 import com.ada.genealogyapp.event.dto.params.AddCitationToEventParams;
@@ -10,7 +11,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.util.UUID;
+import java.util.*;
 
 @Service
 @Slf4j
@@ -28,6 +29,16 @@ public class CitationCreationService {
                 .id(UUID.randomUUID().toString())
                 .page(params.getCitationRequest().getPage())
                 .date(params.getCitationRequest().getDate())
+                .build();
+        citationValidationService.validateCitation(citation);
+        return citation;
+    }
+
+    private Citation buildAndValidateCitationFromJson(CitationJsonRequest request) {
+        Citation citation = Citation.builder()
+                .id(UUID.randomUUID().toString())
+                .page(request.getPage())
+                .date(request.getDate())
                 .build();
         citationValidationService.validateCitation(citation);
         return citation;
@@ -86,5 +97,25 @@ public class CitationCreationService {
                 .eventId(params.getEventId())
                 .citationId(citation.getId())
                 .build());
+    }
+
+    @TransactionalInNeo4j
+    public Map<String, Citation> createCitations(String userId, String treeId, List<CitationJsonRequest> citationRequests) {
+        Map<String, Citation> createdCitationsMap = new HashMap<>();
+        List<Map<String, Object>> citations = new ArrayList<>();
+
+        for (CitationJsonRequest request : citationRequests) {
+            Citation citation = buildAndValidateCitationFromJson(request);
+
+            Map<String, Object> citationData = new HashMap<>();
+            citationData.put("id", citation.getId());
+            citationData.put("page", citation.getPage());
+            citationData.put("date", citation.getDate());
+
+            citations.add(citationData);
+            createdCitationsMap.put(request.getId(), citation);
+        }
+        citationService.saveCitations(userId, treeId, citations);
+        return createdCitationsMap;
     }
 }

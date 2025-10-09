@@ -19,11 +19,16 @@ import com.ada.genealogyapp.tree.dto.params.BaseParams;
 import lombok.*;
 
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 
 @EqualsAndHashCode
 @AllArgsConstructor
 public abstract class TreeExportService {
+
+    private final ExecutorService exportExecutor = Executors.newFixedThreadPool(10);
 
     protected final PersonViewService personViewService;
 
@@ -42,15 +47,25 @@ public abstract class TreeExportService {
     protected final TreeViewService treeViewService;
 
     public final Object exportTree(BaseParams params) {
-        TreeResponse tree = fetchTree(params);
+        CompletableFuture<TreeResponse> treeFuture = CompletableFuture.supplyAsync(() -> fetchTree(params), exportExecutor);
+        CompletableFuture<Set<PersonExportResponse>> personsFuture = CompletableFuture.supplyAsync(() -> fetchPersons(params), exportExecutor);
+        CompletableFuture<Set<FamilyExportResponse>> familiesFuture = CompletableFuture.supplyAsync(() -> fetchFamilies(params), exportExecutor);
+        CompletableFuture<Set<EventExportResponse>> eventsFuture = CompletableFuture.supplyAsync(() -> fetchEvents(params), exportExecutor);
+        CompletableFuture<Set<CitationExportResponse>> citationsFuture = CompletableFuture.supplyAsync(() -> fetchCitations(params), exportExecutor);
+        CompletableFuture<Set<SourceExportResponse>> sourcesFuture = CompletableFuture.supplyAsync(() -> fetchSources(params), exportExecutor);
+        CompletableFuture<Set<FileExportResponse>> filesFuture = CompletableFuture.supplyAsync(() -> fetchFiles(params), exportExecutor);
+        CompletableFuture<Set<LocationExportResponse>> locationsFuture = CompletableFuture.supplyAsync(() -> fetchLocations(params), exportExecutor);
 
-        Set<PersonExportResponse> persons = fetchPersons(params);
-        Set<FamilyExportResponse> families = fetchFamilies(params);
-        Set<EventExportResponse> events = fetchEvents(params);
-        Set<CitationExportResponse> citations = fetchCitations(params);
-        Set<SourceExportResponse> sources = fetchSources(params);
-        Set<FileExportResponse> files = fetchFiles(params);
-        Set<LocationExportResponse> locations = fetchLocations(params);
+        CompletableFuture.allOf(treeFuture, personsFuture, familiesFuture, eventsFuture, citationsFuture, sourcesFuture, filesFuture, locationsFuture).join();
+
+        TreeResponse tree = treeFuture.join();
+        Set<PersonExportResponse> persons = personsFuture.join();
+        Set<FamilyExportResponse> families = familiesFuture.join();
+        Set<EventExportResponse> events = eventsFuture.join();
+        Set<CitationExportResponse> citations = citationsFuture.join();
+        Set<SourceExportResponse> sources = sourcesFuture.join();
+        Set<FileExportResponse> files = filesFuture.join();
+        Set<LocationExportResponse> locations = locationsFuture.join();
 
         return assembleOutput(tree, persons, families, events, citations, sources, files, locations, params);
     }

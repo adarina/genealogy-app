@@ -185,7 +185,13 @@ public class TreeImportGedcomService extends TreeImportService<TreeImportGedcomR
     private void processParticipantEvents(List<EventFact> eventsFacts, Participant participant, TreeImportGedcomParams params, EventParticipantRelationshipType relationship) {
         if (nonNull(eventsFacts)) {
             for (EventFact eventFact : eventsFacts) {
-                EventType type = mapEvent(EventGedcomType.valueOf(eventFact.getTag()));
+                EventType type;
+                try {
+                    EventGedcomType gedcomType = EventGedcomType.valueOf(eventFact.getTag());
+                    type = mapEvent(gedcomType);
+                } catch (IllegalArgumentException e) {
+                    type = EventType.ERROR;
+                }
                 if (type != EventType.EVENT && type != EventType.ERROR) {
                     Location location = locationCreationService.createLocationAndHierarchy(CreateLocationAndHierarchyParams.builder()
                             .userId(params.getUserId())

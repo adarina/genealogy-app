@@ -41,6 +41,5 @@ public class EventValidationService {
             log.error("Event validation failed for event {}: {}", event.getId(), result.getErrors());
             throw new ValidationException("Event validation failed: " + result.getErrors());
         }
-        log.info("Event validation succeeded for event: {}", event.getId());
     }
 }

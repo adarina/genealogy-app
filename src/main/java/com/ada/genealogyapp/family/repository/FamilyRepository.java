@@ -8,6 +8,8 @@ import org.springframework.data.neo4j.repository.Neo4jRepository;
 import org.springframework.data.neo4j.repository.query.Query;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 
@@ -18,18 +20,18 @@ public interface FamilyRepository extends Neo4jRepository<Family, String> {
             CALL {
                 OPTIONAL MATCH (user:GraphUser {id: $userId})
                 WITH count(user) > 0 AS userExist
-                
+            
                 OPTIONAL MATCH (user)-[:HAS_TREE]->(tree:Tree {id: $treeId})
                 RETURN userExist, count(tree) > 0 AS treeExist, tree
             }
-                        
+            
             CALL apoc.do.case(
                 [
                     userExist AND treeExist, '
                         MERGE (tree)-[:HAS_FAMILY]->(family:Family {id: familyId})
                         SET family.status = status,
                             family:Participant
-                            
+            
                         RETURN "FAMILY_CREATED" AS message
                     ',
                     userExist, 'RETURN "TREE_NOT_EXIST" AS message'
@@ -46,14 +48,14 @@ public interface FamilyRepository extends Neo4jRepository<Family, String> {
             CALL {
                 OPTIONAL MATCH (user:GraphUser {id: $userId})
                 WITH count(user) > 0 AS userExist
-                
+            
                 OPTIONAL MATCH (user)-[:HAS_TREE]->(tree:Tree {id: $treeId})
                 WITH userExist, count(tree) > 0 AS treeExist, tree
-                
+            
                 OPTIONAL MATCH (tree)-[:HAS_FAMILY]->(family:Family {id: $familyId})
                 RETURN userExist, treeExist, tree, count(family) > 0 AS familyExist, family
             }
-                        
+            
             CALL apoc.do.case(
                 [
                     userExist AND treeExist AND familyExist, '
@@ -81,14 +83,14 @@ public interface FamilyRepository extends Neo4jRepository<Family, String> {
             CALL {
                 OPTIONAL MATCH (user:GraphUser {id: $userId})
                 WITH count(user) > 0 AS userExist
-                
+            
                 OPTIONAL MATCH (user)-[:HAS_TREE]->(tree:Tree {id: $treeId})
                 WITH userExist, count(tree) > 0 AS treeExist, tree
-                
+            
                 OPTIONAL MATCH (tree)-[:HAS_FAMILY]->(family:Family {id: $familyId})
                 RETURN userExist,treeExist, count(family) > 0 AS familyExist, family
             }
-                        
+            
             CALL apoc.do.case(
                 [
                    userExist AND treeExist AND familyExist, '
@@ -110,38 +112,38 @@ public interface FamilyRepository extends Neo4jRepository<Family, String> {
             CALL {
                 OPTIONAL MATCH (user:GraphUser {id: $userId})
                 WITH count(user) > 0 AS userExist
-                
+            
                 OPTIONAL MATCH (user)-[:HAS_TREE]->(tree:Tree {id: $treeId})
                 WITH userExist, count(tree) > 0 AS treeExist, tree
-                
+            
                 OPTIONAL MATCH (tree)-[:HAS_FAMILY]->(family:Family {id: $familyId})
                 WITH userExist, treeExist, tree, count(family) > 0 AS familyExist, family
-                
+            
                 OPTIONAL MATCH (tree)-[:HAS_PERSON]->(person:Person {id: $personId})
                 RETURN userExist, treeExist, tree, familyExist, family, count(person) > 0 AS personExist, person
             }
-                        
+            
             CALL apoc.do.case(
                 [
                     userExist AND treeExist AND familyExist AND personExist, '
                         OPTIONAL MATCH (family)-[oldFatherRel:HAS_FATHER]->(:Person)
                         DELETE oldFatherRel
-
+            
                         WITH family, person
                         OPTIONAL MATCH (family)-[:HAS_CHILD]->(child:Person)
                         OPTIONAL MATCH (family)-[:HAS_FATHER]->(:Person)-[oldParentRel:PARENT_OF]->(child)
                         DELETE oldParentRel
-
+            
                         WITH family, person, collect(child) AS children
                         FOREACH (c IN children |
                             MERGE (person)-[:PARENT_OF {relationship: "BIOLOGICAL"}]->(c)
                         )
                         MERGE (family)-[:HAS_FATHER]->(person)
-                        
+            
                         WITH family, person
                         OPTIONAL MATCH (family)-[:HAS_MOTHER]->(mother:Person)
                         SET family.name = COALESCE(person.name, "null") + " & " + COALESCE(mother.name, "null")
-
+            
                         RETURN "FATHER_ADDED_TO_FAMILY" AS message
                     ',
                     userExist AND treeExist AND familyExist, 'RETURN "PERSON_NOT_EXIST" AS message',
@@ -160,38 +162,38 @@ public interface FamilyRepository extends Neo4jRepository<Family, String> {
             CALL {
                 OPTIONAL MATCH (user:GraphUser {id: $userId})
                 WITH count(user) > 0 AS userExist
-                
+            
                 OPTIONAL MATCH (user)-[:HAS_TREE]->(tree:Tree {id: $treeId})
                 WITH userExist, count(tree) > 0 AS treeExist, tree
-                
+            
                 OPTIONAL MATCH (tree)-[:HAS_FAMILY]->(family:Family {id: $familyId})
                 WITH userExist, treeExist, tree, count(family) > 0 AS familyExist, family
-                
+            
                 OPTIONAL MATCH (tree)-[:HAS_PERSON]->(person:Person {id: $personId})
                 RETURN userExist, treeExist, tree, familyExist, family, count(person) > 0 AS personExist, person
             }
-                        
+            
             CALL apoc.do.case(
                 [
                     userExist AND treeExist AND familyExist AND personExist, '
                         OPTIONAL MATCH (family)-[oldMotherRel:HAS_MOTHER]->(:Person)
                         DELETE oldMotherRel
-
+            
                         WITH family, person
                         OPTIONAL MATCH (family)-[:HAS_CHILD]->(child:Person)
                         OPTIONAL MATCH (family)-[:HAS_MOTHER]->(:Person)-[oldParentRel:PARENT_OF]->(child)
                         DELETE oldParentRel
-
+            
                         WITH family, person, collect(child) AS children
                         FOREACH (c IN children |
                             MERGE (person)-[:PARENT_OF {relationship: "BIOLOGICAL"}]->(c)
                         )
                         MERGE (family)-[:HAS_MOTHER]->(person)
-                        
+            
                         WITH family, person
                         OPTIONAL MATCH (family)-[:HAS_FATHER]->(father:Person)
                         SET family.name = COALESCE(father.name, "null") + " & " + COALESCE(person.name, "null")
-
+            
                         RETURN "MOTHER_ADDED_TO_FAMILY" AS message
                     ',
                     userExist AND treeExist AND familyExist, 'RETURN "PERSON_NOT_EXIST" AS message',
@@ -210,23 +212,23 @@ public interface FamilyRepository extends Neo4jRepository<Family, String> {
             CALL {
                 OPTIONAL MATCH (user:GraphUser {id: $userId})
                 WITH count(user) > 0 AS userExist
-                
+            
                 OPTIONAL MATCH (user)-[:HAS_TREE]->(tree:Tree {id: $treeId})
                 WITH userExist, count(tree) > 0 AS treeExist, tree
-                
+            
                 OPTIONAL MATCH (tree)-[:HAS_FAMILY]->(family:Family {id: $familyId})
                 WITH userExist, treeExist, tree, count(family) > 0 AS familyExist, family
-                
+            
                 OPTIONAL MATCH (tree)-[:HAS_PERSON]->(person:Person {id: $personId})
                 RETURN userExist, treeExist, tree, familyExist, family, count(person) > 0 AS personExist, person
             }
-                        
+            
             CALL apoc.do.case(
                 [
                     userExist AND treeExist AND familyExist AND personExist, '
                         WHERE NOT (family)-[:HAS_CHILD]->(person)
                         CREATE (family)-[:HAS_CHILD]->(person)
-                        
+            
                         WITH family, person, fatherRelationshipType, motherRelationshipType
                         OPTIONAL MATCH (family)-[:HAS_FATHER]->(father:Person)
                         OPTIONAL MATCH (family)-[:HAS_MOTHER]->(mother:Person)
@@ -254,17 +256,17 @@ public interface FamilyRepository extends Neo4jRepository<Family, String> {
             CALL {
                 OPTIONAL MATCH (user:GraphUser {id: $userId})
                 WITH count(user) > 0 AS userExist
-                
+            
                 OPTIONAL MATCH (user)-[:HAS_TREE]->(tree:Tree {id: $treeId})
                 WITH userExist, count(tree) > 0 AS treeExist, tree
-                
+            
                 OPTIONAL MATCH (tree)-[:HAS_FAMILY]->(family:Family {id: $familyId})
                 WITH userExist, treeExist, tree, count(family) > 0 AS familyExist, family
-                
+            
                 OPTIONAL MATCH (family)-[fatherRel:HAS_FATHER]->(father:Person {id: $fatherId})
                 RETURN userExist, treeExist, tree, familyExist, family, count(father) > 0 AS fatherExist, father, fatherRel
             }
-                        
+            
             CALL apoc.do.case(
                 [
                     userExist AND treeExist AND familyExist AND fatherExist, '
@@ -295,17 +297,17 @@ public interface FamilyRepository extends Neo4jRepository<Family, String> {
             CALL {
                 OPTIONAL MATCH (user:GraphUser {id: $userId})
                 WITH count(user) > 0 AS userExist
-                
+            
                 OPTIONAL MATCH (user)-[:HAS_TREE]->(tree:Tree {id: $treeId})
                 WITH userExist, count(tree) > 0 AS treeExist, tree
-                
+            
                 OPTIONAL MATCH (tree)-[:HAS_FAMILY]->(family:Family {id: $familyId})
                 WITH userExist, treeExist, tree, count(family) > 0 AS familyExist, family
-                
+            
                 OPTIONAL MATCH (family)-[motherRel:HAS_MOTHER]->(mother:Person {id: $motherId})
                 RETURN userExist, treeExist, tree, familyExist, family, count(mother) > 0 AS motherExist, mother, motherRel
             }
-                        
+            
             CALL apoc.do.case(
                 [
                     userExist AND treeExist AND familyExist AND motherExist, '
@@ -336,17 +338,17 @@ public interface FamilyRepository extends Neo4jRepository<Family, String> {
             CALL {
                 OPTIONAL MATCH (user:GraphUser {id: $userId})
                 WITH count(user) > 0 AS userExist
-                
+            
                 OPTIONAL MATCH (user)-[:HAS_TREE]->(tree:Tree {id: $treeId})
                 WITH userExist, count(tree) > 0 AS treeExist, tree
-                
+            
                 OPTIONAL MATCH (tree)-[:HAS_FAMILY]->(family:Family {id: $familyId})
                 WITH userExist, treeExist, tree, count(family) > 0 AS familyExist, family
-                
+            
                 OPTIONAL MATCH (family)-[childRel:HAS_CHILD]->(child:Person {id: $childId})
                 RETURN userExist, treeExist, tree, familyExist, family, count(child) > 0 AS childExist, child, childRel
             }
-                        
+            
             CALL apoc.do.case(
                 [
                     userExist AND treeExist AND familyExist AND childExist, '
@@ -376,17 +378,17 @@ public interface FamilyRepository extends Neo4jRepository<Family, String> {
             CALL {
                 OPTIONAL MATCH (user:GraphUser {id: $userId})
                 WITH count(user) > 0 AS userExist
-                
+            
                 OPTIONAL MATCH (user)-[:HAS_TREE]->(tree:Tree {id: $treeId})
                 WITH userExist, count(tree) > 0 AS treeExist, tree
-                
+            
                 OPTIONAL MATCH (tree)-[:HAS_FAMILY]->(family:Family {id: $familyId})
                 WITH userExist, treeExist, tree, count(family) > 0 AS familyExist, family
-                
+            
                 OPTIONAL MATCH (family)-[:HAS_CHILD]->(child:Person {id: $childId})
                 RETURN userExist, treeExist, tree, familyExist, family, count(child) > 0 AS childExist, child
             }
-                        
+            
             CALL apoc.do.case(
                 [
                     userExist AND treeExist AND familyExist AND childExist, '
@@ -419,21 +421,21 @@ public interface FamilyRepository extends Neo4jRepository<Family, String> {
 
     @Query(value = """
             MATCH (user:GraphUser {id: $userId})-[:HAS_TREE]->(tree:Tree {id: $treeId})
-                        
+            
             OPTIONAL MATCH (tree)-[:HAS_FAMILY]->(family:Family)
             WHERE toUpper(family.status) = toUpper($status) OR $status = ''
             WITH family
-                        
+            
             OPTIONAL MATCH (family)-[:HAS_FATHER]->(father:Person)
             WITH family, COALESCE(father.name, '') AS fatherName, father.id AS fatherId
             WHERE toLower(fatherName) CONTAINS toLower($fatherName)
-                        
+            
             OPTIONAL MATCH (family)-[:HAS_MOTHER]->(mother:Person)
             WITH family, fatherName, fatherId, COALESCE(mother.name, '') AS motherName, mother.id AS motherId
             WHERE toLower(motherName) CONTAINS toLower($motherName)
-                        
+            
             OPTIONAL MATCH (family)<-[:HAS_PARTICIPANT]-(marriageEvent:Event {type: 'MARRIAGE'})
-                        
+            
             RETURN family.id AS id,
                    family.status AS status,
                    motherName,
@@ -457,48 +459,48 @@ public interface FamilyRepository extends Neo4jRepository<Family, String> {
     Page<FamiliesResponse> find(String userId, String treeId, String fatherName, String motherName, String status, Pageable pageable);
 
     @Query("""
-        MATCH (user:GraphUser {id: $userId})-[:HAS_TREE]->(tree:Tree {id: $treeId})-[:HAS_FAMILY]->(family:Family {id: $familyId})
-        WITH family
-
-        OPTIONAL MATCH (family)-[:HAS_FATHER]->(father:Person)
-        WITH family, father, COALESCE(father.name, '') AS fatherName, father.id AS fatherId
-
-        OPTIONAL MATCH (family)-[:HAS_MOTHER]->(mother:Person)
-        WITH family, father, fatherName, fatherId, mother, COALESCE(mother.name, '') AS motherName, mother.id AS motherId
-
-        OPTIONAL MATCH (family)<-[part_m:HAS_PARTICIPANT {relationship: 'FAMILY'}]-(marriageEvent:Event {type: 'MARRIAGE'})
-        WITH family, father, fatherName, fatherId, mother, motherName, motherId, head(collect(marriageEvent)) AS singleMarriageEvent
-
-        OPTIONAL MATCH (mother)<-[part_mb:HAS_PARTICIPANT {relationship: 'MAIN'}]-(motherBirthEvent:Event {type: 'BIRTH'})
-        WITH family, father, fatherName, fatherId, mother, motherName, motherId, singleMarriageEvent, head(collect(motherBirthEvent)) AS singleMotherBirthEvent
-        OPTIONAL MATCH (mother)<-[part_mc:HAS_PARTICIPANT {relationship: 'MAIN'}]-(motherChristeningEvent:Event {type: 'CHRISTENING'})
-        WITH family, father, fatherName, fatherId, mother, motherName, motherId, singleMarriageEvent, singleMotherBirthEvent, head(collect(motherChristeningEvent)) AS singleMotherChristeningEvent
-        OPTIONAL MATCH (mother)<-[part_md:HAS_PARTICIPANT {relationship: 'MAIN'}]-(motherDeathEvent:Event {type: 'DEATH'})
-        WITH family, father, fatherName, fatherId, mother, motherName, motherId, singleMarriageEvent, singleMotherBirthEvent, singleMotherChristeningEvent, head(collect(motherDeathEvent)) AS singleMotherDeathEvent
-        OPTIONAL MATCH (mother)<-[part_mu:HAS_PARTICIPANT {relationship: 'MAIN'}]-(motherBurialEvent:Event {type: 'BURIAL'})
-        WITH family, father, fatherName, fatherId, mother, motherName, motherId, singleMarriageEvent, singleMotherBirthEvent, singleMotherChristeningEvent, singleMotherDeathEvent, head(collect(motherBurialEvent)) AS singleMotherBurialEvent
-
-        OPTIONAL MATCH (father)<-[part_fb:HAS_PARTICIPANT {relationship: 'MAIN'}]-(fatherBirthEvent:Event {type: 'BIRTH'})
-        WITH family, father, fatherName, fatherId, mother, motherName, motherId, singleMarriageEvent, singleMotherBirthEvent, singleMotherChristeningEvent, singleMotherDeathEvent, singleMotherBurialEvent, head(collect(fatherBirthEvent)) AS singleFatherBirthEvent
-        OPTIONAL MATCH (father)<-[part_fc:HAS_PARTICIPANT {relationship: 'MAIN'}]-(fatherChristeningEvent:Event {type: 'CHRISTENING'})
-        WITH family, father, fatherName, fatherId, mother, motherName, motherId, singleMarriageEvent, singleMotherBirthEvent, singleMotherChristeningEvent, singleMotherDeathEvent, singleMotherBurialEvent, singleFatherBirthEvent, head(collect(fatherChristeningEvent)) AS singleFatherChristeningEvent
-        OPTIONAL MATCH (father)<-[part_fd:HAS_PARTICIPANT {relationship: 'MAIN'}]-(fatherDeathEvent:Event {type: 'DEATH'})
-        WITH family, father, fatherName, fatherId, mother, motherName, motherId, singleMarriageEvent, singleMotherBirthEvent, singleMotherChristeningEvent, singleMotherDeathEvent, singleMotherBurialEvent, singleFatherBirthEvent, singleFatherChristeningEvent, head(collect(fatherDeathEvent)) AS singleFatherDeathEvent
-        OPTIONAL MATCH (father)<-[part_fu:HAS_PARTICIPANT {relationship: 'MAIN'}]-(fatherBurialEvent:Event {type: 'BURIAL'})
-        WITH family, father, fatherName, fatherId, mother, motherName, motherId, singleMarriageEvent, singleMotherBirthEvent, singleMotherChristeningEvent, singleMotherDeathEvent, singleMotherBurialEvent, singleFatherBirthEvent, singleFatherChristeningEvent, singleFatherDeathEvent, head(collect(fatherBurialEvent)) AS singleFatherBurialEvent
-
-        RETURN family.id AS id,
-            family.status AS status,
-            fatherName,
-            motherName,
-            fatherId,
-            motherId,
-            COALESCE(singleFatherBirthEvent.date, singleFatherChristeningEvent.date) AS fatherBirthdate,
-            COALESCE(singleFatherDeathEvent.date, singleFatherBurialEvent.date) AS fatherDeathdate,
-            COALESCE(singleMotherBirthEvent.date, singleMotherChristeningEvent.date) AS motherBirthdate,
-            COALESCE(singleMotherDeathEvent.date, singleMotherBurialEvent.date) AS motherDeathdate,
-            singleMarriageEvent.date AS marriageDate
-        """)
+            MATCH (user:GraphUser {id: $userId})-[:HAS_TREE]->(tree:Tree {id: $treeId})-[:HAS_FAMILY]->(family:Family {id: $familyId})
+            WITH family
+            
+            OPTIONAL MATCH (family)-[:HAS_FATHER]->(father:Person)
+            WITH family, father, COALESCE(father.name, '') AS fatherName, father.id AS fatherId
+            
+            OPTIONAL MATCH (family)-[:HAS_MOTHER]->(mother:Person)
+            WITH family, father, fatherName, fatherId, mother, COALESCE(mother.name, '') AS motherName, mother.id AS motherId
+            
+            OPTIONAL MATCH (family)<-[part_m:HAS_PARTICIPANT {relationship: 'FAMILY'}]-(marriageEvent:Event {type: 'MARRIAGE'})
+            WITH family, father, fatherName, fatherId, mother, motherName, motherId, head(collect(marriageEvent)) AS singleMarriageEvent
+            
+            OPTIONAL MATCH (mother)<-[part_mb:HAS_PARTICIPANT {relationship: 'MAIN'}]-(motherBirthEvent:Event {type: 'BIRTH'})
+            WITH family, father, fatherName, fatherId, mother, motherName, motherId, singleMarriageEvent, head(collect(motherBirthEvent)) AS singleMotherBirthEvent
+            OPTIONAL MATCH (mother)<-[part_mc:HAS_PARTICIPANT {relationship: 'MAIN'}]-(motherChristeningEvent:Event {type: 'CHRISTENING'})
+            WITH family, father, fatherName, fatherId, mother, motherName, motherId, singleMarriageEvent, singleMotherBirthEvent, head(collect(motherChristeningEvent)) AS singleMotherChristeningEvent
+            OPTIONAL MATCH (mother)<-[part_md:HAS_PARTICIPANT {relationship: 'MAIN'}]-(motherDeathEvent:Event {type: 'DEATH'})
+            WITH family, father, fatherName, fatherId, mother, motherName, motherId, singleMarriageEvent, singleMotherBirthEvent, singleMotherChristeningEvent, head(collect(motherDeathEvent)) AS singleMotherDeathEvent
+            OPTIONAL MATCH (mother)<-[part_mu:HAS_PARTICIPANT {relationship: 'MAIN'}]-(motherBurialEvent:Event {type: 'BURIAL'})
+            WITH family, father, fatherName, fatherId, mother, motherName, motherId, singleMarriageEvent, singleMotherBirthEvent, singleMotherChristeningEvent, singleMotherDeathEvent, head(collect(motherBurialEvent)) AS singleMotherBurialEvent
+            
+            OPTIONAL MATCH (father)<-[part_fb:HAS_PARTICIPANT {relationship: 'MAIN'}]-(fatherBirthEvent:Event {type: 'BIRTH'})
+            WITH family, father, fatherName, fatherId, mother, motherName, motherId, singleMarriageEvent, singleMotherBirthEvent, singleMotherChristeningEvent, singleMotherDeathEvent, singleMotherBurialEvent, head(collect(fatherBirthEvent)) AS singleFatherBirthEvent
+            OPTIONAL MATCH (father)<-[part_fc:HAS_PARTICIPANT {relationship: 'MAIN'}]-(fatherChristeningEvent:Event {type: 'CHRISTENING'})
+            WITH family, father, fatherName, fatherId, mother, motherName, motherId, singleMarriageEvent, singleMotherBirthEvent, singleMotherChristeningEvent, singleMotherDeathEvent, singleMotherBurialEvent, singleFatherBirthEvent, head(collect(fatherChristeningEvent)) AS singleFatherChristeningEvent
+            OPTIONAL MATCH (father)<-[part_fd:HAS_PARTICIPANT {relationship: 'MAIN'}]-(fatherDeathEvent:Event {type: 'DEATH'})
+            WITH family, father, fatherName, fatherId, mother, motherName, motherId, singleMarriageEvent, singleMotherBirthEvent, singleMotherChristeningEvent, singleMotherDeathEvent, singleMotherBurialEvent, singleFatherBirthEvent, singleFatherChristeningEvent, head(collect(fatherDeathEvent)) AS singleFatherDeathEvent
+            OPTIONAL MATCH (father)<-[part_fu:HAS_PARTICIPANT {relationship: 'MAIN'}]-(fatherBurialEvent:Event {type: 'BURIAL'})
+            WITH family, father, fatherName, fatherId, mother, motherName, motherId, singleMarriageEvent, singleMotherBirthEvent, singleMotherChristeningEvent, singleMotherDeathEvent, singleMotherBurialEvent, singleFatherBirthEvent, singleFatherChristeningEvent, singleFatherDeathEvent, head(collect(fatherBurialEvent)) AS singleFatherBurialEvent
+            
+            RETURN family.id AS id,
+                family.status AS status,
+                fatherName,
+                motherName,
+                fatherId,
+                motherId,
+                COALESCE(singleFatherBirthEvent.date, singleFatherChristeningEvent.date) AS fatherBirthdate,
+                COALESCE(singleFatherDeathEvent.date, singleFatherBurialEvent.date) AS fatherDeathdate,
+                COALESCE(singleMotherBirthEvent.date, singleMotherChristeningEvent.date) AS motherBirthdate,
+                COALESCE(singleMotherDeathEvent.date, singleMotherBurialEvent.date) AS motherDeathdate,
+                singleMarriageEvent.date AS marriageDate
+            """)
     FamilyResponse find(String userId, String treeId, String familyId);
 
     @Query(value = """
@@ -514,7 +516,7 @@ public interface FamilyRepository extends Neo4jRepository<Family, String> {
             OPTIONAL MATCH (child)<-[:HAS_PARTICIPANT]-(christeningEvent:Event {type: 'CHRISTENING'})
             OPTIONAL MATCH (child)<-[:HAS_PARTICIPANT]-(deathEvent:Event {type: 'DEATH'})
             OPTIONAL MATCH (child)<-[:HAS_PARTICIPANT]-(burialEvent:Event {type: 'BURIAL'})
-                        
+            
             RETURN child.id AS id,
                    child.name AS name,
                    child.firstname AS firstname,
@@ -537,7 +539,7 @@ public interface FamilyRepository extends Neo4jRepository<Family, String> {
 
     @Query(value = """
             MATCH (user:GraphUser {id: $userId})-[:HAS_TREE]->(tree:Tree {id: $treeId})-[:HAS_FAMILY]->(family:Family {id: $familyId})-[:HAS_CHILD]->(child:Person {id: $childId})
-
+            
             OPTIONAL MATCH (family)-[:HAS_FATHER]->(father:Person)
             OPTIONAL MATCH (family)-[:HAS_MOTHER]->(mother:Person)
             OPTIONAL MATCH (father)-[rel1:PARENT_OF]->(child)
@@ -547,7 +549,7 @@ public interface FamilyRepository extends Neo4jRepository<Family, String> {
             OPTIONAL MATCH (child)<-[:HAS_PARTICIPANT]-(christeningEvent:Event {type: 'CHRISTENING'})
             OPTIONAL MATCH (child)<-[:HAS_PARTICIPANT]-(deathEvent:Event {type: 'DEATH'})
             OPTIONAL MATCH (child)<-[:HAS_PARTICIPANT]-(burialEvent:Event {type: 'BURIAL'})
-                        
+            
             RETURN child.id AS id,
                    child.name AS name,
                    child.firstname AS firstname,
@@ -562,15 +564,58 @@ public interface FamilyRepository extends Neo4jRepository<Family, String> {
 
     @Query(value = """
             MATCH (user:GraphUser {id: $userId})-[:HAS_TREE]->(tree:Tree {id: $treeId})-[:HAS_FAMILY]->(family:Family)
-            OPTIONAL MATCH (family)-[:HAS_FATHER]->(father:Person)
-            OPTIONAL MATCH (family)-[:HAS_MOTHER]->(mother:Person)
-            OPTIONAL MATCH (family)-[:HAS_CHILD]->(child:Person)
+            
             RETURN family.id AS id,
                    family.status AS status,
                    family.name AS name,
-                   father.id AS fatherId,
-                   mother.id AS motherId,
-                   collect(DISTINCT child.id) AS childrenIds
-                   """)
+                   [(family)-[:HAS_FATHER]->(f:Person) | f.id][0] AS fatherId,
+                   [(family)-[:HAS_MOTHER]->(m:Person) | m.id][0] AS motherId,
+                   [(family)-[:HAS_CHILD]->(c:Person) | c.id] AS childrenIds
+            """)
     Set<FamilyExportResponse> find(String userId, String treeId);
+
+    @Query("""
+                MATCH (user:GraphUser {id: $userId})-[:HAS_TREE]->(tree:Tree {id: $treeId})
+                UNWIND $families AS familyData
+                MERGE (tree)-[:HAS_FAMILY]->(family:Family {id: familyData.id})
+            
+                SET family.name = familyData.name,
+                    family.status = familyData.status,
+                    family:Participant
+            """)
+    void saveFamilies(String userId, String treeId, List<Map<String, Object>> families);
+
+
+    @Query("""
+                MATCH (user:GraphUser {id: $userId})-[:HAS_TREE]->(tree:Tree {id: $treeId})
+                CALL {
+                    WITH tree
+                    UNWIND $fathers AS fatherData
+                    MATCH (tree)-[:HAS_FAMILY]->(family:Family {id: fatherData.familyId})
+                    MATCH (tree)-[:HAS_PERSON]->(father:Person {id: fatherData.personId})
+                    MERGE (family)-[:HAS_FATHER]->(father)
+                }
+            
+            
+                CALL {
+                    WITH tree
+                    UNWIND $mothers AS motherData
+                    MATCH (tree)-[:HAS_FAMILY]->(family:Family {id: motherData.familyId})
+                    MATCH (tree)-[:HAS_PERSON]->(mother:Person {id: motherData.personId})
+                    MERGE (family)-[:HAS_MOTHER]->(mother)
+                }
+            
+            
+                CALL {
+                    WITH tree
+                    UNWIND $children AS childData
+                    MATCH (tree)-[:HAS_FAMILY]->(family:Family {id: childData.familyId})
+                    MATCH (tree)-[:HAS_PERSON]->(child:Person {id: childData.personId})
+                    MERGE (family)-[r:HAS_CHILD]->(child)
+                    SET r.fatherRelationship = childData.fatherRelationship,
+                        r.motherRelationship = childData.motherRelationship
+                }
+            """)
+    void addFamilyRelationships(String userId, String treeId, List<Map<String, Object>> fathers, List<Map<String, Object>> mothers, List<Map<String, Object>> children);
+
 }

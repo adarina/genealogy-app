@@ -9,6 +9,8 @@ import org.springframework.data.neo4j.repository.Neo4jRepository;
 import org.springframework.data.neo4j.repository.query.Query;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 @Repository
@@ -131,4 +133,14 @@ public interface SourceRepository extends Neo4jRepository<Source, String> {
                    source.name AS name
             """)
     Set<SourceExportResponse> find(String userId, String treeId);
+
+    @Query("""
+        MATCH (user:GraphUser {id: $userId})-[:HAS_TREE]->(tree:Tree {id: $treeId})
+        UNWIND $sources AS sourceData
+        MERGE (tree)-[:HAS_SOURCE]->(source:Source {id: sourceData.id})
+        
+        SET source.name = sourceData.name
+    """)
+    void saveSourcesBatch(String userId, String treeId, List<Map<String, Object>> sources);
+
 }

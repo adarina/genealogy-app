@@ -34,7 +34,5 @@ public class FamilyValidationService {
             log.error("Family validation failed for family {}: {}", family.getId(), result.getErrors());
             throw new ValidationException("Family validation failed: " + result.getErrors());
         }
-
-        log.info("Family validation succeeded for family: {}", family.getId());
     }
 }

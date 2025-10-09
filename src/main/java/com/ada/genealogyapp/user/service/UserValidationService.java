@@ -33,6 +33,6 @@ public class UserValidationService {
             log.error("User validation failed for user : {}", result.getErrors());
             throw new ValidationException("User validation failed: " + result.getErrors());
         }
-        log.info("User validation succeeded for user: ");
+//        log.info("User validation succeeded for user: ");
     }
 }

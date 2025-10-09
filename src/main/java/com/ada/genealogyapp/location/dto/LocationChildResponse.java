@@ -3,6 +3,7 @@ package com.ada.genealogyapp.location.dto;
 import com.ada.genealogyapp.location.type.LocationType;
 import lombok.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -23,5 +24,6 @@ public class LocationChildResponse {
 
     private Double longitude;
 
-    private List<LocationChildResponse> children;
+    @Builder.Default
+    private List<LocationChildResponse> children = new ArrayList<>();
 }

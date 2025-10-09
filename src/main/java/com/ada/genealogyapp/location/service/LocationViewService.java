@@ -65,19 +65,22 @@ public class LocationViewService {
     private List<LocationChildResponse> mapToListResponse(List<LocationResponse> mainLocations, Map<LocationResponse, Set<LocationResponse>> locationMap) {
         return mainLocations.stream()
                 .filter(Objects::nonNull)
-                .map(location -> buildResponse(location, locationMap))
+                .map(location -> buildResponse(location, locationMap, new HashSet<>()))
                 .filter(Objects::nonNull)
                 .toList();
     }
 
-    private LocationChildResponse buildResponse(LocationResponse location, Map<LocationResponse, Set<LocationResponse>> locationMap) {
-        if (location == null) return null;
+    private LocationChildResponse buildResponse(LocationResponse location, Map<LocationResponse, Set<LocationResponse>> locationMap, Set<String> visited) {
+        if (location == null || visited.contains(location.getId())) return null;
+
+        visited.add(location.getId());
 
         List<LocationChildResponse> children = ofNullable(locationMap.get(location))
                 .orElse(Collections.emptySet())
                 .stream()
                 .filter(Objects::nonNull)
-                .map(child -> buildResponse(child, locationMap))
+                .map(child -> buildResponse(child, locationMap, visited))
+                .parallel()
                 .filter(Objects::nonNull)
                 .toList();
 

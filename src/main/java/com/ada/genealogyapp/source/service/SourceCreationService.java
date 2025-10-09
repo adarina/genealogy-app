@@ -3,6 +3,7 @@ package com.ada.genealogyapp.source.service;
 
 import com.ada.genealogyapp.citation.dto.params.AddSourceToCitationParams;
 import com.ada.genealogyapp.citation.service.CitationService;
+import com.ada.genealogyapp.source.dto.SourceJsonRequest;
 import com.ada.genealogyapp.source.dto.params.CreateAndAddSourceToCitationRequestParams;
 import com.ada.genealogyapp.source.dto.params.CreateSourceRequestParams;
 import com.ada.genealogyapp.source.dto.params.SaveSourceParams;
@@ -12,7 +13,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.util.UUID;
+import java.util.*;
 
 @Service
 @Slf4j
@@ -55,5 +56,28 @@ public class SourceCreationService {
                 .citationId(params.getCitationId())
                 .sourceId(source.getId())
                 .build());
+    }
+
+    @TransactionalInNeo4j
+    public Map<String, Source> createSources(String userId, String treeId, List<SourceJsonRequest> sourceRequests) {
+        Map<String, Source> createdSourcesMap = new HashMap<>();
+        List<Map<String, Object>> sources = new ArrayList<>();
+
+        for (SourceJsonRequest request : sourceRequests) {
+            Source source = Source.builder()
+                    .id(UUID.randomUUID().toString())
+                    .name(request.getName())
+                    .build();
+            sourceValidationService.validateSource(source);
+
+            Map<String, Object> sourceData = new HashMap<>();
+            sourceData.put("id", source.getId());
+            sourceData.put("name", source.getName());
+
+            sources.add(sourceData);
+            createdSourcesMap.put(request.getId(), source);
+        }
+        sourceService.saveSourcesBatch(userId, treeId, sources);
+        return createdSourcesMap;
     }
 }

@@ -36,6 +36,5 @@ public class CitationValidationService {
             log.error("Citation validation failed for citation {}: {}", citation.getId(), result.getErrors());
             throw new ValidationException("Citation validation failed: " + result.getErrors());
         }
-        log.info("Citation validation succeeded for citation: {}", citation.getId());
     }
 }

@@ -27,11 +27,10 @@ public class TreeExportController {
 
     private final ObjectMapper objectMapper;
 
-    //TODO wyczyscic serwis
     @GetMapping("/json")
-    public ResponseEntity<Resource> exportTreeToJsonFile(@PathVariable String treeId) throws IOException {
+    public ResponseEntity<Resource> exportTreeToJsonFile(@PathVariable String treeId, @RequestHeader(value = "X-User-Id") String userId) throws IOException {
         TreeExportJsonResponse treeJson = (TreeExportJsonResponse) jsonService.exportTree(BaseParams.builder()
-                .userId("2")
+                .userId(userId)
                 .treeId(treeId)
                 .build());
 
@@ -48,9 +47,9 @@ public class TreeExportController {
     }
 
     @GetMapping("/gedcom")
-    public ResponseEntity<Resource> exportTreeToGedcomFile(@PathVariable String treeId) {
+    public ResponseEntity<Resource> exportTreeToGedcomFile(@PathVariable String treeId, @RequestHeader(value = "X-User-Id") String userId) {
         String gedcomContent = (String) gedcomService.exportTree(BaseParams.builder()
-                .userId("2")
+                .userId(userId)
                 .treeId(treeId)
                 .build());
 

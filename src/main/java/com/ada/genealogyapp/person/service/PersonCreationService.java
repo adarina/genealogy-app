@@ -4,6 +4,7 @@ import com.ada.genealogyapp.family.dto.params.AddChildToFamilyRequestParams;
 import com.ada.genealogyapp.family.dto.params.AddPersonToFamilyParams;
 import com.ada.genealogyapp.family.dto.params.CreateAndAddChildToFamilyParams;
 import com.ada.genealogyapp.family.service.FamilyService;
+import com.ada.genealogyapp.person.dto.PersonJsonRequest;
 import com.ada.genealogyapp.person.dto.params.CreateAndAddPersonToFamilyParams;
 import com.ada.genealogyapp.person.dto.params.CreatePersonRequestParams;
 import com.ada.genealogyapp.person.dto.params.SavePersonParams;
@@ -12,6 +13,11 @@ import com.ada.genealogyapp.person.model.Person;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 
 @Slf4j
@@ -78,5 +84,31 @@ public class PersonCreationService {
                 .personId(person.getId())
                 .familyChildRequest(params.getFamilyChildRequest())
                 .build());
+    }
+
+    @TransactionalInNeo4j
+    public Map<String, Person> createPersons(String userId, String treeId, List<PersonJsonRequest> personRequests) {
+        Map<String, Person> createdPersonsMap = new HashMap<>();
+        List<Map<String, Object>> persons = new ArrayList<>();
+
+        for (PersonJsonRequest request : personRequests) {
+            Person person = Person.builder()
+                    .firstname(request.getFirstname())
+                    .lastname(request.getLastname())
+                    .gender(request.getGender())
+                    .build();
+            personValidationService.validatePerson(person);
+
+            Map<String, Object> personData = new HashMap<>();
+            personData.put("id", person.getId());
+            personData.put("firstname", person.getFirstname());
+            personData.put("lastname", person.getLastname());
+            personData.put("gender", person.getGender().name());
+
+            persons.add(personData);
+            createdPersonsMap.put(request.getId(), person);
+        }
+        personService.savePersons(userId, treeId, persons);
+        return createdPersonsMap;
     }
 }

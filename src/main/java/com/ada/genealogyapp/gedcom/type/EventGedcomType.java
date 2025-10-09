@@ -20,5 +20,8 @@ public enum EventGedcomType {
     FACT,
     NATU,
 
-    EVEN
+    EVEN,
+
+    RESI,
+    ADOP
 }

@@ -1,5 +1,6 @@
 package com.ada.genealogyapp.file.service;
 
+import com.ada.genealogyapp.file.dto.FileJsonRequest;
 import com.ada.genealogyapp.tree.dto.params.BaseParams;
 import com.ada.genealogyapp.citation.dto.params.AddFileToCitationParams;
 import com.ada.genealogyapp.citation.service.CitationService;
@@ -13,7 +14,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.util.UUID;
+import java.util.*;
 
 @Service
 @Slf4j
@@ -68,5 +69,32 @@ public class FileCreationService {
                 .citationId(params.getCitationId())
                 .fileId(file.getId())
                 .build());
+    }
+
+    @TransactionalInNeo4j
+    public Map<String, File> createFiles(String userId, String treeId, List<FileJsonRequest> fileRequests) {
+        Map<String, File> createdFilesMap = new HashMap<>();
+        List<Map<String, Object>> files = new ArrayList<>();
+
+        for (FileJsonRequest request : fileRequests) {
+            File file = File.builder()
+                    .id(UUID.randomUUID().toString())
+                    .path(request.getPath())
+                    .type(request.getType())
+                    .name(request.getName())
+                    .build();
+            fileValidationService.validateFile(file);
+
+            Map<String, Object> fileData = new HashMap<>();
+            fileData.put("id", file.getId());
+            fileData.put("path", file.getPath());
+            fileData.put("type", file.getType());
+            fileData.put("name", file.getName());
+
+            files.add(fileData);
+            createdFilesMap.put(request.getId(), file);
+        }
+        fileService.saveFilesBatch(userId, treeId, files);
+        return createdFilesMap;
     }
 }

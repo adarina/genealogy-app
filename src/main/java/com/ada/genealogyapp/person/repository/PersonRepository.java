@@ -9,6 +9,7 @@ import org.springframework.data.neo4j.repository.query.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 
@@ -101,6 +102,20 @@ public interface PersonRepository extends Neo4jRepository<Person, String> {
             LIMIT 1
             """)
     String save(String userId, String treeId, String personId, String firstname, String lastname, String gender);
+
+
+    @Query("""
+        MATCH (user:GraphUser {id: $userId})-[:HAS_TREE]->(tree:Tree {id: $treeId})
+        UNWIND $persons AS personData
+        MERGE (tree)-[:HAS_PERSON]->(person:Person {id: personData.id})
+        
+        SET person.firstname = personData.firstname,
+            person.lastname = personData.lastname,
+            person.gender = personData.gender,
+            person.name = COALESCE(personData.firstname, "") + " " + COALESCE(personData.lastname, ""),
+            person:Participant
+    """)
+    void savePersonsBatch(String userId, String treeId, List<Map<String, Object>> persons);
 
     @Query("""
             CALL {
@@ -314,7 +329,6 @@ public interface PersonRepository extends Neo4jRepository<Person, String> {
 
     @Query(value = """
             MATCH (user:GraphUser {id: $userId})-[:HAS_TREE]->(tree:Tree {id: $treeId})-[:HAS_PERSON]->(person:Person)
-            OPTIONAL MATCH (person)-[:PARENT_OF]->(child:Person)
             RETURN person.id AS id,
                    person.firstname AS firstname,
                    person.lastname AS lastname,
@@ -330,6 +344,15 @@ public interface PersonRepository extends Neo4jRepository<Person, String> {
                    r.relationship AS relationship
             """)
     Set<PersonRelationshipExportResponse> findRelationships(String userId, String treeId, String personId);
+
+    @Query("""
+        MATCH (tree:Tree {id: $treeId})
+        UNWIND $relationships AS rel
+        MATCH (tree)-[:HAS_PERSON]->(parent:Person {id: rel.parentId})
+        MATCH (tree)-[:HAS_PERSON]->(child:Person {id: rel.childId})
+        MERGE (parent)-[:PARENT_OF {relationship: rel.type}]->(child)
+    """)
+    void addParentChildRelationships(String treeId, List<Map<String, Object>> relationships);
 
 }
 

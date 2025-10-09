@@ -1,6 +1,7 @@
 package com.ada.genealogyapp.graphuser.service;
 
 import com.ada.genealogyapp.graphuser.repository.GraphUserRepository;
+import com.ada.genealogyapp.transaction.TransactionalInNeo4j;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -12,6 +13,7 @@ public class GraphUserCreationService {
 
     private final GraphUserRepository graphUserRepository;
 
+    @TransactionalInNeo4j
     public void createGraphUser(String userId) {
         graphUserRepository.save(userId);
     }

@@ -38,6 +38,5 @@ public class PersonValidationService {
             log.error("Person validation failed for person {}: {}", person.getId(), result.getErrors());
             throw new ValidationException("Person validation failed: " + result.getErrors());
         }
-        log.info("Person validation succeeded for event: {}", person.getId());
     }
 }

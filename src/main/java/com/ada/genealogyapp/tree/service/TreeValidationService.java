@@ -34,6 +34,5 @@ public class TreeValidationService {
             log.error("Tree validation failed for tree {}: {}", tree.getId(), result.getErrors());
             throw new ValidationException("Tree validation failed: " + result.getErrors());
         }
-        log.info("Tree validation succeeded for tree: {}", tree.getId());
     }
 }

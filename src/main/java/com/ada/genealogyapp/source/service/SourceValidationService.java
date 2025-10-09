@@ -34,6 +34,5 @@ public class SourceValidationService {
             log.error("Source validation failed for source {}: {}", source.getId(), result.getErrors());
             throw new ValidationException("Source validation failed: " + result.getErrors());
         }
-        log.info("Source validation succeeded for source: {}", source.getId());
     }
 }

@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Map;
 
 @Slf4j
@@ -20,19 +21,16 @@ public class PersonDataManager implements PersonService {
 
     private final QueryResultProcessor processor;
 
-    @TransactionalInNeo4j
     public void savePerson(SavePersonParams params) {
         String result = personRepository.save(params.getUserId(), params.getTreeId(), params.getPersonId(), params.getPerson().getFirstname(), params.getPerson().getLastname(), params.getPerson().getGender().name());
         processor.process(result, Map.of(IdType.TREE_ID, params.getTreeId(), IdType.PERSON_ID, params.getPersonId()));
     }
 
-    @TransactionalInNeo4j
     public void updatePerson(UpdatePersonParams params) {
         String result = personRepository.update(params.getUserId(), params.getTreeId(), params.getPersonId(), params.getPerson().getFirstname(), params.getPerson().getLastname(), params.getPerson().getGender().name());
         processor.process(result, Map.of(IdType.PERSON_ID, params.getPersonId()));
     }
 
-    @TransactionalInNeo4j
     public void deletePerson(DeletePersonParams params) {
         String result = personRepository.delete(params.getUserId(), params.getTreeId(), params.getPersonId());
         processor.process(result, Map.of(IdType.PERSON_ID, params.getPersonId()));
@@ -41,5 +39,14 @@ public class PersonDataManager implements PersonService {
     @TransactionalInNeo4j
     public void addParentChildRelationship(AddParentChildRelationshipParams params) {
         personRepository.addParentChildRelationship(params.getUserId(), params.getTreeId(), params.getParentId(), params.getChildId(), params.getRelationshipType());
+    }
+
+    public void savePersons(String userId, String treeId, List<Map<String, Object>> personsData) {
+        personRepository.savePersonsBatch(userId, treeId, personsData);
+    }
+
+    @TransactionalInNeo4j
+    public void addParentChildRelationships(String id, List<Map<String, Object>> relationshipsData) {
+        personRepository.addParentChildRelationships(id, relationshipsData);
     }
 }

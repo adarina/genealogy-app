@@ -1,4 +1,3 @@
-version: '3.8'
 services:
 
   eureka-server:
@@ -6,6 +5,8 @@ services:
     image: eureka-server
     ports:
       - "8761:8761"
+    networks:
+      - genealogy-net
 
   app:
     container_name: genealogy-app
@@ -23,6 +24,8 @@ services:
     depends_on:
       - neo4j
       - eureka-server
+    networks:
+      - genealogy-net
 
   app-user:
     container_name: genealogy-app-user
@@ -37,6 +40,8 @@ services:
     depends_on:
       - postgres
       - eureka-server
+    networks:
+      - genealogy-net
 
   postgres:
     image: postgres:16
@@ -47,6 +52,8 @@ services:
       POSTGRES_DB: genealogydb
     ports:
       - "5432:5432"
+    networks:
+      - genealogy-net
 
   neo4j:
     image: neo4j:5
@@ -67,6 +74,12 @@ services:
       - neo4j_data:/data
       - ./plugins:/plugins
       - ./upload-dir:/upload-dir
+    networks:
+      - genealogy-net
 
 volumes:
   neo4j_data:
+
+networks:
+  genealogy-net:
+    driver: bridge
