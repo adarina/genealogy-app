@@ -1,6 +1,7 @@
 package com.ada.genealogyapp.citation.controller;
 
 
+import com.ada.genealogyapp.authentication.IAuthenticationFacade;
 import com.ada.genealogyapp.citation.dto.CitationSourceResponse;
 import com.ada.genealogyapp.citation.dto.params.GetCitationParams;
 import com.ada.genealogyapp.citation.dto.params.GetCitationsParams;
@@ -11,6 +12,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -20,10 +22,13 @@ public class CitationViewController {
 
     private final CitationViewService citationViewService;
 
+    private final IAuthenticationFacade authenticationFacade;
+
     @GetMapping
-    public ResponseEntity<Page<CitationSourceResponse>> getCitations(@PathVariable String treeId, @RequestParam String filter, @PageableDefault Pageable pageable, @RequestHeader(value = "X-User-Id") String userId) throws JsonProcessingException {
+    public ResponseEntity<Page<CitationSourceResponse>> getCitations(@PathVariable String treeId, @RequestParam String filter, @PageableDefault Pageable pageable) throws JsonProcessingException {
+        Authentication authentication = authenticationFacade.getAuthentication();
         Page<CitationSourceResponse> citationResponses = citationViewService.getCitations(GetCitationsParams.builder()
-                .userId(userId)
+                .userId(authentication.getName())
                 .treeId(treeId)
                 .filter(filter)
                 .pageable(pageable)
@@ -32,9 +37,10 @@ public class CitationViewController {
     }
 
     @GetMapping("/{citationId}")
-    public ResponseEntity<CitationSourceResponse> getCitation(@PathVariable String treeId, @PathVariable String citationId, @RequestHeader(value = "X-User-Id") String userId) {
+    public ResponseEntity<CitationSourceResponse> getCitation(@PathVariable String treeId, @PathVariable String citationId) {
+        Authentication authentication = authenticationFacade.getAuthentication();
         CitationSourceResponse citationResponse = citationViewService.getCitation(GetCitationParams.builder()
-                .userId(userId)
+                .userId(authentication.getName())
                 .treeId(treeId)
                 .citationId(citationId)
                 .build());

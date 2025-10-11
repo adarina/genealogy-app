@@ -1,11 +1,13 @@
 package com.ada.genealogyapp.event.controller;
 
 
+import com.ada.genealogyapp.authentication.IAuthenticationFacade;
 import com.ada.genealogyapp.event.dto.params.GetEventParams;
 import com.ada.genealogyapp.event.service.EventLocationViewService;
 import com.ada.genealogyapp.location.dto.LocationResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.LinkedHashSet;
@@ -18,10 +20,13 @@ public class EventLocationViewController {
 
     private final EventLocationViewService eventLocationViewService;
 
+    private final IAuthenticationFacade authenticationFacade;
+
     @GetMapping
-    public ResponseEntity<LinkedHashSet<LocationResponse>> getEventLocation(@PathVariable String treeId, @PathVariable String eventId, @RequestHeader(value = "X-User-Id") String userId) {
+    public ResponseEntity<LinkedHashSet<LocationResponse>> getEventLocation(@PathVariable String treeId, @PathVariable String eventId) {
+        Authentication authentication = authenticationFacade.getAuthentication();
         LinkedHashSet<LocationResponse> locationResponses = eventLocationViewService.getEventLocation(GetEventParams.builder()
-                .userId(userId)
+                .userId(authentication.getName())
                 .treeId(treeId)
                 .eventId(eventId)
                 .build());

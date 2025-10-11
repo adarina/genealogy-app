@@ -1,5 +1,6 @@
 package com.ada.genealogyapp.family.controller;
 
+import com.ada.genealogyapp.authentication.IAuthenticationFacade;
 import com.ada.genealogyapp.event.service.EventCreationService;
 import com.ada.genealogyapp.exceptions.ValidationException;
 import com.ada.genealogyapp.participant.dto.ParticipantEventRequest;
@@ -7,6 +8,7 @@ import com.ada.genealogyapp.person.dto.params.CreateEventRequestWithParticipantP
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -16,10 +18,13 @@ public class FamilyEventCreationController {
 
     private final EventCreationService eventCreationService;
 
+    private final IAuthenticationFacade authenticationFacade;
+
     @PostMapping
-    public ResponseEntity<?> createAndAddFamilyToEvent(@PathVariable String treeId, @PathVariable String familyId, @RequestBody ParticipantEventRequest participantEventRequest, @RequestHeader(value = "X-User-Id") String userId) throws ValidationException {
+    public ResponseEntity<?> createAndAddFamilyToEvent(@PathVariable String treeId, @PathVariable String familyId, @RequestBody ParticipantEventRequest participantEventRequest) throws ValidationException {
+        Authentication authentication = authenticationFacade.getAuthentication();
         eventCreationService.createEventWithParticipant(CreateEventRequestWithParticipantParams.builder()
-                .userId(userId)
+                .userId(authentication.getName())
                 .treeId(treeId)
                 .participantId(familyId)
                 .participantEventRequest(participantEventRequest)

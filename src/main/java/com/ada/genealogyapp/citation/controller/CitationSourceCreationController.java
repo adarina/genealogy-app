@@ -1,11 +1,13 @@
 package com.ada.genealogyapp.citation.controller;
 
+import com.ada.genealogyapp.authentication.IAuthenticationFacade;
 import com.ada.genealogyapp.source.dto.SourceRequest;
 import com.ada.genealogyapp.source.dto.params.CreateAndAddSourceToCitationRequestParams;
 import com.ada.genealogyapp.source.service.SourceCreationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 
@@ -16,10 +18,13 @@ public class CitationSourceCreationController {
 
     private final SourceCreationService sourceCreationService;
 
+    private final IAuthenticationFacade authenticationFacade;
+
     @PostMapping
     public ResponseEntity<?> createAndAddSourceToCitation(@PathVariable String treeId, @PathVariable String citationId, @RequestBody SourceRequest sourceRequest, @RequestHeader(value = "X-User-Id") String userId) {
+        Authentication authentication = authenticationFacade.getAuthentication();
         sourceCreationService.createAndAddSourceToCitation(CreateAndAddSourceToCitationRequestParams.builder()
-                .userId(userId)
+                .userId(authentication.getName())
                 .treeId(treeId)
                 .sourceRequest(sourceRequest)
                 .citationId(citationId)

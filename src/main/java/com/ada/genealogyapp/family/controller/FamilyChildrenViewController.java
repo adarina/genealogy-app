@@ -1,5 +1,6 @@
 package com.ada.genealogyapp.family.controller;
 
+import com.ada.genealogyapp.authentication.IAuthenticationFacade;
 import com.ada.genealogyapp.family.dto.FamilyChildResponse;
 import com.ada.genealogyapp.family.dto.params.GetChildParams;
 import com.ada.genealogyapp.family.dto.params.GetChildrenParams;
@@ -9,6 +10,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -18,10 +20,13 @@ public class FamilyChildrenViewController {
 
     private final FamilyChildrenViewService familyChildrenViewService;
 
+    private final IAuthenticationFacade authenticationFacade;
+
     @GetMapping
-    public ResponseEntity<Page<FamilyChildResponse>> getChildren(@PathVariable String treeId, @PathVariable String familyId, @PageableDefault Pageable pageable, @RequestHeader(value = "X-User-Id") String userId) {
+    public ResponseEntity<Page<FamilyChildResponse>> getChildren(@PathVariable String treeId, @PathVariable String familyId, @PageableDefault Pageable pageable) {
+        Authentication authentication = authenticationFacade.getAuthentication();
         Page<FamilyChildResponse> childResponses = familyChildrenViewService.getChildren(GetChildrenParams.builder()
-                .userId(userId)
+                .userId(authentication.getName())
                 .treeId(treeId)
                 .familyId(familyId)
                 .pageable(pageable)
@@ -30,9 +35,10 @@ public class FamilyChildrenViewController {
     }
 
     @GetMapping("/{childId}")
-    public ResponseEntity<FamilyChildResponse> getChild(@PathVariable String treeId, @PathVariable String familyId, @PathVariable String childId, @RequestHeader(value = "X-User-Id") String userId) {
+    public ResponseEntity<FamilyChildResponse> getChild(@PathVariable String treeId, @PathVariable String familyId, @PathVariable String childId) {
+        Authentication authentication = authenticationFacade.getAuthentication();
         FamilyChildResponse familyChildResponse = familyChildrenViewService.getChild(GetChildParams.builder()
-                .userId(userId)
+                .userId(authentication.getName())
                 .treeId(treeId)
                 .childId(childId)
                 .familyId(familyId)

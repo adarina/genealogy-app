@@ -1,12 +1,14 @@
 package com.ada.genealogyapp.location.controller;
 
 
+import com.ada.genealogyapp.authentication.IAuthenticationFacade;
 import com.ada.genealogyapp.location.dto.LocationRequest;
 import com.ada.genealogyapp.location.dto.params.CreateAndAddParentToLocationRequestParams;
 import com.ada.genealogyapp.location.service.LocationCreationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 
@@ -17,10 +19,13 @@ public class LocationParentCreationController {
 
     private final LocationCreationService locationCreationService;
 
+    private final IAuthenticationFacade authenticationFacade;
+
     @PostMapping
-    public ResponseEntity<?> createAndAddParentToLocation(@PathVariable String treeId, @PathVariable String locationId, @RequestBody LocationRequest locationRequest, @RequestHeader(value = "X-User-Id") String userId) {
+    public ResponseEntity<?> createAndAddParentToLocation(@PathVariable String treeId, @PathVariable String locationId, @RequestBody LocationRequest locationRequest) {
+        Authentication authentication = authenticationFacade.getAuthentication();
         locationCreationService.createAndAddParentToLocation(CreateAndAddParentToLocationRequestParams.builder()
-                .userId(userId)
+                .userId(authentication.getName())
                 .treeId(treeId)
                 .locationRequest(locationRequest)
                 .locationId(locationId)

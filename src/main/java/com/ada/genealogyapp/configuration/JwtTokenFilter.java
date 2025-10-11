@@ -30,7 +30,6 @@ public class JwtTokenFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-
         String authorization = request.getHeader("Authorization");
         if (authorization == null) {
             filterChain.doFilter(request, response);
@@ -43,8 +42,7 @@ public class JwtTokenFilter extends OncePerRequestFilter {
 
     public UsernamePasswordAuthenticationToken getUsernamePasswordAuthenticationToken(String token) {
         Algorithm algorithm = Algorithm.HMAC256(jwtSecretKey);
-        JWTVerifier verifier = JWT.require(algorithm)
-                .build();
+        JWTVerifier verifier = JWT.require(algorithm).build();
         DecodedJWT jwt = verifier.verify(token.substring(7));
         String[] roles = jwt.getClaim("roles").asArray(String.class);
         List<SimpleGrantedAuthority> collect = Stream.of(roles).map(SimpleGrantedAuthority::new).collect(Collectors.toList());

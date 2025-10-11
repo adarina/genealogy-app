@@ -1,5 +1,6 @@
 package com.ada.genealogyapp.family.controller;
 
+import com.ada.genealogyapp.authentication.IAuthenticationFacade;
 import com.ada.genealogyapp.exceptions.ValidationException;
 import com.ada.genealogyapp.person.dto.PersonRequest;
 import com.ada.genealogyapp.person.dto.params.CreateAndAddPersonToFamilyParams;
@@ -7,6 +8,7 @@ import com.ada.genealogyapp.person.service.PersonCreationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -16,10 +18,13 @@ public class FamilyFatherCreationController {
 
     private final PersonCreationService personCreationService;
 
+    private final IAuthenticationFacade authenticationFacade;
+
     @PostMapping
-    public ResponseEntity<?> createAndAddFatherToFamily(@PathVariable String treeId, @PathVariable String familyId, @RequestBody PersonRequest personRequest, @RequestHeader(value = "X-User-Id") String userId) throws ValidationException {
+    public ResponseEntity<?> createAndAddFatherToFamily(@PathVariable String treeId, @PathVariable String familyId, @RequestBody PersonRequest personRequest) throws ValidationException {
+        Authentication authentication = authenticationFacade.getAuthentication();
         personCreationService.createAndAddFatherToFamily(CreateAndAddPersonToFamilyParams.builder()
-                .userId(userId)
+                .userId(authentication.getName())
                 .treeId(treeId)
                 .familyId(familyId)
                 .personRequest(personRequest)

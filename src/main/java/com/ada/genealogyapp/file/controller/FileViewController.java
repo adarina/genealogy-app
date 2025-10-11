@@ -1,5 +1,6 @@
 package com.ada.genealogyapp.file.controller;
 
+import com.ada.genealogyapp.authentication.IAuthenticationFacade;
 import com.ada.genealogyapp.file.dto.FileResponse;
 import com.ada.genealogyapp.file.dto.params.GetFileParams;
 import com.ada.genealogyapp.file.dto.params.GetFilesParams;
@@ -10,6 +11,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -17,13 +19,15 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("api/v1/genealogy/trees/{treeId}/files")
 public class FileViewController {
 
-
     private final FileViewService fileViewService;
 
+    private final IAuthenticationFacade authenticationFacade;
+
     @GetMapping
-    public ResponseEntity<Page<FileResponse>> getFiles(@PathVariable String treeId, @RequestParam String filter, @PageableDefault Pageable pageable, @RequestHeader(value = "X-User-Id") String userId) throws JsonProcessingException {
+    public ResponseEntity<Page<FileResponse>> getFiles(@PathVariable String treeId, @RequestParam String filter, @PageableDefault Pageable pageable) throws JsonProcessingException {
+        Authentication authentication = authenticationFacade.getAuthentication();
         Page<FileResponse> fileResponses = fileViewService.getFiles(GetFilesParams.builder()
-                .userId(userId)
+                .userId(authentication.getName())
                 .treeId(treeId)
                 .filter(filter)
                 .pageable(pageable)
@@ -33,9 +37,10 @@ public class FileViewController {
 
 
     @GetMapping("/{fileId}")
-    public ResponseEntity<FileResponse> getFile(@PathVariable String treeId, @PathVariable String fileId, @RequestHeader(value = "X-User-Id") String userId) {
+    public ResponseEntity<FileResponse> getFile(@PathVariable String treeId, @PathVariable String fileId) {
+        Authentication authentication = authenticationFacade.getAuthentication();
         FileResponse fileResponse = fileViewService.getFile(GetFileParams.builder()
-                .userId(userId)
+                .userId(authentication.getName())
                 .treeId(treeId)
                 .fileId(fileId)
                 .build());

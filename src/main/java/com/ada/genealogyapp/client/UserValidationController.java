@@ -18,7 +18,6 @@ public class UserValidationController {
 
     private final UserValidationService userValidationService;
 
-
     @PostMapping("/validate")
     public ResponseEntity<Void> validateUser(@RequestBody UserRequest user) throws ValidationException {
         userValidationService.validateUser(user);

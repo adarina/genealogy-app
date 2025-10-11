@@ -1,5 +1,6 @@
 package com.ada.genealogyapp.tree.controller;
 
+import com.ada.genealogyapp.authentication.IAuthenticationFacade;
 import com.ada.genealogyapp.tree.dto.TreeExportJsonResponse;
 import com.ada.genealogyapp.tree.dto.params.BaseParams;
 import com.ada.genealogyapp.tree.service.TreeExportGedcomService;
@@ -11,6 +12,8 @@ import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
@@ -27,10 +30,13 @@ public class TreeExportController {
 
     private final ObjectMapper objectMapper;
 
+    private final IAuthenticationFacade authenticationFacade;
+
     @GetMapping("/json")
-    public ResponseEntity<Resource> exportTreeToJsonFile(@PathVariable String treeId, @RequestHeader(value = "X-User-Id") String userId) throws IOException {
+    public ResponseEntity<Resource> exportTreeToJsonFile(@PathVariable String treeId) throws IOException {
+        Authentication authentication = authenticationFacade.getAuthentication();
         TreeExportJsonResponse treeJson = (TreeExportJsonResponse) jsonService.exportTree(BaseParams.builder()
-                .userId(userId)
+                .userId(authentication.getName())
                 .treeId(treeId)
                 .build());
 
@@ -47,9 +53,10 @@ public class TreeExportController {
     }
 
     @GetMapping("/gedcom")
-    public ResponseEntity<Resource> exportTreeToGedcomFile(@PathVariable String treeId, @RequestHeader(value = "X-User-Id") String userId) {
+    public ResponseEntity<Resource> exportTreeToGedcomFile(@PathVariable String treeId) {
+        Authentication authentication = authenticationFacade.getAuthentication();
         String gedcomContent = (String) gedcomService.exportTree(BaseParams.builder()
-                .userId(userId)
+                .userId(authentication.getName())
                 .treeId(treeId)
                 .build());
 

@@ -7,6 +7,7 @@ import org.springframework.web.util.DefaultUriBuilderFactory;
 
 @Configuration
 public class RestTemplateConfig {
+
     @Bean
     public RestTemplate restTemplate() {
         RestTemplate restTemplate = new RestTemplate();

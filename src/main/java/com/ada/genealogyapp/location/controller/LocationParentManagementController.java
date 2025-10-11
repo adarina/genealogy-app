@@ -1,5 +1,6 @@
 package com.ada.genealogyapp.location.controller;
 
+import com.ada.genealogyapp.authentication.IAuthenticationFacade;
 import com.ada.genealogyapp.location.dto.LocationRequest;
 import com.ada.genealogyapp.location.dto.params.RemoveParentFromLocationParams;
 import com.ada.genealogyapp.location.dto.params.UpdateLocationRequestWithParentParams;
@@ -8,6 +9,7 @@ import com.ada.genealogyapp.location.service.LocationParentManagementService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 
@@ -20,10 +22,13 @@ public class LocationParentManagementController {
 
     private final LocationManagementService locationManagementService;
 
+    private final IAuthenticationFacade authenticationFacade;
+
     @DeleteMapping
-    public ResponseEntity<?> removeParentFromLocation(@PathVariable String treeId, @PathVariable String locationId, @PathVariable String parentId, @RequestHeader(value = "X-User-Id") String userId) {
+    public ResponseEntity<?> removeParentFromLocation(@PathVariable String treeId, @PathVariable String locationId, @PathVariable String parentId) {
+        Authentication authentication = authenticationFacade.getAuthentication();
         locationParentManagementService.removeParentFromLocation(RemoveParentFromLocationParams.builder()
-                .userId(userId)
+                .userId(authentication.getName())
                 .treeId(treeId)
                 .locationId(locationId)
                 .parentId(parentId)
@@ -32,9 +37,10 @@ public class LocationParentManagementController {
     }
 
     @PutMapping
-    public ResponseEntity<?> updateLocationWithParent(@PathVariable String treeId, @PathVariable String locationId, @PathVariable String parentId, @RequestBody LocationRequest locationRequest, @RequestHeader(value = "X-User-Id") String userId) {
+    public ResponseEntity<?> updateLocationWithParent(@PathVariable String treeId, @PathVariable String locationId, @PathVariable String parentId, @RequestBody LocationRequest locationRequest) {
+        Authentication authentication = authenticationFacade.getAuthentication();
         locationManagementService.updateLocationWithParent(UpdateLocationRequestWithParentParams.builder()
-                .userId(userId)
+                .userId(authentication.getName())
                 .treeId(treeId)
                 .parentId(parentId)
                 .locationId(locationId)
@@ -44,9 +50,10 @@ public class LocationParentManagementController {
     }
 
     @PostMapping
-    public ResponseEntity<?> addParentToLocation(@PathVariable String treeId, @PathVariable String locationId, @PathVariable String parentId, @RequestBody LocationRequest locationRequest, @RequestHeader(value = "X-User-Id") String userId) {
+    public ResponseEntity<?> addParentToLocation(@PathVariable String treeId, @PathVariable String locationId, @PathVariable String parentId, @RequestBody LocationRequest locationRequest) {
+        Authentication authentication = authenticationFacade.getAuthentication();
         locationManagementService.updateLocationWithParent(UpdateLocationRequestWithParentParams.builder()
-                .userId(userId)
+                .userId(authentication.getName())
                 .treeId(treeId)
                 .locationId(locationId)
                 .parentId(parentId)

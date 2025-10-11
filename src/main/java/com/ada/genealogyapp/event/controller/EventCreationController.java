@@ -1,12 +1,14 @@
 package com.ada.genealogyapp.event.controller;
 
 
+import com.ada.genealogyapp.authentication.IAuthenticationFacade;
 import com.ada.genealogyapp.event.dto.EventRequest;
 import com.ada.genealogyapp.event.dto.params.CreateEventRequestParams;
 import com.ada.genealogyapp.event.service.EventCreationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -16,10 +18,13 @@ public class EventCreationController {
 
     private final EventCreationService eventCreationService;
 
+    private final IAuthenticationFacade authenticationFacade;
+
     @PostMapping
-    public ResponseEntity<?> createEvent(@PathVariable String treeId, @RequestBody EventRequest eventRequest, @RequestHeader(value = "X-User-Id") String userId) {
+    public ResponseEntity<?> createEvent(@PathVariable String treeId, @RequestBody EventRequest eventRequest) {
+        Authentication authentication = authenticationFacade.getAuthentication();
         eventCreationService.createEvent(CreateEventRequestParams.builder()
-                .userId(userId)
+                .userId(authentication.getName())
                 .treeId(treeId)
                 .eventRequest(eventRequest)
                 .build());

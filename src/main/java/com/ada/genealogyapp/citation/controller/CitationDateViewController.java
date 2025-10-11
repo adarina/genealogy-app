@@ -1,10 +1,12 @@
 package com.ada.genealogyapp.citation.controller;
 
+import com.ada.genealogyapp.authentication.IAuthenticationFacade;
 import com.ada.genealogyapp.citation.dto.params.GetCitationParams;
 import com.ada.genealogyapp.citation.service.CitationDateViewService;
 import com.ada.genealogyapp.date.model.Date;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 
@@ -15,10 +17,13 @@ public class CitationDateViewController {
 
     private final CitationDateViewService citationDateViewService;
 
+    private final IAuthenticationFacade authenticationFacade;
+
     @GetMapping
-    public ResponseEntity<Date> getCitationDate(@PathVariable String treeId, @PathVariable String citationId, @RequestHeader(value = "X-User-Id") String userId) {
+    public ResponseEntity<Date> getCitationDate(@PathVariable String treeId, @PathVariable String citationId) {
+        Authentication authentication = authenticationFacade.getAuthentication();
         Date citationDateResponse = citationDateViewService.getCitationDate(GetCitationParams.builder()
-                .userId(userId)
+                .userId(authentication.getName())
                 .treeId(treeId)
                 .citationId(citationId)
                 .build());

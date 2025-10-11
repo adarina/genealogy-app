@@ -1,5 +1,6 @@
 package com.ada.genealogyapp.person.controller;
 
+import com.ada.genealogyapp.authentication.IAuthenticationFacade;
 import com.ada.genealogyapp.person.dto.PersonResponse;
 import com.ada.genealogyapp.person.dto.params.GetPersonParams;
 import com.ada.genealogyapp.person.dto.params.GetPersonsParams;
@@ -9,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import org.springframework.data.domain.Pageable;
@@ -20,10 +22,13 @@ public class PersonViewController {
 
     private final PersonViewService personViewService;
 
+    private final IAuthenticationFacade authenticationFacade;
+
     @GetMapping("/{personId}")
-    public ResponseEntity<PersonResponse> getPerson(@PathVariable String treeId, @PathVariable String personId, @RequestHeader(value = "X-User-Id") String userId) {
+    public ResponseEntity<PersonResponse> getPerson(@PathVariable String treeId, @PathVariable String personId) {
+        Authentication authentication = authenticationFacade.getAuthentication();
         PersonResponse personResponse = personViewService.getPerson(GetPersonParams.builder()
-                .userId(userId)
+                .userId(authentication.getName())
                 .treeId(treeId)
                 .personId(personId)
                 .build());
@@ -31,9 +36,10 @@ public class PersonViewController {
     }
 
     @GetMapping
-    public ResponseEntity<Page<PersonResponse>> getPersons(@PathVariable String treeId, @RequestParam String filter, @PageableDefault Pageable pageable, @RequestHeader(value = "X-User-Id") String userId) throws JsonProcessingException {
+    public ResponseEntity<Page<PersonResponse>> getPersons(@PathVariable String treeId, @RequestParam String filter, @PageableDefault Pageable pageable) throws JsonProcessingException {
+        Authentication authentication = authenticationFacade.getAuthentication();
         Page<PersonResponse> personResponses = personViewService.getPersons(GetPersonsParams.builder()
-                .userId(userId)
+                .userId(authentication.getName())
                 .treeId(treeId)
                 .filter(filter)
                 .pageable(pageable)

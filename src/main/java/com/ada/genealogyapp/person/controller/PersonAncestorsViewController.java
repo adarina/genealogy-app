@@ -1,10 +1,12 @@
 package com.ada.genealogyapp.person.controller;
 
+import com.ada.genealogyapp.authentication.IAuthenticationFacade;
 import com.ada.genealogyapp.person.dto.PersonAncestorResponse;
 import com.ada.genealogyapp.person.dto.params.GetPersonParams;
 import com.ada.genealogyapp.person.service.PersonAncestorsViewService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -14,10 +16,13 @@ public class PersonAncestorsViewController {
 
     private final PersonAncestorsViewService personAncestorsViewService;
 
+    private final IAuthenticationFacade authenticationFacade;
+
     @GetMapping
-    public ResponseEntity<PersonAncestorResponse> getPersonAncestors(@PathVariable String treeId, @PathVariable String personId, @RequestHeader(value = "X-User-Id") String userId) {
+    public ResponseEntity<PersonAncestorResponse> getPersonAncestors(@PathVariable String treeId, @PathVariable String personId) {
+        Authentication authentication = authenticationFacade.getAuthentication();
         PersonAncestorResponse ancestorsResponse = personAncestorsViewService.getPersonAncestors(GetPersonParams.builder()
-                .userId(userId)
+                .userId(authentication.getName())
                 .treeId(treeId)
                 .personId(personId)
                 .build());

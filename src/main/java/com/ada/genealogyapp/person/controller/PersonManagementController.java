@@ -1,5 +1,6 @@
 package com.ada.genealogyapp.person.controller;
 
+import com.ada.genealogyapp.authentication.IAuthenticationFacade;
 import com.ada.genealogyapp.person.dto.PersonRequest;
 import com.ada.genealogyapp.person.dto.params.DeletePersonParams;
 import com.ada.genealogyapp.person.dto.params.UpdatePersonRequestParams;
@@ -7,6 +8,7 @@ import com.ada.genealogyapp.person.service.PersonManagementService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -16,10 +18,13 @@ public class PersonManagementController {
 
     private final PersonManagementService personManagementService;
 
+    private final IAuthenticationFacade authenticationFacade;
+
     @PutMapping
-    public ResponseEntity<?> updatePerson(@PathVariable String treeId, @PathVariable String personId, @RequestBody PersonRequest personRequest, @RequestHeader(value = "X-User-Id") String userId) {
+    public ResponseEntity<?> updatePerson(@PathVariable String treeId, @PathVariable String personId, @RequestBody PersonRequest personRequest) {
+        Authentication authentication = authenticationFacade.getAuthentication();
         personManagementService.updatePerson(UpdatePersonRequestParams.builder()
-                .userId(userId)
+                .userId(authentication.getName())
                 .treeId(treeId)
                 .personId(personId)
                 .personRequest(personRequest)
@@ -28,9 +33,10 @@ public class PersonManagementController {
     }
 
     @DeleteMapping()
-    public ResponseEntity<?> deletePerson(@PathVariable String treeId, @PathVariable String personId, @RequestHeader(value = "X-User-Id") String userId) {
+    public ResponseEntity<?> deletePerson(@PathVariable String treeId, @PathVariable String personId) {
+        Authentication authentication = authenticationFacade.getAuthentication();
         personManagementService.deletePerson(DeletePersonParams.builder()
-                .userId(userId)
+                .userId(authentication.getName())
                 .treeId(treeId)
                 .personId(personId)
                 .build());

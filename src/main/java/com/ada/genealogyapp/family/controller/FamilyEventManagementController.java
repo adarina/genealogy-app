@@ -1,5 +1,6 @@
 package com.ada.genealogyapp.family.controller;
 
+import com.ada.genealogyapp.authentication.IAuthenticationFacade;
 import com.ada.genealogyapp.event.dto.params.RemoveParticipantFromEventParams;
 import com.ada.genealogyapp.event.service.EventManagementService;
 import com.ada.genealogyapp.exceptions.ValidationException;
@@ -8,6 +9,7 @@ import com.ada.genealogyapp.event.dto.params.UpdateEventRequestWithParticipantPa
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -17,10 +19,13 @@ public class FamilyEventManagementController {
 
     private final EventManagementService eventManagementService;
 
+    private final IAuthenticationFacade authenticationFacade;
+
     @PutMapping
-    public ResponseEntity<?> updateEventInFamily(@PathVariable String treeId, @PathVariable String familyId, @PathVariable String eventId, @RequestBody ParticipantEventRequest participantEventRequest, @RequestHeader(value = "X-User-Id") String userId) throws ValidationException {
+    public ResponseEntity<?> updateEventInFamily(@PathVariable String treeId, @PathVariable String familyId, @PathVariable String eventId, @RequestBody ParticipantEventRequest participantEventRequest) throws ValidationException {
+        Authentication authentication = authenticationFacade.getAuthentication();
         eventManagementService.updateEventWithParticipant(UpdateEventRequestWithParticipantParams.builder()
-                .userId(userId)
+                .userId(authentication.getName())
                 .treeId(treeId)
                 .participantId(familyId)
                 .eventId(eventId)
@@ -31,9 +36,10 @@ public class FamilyEventManagementController {
     }
 
     @PostMapping
-    public ResponseEntity<?> addFamilyToEvent(@PathVariable String treeId, @PathVariable String familyId, @PathVariable String eventId, @RequestBody ParticipantEventRequest participantEventRequest, @RequestHeader(value = "X-User-Id") String userId) throws ValidationException {
+    public ResponseEntity<?> addFamilyToEvent(@PathVariable String treeId, @PathVariable String familyId, @PathVariable String eventId, @RequestBody ParticipantEventRequest participantEventRequest) throws ValidationException {
+        Authentication authentication = authenticationFacade.getAuthentication();
         eventManagementService.updateEventWithParticipant(UpdateEventRequestWithParticipantParams.builder()
-                .userId(userId)
+                .userId(authentication.getName())
                 .treeId(treeId)
                 .participantId(familyId)
                 .eventId(eventId)
@@ -44,9 +50,10 @@ public class FamilyEventManagementController {
     }
 
     @DeleteMapping
-    public ResponseEntity<?> removeFamilyFromEvent(@PathVariable String treeId, @PathVariable String familyId, @PathVariable String eventId, @RequestHeader(value = "X-User-Id") String userId) {
+    public ResponseEntity<?> removeFamilyFromEvent(@PathVariable String treeId, @PathVariable String familyId, @PathVariable String eventId) {
+        Authentication authentication = authenticationFacade.getAuthentication();
         eventManagementService.removeParticipantFromEvent(RemoveParticipantFromEventParams.builder()
-                .userId(userId)
+                .userId(authentication.getName())
                 .treeId(treeId)
                 .eventId(eventId)
                 .participantId(familyId)

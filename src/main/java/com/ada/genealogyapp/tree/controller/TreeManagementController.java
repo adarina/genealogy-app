@@ -1,5 +1,6 @@
 package com.ada.genealogyapp.tree.controller;
 
+import com.ada.genealogyapp.authentication.IAuthenticationFacade;
 import com.ada.genealogyapp.tree.dto.TreeRequest;
 import com.ada.genealogyapp.tree.dto.params.DeleteTreeParams;
 import com.ada.genealogyapp.tree.dto.params.UpdateTreeRequestParams;
@@ -7,6 +8,7 @@ import com.ada.genealogyapp.tree.service.TreeManagementService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -16,10 +18,13 @@ public class TreeManagementController {
 
     private final TreeManagementService treeManagementService;
 
+    private final IAuthenticationFacade authenticationFacade;
+
     @PutMapping
-    public ResponseEntity<?> updateTree(@PathVariable String treeId, @RequestBody TreeRequest treeRequest, @RequestHeader(value = "X-User-Id") String userId) {
+    public ResponseEntity<?> updateTree(@PathVariable String treeId, @RequestBody TreeRequest treeRequest) {
+        Authentication authentication = authenticationFacade.getAuthentication();
         treeManagementService.updateTree(UpdateTreeRequestParams.builder()
-                .userId(userId)
+                .userId(authentication.getName())
                 .treeId(treeId)
                 .treeRequest(treeRequest)
                 .build());
@@ -27,9 +32,10 @@ public class TreeManagementController {
     }
 
     @DeleteMapping
-    public ResponseEntity<?> deleteTree(@PathVariable String treeId, @RequestHeader(value = "X-User-Id") String userId) {
+    public ResponseEntity<?> deleteTree(@PathVariable String treeId) {
+        Authentication authentication = authenticationFacade.getAuthentication();
         treeManagementService.deleteTree(DeleteTreeParams.builder()
-                .userId(userId)
+                .userId(authentication.getName())
                 .treeId(treeId)
                 .build());
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();

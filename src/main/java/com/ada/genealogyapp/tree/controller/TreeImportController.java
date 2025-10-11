@@ -1,12 +1,14 @@
 package com.ada.genealogyapp.tree.controller;
 
 
+import com.ada.genealogyapp.authentication.IAuthenticationFacade;
 import com.ada.genealogyapp.tree.model.Tree;
 import com.ada.genealogyapp.tree.service.TreeImportGedcomService;
 import com.ada.genealogyapp.tree.service.TreeImportJsonService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -20,15 +22,19 @@ public class TreeImportController {
 
     private final TreeImportGedcomService treeImportGedcomService;
 
+    private final IAuthenticationFacade authenticationFacade;
+
     @PostMapping(path = "/importFileGedcom", consumes = { MediaType.MULTIPART_FORM_DATA_VALUE })
-    public ResponseEntity<Tree> importTreeFromFileGedcom(@RequestParam MultipartFile multipartFile, @RequestHeader(value = "X-User-Id") String userId) throws Throwable {
-        Tree tree = treeImportGedcomService.importTreeFile(multipartFile, userId);
+    public ResponseEntity<Tree> importTreeFromFileGedcom(@RequestParam MultipartFile multipartFile) throws Throwable {
+        Authentication authentication = authenticationFacade.getAuthentication();
+        Tree tree = treeImportGedcomService.importTreeFile(multipartFile, authentication.getName());
         return ResponseEntity.ok(tree);
     }
 
     @PostMapping(path = "/importFileJson", consumes = { MediaType.MULTIPART_FORM_DATA_VALUE })
-    public ResponseEntity<Tree> importTreeFromFileJson(@RequestParam MultipartFile multipartFile, @RequestHeader(value = "X-User-Id") String userId) throws Throwable {
-        Tree tree = treeImportJsonService.importTreeFile(multipartFile, userId);
+    public ResponseEntity<Tree> importTreeFromFileJson(@RequestParam MultipartFile multipartFile) throws Throwable {
+        Authentication authentication = authenticationFacade.getAuthentication();
+        Tree tree = treeImportJsonService.importTreeFile(multipartFile, authentication.getName());
         return ResponseEntity.ok(tree);
     }
 }

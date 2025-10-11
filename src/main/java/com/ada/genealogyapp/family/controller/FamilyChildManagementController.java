@@ -1,5 +1,6 @@
 package com.ada.genealogyapp.family.controller;
 
+import com.ada.genealogyapp.authentication.IAuthenticationFacade;
 import com.ada.genealogyapp.exceptions.ValidationException;
 import com.ada.genealogyapp.family.dto.params.AddChildToFamilyRequestParams;
 import com.ada.genealogyapp.family.dto.params.RemovePersonFromFamilyParams;
@@ -10,6 +11,7 @@ import com.ada.genealogyapp.person.service.PersonManagementService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -21,10 +23,13 @@ public class FamilyChildManagementController {
 
     private final PersonManagementService personManagementService;
 
+    private final IAuthenticationFacade authenticationFacade;
+
     @PutMapping
-    public ResponseEntity<?> updateChildInFamily(@PathVariable String treeId, @PathVariable String familyId, @PathVariable String childId, @RequestBody FamilyChildRequest familyChildRequest, @RequestHeader(value = "X-User-Id") String userId) throws ValidationException {
+    public ResponseEntity<?> updateChildInFamily(@PathVariable String treeId, @PathVariable String familyId, @PathVariable String childId, @RequestBody FamilyChildRequest familyChildRequest) throws ValidationException {
+        Authentication authentication = authenticationFacade.getAuthentication();
         personManagementService.updateChildInFamily(UpdateChildInFamilyRequestParams.builder()
-                .userId(userId)
+                .userId(authentication.getName())
                 .treeId(treeId)
                 .personId(childId)
                 .familyId(familyId)
@@ -35,9 +40,10 @@ public class FamilyChildManagementController {
     }
 
     @DeleteMapping
-    public ResponseEntity<?> removeChildFromFamily(@PathVariable String treeId, @PathVariable String familyId, @PathVariable String childId, @RequestHeader(value = "X-User-Id") String userId) {
+    public ResponseEntity<?> removeChildFromFamily(@PathVariable String treeId, @PathVariable String familyId, @PathVariable String childId) {
+        Authentication authentication = authenticationFacade.getAuthentication();
         familyChildManagementService.removeChildFromFamily(RemovePersonFromFamilyParams.builder()
-                .userId(userId)
+                .userId(authentication.getName())
                 .treeId(treeId)
                 .familyId(familyId)
                 .personId(childId)
@@ -46,9 +52,10 @@ public class FamilyChildManagementController {
     }
 
     @PostMapping
-    public ResponseEntity<?> addChildToFamily(@PathVariable String treeId, @PathVariable String familyId, @PathVariable String childId, @RequestBody FamilyChildRequest familyChildRequest, @RequestHeader(value = "X-User-Id") String userId) {
+    public ResponseEntity<?> addChildToFamily(@PathVariable String treeId, @PathVariable String familyId, @PathVariable String childId, @RequestBody FamilyChildRequest familyChildRequest) {
+        Authentication authentication = authenticationFacade.getAuthentication();
         familyChildManagementService.addChildToFamily(AddChildToFamilyRequestParams.builder()
-                .userId(userId)
+                .userId(authentication.getName())
                 .treeId(treeId)
                 .familyId(familyId)
                 .personId(childId)

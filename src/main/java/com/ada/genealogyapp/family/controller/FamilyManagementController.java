@@ -1,5 +1,6 @@
 package com.ada.genealogyapp.family.controller;
 
+import com.ada.genealogyapp.authentication.IAuthenticationFacade;
 import com.ada.genealogyapp.exceptions.ValidationException;
 import com.ada.genealogyapp.family.dto.FamilyRequest;
 import com.ada.genealogyapp.family.dto.params.DeleteFamilyParams;
@@ -8,6 +9,7 @@ import com.ada.genealogyapp.family.service.FamilyManagementService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -17,10 +19,13 @@ public class FamilyManagementController {
 
     private final FamilyManagementService familyManagementService;
 
+    private final IAuthenticationFacade authenticationFacade;
+
     @PutMapping
-    public ResponseEntity<?> updateFamily(@PathVariable String treeId, @PathVariable String familyId, @RequestBody FamilyRequest familyRequest, @RequestHeader(value = "X-User-Id") String userId) throws ValidationException {
+    public ResponseEntity<?> updateFamily(@PathVariable String treeId, @PathVariable String familyId, @RequestBody FamilyRequest familyRequest) throws ValidationException {
+        Authentication authentication = authenticationFacade.getAuthentication();
         familyManagementService.updateFamily(UpdateFamilyRequestParams.builder()
-                .userId(userId)
+                .userId(authentication.getName())
                 .treeId(treeId)
                 .familyId(familyId)
                 .familyRequest(familyRequest)
@@ -29,9 +34,10 @@ public class FamilyManagementController {
     }
 
     @DeleteMapping
-    public ResponseEntity<?> deleteFamily(@PathVariable String treeId, @PathVariable String familyId, @RequestHeader(value = "X-User-Id") String userId) {
+    public ResponseEntity<?> deleteFamily(@PathVariable String treeId, @PathVariable String familyId) {
+        Authentication authentication = authenticationFacade.getAuthentication();
         familyManagementService.deleteFamily(DeleteFamilyParams.builder()
-                .userId(userId)
+                .userId(authentication.getName())
                 .treeId(treeId)
                 .familyId(familyId)
                 .build());

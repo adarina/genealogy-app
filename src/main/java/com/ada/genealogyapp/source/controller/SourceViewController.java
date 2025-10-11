@@ -1,5 +1,6 @@
 package com.ada.genealogyapp.source.controller;
 
+import com.ada.genealogyapp.authentication.IAuthenticationFacade;
 import com.ada.genealogyapp.source.dto.SourceResponse;
 import com.ada.genealogyapp.source.dto.params.GetSourceParams;
 import com.ada.genealogyapp.source.dto.params.GetSourcesParams;
@@ -10,6 +11,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -19,10 +21,13 @@ public class SourceViewController {
 
     private final SourceViewService sourceViewService;
 
+    private final IAuthenticationFacade authenticationFacade;
+
     @GetMapping
-    public ResponseEntity<Page<SourceResponse>> getSources(@PathVariable String treeId, @RequestParam String filter, @PageableDefault Pageable pageable, @RequestHeader(value = "X-User-Id") String userId) throws JsonProcessingException {
+    public ResponseEntity<Page<SourceResponse>> getSources(@PathVariable String treeId, @RequestParam String filter, @PageableDefault Pageable pageable) throws JsonProcessingException {
+        Authentication authentication = authenticationFacade.getAuthentication();
         Page<SourceResponse> sourceResponses = sourceViewService.getSources(GetSourcesParams.builder()
-                .userId(userId)
+                .userId(authentication.getName())
                 .treeId(treeId)
                 .filter(filter)
                 .pageable(pageable)
@@ -31,9 +36,10 @@ public class SourceViewController {
     }
 
     @GetMapping("/{sourceId}")
-    public ResponseEntity<SourceResponse> getSource(@PathVariable String treeId, @PathVariable String sourceId, @RequestHeader(value = "X-User-Id") String userId) {
+    public ResponseEntity<SourceResponse> getSource(@PathVariable String treeId, @PathVariable String sourceId) {
+        Authentication authentication = authenticationFacade.getAuthentication();
         SourceResponse sourceResponse = sourceViewService.getSource(GetSourceParams.builder()
-                .userId(userId)
+                .userId(authentication.getName())
                 .treeId(treeId)
                 .sourceId(sourceId)
                 .build());

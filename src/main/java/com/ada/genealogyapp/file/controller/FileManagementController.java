@@ -1,5 +1,6 @@
 package com.ada.genealogyapp.file.controller;
 
+import com.ada.genealogyapp.authentication.IAuthenticationFacade;
 import com.ada.genealogyapp.file.dto.FileRequest;
 import com.ada.genealogyapp.file.dto.params.DeleteFileParams;
 import com.ada.genealogyapp.file.dto.params.UpdateFileRequestParams;
@@ -7,6 +8,7 @@ import com.ada.genealogyapp.file.service.FileManagementService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 
@@ -17,10 +19,13 @@ public class FileManagementController {
 
     private final FileManagementService fileManagementService;
 
+    private final IAuthenticationFacade authenticationFacade;
+
     @PutMapping
-    public ResponseEntity<?> updateFile(@PathVariable String treeId, @PathVariable String fileId, @RequestBody FileRequest fileRequest, @RequestHeader(value = "X-User-Id") String userId) {
+    public ResponseEntity<?> updateFile(@PathVariable String treeId, @PathVariable String fileId, @RequestBody FileRequest fileRequest) {
+        Authentication authentication = authenticationFacade.getAuthentication();
         fileManagementService.updateFile(UpdateFileRequestParams.builder()
-                .userId(userId)
+                .userId(authentication.getName())
                 .treeId(treeId)
                 .fileId(fileId)
                 .fileRequest(fileRequest)
@@ -29,9 +34,10 @@ public class FileManagementController {
     }
 
     @DeleteMapping
-    public ResponseEntity<?> deleteFile(@PathVariable String treeId, @PathVariable String fileId, @RequestHeader(value = "X-User-Id") String userId) {
+    public ResponseEntity<?> deleteFile(@PathVariable String treeId, @PathVariable String fileId) {
+        Authentication authentication = authenticationFacade.getAuthentication();
         fileManagementService.deleteFile(DeleteFileParams.builder()
-                .userId(userId)
+                .userId(authentication.getName())
                 .treeId(treeId)
                 .fileId(fileId)
                 .build());

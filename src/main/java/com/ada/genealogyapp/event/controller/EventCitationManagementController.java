@@ -1,12 +1,14 @@
 package com.ada.genealogyapp.event.controller;
 
 
+import com.ada.genealogyapp.authentication.IAuthenticationFacade;
 import com.ada.genealogyapp.event.dto.params.AddCitationToEventParams;
 import com.ada.genealogyapp.event.dto.params.RemoveCitationFromEventParams;
 import com.ada.genealogyapp.event.service.EventCitationManagementService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -16,11 +18,14 @@ public class EventCitationManagementController {
 
     private final EventCitationManagementService eventCitationManagementService;
 
+    private final IAuthenticationFacade authenticationFacade;
+
     @DeleteMapping()
-    public ResponseEntity<?> removeCitationFromEvent(@PathVariable String treeId, @PathVariable String eventId, @PathVariable String citationId, @RequestHeader(value = "X-User-Id") String userId) {
+    public ResponseEntity<?> removeCitationFromEvent(@PathVariable String treeId, @PathVariable String eventId, @PathVariable String citationId) {
+        Authentication authentication = authenticationFacade.getAuthentication();
         eventCitationManagementService.removeCitationFromEvent(RemoveCitationFromEventParams.builder()
                 .treeId(treeId)
-                .userId(userId)
+                .userId(authentication.getName())
                 .eventId(eventId)
                 .citationId(citationId)
                 .build());
@@ -28,10 +33,11 @@ public class EventCitationManagementController {
     }
 
     @PostMapping
-    public ResponseEntity<?> addCitationToEvent(@PathVariable String treeId, @PathVariable String eventId, @PathVariable String citationId, @RequestHeader(value = "X-User-Id") String userId) {
+    public ResponseEntity<?> addCitationToEvent(@PathVariable String treeId, @PathVariable String eventId, @PathVariable String citationId) {
+        Authentication authentication = authenticationFacade.getAuthentication();
         eventCitationManagementService.addCitationToEvent(AddCitationToEventParams.builder()
                 .treeId(treeId)
-                .userId(userId)
+                .userId(authentication.getName())
                 .eventId(eventId)
                 .citationId(citationId)
                 .build());
