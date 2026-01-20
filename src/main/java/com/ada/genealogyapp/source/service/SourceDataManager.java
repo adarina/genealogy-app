@@ -4,7 +4,6 @@ import com.ada.genealogyapp.query.IdType;
 import com.ada.genealogyapp.query.QueryResultProcessor;
 import com.ada.genealogyapp.source.dto.params.*;
 import com.ada.genealogyapp.source.repository.SourceRepository;
-import com.ada.genealogyapp.transaction.TransactionalInNeo4j;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -34,9 +33,5 @@ public class SourceDataManager implements SourceService {
     public void deleteSource(DeleteSourceParams params) {
         String result = sourceRepository.delete(params.getUserId(), params.getTreeId(), params.getSourceId());
         processor.process(result, Map.of(IdType.SOURCE_ID, params.getSourceId()));
-    }
-
-    public void saveSourcesBatch(String userId, String treeId, List<Map<String, Object>> sourcesData) {
-        sourceRepository.saveSourcesBatch(userId, treeId, sourcesData);
     }
 }

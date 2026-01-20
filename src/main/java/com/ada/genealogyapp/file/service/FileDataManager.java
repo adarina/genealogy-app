@@ -7,12 +7,11 @@ import com.ada.genealogyapp.file.dto.params.UpdateFileParams;
 import com.ada.genealogyapp.file.repository.FileRepository;
 import com.ada.genealogyapp.query.QueryResultProcessor;
 
-import com.ada.genealogyapp.transaction.TransactionalInNeo4j;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
+
 import java.util.Map;
 
 @Service
@@ -37,9 +36,5 @@ public class FileDataManager implements FileService {
     public void deleteFile(DeleteFileParams params) {
         String result = fileRepository.delete(params.getUserId(), params.getTreeId(), params.getFileId());
         processor.process(result, Map.of(IdType.FILE_ID,  params.getFileId()));
-    }
-
-    public void saveFilesBatch(String userId, String treeId, List<Map<String, Object>> filesData) {
-        fileRepository.saveFilesBatch(userId, treeId, filesData);
     }
 }

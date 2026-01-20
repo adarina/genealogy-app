@@ -14,6 +14,6 @@ public class FileUpdatedHandler implements QueryResultHandler {
     @Override
     public void handleResult(Map<IdType, String> context) {
         String fileId = context.get(IdType.FILE_ID);
-        log.info("File with ID: " + fileId + " updated");
+        log.info("File with ID: {} updated", fileId);
     }
 }

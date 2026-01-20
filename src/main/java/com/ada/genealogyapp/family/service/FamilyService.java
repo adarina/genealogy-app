@@ -28,7 +28,4 @@ public interface FamilyService {
 
     void updateChildInFamily(UpdateChildInFamilyParams params);
 
-    void saveFamilies(String userId, String treeId, List<Map<String, Object>> familiesData);
-
-    void addFamilyRelationships(String userId, String treeId, List<Map<String, Object>> fathersData, List<Map<String, Object>> mothersData, List<Map<String, Object>> childrenData);
 }

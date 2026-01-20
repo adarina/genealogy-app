@@ -39,28 +39,4 @@ public class FamilyCreationService {
                 .build());
         return family;
     }
-
-    @TransactionalInNeo4j
-    public Map<String, Family> createFamilies(String userId, String treeId, List<FamilyJsonRequest> familyRequests) {
-        Map<String, Family> createdFamiliesMap = new HashMap<>();
-        List<Map<String, Object>> families = new ArrayList<>();
-
-        for (FamilyJsonRequest request : familyRequests) {
-            Family family = Family.builder()
-                    .name(request.getName())
-                    .status(request.getStatus())
-                    .build();
-            familyValidationService.validateFamily(family);
-
-            Map<String, Object> familyData = new HashMap<>();
-            familyData.put("id", family.getId());
-            familyData.put("name", family.getName());
-            familyData.put("status", family.getStatus().name());
-
-            families.add(familyData);
-            createdFamiliesMap.put(request.getId(), family);
-        }
-        familyService.saveFamilies(userId, treeId, families);
-        return createdFamiliesMap;
-    }
 }

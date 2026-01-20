@@ -1,9 +1,6 @@
 package com.ada.genealogyapp.event.service;
 
-import com.ada.genealogyapp.citation.dto.params.AddSourceToCitationParams;
-import com.ada.genealogyapp.event.dto.params.AddCitationToEventParams;
 import com.ada.genealogyapp.event.dto.params.AddLocationToEventParams;
-import com.ada.genealogyapp.event.dto.params.RemoveCitationFromEventParams;
 import com.ada.genealogyapp.event.dto.params.RemoveLocationFromEventParams;
 import com.ada.genealogyapp.transaction.TransactionalInNeo4j;
 import lombok.RequiredArgsConstructor;

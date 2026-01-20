@@ -13,6 +13,6 @@ public class PersonUpdatedHandler implements QueryResultHandler {
     @Override
     public void handleResult(Map<IdType, String> context) {
         String personId = context.get(IdType.PERSON_ID);
-        log.info("Person with ID: " + personId + " updated");
+        log.info("Person with ID: {} updated", personId);
     }
 }

@@ -4,7 +4,6 @@ import com.ada.genealogyapp.tree.dto.params.BaseParams;
 import com.ada.genealogyapp.tree.dto.params.DeleteTreeParams;
 import com.ada.genealogyapp.tree.dto.params.SaveTreeParams;
 import com.ada.genealogyapp.tree.dto.params.UpdateTreeParams;
-import com.ada.genealogyapp.tree.model.Tree;
 
 
 public interface TreeService {

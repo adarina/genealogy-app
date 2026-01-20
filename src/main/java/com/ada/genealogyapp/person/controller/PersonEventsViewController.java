@@ -1,8 +1,6 @@
 package com.ada.genealogyapp.person.controller;
 
 import com.ada.genealogyapp.authentication.IAuthenticationFacade;
-import com.ada.genealogyapp.event.dto.EventResponse;
-import com.ada.genealogyapp.event.dto.params.GetEventParams;
 import com.ada.genealogyapp.participant.dto.ParticipantEventResponse;
 import com.ada.genealogyapp.participant.service.ParticipantEventsViewService;
 import com.ada.genealogyapp.person.dto.params.GetParticipantEventParams;

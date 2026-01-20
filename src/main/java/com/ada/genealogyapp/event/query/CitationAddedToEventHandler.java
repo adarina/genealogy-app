@@ -14,6 +14,6 @@ public class CitationAddedToEventHandler implements QueryResultHandler {
     public void handleResult(Map<IdType, String> context) {
         String eventId = context.get(IdType.EVENT_ID);
         String citationId = context.get(IdType.CITATION_ID);
-        log.info("Citation with ID: " + citationId + " added to event with ID: " + eventId);
+        log.info("Citation with ID: {} added to event with ID: {}", citationId, eventId);
     }
 }

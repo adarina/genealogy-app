@@ -14,6 +14,6 @@ public class ChildUpdatedInFamilyHandler implements QueryResultHandler {
     public void handleResult(Map<IdType, String> context) {
         String familyId = context.get(IdType.FAMILY_ID);
         String childId = context.get(IdType.CHILD_ID);
-        log.info("Child with ID: " + childId + " updated in family with ID: " + familyId);
+        log.info("Child with ID: {} updated in family with ID: {}", childId, familyId);
     }
 }

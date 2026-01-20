@@ -3,7 +3,6 @@ package com.ada.genealogyapp.event.dto;
 
 import com.ada.genealogyapp.event.type.EventType;
 
-import com.ada.genealogyapp.location.model.Location;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 

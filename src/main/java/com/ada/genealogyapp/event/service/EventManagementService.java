@@ -1,7 +1,6 @@
 package com.ada.genealogyapp.event.service;
 
 import com.ada.genealogyapp.event.dto.params.*;
-import com.ada.genealogyapp.event.dto.params.UpdateEventRequestWithParticipantParams;
 import com.ada.genealogyapp.exceptions.ValidationException;
 import com.ada.genealogyapp.transaction.TransactionalInNeo4j;
 import com.ada.genealogyapp.event.model.Event;

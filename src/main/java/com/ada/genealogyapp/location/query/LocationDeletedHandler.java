@@ -14,6 +14,6 @@ public class LocationDeletedHandler implements QueryResultHandler {
     @Override
     public void handleResult(Map<IdType, String> context) {
         String locationId = context.get(IdType.LOCATION_ID);
-        log.info("Location with ID: " + locationId + " deleted");
+        log.info("Location with ID: {} deleted", locationId);
     }
 }

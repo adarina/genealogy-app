@@ -1,0 +1,350 @@
+## TODO coś się nie łączą mikroservisy, chociaż są momenty kiedy coś się połączy XD, pamięć definitywnie dla neo4j za mała tutaj
+#version: '3.8'
+#
+#services:
+#
+#  eureka-server:
+#    image: eureka-server:latest
+#    ports:
+#      - target: 8761
+#        published: 8761
+#        protocol: tcp
+#        mode: host
+#    networks:
+#      - genealogy-net
+#    deploy:
+#      replicas: 1
+#      restart_policy:
+#        condition: on-failure
+#
+#  genealogy-app:
+#    image: genealogy-app:latest
+#    environment:
+#      SPRING_NEO4J_URI: bolt://neo4j:7687
+#      SPRING_NEO4J_AUTHENTICATION_USERNAME: neo4j
+#      SPRING_NEO4J_AUTHENTICATION_PASSWORD: password1234
+#      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
+#      EUREKA_INSTANCE_PREFER_IP_ADDRESS: "true"
+#      SPRING_SERVLET_MULTIPART_MAX_FILE_SIZE: 10MB
+#      SPRING_SERVLET_MULTIPART_MAX_REQUEST_SIZE: 10MB
+#      SERVER_TOMCAT_MAX_SWALLOW_SIZE: -1
+#      FILE_STORAGE: /upload-dir
+#    ports:
+#      - "8080:8080"
+#    volumes:
+#      - type: bind
+#        source: ./upload-dir
+#        target: /upload-dir
+#    networks:
+#      - genealogy-net
+#    deploy:
+#      replicas: 1
+#      placement:
+#        constraints: [node.role == manager]
+#
+#  app-reactive:
+#    image: app-reactive:latest
+#    environment:
+#      _JAVA_OPTIONS: "-Xms512m -Xmx2g"
+#      SPRING_NEO4J_URI: bolt://neo4j:7687
+#      SPRING_NEO4J_AUTHENTICATION_USERNAME: neo4j
+#      SPRING_NEO4J_AUTHENTICATION_PASSWORD: password1234
+#      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
+#      EUREKA_INSTANCE_PREFER_IP_ADDRESS: "true"
+#      SPRING_SERVLET_MULTIPART_MAX_FILE_SIZE: 10MB
+#      SPRING_SERVLET_MULTIPART_MAX_REQUEST_SIZE: 10MB
+#      SERVER_TOMCAT_MAX_SWALLOW_SIZE: -1
+#      FILE_STORAGE: /upload-dir
+#    ports:
+#      - "8082:8082"
+#    volumes:
+#      - type: bind
+#        source: ./upload-dir
+#        target: /upload-dir
+#    networks:
+#      - genealogy-net
+#    deploy:
+#      replicas: 1
+#      placement:
+#        constraints: [ node.role == manager ]
+#
+#
+#  app-user:
+#    image: app-user:latest
+#    environment:
+#      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/genealogydb
+#      SPRING_DATASOURCE_USERNAME: postgres
+#      SPRING_DATASOURCE_PASSWORD: password
+#      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
+#      EUREKA_INSTANCE_PREFER_IP_ADDRESS: "true"
+#    ports:
+#      - "8081:8081"
+#    networks:
+#      - genealogy-net
+#    deploy:
+#      replicas: 1
+#
+#  postgres:
+#    image: postgres:16
+#    environment:
+#      POSTGRES_USER: postgres
+#      POSTGRES_PASSWORD: password
+#      POSTGRES_DB: genealogydb
+#    ports:
+#      - "5432:5432"
+#    volumes:
+#      - postgres_data7:/var/lib/postgresql/data
+#    networks:
+#      - genealogy-net
+#    deploy:
+#      replicas: 1
+#
+#  neo4j:
+#      image: neo4j:5
+#      environment:
+#        NEO4J_AUTH: neo4j/password1234
+#        NEO4J_ACCEPT_LICENSE_AGREEMENT: yes
+#        NEO4J_PLUGINS: '["apoc"]'
+#        NEO4J_server_memory_pagecache_size: "2G"
+#        NEO4J_server_memory_heap_initial__size: "2G"
+#        NEO4J_server_memory_heap_max__size: "4G"
+#        NEO4J_dbms_security_procedures_allowlist: "apoc.*"
+#        NEO4J_dbms_security_procedures_unrestricted: "apoc.*"
+#        NEO4j_server_bolt_listen_address: ":7687"
+#        NEO4j_server_http_listen_address: ":7474"
+#        apoc.export.file.enabled: "true"
+#        apoc.import.file.enabled: "true"
+#        apoc.import.file.use_neo4j_config: "true"
+#      ports:
+#        - "7687:7687"
+#        - "7474:7474"
+#      volumes:
+#        - neo4j_data7:/data
+#        - type: bind
+#          source: ./plugins
+#          target: /plugins
+#        - type: bind
+#          source: ./upload-dir
+#          target: /upload-dir
+#      networks:
+#        - genealogy-net
+#      deploy:
+#        replicas: 1
+#        placement:
+#          constraints: [ node.role == manager ]
+#
+#volumes:
+#  neo4j_data7:
+#  postgres_data7:
+#
+#networks:
+#  genealogy-net:
+#    driver: overlay
+version: '3.8'
+
+services:
+
+  eureka-server:
+    image: eureka-server:latest
+    ports:
+      - target: 8761
+        published: 8761
+        protocol: tcp
+        mode: host
+    networks:
+      - genealogy-net
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8761/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+      resources:
+        limits:
+          cpus: '0.8'
+          memory: 768M
+        reservations:
+          memory: 512M
+
+  neo4j:
+    image: neo4j:5
+    environment:
+      NEO4J_AUTH: neo4j/password1234
+      NEO4J_ACCEPT_LICENSE_AGREEMENT: "yes"
+      NEO4J_PLUGINS: '["apoc"]'
+      NEO4J_server_memory_pagecache_size: "2g"
+      NEO4J_server_memory_heap_initial__size: "2g"
+      NEO4J_server_memory_heap_max__size: "4g"
+      NEO4J_dbms_security_procedures_allowlist: "apoc.*"
+      NEO4J_dbms_security_procedures_unrestricted: "apoc.*"
+      NEO4J_server_bolt_listen_address: "0.0.0.0:7687"
+      NEO4J_server_http_listen_address: "0.0.0.0:7474"
+      apoc.export.file.enabled: "true"
+      apoc.import.file.enabled: "true"
+      apoc.import.file.use_neo4j_config: "true"
+    ports:
+      - "7474:7474"
+      - "7687:7687"
+    volumes:
+      - neo4j_data7:/data
+      - ./plugins:/plugins
+      - ./upload-dir:/upload-dir
+    networks:
+      - genealogy-net
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:7474"]
+      interval: 15s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+    deploy:
+      replicas: 1
+      placement:
+        constraints: [node.role == manager]
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 8G
+        reservations:
+          memory: 5G
+
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: genealogydb
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data7:/var/lib/postgresql/data
+    networks:
+      - genealogy-net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    deploy:
+      replicas: 1
+      resources:
+        limits:
+          memory: 1G
+        reservations:
+          memory: 512M
+
+  genealogy-app:
+    image: genealogy-app:latest
+    environment:
+      SPRING_NEO4J_URI: bolt://neo4j:7687
+      SPRING_NEO4J_AUTHENTICATION_USERNAME: neo4j
+      SPRING_NEO4J_AUTHENTICATION_PASSWORD: password1234
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
+      EUREKA_INSTANCE_PREFER_IP_ADDRESS: "true"
+      EUREKA_CLIENT_INITIAL_INSTANCE_INFO_REPLICATION_INTERVAL_SECONDS: 5
+      EUREKA_CLIENT_REGISTRY_FETCH_INTERVAL_SECONDS: 5
+      SPRING_SERVLET_MULTIPART_MAX_FILE_SIZE: 10MB
+      SPRING_SERVLET_MULTIPART_MAX_REQUEST_SIZE: 10MB
+      SERVER_TOMCAT_MAX_SWALLOW_SIZE: -1
+      FILE_STORAGE: /upload-dir
+      # Opcjonalnie – jeśli masz Actuator
+      MANAGEMENT_ENDPOINT_HEALTH_ENABLED: "true"
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./upload-dir:/upload-dir
+    networks:
+      - genealogy-net
+    depends_on:
+      eureka-server:
+        condition: service_healthy
+      neo4j:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 6
+      start_period: 60s
+    deploy:
+      replicas: 1
+      placement:
+        constraints: [node.role == manager]
+
+  app-reactive:
+    image: app-reactive:latest
+    environment:
+      _JAVA_OPTIONS: "-Xms512m -Xmx2g"
+      SPRING_NEO4J_URI: bolt://neo4j:7687
+      SPRING_NEO4J_AUTHENTICATION_USERNAME: neo4j
+      SPRING_NEO4J_AUTHENTICATION_PASSWORD: password1234
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
+      EUREKA_INSTANCE_PREFER_IP_ADDRESS: "true"
+      EUREKA_CLIENT_INITIAL_INSTANCE_INFO_REPLICATION_INTERVAL_SECONDS: 5
+      EUREKA_CLIENT_REGISTRY_FETCH_INTERVAL_SECONDS: 5
+      SPRING_SERVLET_MULTIPART_MAX_FILE_SIZE: 10MB
+      SPRING_SERVLET_MULTIPART_MAX_REQUEST_SIZE: 10MB
+      SERVER_TOMCAT_MAX_SWALLOW_SIZE: -1
+      FILE_STORAGE: /upload-dir
+    ports:
+      - "8082:8082"
+    volumes:
+      - ./upload-dir:/upload-dir
+    networks:
+      - genealogy-net
+    depends_on:
+      eureka-server:
+        condition: service_healthy
+      neo4j:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8082/actuator/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 6
+      start_period: 60s
+    deploy:
+      replicas: 1
+      placement:
+        constraints: [node.role == manager]
+
+  app-user:
+    image: app-user:latest
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/genealogydb
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: password
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
+      EUREKA_INSTANCE_PREFER_IP_ADDRESS: "true"
+      EUREKA_CLIENT_INITIAL_INSTANCE_INFO_REPLICATION_INTERVAL_SECONDS: 5
+      EUREKA_CLIENT_REGISTRY_FETCH_INTERVAL_SECONDS: 5
+    ports:
+      - "8081:8081"
+    networks:
+      - genealogy-net
+    depends_on:
+      postgres:
+        condition: service_healthy
+      eureka-server:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8081/actuator/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 6
+      start_period: 40s
+    deploy:
+      replicas: 1
+
+networks:
+  genealogy-net:
+    driver: overlay
+    attachable: true
+
+volumes:
+  neo4j_data7:
+  postgres_data7:

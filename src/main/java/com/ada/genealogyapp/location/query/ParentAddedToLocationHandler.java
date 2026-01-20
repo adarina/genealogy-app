@@ -14,6 +14,6 @@ public class ParentAddedToLocationHandler implements QueryResultHandler {
     public void handleResult(Map<IdType, String> context) {
         String parentId = context.get(IdType.PARENT_ID);
         String locationId = context.get(IdType.LOCATION_ID);
-        log.info("Parent with ID: " + parentId + " added to location with ID: " + locationId);
+        log.info("Parent with ID: {} added to location with ID: {}", parentId, locationId);
     }
 }

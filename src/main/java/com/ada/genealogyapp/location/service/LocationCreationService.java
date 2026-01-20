@@ -17,7 +17,6 @@ import java.util.*;
 
 import static com.ada.genealogyapp.gedcom.mappers.LocationMapper.determineType;
 import static java.util.Objects.isNull;
-import static java.util.stream.Collectors.groupingBy;
 
 @Service
 @Slf4j
@@ -82,38 +81,6 @@ public class LocationCreationService {
                 .locationId(params.getLocationId())
                 .parentId(parent.getId())
                 .build());
-    }
-
-    @TransactionalInNeo4j
-    public Map<String, Location> createLocations(String userId, String treeId, List<LocationJsonRequest> locationRequests) {
-        Map<String, Location> createdLocationsMap = new HashMap<>();
-        List<Map<String, Object>> locations = new ArrayList<>();
-
-        for (LocationJsonRequest request : locationRequests) {
-            Location location = Location.builder()
-                    .id(UUID.randomUUID().toString())
-                    .name(request.getName())
-                    .type(request.getType())
-                    .latitude(request.getLatitude())
-                    .longitude(request.getLongitude())
-                    .isMain(request.getIsMain())
-                    .build();
-//            locationValidationService.validateLocation(location);
-
-            Map<String, Object> locationData = new HashMap<>();
-            locationData.put("id", location.getId());
-            locationData.put("name", location.getName());
-            locationData.put("type", location.getType().name());
-            locationData.put("latitude", location.getLatitude());
-            locationData.put("longitude", location.getLongitude());
-            locationData.put("isMain", location.getIsMain());
-
-
-            locations.add(locationData);
-            createdLocationsMap.put(request.getId(), location);
-        }
-        locationService.saveLocations(userId, treeId, locations);
-        return createdLocationsMap;
     }
 
     public Location createLocationAndHierarchy(CreateLocationAndHierarchyParams params) {

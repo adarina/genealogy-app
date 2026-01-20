@@ -28,6 +28,9 @@ public class DateValidator implements FieldValidator<String> {
 
     @Override
     public void validate(String value, ValidationResult result) {
+        if (isNull(value) || value.trim().isEmpty()) {
+            return;
+        }
         isValid(parseDate(value), result);
     }
 

@@ -1,10 +1,9 @@
 package com.ada.genealogyapp.citation.service;
 
 
-import com.ada.genealogyapp.citation.dto.params.DeleteCitationParams;
-import com.ada.genealogyapp.citation.dto.params.UpdateCitationParams;
-import com.ada.genealogyapp.citation.dto.params.UpdateCitationRequestParams;
+import com.ada.genealogyapp.citation.dto.params.*;
 import com.ada.genealogyapp.citation.model.Citation;
+import com.ada.genealogyapp.exceptions.ValidationException;
 import com.ada.genealogyapp.transaction.TransactionalInNeo4j;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -39,5 +38,27 @@ public class CitationManagementService {
     @TransactionalInNeo4j
     public void deleteCitation(DeleteCitationParams params) {
         citationService.deleteCitation(params);
+    }
+
+    @TransactionalInNeo4j
+    public void updateCitationWithSource(UpdateCitationRequestWithSourceParams params) throws ValidationException {
+        Citation citation = buildAndValidateCitation(params);
+        citationService.updateCitationWithSource(UpdateCitationWithSourceParams.builder()
+                .userId(params.getUserId())
+                .treeId(params.getTreeId())
+                .citationId(params.getCitationId())
+                .citation(citation)
+                .sourceId(params.getSourceId())
+                .build());
+    }
+
+    private Citation buildAndValidateCitation(UpdateCitationRequestWithSourceParams params) {
+        Citation citation = Citation.builder()
+                .page(params.getCitationRequest().getPage())
+                .date(params.getCitationRequest().getDate())
+                .build();
+
+        citationValidationService.validateCitation(citation);
+        return citation;
     }
 }

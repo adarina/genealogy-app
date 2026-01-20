@@ -15,6 +15,6 @@ public class FileRemovedFromCitationHandler implements QueryResultHandler {
     public void handleResult(Map<IdType, String> context) {
         String citationId = context.get(IdType.CITATION_ID);
         String fileId = context.get(IdType.FILE_ID);
-        log.info("File with ID: " + fileId + " removed from citation with ID: " + citationId);
+        log.info("File with ID: {} removed from citation with ID: {}", fileId, citationId);
     }
 }

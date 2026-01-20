@@ -1,12 +1,9 @@
 package com.ada.genealogyapp.event.controller;
 
 import com.ada.genealogyapp.authentication.IAuthenticationFacade;
-import com.ada.genealogyapp.citation.dto.params.AddSourceToCitationParams;
 import com.ada.genealogyapp.event.dto.params.AddLocationToEventParams;
 import com.ada.genealogyapp.event.dto.params.RemoveLocationFromEventParams;
 import com.ada.genealogyapp.event.service.EventLocationManagementService;
-import com.ada.genealogyapp.location.dto.LocationRequest;
-import com.ada.genealogyapp.location.dto.params.UpdateLocationRequestWithParentParams;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

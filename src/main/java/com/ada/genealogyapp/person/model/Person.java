@@ -5,7 +5,6 @@ import com.ada.genealogyapp.person.relationship.PersonRelationship;
 import com.ada.genealogyapp.person.type.GenderType;
 import com.ada.genealogyapp.tree.model.Tree;
 import lombok.*;
-import lombok.experimental.SuperBuilder;
 import org.springframework.data.neo4j.core.schema.Node;
 import org.springframework.data.neo4j.core.schema.Relationship;
 

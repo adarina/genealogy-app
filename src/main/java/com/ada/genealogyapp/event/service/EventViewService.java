@@ -43,7 +43,7 @@ public class EventViewService {
     }
 
     public Set<EventExportResponse> findEvents(BaseParams params) {
-        return eventRepository.find(params.getUserId(), params.getTreeId()).stream()
+        return eventRepository.find(params.getUserId(), params.getTreeId()).parallelStream()
                 .map(event -> EventExportResponse.builder()
                         .id(event.getId())
                         .date(event.getDate())

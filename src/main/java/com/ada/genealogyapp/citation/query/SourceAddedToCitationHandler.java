@@ -14,6 +14,6 @@ public class SourceAddedToCitationHandler implements QueryResultHandler {
     public void handleResult(Map<IdType, String> context) {
         String citationId = context.get(IdType.CITATION_ID);
         String sourceId = context.get(IdType.SOURCE_ID);
-        log.info("Source with ID: " + sourceId + " added to citation with ID: " + citationId);
+        log.info("Source with ID: {} added to citation with ID: {}", sourceId, citationId);
     }
 }

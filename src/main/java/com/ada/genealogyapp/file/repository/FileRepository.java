@@ -11,8 +11,6 @@ import org.springframework.data.neo4j.repository.Neo4jRepository;
 import org.springframework.data.neo4j.repository.query.Query;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 
@@ -23,7 +21,7 @@ public interface FileRepository extends Neo4jRepository<File, String> {
             CALL {
                 OPTIONAL MATCH (user:GraphUser {id: $userId})
                 WITH count(user) > 0 AS userExist
-                
+        
                 OPTIONAL MATCH (user)-[:HAS_TREE]->(tree:Tree {id: $treeId})
                 RETURN userExist, count(tree) > 0 AS treeExist, tree
             }
@@ -53,7 +51,7 @@ public interface FileRepository extends Neo4jRepository<File, String> {
             CALL {
                 OPTIONAL MATCH (user:GraphUser {id: $userId})
                 WITH count(user) > 0 AS userExist
-                
+ 
                 OPTIONAL MATCH (user)-[:HAS_TREE]->(tree:Tree {id: $treeId})
                 WITH userExist, count(tree) > 0 AS treeExist, tree
                 
@@ -83,7 +81,7 @@ public interface FileRepository extends Neo4jRepository<File, String> {
             CALL {
                 OPTIONAL MATCH (user:GraphUser {id: $userId})
                 WITH count(user) > 0 AS userExist
-                
+
                 OPTIONAL MATCH (user)-[:HAS_TREE]->(tree:Tree {id: $treeId})
                 WITH userExist, count(tree) > 0 AS treeExist, tree
                 
@@ -108,6 +106,7 @@ public interface FileRepository extends Neo4jRepository<File, String> {
             LIMIT 1
             """)
     String delete(String userId, String treeId, String fileId);
+
     @Query("""
                 MATCH (user:GraphUser {id: $userId})-[:HAS_TREE]->(tree:Tree {id: $treeId})-[:HAS_FILE]->(file:File {id: $fileId})
                 RETURN file.id AS id,
@@ -124,6 +123,7 @@ public interface FileRepository extends Neo4jRepository<File, String> {
             WHERE (toLower(file.name) CONTAINS toLower($name) OR $name = '')
                 AND (toLower(file.type) CONTAINS toLower($type) OR $type = '')
             WITH file
+            WHERE file IS NOT NULL
             RETURN file.id AS id,
                    file.type AS type,
                    file.filename AS filename,
@@ -132,7 +132,7 @@ public interface FileRepository extends Neo4jRepository<File, String> {
                    :#{orderBy(#pageable)}
                    SKIP $skip
                    LIMIT $limit
-                   """,
+            """,
             countQuery = """
                     MATCH (user:GraphUser {id: $userId})-[:HAS_TREE]->(tree:Tree {id: $treeId})
                     OPTIONAL MATCH (tree)-[:HAS_FILE]->(file:File)
@@ -149,19 +149,7 @@ public interface FileRepository extends Neo4jRepository<File, String> {
                    file.type AS type,
                    $baseUrl + file.filename AS path,
                    file.filename AS filename
-                   """)
+            """)
     Set<FileExportResponse> find(String userId, String treeId, String baseUrl);
-
-    @Query("""
-        MATCH (user:GraphUser {id: $userId})-[:HAS_TREE]->(tree:Tree {id: $treeId})
-        UNWIND $files AS fileData
-        MERGE (tree)-[:HAS_FILE]->(file:File {id: fileData.id})
-        
-        SET file.name = fileData.name,
-            file.type = fileData.type,
-            file.path = fileData.path,
-            file.filename = fileData.filename
-    """)
-    void saveFilesBatch(String userId, String treeId, List<Map<String, Object>> files);
 
 }

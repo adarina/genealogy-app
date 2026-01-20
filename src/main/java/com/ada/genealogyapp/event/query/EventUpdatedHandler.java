@@ -13,6 +13,6 @@ public class EventUpdatedHandler implements QueryResultHandler {
     @Override
     public void handleResult(Map<IdType, String> context) {
         String eventId = context.get(IdType.EVENT_ID);
-        log.info("Event with ID: " + eventId + " updated");
+        log.info("Event with ID: {} updated", eventId);
     }
 }

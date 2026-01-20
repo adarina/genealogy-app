@@ -1,8 +1,6 @@
 package com.ada.genealogyapp.participant.dto;
 
 import com.ada.genealogyapp.event.dto.EventCitationResponse;
-import com.ada.genealogyapp.event.dto.EventParticipantResponse;
-import com.ada.genealogyapp.event.type.EventParticipantRelationshipType;
 import com.ada.genealogyapp.event.type.EventType;
 import lombok.AllArgsConstructor;
 import lombok.Getter;

@@ -14,6 +14,6 @@ public class ParticipantRemovedFromEventHandler implements QueryResultHandler {
     public void handleResult(Map<IdType, String> context) {
         String eventId = context.get(IdType.EVENT_ID);
         String participantId = context.get(IdType.PARTICIPANT_ID);
-        log.info("Participant with ID: " + participantId + " removed from event with ID: " + eventId);
+        log.info("Participant with ID: {} removed from event with ID: {}", participantId, eventId);
     }
 }

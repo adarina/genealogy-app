@@ -28,6 +28,7 @@ import java.util.Set;
 @EqualsAndHashCode(callSuper = true)
 public class TreeExportJsonService extends TreeExportService {
 
+
     public TreeExportJsonService(PersonViewService personViewService, FamilyViewService familyViewService,
                                  EventViewService eventViewService, CitationViewService citationViewService,
                                  SourceViewService sourceViewService, FileViewService fileViewService,

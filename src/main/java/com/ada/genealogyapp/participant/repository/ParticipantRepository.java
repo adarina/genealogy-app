@@ -20,20 +20,30 @@ public interface ParticipantRepository extends Neo4jRepository<Participant, Stri
             OPTIONAL MATCH (tree)-[:HAS_PERSON]->(person:Person {id: $participantId})
             OPTIONAL MATCH (tree)-[:HAS_FAMILY]->(family:Family {id: $participantId})
             WITH user, tree, COALESCE(person, family) AS participant
-
+            
             MATCH (event:Event)-[rel:HAS_PARTICIPANT]->(participant)
-            WITH event, participant, rel.relationship AS relationship
+            
+            OPTIONAL MATCH (event)-[:HAS_EVENT_LOCATION]->(location:Location)
+            OPTIONAL MATCH path = (location)-[:LOCATED_IN*]->(parentLocation:Location)
+            
+            WITH event, participant, rel.relationship AS relationship,
+                 COLLECT(DISTINCT COALESCE(location.name, '')) + collect(DISTINCT COALESCE(parentLocation.name, '')) AS locationNames
+            
+            WITH event, participant, relationship,
+                 REDUCE(acc = '', name IN locationNames | acc + (CASE WHEN acc = '' THEN '' ELSE ', ' END) + toString(COALESCE(name, ''))) AS placeNames
+            
             OPTIONAL MATCH (event)-[otherRel:HAS_PARTICIPANT]->(others:Participant)
-            WITH event, relationship, COLLECT(DISTINCT {
+            WITH event, relationship, placeNames, COLLECT(DISTINCT {
                 name: COALESCE(others.name, participant.name),
                 id: COALESCE(others.id, participant.id),
                 relationship: COALESCE(otherRel.relationship, relationship)
             }) AS participants
             OPTIONAL MATCH (event)-[:HAS_EVENT_CITATION]->(citation:Citation)
+            
             RETURN event.id AS id,
                    event.type AS type,
                    event.date AS date,
-                   event.place AS place,
+                   placeNames AS place,
                    event.description AS description,
                    relationship,
                    participants,
@@ -51,7 +61,7 @@ public interface ParticipantRepository extends Neo4jRepository<Participant, Stri
                     OPTIONAL MATCH (tree)-[:HAS_PERSON]->(person:Person {id: $participantId})
                     OPTIONAL MATCH (tree)-[:HAS_FAMILY]->(family:Family {id: $participantId})
                     WITH user, tree, COALESCE(person, family) AS participant
-
+                    
                     MATCH (event:Event)-[rel:HAS_PARTICIPANT]->(participant)
                     RETURN count(event)
                     """)
@@ -64,7 +74,7 @@ public interface ParticipantRepository extends Neo4jRepository<Participant, Stri
             WITH user, tree, COALESCE(person, family) AS participant
             MATCH (event:Event)-[:HAS_PARTICIPANT]->(participant)
             OPTIONAL MATCH (event)-[:HAS_EVENT_CITATION]->(citation:Citation)
-                   
+            
             RETURN event.id AS id,
                     event.type AS type,
                     event.date AS date,
@@ -75,45 +85,59 @@ public interface ParticipantRepository extends Neo4jRepository<Participant, Stri
                         page: citation.page,
                         date: citation.date
                     }) AS citations
-                    """)
+            """)
     List<ParticipantEventGedcomResponse> findParticipantEvents(String userId, String treeId, String participantId);
 
     @Query(value = """
-             MATCH (user:GraphUser {id: $userId})-[:HAS_TREE]->(tree:Tree {id: $treeId})
+         MATCH (user:GraphUser {id: $userId})-[:HAS_TREE]->(tree:Tree {id: $treeId})
+        
+        OPTIONAL MATCH (tree)-[:HAS_PERSON]->(person:Person {id: $participantId})
+        OPTIONAL MATCH (tree)-[:HAS_FAMILY]->(family:Family {id: $participantId})
+        WITH tree, COALESCE(person, family) AS participant
+        
+        WHERE participant IS NOT NULL
+        
+        MATCH (event:Event {id: $eventId})-[rel:HAS_PARTICIPANT]->(participant)
+        MATCH (tree)-[:HAS_EVENT]->(event)
+        
+        OPTIONAL MATCH (event)-[otherRel:HAS_PARTICIPANT]->(otherParticipant)
+        OPTIONAL MATCH (event)-[:HAS_EVENT_CITATION]->(citation:Citation)
+        
+       
+        OPTIONAL MATCH (event)-[:HAS_EVENT_LOCATION]->(location:Location)
+        OPTIONAL MATCH path = (location)-[:LOCATED_IN*]->(parentLocation:Location)
+        
+        WITH event,
+             rel.relationship AS relationship,
+             COLLECT(DISTINCT {
+                 id: otherParticipant.id,
+                 name: otherParticipant.name,
+                 relationship: otherRel.relationship
+             }) AS participants,
+             COLLECT(DISTINCT {
+                 id: citation.id,
+                 page: citation.page,
+                 date: citation.date
+             }) AS citations,
 
-            OPTIONAL MATCH (tree)-[:HAS_PERSON]->(person:Person {id: $participantId})
-            OPTIONAL MATCH (tree)-[:HAS_FAMILY]->(family:Family {id: $participantId})
-            WITH tree, COALESCE(person, family) AS participant
+             COLLECT(DISTINCT COALESCE(location.name, '')) + collect(DISTINCT COALESCE(parentLocation.name, '')) AS locationNames
 
-            WHERE participant IS NOT NULL
 
-            MATCH (event:Event {id: $eventId})-[rel:HAS_PARTICIPANT]->(participant)
-            MATCH (tree)-[:HAS_EVENT]->(event)
-
-            OPTIONAL MATCH (event)-[otherRel:HAS_PARTICIPANT]->(otherParticipant)
-            OPTIONAL MATCH (event)-[:HAS_EVENT_CITATION]->(citation:Citation)
-
-            WITH event,
-                 rel.relationship AS relationship,
-                 COLLECT(DISTINCT {
-                     id: otherParticipant.id,
-                     name: otherParticipant.name,
-                     relationship: otherRel.relationship
-                 }) AS participants,
-                 COLLECT(DISTINCT {
-                     id: citation.id,
-                     page: citation.page,
-                     date: citation.date
-                 }) AS citations
-
-            RETURN event.id AS id,
-                   event.type AS type,
-                   event.date AS date,
-                   event.place AS place,
-                   event.description AS description,
-                   relationship,
-                   participants,
-                   citations
-            """)
+        WITH event,
+             relationship,
+             participants,
+             citations,
+             REDUCE(acc = '', name IN locationNames | acc + (CASE WHEN acc = '' THEN '' ELSE ', ' END) + toString(COALESCE(name, ''))) AS placeNames
+ 
+        
+        RETURN event.id AS id,
+               event.type AS type,
+               event.date AS date,
+               placeNames AS place,
+               event.description AS description,
+               relationship,
+               participants,
+               citations
+        """)
     ParticipantEventResponse findParticipantEvent(String userId, String treeId, String participantId, String eventId);
 }

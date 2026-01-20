@@ -57,27 +57,4 @@ public class SourceCreationService {
                 .sourceId(source.getId())
                 .build());
     }
-
-    @TransactionalInNeo4j
-    public Map<String, Source> createSources(String userId, String treeId, List<SourceJsonRequest> sourceRequests) {
-        Map<String, Source> createdSourcesMap = new HashMap<>();
-        List<Map<String, Object>> sources = new ArrayList<>();
-
-        for (SourceJsonRequest request : sourceRequests) {
-            Source source = Source.builder()
-                    .id(UUID.randomUUID().toString())
-                    .name(request.getName())
-                    .build();
-            sourceValidationService.validateSource(source);
-
-            Map<String, Object> sourceData = new HashMap<>();
-            sourceData.put("id", source.getId());
-            sourceData.put("name", source.getName());
-
-            sources.add(sourceData);
-            createdSourcesMap.put(request.getId(), source);
-        }
-        sourceService.saveSourcesBatch(userId, treeId, sources);
-        return createdSourcesMap;
-    }
 }

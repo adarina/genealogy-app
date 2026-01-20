@@ -14,6 +14,6 @@ public class FileAddedToCitationHandler implements QueryResultHandler {
     public void handleResult(Map<IdType, String> context) {
         String citationId = context.get(IdType.CITATION_ID);
         String fileId = context.get(IdType.FILE_ID);
-        log.info("File with ID: " + fileId + " added to citation with ID: " + citationId);
+        log.info("File with ID: {} added to citation with ID: {}", fileId, citationId);
     }
 }

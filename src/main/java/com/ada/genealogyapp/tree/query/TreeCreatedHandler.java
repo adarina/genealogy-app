@@ -14,6 +14,6 @@ public class TreeCreatedHandler implements QueryResultHandler {
     public void handleResult(Map<IdType, String> context) {
         String treeId = context.get(IdType.TREE_ID);
         String userId = context.get(IdType.USER_ID);
-        log.info("Tree with ID: " + treeId + " created and added to user with ID: " + userId);
+        log.info("Tree with ID: {} created and added to user with ID: {}", treeId, userId);
     }
 }

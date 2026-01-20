@@ -14,6 +14,6 @@ public class SourceRemovedFromCitationHandler implements QueryResultHandler {
     public void handleResult(Map<IdType, String> context) {
         String citationId = context.get(IdType.CITATION_ID);
         String sourceId = context.get(IdType.SOURCE_ID);
-        log.info("Source with ID: " + sourceId + " removed from citation with ID: " + citationId);
+        log.info("Source with ID: {} removed from citation with ID: {}", sourceId, citationId);
     }
 }

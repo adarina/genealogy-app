@@ -8,8 +8,7 @@ import org.springframework.data.neo4j.repository.Neo4jRepository;
 import org.springframework.data.neo4j.repository.query.Query;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
-import java.util.Map;
+
 import java.util.Set;
 
 
@@ -435,14 +434,15 @@ public interface FamilyRepository extends Neo4jRepository<Family, String> {
             WHERE toLower(motherName) CONTAINS toLower($motherName)
             
             OPTIONAL MATCH (family)<-[:HAS_PARTICIPANT]-(marriageEvent:Event {type: 'MARRIAGE'})
-            
+            WITH family, fatherName, fatherId, motherName, motherId, COALESCE(marriageEvent.date, '') AS marriageDate
+            WHERE family IS NOT NULL
             RETURN family.id AS id,
                    family.status AS status,
                    motherName,
                    fatherName,
                    motherId,
                    fatherId,
-                   marriageEvent.date AS marriageDate
+                   marriageDate
                    :#{orderBy(#pageable)}
                    SKIP $skip
                    LIMIT $limit
@@ -573,49 +573,4 @@ public interface FamilyRepository extends Neo4jRepository<Family, String> {
                    [(family)-[:HAS_CHILD]->(c:Person) | c.id] AS childrenIds
             """)
     Set<FamilyExportResponse> find(String userId, String treeId);
-
-    @Query("""
-                MATCH (user:GraphUser {id: $userId})-[:HAS_TREE]->(tree:Tree {id: $treeId})
-                UNWIND $families AS familyData
-                MERGE (tree)-[:HAS_FAMILY]->(family:Family {id: familyData.id})
-            
-                SET family.name = familyData.name,
-                    family.status = familyData.status,
-                    family:Participant
-            """)
-    void saveFamilies(String userId, String treeId, List<Map<String, Object>> families);
-
-
-    @Query("""
-                MATCH (user:GraphUser {id: $userId})-[:HAS_TREE]->(tree:Tree {id: $treeId})
-                CALL {
-                    WITH tree
-                    UNWIND $fathers AS fatherData
-                    MATCH (tree)-[:HAS_FAMILY]->(family:Family {id: fatherData.familyId})
-                    MATCH (tree)-[:HAS_PERSON]->(father:Person {id: fatherData.personId})
-                    MERGE (family)-[:HAS_FATHER]->(father)
-                }
-            
-            
-                CALL {
-                    WITH tree
-                    UNWIND $mothers AS motherData
-                    MATCH (tree)-[:HAS_FAMILY]->(family:Family {id: motherData.familyId})
-                    MATCH (tree)-[:HAS_PERSON]->(mother:Person {id: motherData.personId})
-                    MERGE (family)-[:HAS_MOTHER]->(mother)
-                }
-            
-            
-                CALL {
-                    WITH tree
-                    UNWIND $children AS childData
-                    MATCH (tree)-[:HAS_FAMILY]->(family:Family {id: childData.familyId})
-                    MATCH (tree)-[:HAS_PERSON]->(child:Person {id: childData.personId})
-                    MERGE (family)-[r:HAS_CHILD]->(child)
-                    SET r.fatherRelationship = childData.fatherRelationship,
-                        r.motherRelationship = childData.motherRelationship
-                }
-            """)
-    void addFamilyRelationships(String userId, String treeId, List<Map<String, Object>> fathers, List<Map<String, Object>> mothers, List<Map<String, Object>> children);
-
 }

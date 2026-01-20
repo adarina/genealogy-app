@@ -3,6 +3,7 @@ package com.ada.genealogyapp.file.controller;
 
 import com.ada.genealogyapp.authentication.IAuthenticationFacade;
 import com.ada.genealogyapp.file.dto.params.CreateMultipartFileRequestParams;
+import com.ada.genealogyapp.file.model.File;
 import com.ada.genealogyapp.file.service.FileCreationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -21,13 +22,13 @@ public class FileCreationController {
     private final IAuthenticationFacade authenticationFacade;
 
     @PostMapping
-    public ResponseEntity<?> createFile(@PathVariable String treeId, @RequestParam MultipartFile multipartFile) {
+    public ResponseEntity<File> createFile(@PathVariable String treeId, @RequestParam MultipartFile multipartFile) {
         Authentication authentication = authenticationFacade.getAuthentication();
-        fileCreationService.createFile(CreateMultipartFileRequestParams.builder()
+        File file = fileCreationService.createFile(CreateMultipartFileRequestParams.builder()
                 .userId(authentication.getName())
                 .treeId(treeId)
                 .multipartFile(multipartFile)
                 .build());
-        return ResponseEntity.status(HttpStatus.CREATED).build();
+        return ResponseEntity.status(HttpStatus.CREATED).body(file);
     }
 }

@@ -15,6 +15,6 @@ public class ParentRemovedFromLocationHandler implements QueryResultHandler {
     public void handleResult(Map<IdType, String> context) {
         String locationId = context.get(IdType.LOCATION_ID);
         String parentId = context.get(IdType.PARENT_ID);
-        log.info("Parent with ID: " + parentId + " removed from location with ID: " + locationId);
+        log.info("Parent with ID: {} removed from location with ID: {}", parentId, locationId);
     }
 }

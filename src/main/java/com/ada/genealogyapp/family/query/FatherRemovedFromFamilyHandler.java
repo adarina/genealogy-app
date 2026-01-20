@@ -15,6 +15,6 @@ public class FatherRemovedFromFamilyHandler implements QueryResultHandler {
     public void handleResult(Map<IdType, String> context) {
         String familyId = context.get(IdType.FAMILY_ID);
         String fatherId = context.get(IdType.FATHER_ID);
-        log.info("Father with ID: " + fatherId + " removed from family with ID: " + familyId);
+        log.info("Father with ID: {} removed from family with ID: {}", fatherId, familyId);
     }
 }

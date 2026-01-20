@@ -8,26 +8,10 @@ import org.springframework.data.neo4j.repository.query.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 @Repository
 public interface LocationRepository extends Neo4jRepository<Location, String> {
-
-
-    @Query("""
-            MATCH (location:Location)<-[:HAS_LOCATION]-(tree:Tree {id: $treeId})
-            RETURN location
-            """)
-    List<Location> findAllByTreeId(String treeId);
-
-    @Query("""
-            MATCH (child:Location {id: $childLocationId})
-            MATCH (parent:Location {id: $parentLocationId})
-            MERGE (child)-[:LOCATED_IN]->(parent)
-            RETURN 'LOCATION_CREATED'
-            """)
-    void createLocatedInRelationship(String childLocationId, String parentLocationId);
 
     @Query("""
             CALL {
@@ -338,9 +322,6 @@ public interface LocationRepository extends Neo4jRepository<Location, String> {
             """)
     Location findOrCreateTopLevelLocation(String treeId, String name, String type, boolean isMain, Double latitude, Double longitude);
 
-    /**
-     * Atomowo znajduje lub tworzy lokalizację i łączy ją z istniejącym rodzicem relacją LOCATED_IN.
-     */
     @Query("""
                 MATCH (t:Tree {id: $treeId})
                 MATCH (parent:Location {id: $parentId})
@@ -352,27 +333,4 @@ public interface LocationRepository extends Neo4jRepository<Location, String> {
                 RETURN l
             """)
     Location findOrCreateChildLocation(String treeId, String parentId, String name, String type, boolean isMain);
-
-    @Query("""
-                MATCH (user:GraphUser {id: $userId})-[:HAS_TREE]->(tree:Tree {id: $treeId})
-                UNWIND $locations AS locationData
-                MERGE (tree)-[:HAS_LOCATION]->(location:Location {id: locationData.id})
-            
-                SET location.name = locationData.name,
-                    location.type = locationData.type,
-                    location.latitude = locationData.latitude,
-                    location.longitude = locationData.longitude,
-                    location.isMain = locationData.isMain
-            """)
-    void saveLocations(String userId, String treeId, List<Map<String, Object>> locations);
-
-
-    @Query("""
-                MATCH (user:GraphUser {id: $userId})-[:HAS_TREE]->(tree:Tree {id: $treeId})
-                UNWIND $relationships AS data
-                MATCH (tree)-[:HAS_LOCATION]->(child:Location {id: data.childId})
-                MATCH (tree)-[:HAS_LOCATION]->(parent:Location {id: data.parentId})
-                MERGE (child)-[:LOCATED_IN]->(parent)
-            """)
-    void addLocatedInRelationships(String userId, String treeId, List<Map<String, Object>> relationships);
 }

@@ -8,17 +8,43 @@ services:
     networks:
       - genealogy-net
 
-  app:
+  genealogy-app:
     container_name: genealogy-app
-    image: app
+    image: genealogy-app
     environment:
-      SPRING_NEO4J_URI: bolt://neo4j:7688
+      SPRING_NEO4J_URI: bolt://neo4j:7687
       SPRING_NEO4J_AUTHENTICATION_USERNAME: neo4j
       SPRING_NEO4J_AUTHENTICATION_PASSWORD: password1234
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
+      SPRING_SERVLET_MULTIPART_MAX_FILE_SIZE: 10MB
+      SPRING_SERVLET_MULTIPART_MAX_REQUEST_SIZE: 10MB
+      SERVER_TOMCAT_MAX_SWALLOW_SIZE: -1
       FILE_STORAGE: /upload-dir
     ports:
       - "8080:8080"
+    volumes:
+      - ./upload-dir:/upload-dir
+    depends_on:
+      - neo4j
+      - eureka-server
+    networks:
+      - genealogy-net
+
+  app-reactive:
+    container_name: genealogy-app-reactive
+    image: app-reactive
+    environment:
+      _JAVA_OPTIONS: "-Xms256m -Xmx6g"
+      SPRING_NEO4J_URI: bolt://neo4j:7687
+      SPRING_NEO4J_AUTHENTICATION_USERNAME: neo4j
+      SPRING_NEO4J_AUTHENTICATION_PASSWORD: password1234
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
+      SPRING_SERVLET_MULTIPART_MAX_FILE_SIZE: 10MB
+      SPRING_SERVLET_MULTIPART_MAX_REQUEST_SIZE: 10MB
+      SERVER_TOMCAT_MAX_SWALLOW_SIZE: -1
+      FILE_STORAGE: /upload-dir
+    ports:
+      - "8082:8082"
     volumes:
       - ./upload-dir:/upload-dir
     depends_on:
@@ -52,6 +78,8 @@ services:
       POSTGRES_DB: genealogydb
     ports:
       - "5432:5432"
+    volumes:
+      - postgres_data7:/var/lib/postgresql/data
     networks:
       - genealogy-net
 
@@ -61,24 +89,32 @@ services:
     environment:
       NEO4J_AUTH: neo4j/password1234
       NEO4J_ACCEPT_LICENSE_AGREEMENT: yes
-      NEO4JLABS_PLUGINS: "apoc"
-      NEO4J_dbms_security_procedures_whitelist: apoc.*
-      NEO4J_dbms_security_procedures_unrestricted=: apoc.*
+      NEO4J_PLUGINS: '["apoc"]'
+      NEO4J_server_memory_pagecache_size: "4G"
+      NEO4J_server_memory_heap_initial__size: "4G"
+      NEO4J_server_memory_heap_max__size: "12G"
+      NEO4J_dbms_security_procedures_allowlist: "apoc.*"
+      NEO4J_dbms_security_procedures_unrestricted: "apoc.*"
+      NEO4j_server_bolt_listen_address: ":7687"
+      NEO4j_server_http_listen_address: ":7474"
       apoc.export.file.enabled: "true"
       apoc.import.file.enabled: "true"
       apoc.import.file.use_neo4j_config: "true"
+
+
     ports:
-      - "7688:7688"
+      - "7687:7687"
       - "7474:7474"
     volumes:
-      - neo4j_data:/data
+      - neo4j_data7:/data
       - ./plugins:/plugins
       - ./upload-dir:/upload-dir
     networks:
       - genealogy-net
 
 volumes:
-  neo4j_data:
+  neo4j_data7:
+  postgres_data7:
 
 networks:
   genealogy-net:

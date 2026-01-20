@@ -14,6 +14,6 @@ public class PersonCreatedHandler implements QueryResultHandler {
     public void handleResult(Map<IdType, String> context) {
         String treeId = context.get(IdType.TREE_ID);
         String personId = context.get(IdType.PERSON_ID);
-        log.info("Person with ID: " + personId + " created and added to tree with ID: " + treeId);
+        log.info("Person with ID: {} created and added to tree with ID: {}", personId, treeId);
     }
 }

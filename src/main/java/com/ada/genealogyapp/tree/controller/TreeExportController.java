@@ -3,6 +3,7 @@ package com.ada.genealogyapp.tree.controller;
 import com.ada.genealogyapp.authentication.IAuthenticationFacade;
 import com.ada.genealogyapp.tree.dto.TreeExportJsonResponse;
 import com.ada.genealogyapp.tree.dto.params.BaseParams;
+import com.ada.genealogyapp.tree.service.TreeExportCsvService;
 import com.ada.genealogyapp.tree.service.TreeExportGedcomService;
 import com.ada.genealogyapp.tree.service.TreeExportJsonService;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -13,8 +14,8 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -28,9 +29,12 @@ public class TreeExportController {
 
     private final TreeExportJsonService jsonService;
 
+    private final TreeExportCsvService treeExportCsvService;
+
     private final ObjectMapper objectMapper;
 
     private final IAuthenticationFacade authenticationFacade;
+
 
     @GetMapping("/json")
     public ResponseEntity<Resource> exportTreeToJsonFile(@PathVariable String treeId) throws IOException {
@@ -69,5 +73,21 @@ public class TreeExportController {
                 .contentType(MediaType.TEXT_PLAIN)
                 .contentLength(gedcomBytes.length)
                 .body(resource);
+    }
+
+    @GetMapping("/csv")
+    public ResponseEntity<StreamingResponseBody> exportTreeToCsvFile(@PathVariable String treeId) {
+        Authentication authentication = authenticationFacade.getAuthentication();
+        StreamingResponseBody stream = (StreamingResponseBody) treeExportCsvService.exportTree(BaseParams.builder()
+                .userId(authentication.getName())
+                .treeId(treeId)
+                .build());
+
+        String fileName = "tree_" + treeId + ".csv";
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + fileName + "\"")
+                .contentType(MediaType.TEXT_PLAIN)
+                .body(stream);
     }
 }

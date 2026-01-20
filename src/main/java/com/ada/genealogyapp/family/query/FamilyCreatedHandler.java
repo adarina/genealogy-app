@@ -14,6 +14,6 @@ public class FamilyCreatedHandler implements QueryResultHandler {
     public void handleResult(Map<IdType, String> context) {
         String treeId = context.get(IdType.TREE_ID);
         String familyId = context.get(IdType.FAMILY_ID);
-        log.info("Family with ID: " + familyId + " created and added to tree with ID: " + treeId);
+        log.info("Family with ID: {} created and added to tree with ID: {}", familyId, treeId);
     }
 }

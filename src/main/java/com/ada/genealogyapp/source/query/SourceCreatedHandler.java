@@ -14,6 +14,6 @@ public class SourceCreatedHandler implements QueryResultHandler {
     public void handleResult(Map<IdType, String> context) {
         String treeId = context.get(IdType.TREE_ID);
         String sourceId = context.get(IdType.SOURCE_ID);
-        log.info("Source with ID: " + sourceId + " created and added to tree with ID: " + treeId);
+        log.info("Source with ID: {} created and added to tree with ID: {}", sourceId, treeId);
     }
 }

@@ -15,6 +15,6 @@ public class FileCreatedHandler implements QueryResultHandler {
     public void handleResult(Map<IdType, String> context) {
         String treeId = context.get(IdType.TREE_ID);
         String fileId = context.get(IdType.FILE_ID);
-        log.info("File with ID: " + fileId + " created and added to tree with ID: " + treeId);
+        log.info("File with ID: {} created and added to tree with ID: {}", fileId, treeId);
     }
 }

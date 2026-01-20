@@ -46,7 +46,9 @@ public class SecurityConfig {
                 .cors(withDefaults())
                 .authorizeHttpRequests(authorizationManagerRequestMatcherRegistry ->
                         authorizationManagerRequestMatcherRegistry
+                                .requestMatchers("/actuator/**").permitAll()
                                 .requestMatchers("/upload-dir/**").permitAll()
+                                .requestMatchers("/api/v1/genealogy/trees/**").hasRole("USER")
                                 .requestMatchers("/api/v1/genealogy/types/**").hasRole("USER")
                                 .requestMatchers("/api/users/**").permitAll()
                                 .anyRequest().authenticated())

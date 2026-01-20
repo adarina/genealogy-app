@@ -13,6 +13,6 @@ public class PersonDeletedHandler implements QueryResultHandler {
     @Override
     public void handleResult(Map<IdType, String> context) {
         String personId = context.get(IdType.PERSON_ID);
-        log.info("Person with ID: " + personId + " deleted");
+        log.info("Person with ID: {} deleted", personId);
     }
 }

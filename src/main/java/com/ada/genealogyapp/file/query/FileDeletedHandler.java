@@ -14,6 +14,6 @@ public class FileDeletedHandler implements QueryResultHandler {
     @Override
     public void handleResult(Map<IdType, String> context) {
         String fileId = context.get(IdType.FILE_ID);
-        log.info("FILE with ID: " + fileId + " deleted");
+        log.info("FILE with ID: {} deleted", fileId);
     }
 }

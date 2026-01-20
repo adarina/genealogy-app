@@ -25,12 +25,6 @@ public interface CitationService {
 
     void removeSourceFromCitation(RemoveSourceFromCitationParams params);
 
-    void saveCitations(String userId, String treeId, List<Map<String, Object>> citationsData);
-
-    void addFilesToEvents(String userId, String treeId, List<Map<String, String>> filesToAdd);
-
-    void addSourcesToEvents(String userId, String treeId, List<Map<String, String>> sourcesToAdd);
-
-    void addFilesAndSourcesToEvents(String userId, String id, List<Map<String, String>> filesToAdd, List<Map<String, String>> sourcesToAdd);
+    void updateCitationWithSource(UpdateCitationWithSourceParams build);
 }
 

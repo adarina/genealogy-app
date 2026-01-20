@@ -1,7 +1,6 @@
 package com.ada.genealogyapp.participant.model;
 
 import lombok.*;
-import lombok.experimental.SuperBuilder;
 import org.springframework.data.neo4j.core.schema.Id;
 import org.springframework.data.neo4j.core.schema.Node;
 

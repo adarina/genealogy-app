@@ -1,5 +1,6 @@
 package com.ada.genealogyapp.source.repository;
 
+import com.ada.genealogyapp.source.dto.SourceCitationResponse;
 import com.ada.genealogyapp.source.dto.SourceExportResponse;
 import com.ada.genealogyapp.source.dto.SourceResponse;
 import com.ada.genealogyapp.source.model.Source;
@@ -9,8 +10,6 @@ import org.springframework.data.neo4j.repository.Neo4jRepository;
 import org.springframework.data.neo4j.repository.query.Query;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 @Repository
@@ -20,17 +19,17 @@ public interface SourceRepository extends Neo4jRepository<Source, String> {
             CALL {
                 OPTIONAL MATCH (user:GraphUser {id: $userId})
                 WITH count(user) > 0 AS userExist
-                
+            
                 OPTIONAL MATCH (user)-[:HAS_TREE]->(tree:Tree {id: $treeId})
                 RETURN userExist, count(tree) > 0 AS treeExist, tree
             }
-                        
+            
             CALL apoc.do.case(
                 [
                     userExist AND treeExist, '
                         MERGE (tree)-[:HAS_SOURCE]->(source:Source {id: sourceId})
                         SET source.name = name
-                            
+            
                         RETURN "SOURCE_CREATED" AS message
                     ',
                      userExist, 'RETURN "TREE_NOT_EXIST" AS message'
@@ -47,19 +46,19 @@ public interface SourceRepository extends Neo4jRepository<Source, String> {
             CALL {
                 OPTIONAL MATCH (user:GraphUser {id: $userId})
                 WITH count(user) > 0 AS userExist
-                
+            
                 OPTIONAL MATCH (user)-[:HAS_TREE]->(tree:Tree {id: $treeId})
                 WITH userExist, count(tree) > 0 AS treeExist, tree
-                
+            
                 OPTIONAL MATCH (tree)-[:HAS_SOURCE]->(source:Source {id: $sourceId})
                 RETURN userExist, treeExist, tree, count(source) > 0 AS sourceExist, source
             }
-                        
+            
             CALL apoc.do.case(
                 [
                      userExist AND treeExist AND sourceExist, '
                         SET source.name = $name
-                            
+            
                         RETURN "SOURCE_UPDATED" AS message
                     ',
                     userExist AND treeExist, 'RETURN "SOURCE_NOT_EXIST" AS message',
@@ -77,14 +76,14 @@ public interface SourceRepository extends Neo4jRepository<Source, String> {
             CALL {
                 OPTIONAL MATCH (user:GraphUser {id: $userId})
                 WITH count(user) > 0 AS userExist
-                
+            
                 OPTIONAL MATCH (user)-[:HAS_TREE]->(tree:Tree {id: $treeId})
                 WITH userExist, count(tree) > 0 AS treeExist, tree
-                
+            
                 OPTIONAL MATCH (tree)-[:HAS_SOURCE]->(source:Source {id: $sourceId})
                 RETURN userExist, treeExist, tree, count(source) > 0 AS sourceExist, source
             }
-                        
+            
             CALL apoc.do.case(
                 [
                     userExist AND treeExist AND sourceExist, '
@@ -106,7 +105,12 @@ public interface SourceRepository extends Neo4jRepository<Source, String> {
     @Query(value = """
             MATCH (user:GraphUser {id: $userId})-[:HAS_TREE]->(tree:Tree {id: $treeId})
             OPTIONAL MATCH (tree)-[:HAS_SOURCE]->(source:Source)
-            WHERE toLower(source.name) CONTAINS toLower($name) OR $name = ''
+            
+            WHERE (toLower(source.name) CONTAINS toLower($name) OR $name = '') OR source IS NULL
+            
+            WITH source
+            
+            WHERE source IS NOT NULL
             RETURN source.id AS id,
                    source.name AS name
                    :#{orderBy(#pageable)}
@@ -134,13 +138,40 @@ public interface SourceRepository extends Neo4jRepository<Source, String> {
             """)
     Set<SourceExportResponse> find(String userId, String treeId);
 
-    @Query("""
-        MATCH (user:GraphUser {id: $userId})-[:HAS_TREE]->(tree:Tree {id: $treeId})
-        UNWIND $sources AS sourceData
-        MERGE (tree)-[:HAS_SOURCE]->(source:Source {id: sourceData.id})
-        
-        SET source.name = sourceData.name
-    """)
-    void saveSourcesBatch(String userId, String treeId, List<Map<String, Object>> sources);
+    @Query(value = """
+            MATCH (user:GraphUser {id: $userId})-[:HAS_TREE]->(tree:Tree {id: $treeId})
+            OPTIONAL MATCH (tree)-[:HAS_SOURCE]->(source:Source {id: $sourceId})
+            WITH user, tree, source
+            
+            MATCH (citation:Citation)-[rel:HAS_CITATION_SOURCE]->(source)
+            
+            RETURN citation.id AS id,
+                   citation.page AS page,
+                   citation.date AS date
+                   :#{orderBy(#pageable)}
+            SKIP $skip
+            LIMIT $limit
+            """,
+            countQuery = """
+                    MATCH (user:GraphUser {id: $userId})-[:HAS_TREE]->(tree:Tree {id: $treeId})
+                    OPTIONAL MATCH (tree)-[:HAS_SOURCE]->(source:Source {id: $sourceId})
+                    WITH user, tree, source
+                    
+                    MATCH (citation:Citation)-[rel:HAS_CITATION_SOURCE]->(source)
+                            RETURN count(citation)
+                    """)
+    Page<SourceCitationResponse> findSourceCitations(String userId, String treeId, String sourceId, Pageable pageable);
 
+    @Query(value = """
+            MATCH (user:GraphUser {id: $userId})-[:HAS_TREE]->(tree:Tree {id: $treeId})
+            OPTIONAL MATCH (tree)-[:HAS_SOURCE]->(source:Source {id: $sourceId})
+            WITH user, tree, source
+            MATCH (citation:Citation {id: $citationId})-[:HAS_CITATION_SOURCE]->(source)
+            
+            
+            RETURN citation.id AS id,
+                   citation.page AS page,
+                   citation.date AS date
+            """)
+    SourceCitationResponse findSourceCitation(String userId, String treeId, String sourceId, String citationId);
 }

@@ -13,6 +13,6 @@ public class SourceDeletedHandler implements QueryResultHandler {
     @Override
     public void handleResult(Map<IdType, String> context) {
         String sourceId = context.get(IdType.SOURCE_ID);
-        log.info("Source with ID: " + sourceId + " deleted");
+        log.info("Source with ID: {} deleted", sourceId);
     }
 }

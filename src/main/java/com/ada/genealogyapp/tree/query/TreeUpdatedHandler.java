@@ -14,6 +14,6 @@ public class TreeUpdatedHandler implements QueryResultHandler {
     @Override
     public void handleResult(Map<IdType, String> context) {
         String treeId = context.get(IdType.TREE_ID);
-        log.info("Tree with ID: " + treeId + " updated");
+        log.info("Tree with ID: {} updated", treeId);
     }
 }

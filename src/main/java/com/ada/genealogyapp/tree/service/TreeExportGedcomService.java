@@ -31,10 +31,13 @@ import com.ada.genealogyapp.tree.dto.params.BaseParams;
 import lombok.*;
 import org.springframework.stereotype.Service;
 
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.io.StringWriter;
+import java.io.Writer;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -47,6 +50,8 @@ import static java.util.Objects.nonNull;
 @EqualsAndHashCode(callSuper = true)
 public class TreeExportGedcomService extends TreeExportService {
 
+    // TODO LONG LAT
+    // TODO TOO SLOW
     private final ParticipantEventsViewService participantEventsViewService;
 
     private final CitationFilesViewService citationFilesViewService;
@@ -64,31 +69,41 @@ public class TreeExportGedcomService extends TreeExportService {
         this.personFamiliesViewService = personFamiliesViewService;
     }
 
-
-    //TODO LONG LAT
     @Override
     protected Object assembleOutput(TreeResponse tree, Set<PersonExportResponse> persons, Set<FamilyExportResponse> families,
                                     Set<EventExportResponse> events, Set<CitationExportResponse> citations,
                                     Set<SourceExportResponse> sources, Set<FileExportResponse> files,
                                     Set<LocationExportResponse> locations, BaseParams params) {
 
-        List<String> gedcomOutput = new ArrayList<>();
-
-        generateHeader(gedcomOutput);
-        generateFiles(files, gedcomOutput);
-        generateSources(sources, gedcomOutput);
-        generatePersons(persons, params, gedcomOutput);
-        generateFamilies(families, params, gedcomOutput);
-        generateFooter(gedcomOutput);
-
-        return String.join("\n", gedcomOutput);
+        try (StringWriter stringWriter = new StringWriter()) {
+            exportGedcomStream(stringWriter, params, persons, families, sources, files);
+            return stringWriter.toString();
+        } catch (IOException e) {
+            throw new RuntimeException("Error writing GEDCOM stream", e);
+        }
     }
+
+    public void exportGedcomStream(Writer writer, BaseParams params,
+                                   Set<PersonExportResponse> persons, Set<FamilyExportResponse> families,
+                                   Set<SourceExportResponse> sources, Set<FileExportResponse> files) throws IOException {
+
+        BufferedWriter gedcomWriter = new BufferedWriter(writer);
+
+        generateHeader(gedcomWriter);
+        generateFiles(files, gedcomWriter);
+        generateSources(sources, gedcomWriter);
+        generatePersons(persons, params, gedcomWriter);
+        generateFamilies(families, params, gedcomWriter);
+        generateFooter(gedcomWriter);
+        gedcomWriter.flush();
+    }
+
 
     private String generateGedcomId(String uuid) {
         return uuid.replaceAll("-", "");
     }
 
-    private void generateCitationsAndFiles(BaseParams params, List<String> gedcomOutput, EventCitationResponse citation) {
+    private void generateCitationsAndFiles(BaseParams params, BufferedWriter writer, EventCitationResponse citation) throws IOException {
         GetCitationParams getCitationParams = GetCitationParams.builder()
                 .userId(params.getUserId())
                 .treeId(params.getTreeId())
@@ -98,25 +113,29 @@ public class TreeExportGedcomService extends TreeExportService {
         CitationSourceResponse citationSource = citationViewService.getCitation(getCitationParams);
         if (nonNull(citationSource)) {
             if (nonNull(citationSource.getSourceId())) {
-                gedcomOutput.add("2 " + SourceGedcomType.SOUR + " @" + generateGedcomId(citationSource.getSourceId()) + "@");
+                writer.write("2 " + SourceGedcomType.SOUR + " @" + generateGedcomId(citationSource.getSourceId()) + "@");
+                writer.newLine();
             }
             if (nonNull(citation.getPage())) {
-                gedcomOutput.add("3 " + SourceGedcomType.PAGE + " " + citation.getPage());
+                writer.write("3 " + SourceGedcomType.PAGE + " " + citation.getPage());
+                writer.newLine();
             }
             if (nonNull(citation.getDate())) {
-                gedcomOutput.add("4 " + EventGedcomType.DATE + " " + citation.getDate());
+                writer.write("4 " + EventGedcomType.DATE + " " + citation.getDate());
+                writer.newLine();
             }
         }
 
         List<FileResponse> fileResponses = citationFilesViewService.getCitationFiles(getCitationParams);
         for (FileResponse file : fileResponses) {
             if (nonNull(citationSource.getSourceId())) {
-                gedcomOutput.add("2 " + FileGedcomType.OBJE + " @" + generateGedcomId(file.getId()) + "@");
+                writer.write("2 " + FileGedcomType.OBJE + " @" + generateGedcomId(file.getId()) + "@");
+                writer.newLine();
             }
         }
     }
 
-    private void generateEvents(BaseParams params, List<String> gedcomOutput, String participantId) {
+    private void generateEvents(BaseParams params, BufferedWriter writer, String participantId) throws IOException {
         List<ParticipantEventGedcomResponse> participantEvents = participantEventsViewService.getParticipantEventsGedcom(BaseParticipantParams.builder()
                 .userId(params.getUserId())
                 .treeId(params.getTreeId())
@@ -124,34 +143,43 @@ public class TreeExportGedcomService extends TreeExportService {
                 .build());
 
         for (ParticipantEventGedcomResponse event : participantEvents) {
-            gedcomOutput.add("1 " + getGedcomEventTag(event.getType()));
+            writer.write("1 " + getGedcomEventTag(event.getType()));
+            writer.newLine();
             if (nonNull(event.getDescription())) {
-                gedcomOutput.add("2 " + EventGedcomType.TYPE + " " + event.getDescription());
+                writer.write("2 " + EventGedcomType.TYPE + " " + event.getDescription());
+                writer.newLine();
             }
             if (nonNull(event.getDate())) {
-                gedcomOutput.add("2 " + EventGedcomType.DATE + " " + event.getDate());
+                writer.write("2 " + EventGedcomType.DATE + " " + event.getDate());
+                writer.newLine();
             }
             if (nonNull(event.getPlace())) {
-                gedcomOutput.add("2 " + LocationGedcomType.PLAC + " " + event.getPlace());
+                writer.write("2 " + LocationGedcomType.PLAC + " " + event.getPlace());
+                writer.newLine();
             }
             for (EventCitationResponse citation : event.getCitations()) {
-                generateCitationsAndFiles(params, gedcomOutput, citation);
+                generateCitationsAndFiles(params, writer, citation);
             }
         }
     }
 
-    private void generatePersons(Set<PersonExportResponse> persons, BaseParams params, List<String> gedcomOutput) {
+    private void generatePersons(Set<PersonExportResponse> persons, BaseParams params, BufferedWriter writer) throws IOException {
         for (PersonExportResponse person : persons) {
             String personId = person.getId();
             String gedcomPersonId = generateGedcomId(personId);
 
-            gedcomOutput.add("0 @" + gedcomPersonId + "@ " + PersonGedcomType.INDI);
-            gedcomOutput.add("1 " + PersonGedcomType.NAME + " " + person.getFirstname() + " /" + person.getLastname() + "/");
-            gedcomOutput.add("2 " + PersonGedcomType.GIVN + " " + person.getFirstname());
-            gedcomOutput.add("2 " + PersonGedcomType.SURN + " " + person.getLastname());
-            gedcomOutput.add("1 " + PersonGedcomType.SEX + " " + getGedcomGenderTag(person.getGender()));
+            writer.write("0 @" + gedcomPersonId + "@ " + PersonGedcomType.INDI);
+            writer.newLine();
+            writer.write("1 " + PersonGedcomType.NAME + " " + person.getFirstname() + " /" + person.getLastname() + "/");
+            writer.newLine();
+            writer.write("2 " + PersonGedcomType.GIVN + " " + person.getFirstname());
+            writer.newLine();
+            writer.write("2 " + PersonGedcomType.SURN + " " + person.getLastname());
+            writer.newLine();
+            writer.write("1 " + PersonGedcomType.SEX + " " + getGedcomGenderTag(person.getGender()));
+            writer.newLine();
 
-            generateEvents(params, gedcomOutput, personId);
+            generateEvents(params, writer, personId);
 
             List<PersonFamilyGedcomResponse> families = personFamiliesViewService.getPersonFamiliesGedcom(GetPersonParams.builder()
                     .userId(params.getUserId())
@@ -161,90 +189,118 @@ public class TreeExportGedcomService extends TreeExportService {
 
             for (PersonFamilyGedcomResponse family : families) {
                 if (nonNull(family) && !family.getIsParent()) {
-                    gedcomOutput.add("1 " + FamilyGedcomType.FAMC + " @" + generateGedcomId(family.getId()) + "@");
-                    gedcomOutput.add("2 " + FamilyGedcomType.PEDI + " birth");
+                    writer.write("1 " + FamilyGedcomType.FAMC + " @" + generateGedcomId(family.getId()) + "@");
+                    writer.newLine();
+                    writer.write("2 " + FamilyGedcomType.PEDI + " birth");
+                    writer.newLine();
                 }
             }
             for (PersonFamilyGedcomResponse family : families) {
                 if (nonNull(family) && family.getIsParent()) {
-                    gedcomOutput.add("1 " + FamilyGedcomType.FAMS + " @" + generateGedcomId(family.getId()) + "@");
+                    writer.write("1 " + FamilyGedcomType.FAMS + " @" + generateGedcomId(family.getId()) + "@");
+                    writer.newLine();
                 }
             }
         }
     }
 
-    private void generateFamilies(Set<FamilyExportResponse> families, BaseParams params, List<String> gedcomOutput) {
+    private void generateFamilies(Set<FamilyExportResponse> families, BaseParams params, BufferedWriter writer) throws IOException {
         for (FamilyExportResponse family : families) {
             String familyId = family.getId();
             String gedcomFamilyId = generateGedcomId(familyId);
 
-            gedcomOutput.add("0 @" + gedcomFamilyId + "@ " + FamilyGedcomType.FAM);
+            writer.write("0 @" + gedcomFamilyId + "@ " + FamilyGedcomType.FAM);
+            writer.newLine();
             if (nonNull(family.getFatherId())) {
-                gedcomOutput.add("1 " + FamilyGedcomType.HUSB + " @" + generateGedcomId(family.getFatherId()) + "@");
+                writer.write("1 " + FamilyGedcomType.HUSB + " @" + generateGedcomId(family.getFatherId()) + "@");
+                writer.newLine();
             }
             if (nonNull(family.getMotherId())) {
-                gedcomOutput.add("1 " + FamilyGedcomType.WIFE + " @" + generateGedcomId(family.getMotherId()) + "@");
+                writer.write("1 " + FamilyGedcomType.WIFE + " @" + generateGedcomId(family.getMotherId()) + "@");
+                writer.newLine();
             }
-            generateEvents(params, gedcomOutput, familyId);
+            generateEvents(params, writer, familyId);
             if (nonNull(family.getChildrenIds())) {
                 for (String childId : family.getChildrenIds()) {
                     if (nonNull(childId)) {
-                        gedcomOutput.add("1 " + FamilyGedcomType.CHIL + " @" + generateGedcomId(childId) + "@");
+                        writer.write("1 " + FamilyGedcomType.CHIL + " @" + generateGedcomId(childId) + "@");
+                        writer.newLine();
                     }
                 }
             }
         }
     }
 
-    private void generateSources(Set<SourceExportResponse> sources, List<String> gedcomOutput) {
+    private void generateSources(Set<SourceExportResponse> sources, BufferedWriter writer) throws IOException {
         for (SourceExportResponse source : sources) {
             String sourceId = source.getId();
             String gedcomSourceId = generateGedcomId(sourceId);
 
-            gedcomOutput.add("0 @" + gedcomSourceId + "@ " + SourceGedcomType.SOUR);
+            writer.write("0 @" + gedcomSourceId + "@ " + SourceGedcomType.SOUR);
+            writer.newLine();
             if (nonNull(source.getName())) {
-                gedcomOutput.add("1 " + SourceGedcomType.TITL + " " + source.getName());
+                writer.write("1 " + SourceGedcomType.TITL + " " + source.getName());
+                writer.newLine();
             }
-            gedcomOutput.add("1 " + SourceGedcomType.PUBL + " ");
+            writer.write("1 " + SourceGedcomType.PUBL + " ");
+            writer.newLine();
         }
     }
 
-    private void generateFiles(Set<FileExportResponse> files, List<String> gedcomOutput) {
+    private void generateFiles(Set<FileExportResponse> files, BufferedWriter writer) throws IOException {
         for (FileExportResponse file : files) {
             String fileId = file.getId();
             String gedcomFileId = generateGedcomId(fileId);
 
-            gedcomOutput.add("0 @" + gedcomFileId + "@ " + FileGedcomType.OBJE);
+            writer.write("0 @" + gedcomFileId + "@ " + FileGedcomType.OBJE);
+            writer.newLine();
             if (nonNull(file.getPath())) {
-                gedcomOutput.add("1 " + FileGedcomType.FILE + " " + file.getName());
+                writer.write("1 " + FileGedcomType.FILE + " " + file.getName());
+                writer.newLine();
             }
             if (nonNull(file.getType())) {
-                gedcomOutput.add("1 " + FileGedcomType.FORM + " " + file.getType());
+                writer.write("1 " + FileGedcomType.FORM + " " + file.getType());
+                writer.newLine();
             }
             if (nonNull(file.getName())) {
-                gedcomOutput.add("1 " + FileGedcomType.TITL + " " + file.getName());
+                writer.write("1 " + FileGedcomType.TITL + " " + file.getName());
+                writer.newLine();
             }
         }
     }
 
-    //TODO time do testów
-    private void generateHeader(List<String> gedcomOutput) {
-        gedcomOutput.add("0 HEAD");
-        gedcomOutput.add("1 SOUR Genealogy App");
-        gedcomOutput.add("2 VERS 1.0");
-        gedcomOutput.add("1 NAME Genealogy App");
-        gedcomOutput.add("1 DATE " + LocalDate.now().format(DateTimeFormatter.ofPattern("d MMM yyyy")).toUpperCase());
-        gedcomOutput.add("2 TIME " + LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss")).toUpperCase());
-        gedcomOutput.add("1 SUBM @SUBM@");
-        gedcomOutput.add("1 GEDC");
-        gedcomOutput.add("2 VERS 5.5.1");
-        gedcomOutput.add("2 FORM LINEAGE-LINKED");
-        gedcomOutput.add("1 CHAR UTF-8");
-        gedcomOutput.add("0 @SUBM@ SUBM");
-        gedcomOutput.add("1 NAME");
+    //TODO time for tests
+    private void generateHeader(BufferedWriter writer) throws IOException {
+        writer.write("0 HEAD");
+        writer.newLine();
+        writer.write("1 SOUR Genealogy App");
+        writer.newLine();
+        writer.write("2 VERS 1.0");
+        writer.newLine();
+        writer.write("1 NAME Genealogy App");
+        writer.newLine();
+        writer.write("1 DATE " + LocalDate.now().format(DateTimeFormatter.ofPattern("d MMM yyyy")).toUpperCase());
+        writer.newLine();
+        writer.write("2 TIME " + LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss")).toUpperCase());
+        writer.newLine();
+        writer.write("1 SUBM @SUBM@");
+        writer.newLine();
+        writer.write("1 GEDC");
+        writer.newLine();
+        writer.write("2 VERS 5.5.1");
+        writer.newLine();
+        writer.write("2 FORM LINEAGE-LINKED");
+        writer.newLine();
+        writer.write("1 CHAR UTF-8");
+        writer.newLine();
+        writer.write("0 @SUBM@ SUBM");
+        writer.newLine();
+        writer.write("1 NAME");
+        writer.newLine();
     }
 
-    private void generateFooter(List<String> gedcomOutput) {
-        gedcomOutput.add("0 TRLR");
+    private void generateFooter(BufferedWriter writer) throws IOException {
+        writer.write("0 TRLR");
+        writer.newLine();
     }
 }

@@ -14,6 +14,6 @@ public class FatherAddedToFamilyHandler implements QueryResultHandler {
     public void handleResult(Map<IdType, String> context) {
         String familyId = context.get(IdType.FAMILY_ID);
         String personId = context.get(IdType.PERSON_ID);
-        log.info("Person with ID: " + personId + " added as father to family with ID: " + familyId);
+        log.info("Person with ID: {} added as father to family with ID: {}", personId, familyId);
     }
 }

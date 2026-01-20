@@ -85,30 +85,4 @@ public class PersonCreationService {
                 .familyChildRequest(params.getFamilyChildRequest())
                 .build());
     }
-
-    @TransactionalInNeo4j
-    public Map<String, Person> createPersons(String userId, String treeId, List<PersonJsonRequest> personRequests) {
-        Map<String, Person> createdPersonsMap = new HashMap<>();
-        List<Map<String, Object>> persons = new ArrayList<>();
-
-        for (PersonJsonRequest request : personRequests) {
-            Person person = Person.builder()
-                    .firstname(request.getFirstname())
-                    .lastname(request.getLastname())
-                    .gender(request.getGender())
-                    .build();
-            personValidationService.validatePerson(person);
-
-            Map<String, Object> personData = new HashMap<>();
-            personData.put("id", person.getId());
-            personData.put("firstname", person.getFirstname());
-            personData.put("lastname", person.getLastname());
-            personData.put("gender", person.getGender().name());
-
-            persons.add(personData);
-            createdPersonsMap.put(request.getId(), person);
-        }
-        personService.savePersons(userId, treeId, persons);
-        return createdPersonsMap;
-    }
 }

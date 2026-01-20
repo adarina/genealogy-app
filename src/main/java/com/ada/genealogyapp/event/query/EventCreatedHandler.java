@@ -14,6 +14,6 @@ public class EventCreatedHandler implements QueryResultHandler {
     public void handleResult(Map<IdType, String> context) {
         String treeId = context.get(IdType.TREE_ID);
         String eventId = context.get(IdType.EVENT_ID);
-        log.info("Event with ID: " + eventId + " created and added to tree with ID: " + treeId);
+        log.info("Event with ID: {} created and added to tree with ID: {}", eventId, treeId);
     }
 }

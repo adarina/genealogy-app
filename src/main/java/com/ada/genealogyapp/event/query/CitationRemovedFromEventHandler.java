@@ -15,6 +15,6 @@ public class CitationRemovedFromEventHandler implements QueryResultHandler {
     public void handleResult(Map<IdType, String> context) {
         String eventId = context.get(IdType.EVENT_ID);
         String citationId = context.get(IdType.CITATION_ID);
-        log.info("Citation with ID: " + citationId + " removed from event with ID: " + eventId);
+        log.info("Citation with ID: {} removed from event with ID: {}", citationId, eventId);
     }
 }

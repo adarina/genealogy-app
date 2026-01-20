@@ -1,6 +1,5 @@
 package com.ada.genealogyapp.event.dto;
 
-import com.ada.genealogyapp.citation.dto.CitationResponse;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;

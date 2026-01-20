@@ -75,23 +75,4 @@ public class EventDataManager implements EventService {
         String result = eventRepository.addParticipant(params.getUserId(), params.getTreeId(), params.getEventId(), params.getParticipantId(), params.getRelationshipType());
         processor.process(result, Map.of(IdType.EVENT_ID, params.getEventId(), IdType.PARTICIPANT_ID, params.getParticipantId()));
     }
-
-    public void saveEvents(String userId, String treeId, List<Map<String, Object>> eventsData) {
-        eventRepository.saveEvents(userId, treeId, eventsData);
-    }
-
-    @TransactionalInNeo4j
-    public void addParticipantsToEvents(String userId, String id, List<Map<String, Object>> participantsToAdd) {
-        eventRepository.addParticipantsToEvents(userId, id, participantsToAdd);
-    }
-
-    @TransactionalInNeo4j
-    public void addCitationsToEvents(String userId, String id, List<Map<String, String>> citationsToAdd) {
-        eventRepository.addCitationsToEvents(userId, id, citationsToAdd);
-    }
-
-    @TransactionalInNeo4j
-    public void addLocationsToEvents(String userId, String id, List<Map<String, String>> locationsToAdd) {
-        eventRepository.addLocationsToEvents(userId, id, locationsToAdd);
-    }
 }

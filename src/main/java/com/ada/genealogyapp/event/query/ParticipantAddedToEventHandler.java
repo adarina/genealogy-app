@@ -14,6 +14,6 @@ public class ParticipantAddedToEventHandler implements QueryResultHandler {
     public void handleResult(Map<IdType, String> context) {
         String eventId = context.get(IdType.EVENT_ID);
         String participantId = context.get(IdType.PARTICIPANT_ID);
-        log.info("Participant with ID: " + participantId + " added to event with ID: " + eventId);
+        log.info("Participant with ID: {} added to event with ID: {}", participantId, eventId);
     }
 }

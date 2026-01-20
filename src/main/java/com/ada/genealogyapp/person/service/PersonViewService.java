@@ -32,9 +32,34 @@ public class PersonViewService {
 
     private final PersonRepository personRepository;
 
+//    public Page<PersonResponse> getPersons(GetPersonsParams params) throws JsonProcessingException {
+//        PersonFilterRequest filterRequest = objectMapper.readValue(params.getFilter(), PersonFilterRequest.class);
+//        Page<PersonResponse> page = personRepository.find(params.getUserId(), params.getTreeId(), filterRequest.getFirstname(), filterRequest.getLastname(), filterRequest.getGender(), params.getPageable());
+//        treeService.ensureUserAndTreeExist(params, page);
+//        return page;
+//    }
+
+    //TODO authentication
     public Page<PersonResponse> getPersons(GetPersonsParams params) throws JsonProcessingException {
         PersonFilterRequest filterRequest = objectMapper.readValue(params.getFilter(), PersonFilterRequest.class);
-        Page<PersonResponse> page = personRepository.find(params.getUserId(), params.getTreeId(), filterRequest.getFirstname(), filterRequest.getLastname(), filterRequest.getGender(), params.getPageable());
+        String sortProperty = params.getPageable().getSort().isSorted()
+                ? params.getPageable().getSort().iterator().next().getProperty()
+                : "";
+        String sortDirection = params.getPageable().getSort().isSorted()
+                ? params.getPageable().getSort().iterator().next().getDirection().name()
+                : "ASC";
+        Page<PersonResponse> page = personRepository.find(
+                params.getUserId(),
+                params.getTreeId(),
+                filterRequest.getFirstname(),
+                filterRequest.getLastname(),
+                filterRequest.getGender(),
+                filterRequest.getBirthdateFilter(),
+                filterRequest.getDeathdateFilter(),
+                sortProperty,
+                sortDirection,
+                params.getPageable()
+        );
         treeService.ensureUserAndTreeExist(params, page);
         return page;
     }
@@ -46,7 +71,7 @@ public class PersonViewService {
     }
 
     public Set<PersonExportResponse> findPersons(BaseParams params) {
-        return personRepository.find(params.getUserId(), params.getTreeId()).stream()
+        return personRepository.find(params.getUserId(), params.getTreeId()).parallelStream()
                 .map(person -> PersonExportResponse.builder()
                         .id(person.getId())
                         .firstname(person.getFirstname())

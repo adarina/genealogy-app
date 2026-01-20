@@ -66,23 +66,10 @@ public class CitationDataManager implements CitationService {
         processor.process(result, Map.of(IdType.CITATION_ID, params.getCitationId(), IdType.SOURCE_ID, params.getSourceId()));
     }
 
-    public void saveCitations(String userId, String treeId, List<Map<String, Object>> citationsData) {
-        citationRepository.saveCitations(userId, treeId, citationsData);
-    }
-
-    @TransactionalInNeo4j
-    public void addFilesToEvents(String userId, String treeId, List<Map<String, String>> filesToAdd) {
-        citationRepository.addFilesToEvents(userId, treeId, filesToAdd);
-    }
-
-    @TransactionalInNeo4j
-    public void addSourcesToEvents(String userId, String treeId, List<Map<String, String>> sourcesToAdd) {
-        citationRepository.addSourcesToEvents(userId, treeId, sourcesToAdd);
-    }
-
-    @TransactionalInNeo4j
-    public void addFilesAndSourcesToEvents(String userId, String treeId, List<Map<String, String>> filesToAdd, List<Map<String, String>> sourcesToAdd) {
-        citationRepository.addFilesAndSourcesToEvents(userId, treeId, filesToAdd, sourcesToAdd);
+    @Override
+    public void updateCitationWithSource(UpdateCitationWithSourceParams params) {
+        String result = citationRepository.update(params.getUserId(), params.getTreeId(), params.getCitationId(), params.getCitation().getPage(), params.getCitation().getDate(), params.getSourceId());
+        processor.process(result, Map.of(IdType.SOURCE_ID, params.getSourceId(), IdType.CITATION_ID, params.getCitationId()));
     }
 
 }

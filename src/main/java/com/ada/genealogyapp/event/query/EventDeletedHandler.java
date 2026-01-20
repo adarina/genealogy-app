@@ -13,6 +13,6 @@ public class EventDeletedHandler implements QueryResultHandler {
     @Override
     public void handleResult(Map<IdType, String> context) {
         String eventId = context.get(IdType.EVENT_ID);
-        log.info("Event with ID: " + eventId + " deleted");
+        log.info("Event with ID: {} deleted", eventId);
     }
 }

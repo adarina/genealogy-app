@@ -14,6 +14,6 @@ public class CitationUpdatedHandler implements QueryResultHandler {
     @Override
     public void handleResult(Map<IdType, String> context) {
         String citationId = context.get(IdType.CITATION_ID);
-        log.info("Citation with ID: " + citationId + " updated");
+        log.info("Citation with ID: {} updated", citationId);
     }
 }

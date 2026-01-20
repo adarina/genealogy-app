@@ -14,6 +14,6 @@ public class TreeDeletedHandler implements QueryResultHandler {
     @Override
     public void handleResult(Map<IdType, String> context) {
         String treeId = context.get(IdType.TREE_ID);
-        log.info("Tree with ID: " + treeId + " deleted");
+        log.info("Tree with ID: {} deleted", treeId);
     }
 }

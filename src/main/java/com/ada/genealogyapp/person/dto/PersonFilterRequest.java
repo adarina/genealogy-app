@@ -14,4 +14,8 @@ public class PersonFilterRequest {
     private String lastname;
 
     private String gender;
+
+    private String birthdateFilter;
+
+    private String deathdateFilter;
 }

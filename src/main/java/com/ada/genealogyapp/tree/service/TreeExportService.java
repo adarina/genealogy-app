@@ -19,16 +19,16 @@ import com.ada.genealogyapp.tree.dto.params.BaseParams;
 import lombok.*;
 
 import java.util.Set;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.*;
 
 
 @EqualsAndHashCode
 @AllArgsConstructor
 public abstract class TreeExportService {
 
-    private final ExecutorService exportExecutor = Executors.newFixedThreadPool(10);
+    private final ExecutorService exportExecutor = new ThreadPoolExecutor(
+            4, 10, 60L, TimeUnit.SECONDS, new LinkedBlockingQueue<>()
+    );
 
     protected final PersonViewService personViewService;
 

@@ -1,7 +1,5 @@
 package com.ada.genealogyapp.event.service;
 
-
-import com.ada.genealogyapp.event.dto.EventJsonRequest;
 import com.ada.genealogyapp.event.dto.params.AddParticipantAndLocationToEventParams;
 import com.ada.genealogyapp.event.dto.params.AddParticipantToEventParams;
 import com.ada.genealogyapp.event.dto.params.CreateEventRequestParams;
@@ -66,41 +64,14 @@ public class EventCreationService {
     @TransactionalInNeo4j
     public Event createEventWithParticipant(CreateEventRequestWithParticipantParams params) throws ValidationException {
         Event event = buildValidateAndSaveEvent(params);
+        System.out.println(params.getParticipantEventRequest().getRelationship().name());
         eventService.addParticipantToEvent(AddParticipantToEventParams.builder()
                 .userId(params.getUserId())
                 .treeId(params.getTreeId())
                 .eventId(event.getId())
                 .participantId(params.getParticipantId())
-                .relationshipType(params.getRelationshipType())
+                .relationshipType(params.getParticipantEventRequest().getRelationship().name())
                 .build());
         return event;
-    }
-
-    @TransactionalInNeo4j
-    public Map<String, Event> createEvents(String userId, String treeId, List<EventJsonRequest> eventRequests) {
-        Map<String, Event> createdEventsMap = new HashMap<>();
-        List<Map<String, Object>> events = new ArrayList<>();
-
-        for (EventJsonRequest request : eventRequests) {
-            Event event = Event.builder()
-                    .id(UUID.randomUUID().toString())
-                    .type(request.getType())
-                    .place(request.getPlace())
-                    .description(request.getDescription())
-                    .date(request.getDate())
-                    .build();
-            eventValidationService.validateEvent(event);
-
-            Map<String, Object> eventData = new HashMap<>();
-            eventData.put("id", event.getId());
-            eventData.put("type", event.getType().name());
-            eventData.put("description", event.getDescription());
-            eventData.put("date", event.getDate());
-
-            events.add(eventData);
-            createdEventsMap.put(request.getId(), event);
-        }
-        eventService.saveEvents(userId, treeId, events);
-        return createdEventsMap;
     }
 }

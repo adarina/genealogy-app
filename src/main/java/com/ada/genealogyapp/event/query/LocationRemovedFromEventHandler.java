@@ -15,6 +15,6 @@ public class LocationRemovedFromEventHandler implements QueryResultHandler {
     public void handleResult(Map<IdType, String> context) {
         String eventId = context.get(IdType.EVENT_ID);
         String locationId = context.get(IdType.LOCATION_ID);
-        log.info("Location with ID: " + locationId + " removed from event with ID: " + eventId);
+        log.info("Location with ID: {} removed from event with ID: {}", locationId, eventId);
     }
 }

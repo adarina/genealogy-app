@@ -10,8 +10,6 @@ import org.springframework.data.neo4j.repository.query.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 @Repository
@@ -31,18 +29,9 @@ public interface EventRepository extends Neo4jRepository<Event, String> {
                     userExist AND treeExist, '
                         MERGE (tree)-[:HAS_EVENT]->(event:Event {id: eventId})
                         SET event.description = description,
-                            event.place = place,
+//                            event.place = place,
                             event.type = type,
                             event.date = date
-            
-                        WITH tree, event, locationId
-                        OPTIONAL MATCH (tree)-[:HAS_LOCATION]->(location:Location {id: locationId})
-                        WITH tree, event, locationId
-                        OPTIONAL MATCH (tree)-[:HAS_LOCATION]->(location:Location {id: locationId})
-                        FOREACH (_ IN CASE WHEN location IS NOT NULL THEN [1] ELSE [] END |
-                        MERGE (event)-[:HAS_EVENT_LOCATION]->(location)
-                        )
-            
                         RETURN "EVENT_CREATED" AS message
                     ',
                     userExist, 'RETURN "TREE_NOT_EXIST" AS message'
@@ -177,7 +166,7 @@ public interface EventRepository extends Neo4jRepository<Event, String> {
             CALL apoc.do.case(
                 [
                     userExist AND treeExist AND eventExist AND participantExist, '
-                        MERGE (event)-[:HAS_PARTICIPANT {relationship: relationshipType}]->(participant)
+                        MERGE (event)-[:HAS_PARTICIPANT {relationship: $relationshipType}]->(participant)
             
                         RETURN "PARTICIPANT_ADDED_TO_EVENT" AS message
                     ',
@@ -378,8 +367,7 @@ public interface EventRepository extends Neo4jRepository<Event, String> {
     Page<EventCitationResponse> findCitations(String userId, String treeId, String eventId, Pageable pageable);
 
     @Query(value = """
-            MATCH (user:GraphUser {id: $userId})-[:HAS_TREE]->(tree:Tree {id: $treeId})-[:HAS_EVENT]->(event:Event {id: $eventId})
-            OPTIONAL MATCH (event)-[rel:HAS_PARTICIPANT]->(participant:Participant)
+            MATCH (user:GraphUser {id: $userId})-[:HAS_TREE]->(tree:Tree {id: $treeId})-[:HAS_EVENT]->(event:Event {id: $eventId})-[rel:HAS_PARTICIPANT]->(participant:Participant)
             
             RETURN participant.id AS id,
                    participant.name AS name,
@@ -389,8 +377,7 @@ public interface EventRepository extends Neo4jRepository<Event, String> {
             LIMIT $limit
             """,
             countQuery = """
-                        MATCH (user:GraphUser {id: $userId})-[:HAS_TREE]->(tree:Tree {id: $treeId})-[:HAS_EVENT]->(event:Event {id: $eventId})
-                        OPTIONAL MATCH (event)-[rel:HAS_PARTICIPANT]->(participant:Participant)
+                        MATCH (user:GraphUser {id: $userId})-[:HAS_TREE]->(tree:Tree {id: $treeId})-[:HAS_EVENT]->(event:Event {id: $eventId})-[rel:HAS_PARTICIPANT]->(participant:Participant)
                         RETURN count(participant)
                     """)
     Page<EventParticipantResponse> findParticipants(String userId, String treeId, String eventId, Pageable pageable);
@@ -492,47 +479,5 @@ public interface EventRepository extends Neo4jRepository<Event, String> {
                    [(event)-[:HAS_EVENT_LOCATION]->(location:Location) | location.id][0] AS locationId
             """)
     Set<EventExportResponse> find(String userId, String treeId);
-
-    @Query("""
-                    MATCH (user:GraphUser {id: $userId})-[:HAS_TREE]->(tree:Tree {id: $treeId})
-                    UNWIND $events AS eventData
-                    MERGE (tree)-[:HAS_EVENT]->(event:Event {id: eventData.id})
-            
-                    SET event.type = eventData.type,
-                        event.description = eventData.description,
-                        event.date = eventData.date
-            """)
-    void saveEvents(String userId, String treeId, List<Map<String, Object>> events);
-
-    @Query("""
-                MATCH (user:GraphUser {id: $userId})-[:HAS_TREE]->(tree:Tree {id: $treeId})
-                UNWIND $participantsData AS data
-                MATCH (tree)-[:HAS_EVENT]->(event:Event {id: data.eventId})
-                MATCH (tree)-[:HAS_FAMILY|HAS_PERSON]->(participant:Participant {id: data.participantId})
-                MERGE (event)-[:HAS_PARTICIPANT {relationship: data.relationshipType}]->(participant)
-            
-            """)
-    void addParticipantsToEvents(String userId, String treeId, List<Map<String, Object>> participantsData);
-
-    @Query("""
-                MATCH (user:GraphUser {id: $userId})-[:HAS_TREE]->(tree:Tree {id: $treeId})
-                UNWIND $citationsData AS data
-                MATCH (tree)-[:HAS_EVENT]->(event:Event {id: data.eventId})
-                MATCH (tree)-[:HAS_CITATION]->(citation:Citation {id: data.citationId})
-                MERGE (event)-[:HAS_EVENT_CITATION]->(citation)
-            
-            """)
-    void addCitationsToEvents(String userId, String treeId, List<Map<String, String>> citationsData);
-
-    @Query("""
-                MATCH (user:GraphUser {id: $userId})-[:HAS_TREE]->(tree:Tree {id: $treeId})
-                UNWIND $locationsData AS data
-                MATCH (tree)-[:HAS_EVENT]->(event:Event {id: data.eventId})
-                MATCH (tree)-[:HAS_LOCATION]->(location:Location {id: data.locationId})
-                MERGE (event)-[:HAS_EVENT_LOCATION]->(location)
-            
-            """)
-    void addLocationsToEvents(String userId, String treeId, List<Map<String, String>> locationsData);
-
 
 }

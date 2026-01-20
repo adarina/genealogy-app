@@ -82,13 +82,4 @@ public class FamilyDataManager implements FamilyService {
                 motherRelationship);
         processor.process(result, Map.of(IdType.FAMILY_ID, params.getFamilyId(), IdType.CHILD_ID, params.getPersonId()));
     }
-
-    public void saveFamilies(String userId, String treeId, List<Map<String, Object>> familiesData) {
-        familyRepository.saveFamilies(userId, treeId, familiesData);
-    }
-
-    @TransactionalInNeo4j
-    public void addFamilyRelationships(String userId, String treeId, List<Map<String, Object>> fathersData, List<Map<String, Object>> mothersData, List<Map<String, Object>> childrenData) {
-        familyRepository.addFamilyRelationships(userId, treeId, fathersData, mothersData, childrenData);
-    }
 }

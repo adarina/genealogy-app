@@ -27,9 +27,9 @@ public interface CitationRepository extends Neo4jRepository<Citation, String> {
             CALL apoc.do.case(
                 [
                     userExist AND treeExist, '
-                        MERGE (tree)-[:HAS_CITATION]->(citation:Citation {id: citationId})
-                        SET citation.page = page,
-                            citation.date = date
+                        MERGE (tree)-[:HAS_CITATION]->(citation:Citation {id: $citationId})
+                        SET citation.page = $page,
+                            citation.date = $date
             
                         RETURN "CITATION_CREATED" AS message
                     ',
@@ -189,6 +189,42 @@ public interface CitationRepository extends Neo4jRepository<Citation, String> {
             
                 OPTIONAL MATCH (tree)-[:HAS_CITATION]->(citation:Citation {id: $citationId})
                 WITH userExist, treeExist, tree, count(citation) > 0 AS citationExist, citation
+        
+                OPTIONAL MATCH (tree)-[:HAS_SOURCE]->(source:Source {id: $sourceId})
+                RETURN userExist, treeExist, tree, citationExist, citation, count(source) > 0 AS sourceExist, source
+            }
+            
+            CALL apoc.do.case(
+                [
+                    userExist AND treeExist AND citationExist AND sourceExist, '
+                        SET citation.page = $page,
+                            citation.date = $date
+                        MERGE (citation)-[:HAS_CITATION_SOURCE]->(source)
+            
+                        RETURN "CITATION_UPDATED" AS message
+                    ',
+                    userExist AND treeExist AND citationExist, 'RETURN "SOURCE_NOT_EXIST" AS message',
+                    userExist AND treeExist, 'RETURN "CITATION_NOT_EXIST" AS message',
+                    userExist, 'RETURN "TREE_NOT_EXIST" AS message'
+                ],
+                'RETURN "USER_NOT_EXIST" AS message',
+                {citation: citation, page: $page, date: $date, source: source}
+            ) YIELD value
+            RETURN value.message
+            LIMIT 1
+            """)
+    String update(String userId, String treeId, String citationId, String page, String date, String sourceId);
+
+    @Query("""
+            CALL {
+                OPTIONAL MATCH (user:GraphUser {id: $userId})
+                WITH count(user) > 0 AS userExist
+            
+                OPTIONAL MATCH (user)-[:HAS_TREE]->(tree:Tree {id: $treeId})
+                WITH userExist, count(tree) > 0 AS treeExist, tree
+            
+                OPTIONAL MATCH (tree)-[:HAS_CITATION]->(citation:Citation {id: $citationId})
+                WITH userExist, treeExist, tree, count(citation) > 0 AS citationExist, citation
             
                 OPTIONAL MATCH (tree)-[:HAS_FILE]->(file:File {id: $fileId})
                 RETURN userExist, treeExist, tree, citationExist, citation, count(file) > 0 AS fileExist, file
@@ -326,7 +362,7 @@ public interface CitationRepository extends Neo4jRepository<Citation, String> {
             //                AND ($name = "" OR toLower(source.name) CONTAINS toLower($name))
                         WITH citation, source
                         WHERE citation IS NOT NULL
-            
+           
                         RETURN citation.id AS id,
                                citation.page AS page,
                                citation.date AS date,
@@ -399,53 +435,4 @@ public interface CitationRepository extends Neo4jRepository<Citation, String> {
                    [(citation)-[:HAS_CITATION_FILE]->(file:File) | file.id] AS filesIds
             """)
     Set<CitationExportResponse> find(String userId, String treeId);
-
-    @Query("""
-                MATCH (user:GraphUser {id: $userId})-[:HAS_TREE]->(tree:Tree {id: $treeId})
-                UNWIND $citations AS citationData
-                MERGE (tree)-[:HAS_CITATION]->(citation:Citation {id: citationData.id})
-            
-                SET citation.page = citationData.page,
-                    citation.date = citationData.date
-            """)
-    void saveCitations(String userId, String treeId, List<Map<String, Object>> citations);
-
-    @Query("""
-                MATCH (user:GraphUser {id: $userId})-[:HAS_TREE]->(tree:Tree {id: $treeId})
-                UNWIND $filesData AS data
-                MATCH (tree)-[:HAS_CITATION]->(citation:Citation {id: data.citationId})
-                MATCH (tree)-[:HAS_FILE]->(file:File {id: data.fileId})
-                MERGE (citation)-[:HAS_CITATION_FILE]->(file)
-            """)
-    void addFilesToEvents(String userId, String treeId, List<Map<String, String>> filesData);
-
-    @Query("""
-                MATCH (user:GraphUser {id: $userId})-[:HAS_TREE]->(tree:Tree {id: $treeId})
-                UNWIND $sourcesData AS data
-                MATCH (tree)-[:HAS_CITATION]->(citation:Citation {id: data.citationId})
-                MATCH (tree)-[:HAS_SOURCE]->(source:Source {id: data.sourceId})
-                MERGE (citation)-[:HAS_CITATION_SOURCE]->(source)
-            """)
-    void addSourcesToEvents(String userId, String treeId, List<Map<String, String>> sourcesData);
-
-    @Query("""
-                MATCH (user:GraphUser {id: $userId})-[:HAS_TREE]->(tree:Tree {id: $treeId})
-            
-                CALL {
-                    WITH tree
-                    UNWIND $filesData AS data
-                    MATCH (tree)-[:HAS_CITATION]->(citation:Citation {id: data.citationId})
-                    MATCH (tree)-[:HAS_FILE]->(file:File {id: data.fileId})
-                    MERGE (citation)-[:HAS_CITATION_FILE]->(file)
-                }
-            
-                CALL {
-                    WITH tree
-                    UNWIND $sourcesData AS data
-                    MATCH (tree)-[:HAS_CITATION]->(citation:Citation {id: data.citationId})
-                    MATCH (tree)-[:HAS_SOURCE]->(source:Source {id: data.sourceId})
-                    MERGE (citation)-[:HAS_CITATION_SOURCE]->(source)
-                }
-            """)
-    void addFilesAndSourcesToEvents(String userId, String treeId, List<Map<String, String>> filesData, List<Map<String, String>> sourcesData);
 }

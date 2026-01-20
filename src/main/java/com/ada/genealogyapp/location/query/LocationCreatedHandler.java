@@ -15,6 +15,6 @@ public class LocationCreatedHandler implements QueryResultHandler {
     public void handleResult(Map<IdType, String> context) {
         String treeId = context.get(IdType.TREE_ID);
         String locationId = context.get(IdType.LOCATION_ID);
-        log.info("Location with ID: " + locationId + " created and added to tree with ID: " + treeId);
+        log.info("Location with ID: {} created and added to tree with ID: {}", locationId, treeId);
     }
 }
